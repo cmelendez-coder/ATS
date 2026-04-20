@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CRM Ledger — New Requirement</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "outline-variant": "#c6c6d0",
+          "outline": "#757680",
+          "primary": "#000726",
+          "secondary-fixed": "#94fb6f",
+          "primary-container": "#0b1d4e",
+          "tertiary-fixed": "#ffdbcd",
+          "on-secondary-fixed-variant": "#145200",
+          "inverse-on-surface": "#eef1f3",
+          "on-secondary-fixed": "#042100",
+          "inverse-primary": "#b5c4ff",
+          "secondary": "#1d6d00",
+          "primary-fixed-dim": "#b5c4ff",
+          "on-tertiary": "#ffffff",
+          "on-secondary": "#ffffff",
+          "surface-container": "#ebeef0",
+          "on-error-container": "#93000a",
+          "error": "#ba1a1a",
+          "surface-container-low": "#f1f4f6",
+          "on-primary-container": "#7786bd",
+          "on-secondary-container": "#1f7200",
+          "surface": "#f7fafc",
+          "on-surface-variant": "#45464f",
+          "tertiary": "#180400",
+          "on-background": "#181c1e",
+          "surface-tint": "#4d5c90",
+          "on-primary": "#ffffff",
+          "on-tertiary-container": "#bc7758",
+          "on-tertiary-fixed": "#360f00",
+          "inverse-surface": "#2d3133",
+          "on-primary-fixed": "#041749",
+          "background": "#f7fafc",
+          "surface-bright": "#f7fafc",
+          "on-surface": "#181c1e",
+          "on-primary-fixed-variant": "#354476",
+          "on-error": "#ffffff",
+          "surface-container-highest": "#e0e3e5",
+          "error-container": "#ffdad6",
+          "primary-fixed": "#dce1ff",
+          "tertiary-fixed-dim": "#ffb596",
+          "surface-container-high": "#e5e9eb",
+          "secondary-container": "#91f86c",
+          "surface-container-lowest": "#ffffff",
+          "on-tertiary-fixed-variant": "#6e381e",
+          "surface-variant": "#e0e3e5",
+          "tertiary-container": "#3e1300",
+          "surface-dim": "#d7dadc",
+          "secondary-fixed-dim": "#79de56"
+        },
+        borderRadius: {
+          "DEFAULT": "0.125rem",
+          "lg": "0.25rem",
+          "xl": "0.5rem",
+          "2xl": "0.75rem",
+          "full": "9999px"
+        },
+        fontFamily: {
+          "headline": ["Inter", "sans-serif"],
+          "body": ["Inter", "sans-serif"],
+          "label": ["Inter", "sans-serif"]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .material-symbols-outlined.filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .nav-active {
+    background-color: #ffffff;
+    color: #000726;
+    font-weight: 600;
+    box-shadow: 0 1px 8px rgba(24,28,30,0.06);
+  }
+  .nav-active .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24; }
+  /* Form field shared style */
+  .form-field {
+    width: 100%;
+    background-color: #e5e9eb;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0.5rem 0.5rem 0 0;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    color: #181c1e;
+    font-weight: 500;
+    transition: border-color 0.15s, background-color 0.15s;
+    outline: none;
+  }
+  .form-field:focus {
+    border-bottom-color: #1d6d00;
+    background-color: #e0e3e5;
+  }
+  .form-field::placeholder { color: #757680; font-weight: 400; }
+</style>
+</head>
+<body class="bg-surface text-on-surface h-screen flex overflow-hidden antialiased selection:bg-primary-fixed selection:text-on-primary-fixed">
+
+<!-- ═══════════════════════════════════════════════════
+     SIDEBAR
+════════════════════════════════════════════════════ -->
+<nav class="hidden md:flex flex-col h-full py-6 px-4 bg-surface-container-low border-r border-outline-variant/20 w-64 fixed left-0 top-0 z-50 shrink-0">
+
+  <!-- Brand -->
+  <div class="flex items-center gap-3 px-2 mb-10">
+    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-sm shrink-0">
+      <span class="material-symbols-outlined text-on-primary text-[18px] filled">work</span>
+    </div>
+    <div>
+      <h1 class="text-base font-bold text-primary tracking-tight leading-tight">CRM Ledger</h1>
+      <p class="text-[11px] text-on-surface-variant leading-tight">Management Suite</p>
+    </div>
+  </div>
+
+  <!-- New Entry CTA — active state on this page -->
+  <button class="mb-8 w-full bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl py-3 px-4 flex justify-center items-center gap-2 opacity-100 font-semibold text-sm ring-2 ring-primary/20 ring-offset-1">
+    <span class="material-symbols-outlined text-[18px]">add</span>
+    <span>New Entry</span>
+  </button>
+
+  <!-- Nav Links -->
+  <div class="flex-1 space-y-1">
+    <a href="index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
+      <span class="material-symbols-outlined text-[20px]">dashboard</span>
+      <span class="font-medium text-sm">Dashboard</span>
+    </a>
+    <a href="list.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
+      <span class="material-symbols-outlined text-[20px]">list_alt</span>
+      <span class="font-medium text-sm">Requirements</span>
+    </a>
+    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
+      <span class="material-symbols-outlined text-[20px]">analytics</span>
+      <span class="font-medium text-sm">Active Tasks</span>
+    </a>
+    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
+      <span class="material-symbols-outlined text-[20px]">inventory_2</span>
+      <span class="font-medium text-sm">Archive</span>
+    </a>
+  </div>
+
+  <!-- Footer -->
+  <div class="mt-auto space-y-1 pt-6 border-t border-outline-variant/20">
+    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors">
+      <span class="material-symbols-outlined text-[20px]">help_outline</span>
+      <span class="text-sm">Help Center</span>
+    </a>
+    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors">
+      <span class="material-symbols-outlined text-[20px]">logout</span>
+      <span class="text-sm">Log Out</span>
+    </a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════════════════════ -->
+<main class="flex-1 flex flex-col md:ml-64 relative h-full overflow-hidden">
+
+  <!-- TOP HEADER -->
+  <header class="flex justify-between items-center h-16 px-8 w-full sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10 shrink-0">
+    <div class="flex items-center gap-4">
+      <span class="md:hidden text-lg font-bold tracking-tight text-primary">CRM Ledger</span>
+      <div class="relative hidden md:block group">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-[18px]">search</span>
+        <input class="bg-surface-container-high border-none outline-none ring-0 h-9 pl-10 pr-4 rounded-full text-sm w-60 focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:text-on-surface-variant" placeholder="Search entries..." type="text"/>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors w-9 h-9 flex items-center justify-center">
+        <span class="material-symbols-outlined text-[20px]">notifications</span>
+      </button>
+      <button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors w-9 h-9 flex items-center justify-center">
+        <span class="material-symbols-outlined text-[20px]">settings</span>
+      </button>
+      <div class="w-px h-5 bg-outline-variant/40 mx-1"></div>
+      <button class="hidden sm:flex items-center justify-center h-9 px-5 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary font-medium text-sm opacity-60 cursor-default">
+        Create Request
+      </button>
+      <img alt="User profile" class="w-8 h-8 rounded-full border border-outline-variant/30 cursor-pointer object-cover ml-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfoZntbnSVquXsK50Nw-YLiq5gTq1lvOmGXF-Nz-TV0dhUEgcIx78M-gK8NDnYgrHFThkoLEhP7ahgd6WTZunDQwpcoO2Ti_j0CPMiDSx9UlfJPfhX1M5lChydNM-i6Zp6m80XsWvGHCrHT3djYpRKpwfOfuPt51fOMZXu9v2ZoIUYiYRounp0Z9xsN9WHD-uyEUcLdj0kOhQCsC9PZ3bb-s6CH4HNBpn-NnvR2jJ2z1PMc4N_RbxUiKixTZ_OyaafId8Rcu9X"/>
+    </div>
+  </header>
+
+  <!-- SCROLLABLE CONTENT -->
+  <div class="flex-1 overflow-y-auto bg-surface p-6 md:p-10 pb-24">
+    <div class="max-w-6xl mx-auto space-y-8">
+
+      <!-- Page Header -->
+      <div class="space-y-1.5">
+        <h1 class="text-[2.25rem] leading-none tracking-[-0.02em] font-extrabold text-primary">New Requirement</h1>
+        <p class="text-on-surface-variant text-base max-w-xl">Detail the new client specification below. Ensure all parameters align with the current strategic ledger.</p>
+      </div>
+
+      <!-- Form Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-7">
+
+        <!-- Left Column: Core Details -->
+        <div class="lg:col-span-5 space-y-6">
+          <div class="bg-surface-container-lowest rounded-2xl p-6 shadow-[0_2px_16px_rgba(24,28,30,0.04)] border border-outline-variant/10 relative overflow-hidden">
+            <!-- Accent bar -->
+            <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary to-primary-container/60 rounded-l-2xl"></div>
+            <h2 class="text-base font-semibold text-primary mb-6 flex items-center gap-2">
+              <span class="material-symbols-outlined text-[18px] filled">info</span>
+              Core Information
+            </h2>
+            <div class="space-y-5">
+
+              <!-- Title -->
+              <div>
+                <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Requirement Title</label>
+                <input class="form-field" placeholder="Enter a brief, descriptive title" type="text"/>
+              </div>
+
+              <!-- Category -->
+              <div>
+                <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Category Type</label>
+                <div class="relative">
+                  <select class="form-field appearance-none cursor-pointer pr-9">
+                    <option disabled selected value="">Select category…</option>
+                    <option value="strategic">Strategic Initiative</option>
+                    <option value="operational">Operational Adjustment</option>
+                    <option value="compliance">Compliance Mandate</option>
+                    <option value="technical">Technical Specification</option>
+                  </select>
+                  <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[18px]">arrow_drop_down</span>
+                </div>
+              </div>
+
+              <!-- Priority Toggle -->
+              <div>
+                <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-3">Priority Level</label>
+                <div class="flex bg-surface-container p-1 rounded-xl">
+                  <button class="flex-1 py-2 text-sm font-medium rounded-lg text-on-surface-variant hover:text-primary transition-colors focus:outline-none">Low</button>
+                  <button class="flex-1 py-2 text-sm font-semibold rounded-lg bg-surface-container-lowest text-primary shadow-[0_1px_6px_rgba(24,28,30,0.07)] focus:outline-none transition-all">Medium</button>
+                  <button class="flex-1 py-2 text-sm font-medium rounded-lg text-on-surface-variant hover:text-error transition-colors focus:outline-none">High</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Details & Evidence -->
+        <div class="lg:col-span-7 flex flex-col gap-6">
+          <div class="bg-surface-container-lowest rounded-2xl p-6 shadow-[0_2px_16px_rgba(24,28,30,0.04)] border border-outline-variant/10 flex-1 flex flex-col relative overflow-hidden">
+            <!-- Top accent line -->
+            <div class="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-primary/10 to-transparent"></div>
+            <h2 class="text-base font-semibold text-primary mb-6 flex items-center gap-2">
+              <span class="material-symbols-outlined text-[18px] filled">description</span>
+              Specification Details
+            </h2>
+
+            <!-- Description -->
+            <div class="flex-1 flex flex-col mb-5">
+              <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Detailed Description</label>
+              <textarea class="form-field flex-1 min-h-[160px] resize-none" placeholder="Provide comprehensive details: scope, context, and expected outcomes…"></textarea>
+            </div>
+
+            <!-- Upload Zone -->
+            <div>
+              <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Supporting Evidence</label>
+              <div class="border-2 border-dashed border-outline-variant/40 rounded-xl p-7 bg-surface-container-low hover:bg-surface-container flex flex-col items-center justify-center cursor-pointer transition-colors group">
+                <div class="w-11 h-11 bg-surface-container-highest rounded-xl flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                  <span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">cloud_upload</span>
+                </div>
+                <p class="text-sm font-medium text-primary mb-0.5">Drag and drop documents here</p>
+                <p class="text-xs text-on-surface-variant">or click to browse from ledger</p>
+                <p class="text-[10px] text-outline mt-3 uppercase tracking-widest">PDF, DOCX, XLSX — Max 10MB</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Action -->
+          <div class="flex justify-end">
+            <button class="bg-gradient-to-br from-primary to-primary-container text-on-primary py-3 px-8 rounded-full text-sm font-semibold hover:opacity-90 hover:shadow-[0_8px_24px_rgba(0,7,38,0.18)] transition-all flex items-center gap-2 group shadow-[0_4px_16px_rgba(0,7,38,0.12)]">
+              <span>Submit Requirement</span>
+              <span class="material-symbols-outlined text-[16px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

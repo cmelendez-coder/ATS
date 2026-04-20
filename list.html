@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CRM Ledger — Requirements</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "outline-variant": "#c6c6d0",
+          "outline": "#757680",
+          "primary": "#000726",
+          "secondary-fixed": "#94fb6f",
+          "primary-container": "#0b1d4e",
+          "tertiary-fixed": "#ffdbcd",
+          "on-secondary-fixed-variant": "#145200",
+          "inverse-on-surface": "#eef1f3",
+          "on-secondary-fixed": "#042100",
+          "inverse-primary": "#b5c4ff",
+          "secondary": "#1d6d00",
+          "primary-fixed-dim": "#b5c4ff",
+          "on-tertiary": "#ffffff",
+          "on-secondary": "#ffffff",
+          "surface-container": "#ebeef0",
+          "on-error-container": "#93000a",
+          "error": "#ba1a1a",
+          "surface-container-low": "#f1f4f6",
+          "on-primary-container": "#7786bd",
+          "on-secondary-container": "#1f7200",
+          "surface": "#f7fafc",
+          "on-surface-variant": "#45464f",
+          "tertiary": "#180400",
+          "on-background": "#181c1e",
+          "surface-tint": "#4d5c90",
+          "on-primary": "#ffffff",
+          "on-tertiary-container": "#bc7758",
+          "on-tertiary-fixed": "#360f00",
+          "inverse-surface": "#2d3133",
+          "on-primary-fixed": "#041749",
+          "background": "#f7fafc",
+          "surface-bright": "#f7fafc",
+          "on-surface": "#181c1e",
+          "on-primary-fixed-variant": "#354476",
+          "on-error": "#ffffff",
+          "surface-container-highest": "#e0e3e5",
+          "error-container": "#ffdad6",
+          "primary-fixed": "#dce1ff",
+          "tertiary-fixed-dim": "#ffb596",
+          "surface-container-high": "#e5e9eb",
+          "secondary-container": "#91f86c",
+          "surface-container-lowest": "#ffffff",
+          "on-tertiary-fixed-variant": "#6e381e",
+          "surface-variant": "#e0e3e5",
+          "tertiary-container": "#3e1300",
+          "surface-dim": "#d7dadc",
+          "secondary-fixed-dim": "#79de56"
+        },
+        borderRadius: {
+          "DEFAULT": "0.125rem",
+          "lg": "0.25rem",
+          "xl": "0.5rem",
+          "2xl": "0.75rem",
+          "full": "9999px"
+        },
+        fontFamily: {
+          "headline": ["Inter", "sans-serif"],
+          "body": ["Inter", "sans-serif"],
+          "label": ["Inter", "sans-serif"]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .material-symbols-outlined.filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .nav-active {
+    background-color: #ffffff;
+    color: #000726;
+    font-weight: 600;
+    box-shadow: 0 1px 8px rgba(24,28,30,0.06);
+  }
+  .nav-active .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24; }
+</style>
+</head>
+<body class="bg-surface text-on-surface h-screen flex overflow-hidden antialiased selection:bg-primary-fixed selection:text-on-primary-fixed">
+
+<!-- ═══════════════════════════════════════════════════
+     SIDEBAR
+════════════════════════════════════════════════════ -->
+<nav class="hidden md:flex flex-col h-full py-6 px-4 bg-surface-container-low border-r border-outline-variant/20 w-64 fixed left-0 top-0 z-50 shrink-0">
+
+  <!-- Brand -->
+  <div class="flex items-center gap-3 px-2 mb-10">
+    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-sm shrink-0">
+      <span class="material-symbols-outlined text-on-primary text-[18px] filled">work</span>
+    </div>
+    <div>
+      <h1 class="text-base font-bold text-primary tracking-tight leading-tight">CRM Ledger</h1>
+      <p class="text-[11px] text-on-surface-variant leading-tight">Management Suite</p>
+    </div>
+  </div>
+
+  <!-- New Entry CTA -->
+  <a href="newrequirment.html">
+    <button class="mb-8 w-full bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl py-3 px-4 flex justify-center items-center gap-2 hover:opacity-90 transition-opacity font-medium text-sm">
+      <span class="material-symbols-outlined text-[18px]">add</span>
+      <span>New Entry</span>
+    </button>
+  </a>
+
+  <!-- Nav Links -->
+  <div class="flex-1 space-y-1">
+    <a href="index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
+      <span class="material-symbols-outlined text-[20px]">dashboard</span>
+      <span class="font-medium text-sm">Dashboard</span>
+    </a>
+    <a href="list.html" class="nav-active flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150">
+      <span class="material-symbols-outlined filled text-[20px]">list_alt</span>
+      <span class="text-sm">Requirements</span>
+    </a>
+    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
+      <span class="material-symbols-outlined text-[20px]">analytics</span>
+      <span class="font-medium text-sm">Active Tasks</span>
+    </a>
+    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
+      <span class="material-symbols-outlined text-[20px]">inventory_2</span>
+      <span class="font-medium text-sm">Archive</span>
+    </a>
+  </div>
+
+  <!-- Footer -->
+  <div class="mt-auto space-y-1 pt-6 border-t border-outline-variant/20">
+    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors">
+      <span class="material-symbols-outlined text-[20px]">help_outline</span>
+      <span class="text-sm">Help Center</span>
+    </a>
+    <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors">
+      <span class="material-symbols-outlined text-[20px]">logout</span>
+      <span class="text-sm">Log Out</span>
+    </a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════════════════════ -->
+<main class="flex-1 flex flex-col md:ml-64 relative h-full overflow-hidden">
+
+  <!-- TOP HEADER -->
+  <header class="flex justify-between items-center h-16 px-8 w-full sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10 shrink-0">
+    <div class="flex items-center gap-4">
+      <span class="md:hidden text-lg font-bold tracking-tight text-primary">CRM Ledger</span>
+      <div class="relative hidden md:block group">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-[18px]">search</span>
+        <input class="bg-surface-container-high border-none outline-none ring-0 h-9 pl-10 pr-4 rounded-full text-sm w-60 focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:text-on-surface-variant" placeholder="Search requirements..." type="text"/>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors w-9 h-9 flex items-center justify-center">
+        <span class="material-symbols-outlined text-[20px]">notifications</span>
+      </button>
+      <button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors w-9 h-9 flex items-center justify-center">
+        <span class="material-symbols-outlined text-[20px]">settings</span>
+      </button>
+      <div class="w-px h-5 bg-outline-variant/40 mx-1"></div>
+      <a href="newrequirment.html">
+        <button class="hidden sm:flex items-center justify-center h-9 px-5 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary font-medium text-sm hover:opacity-90 transition-opacity">
+          Create Request
+        </button>
+      </a>
+      <img alt="User profile" class="w-8 h-8 rounded-full border border-outline-variant/30 cursor-pointer object-cover ml-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcjxCoEU9wqgY-RA76AIwKTdn1GjOF66DwOYITaUQg7dQ5rjK9CS9w5YxzIg1-zw6ZLzaieMyWh4iVZJYuWjJB_RB0DbrYWSTt6gcOYiaw8vPuvj5eUP0NqEg5LPou3UcQ1YY5s6p35xp827zSyE6oywlUV5eSwQib2m5kCcFwNLcGrCnhNWaZ17fsBzhrliKPw8wu1m0g9tTyxRCD0_6nRVtmuoBii36VvWbn3-2MXqCjK3i0Uij3nxvIi5n20KRR2ZZUfWRj"/>
+    </div>
+  </header>
+
+  <!-- SCROLLABLE CONTENT -->
+  <div class="flex-1 overflow-y-auto bg-surface pb-20">
+    <div class="max-w-7xl mx-auto px-6 md:px-10 py-10 space-y-8">
+
+      <!-- Page Header -->
+      <div class="space-y-1.5">
+        <h1 class="text-[2.25rem] leading-none tracking-[-0.02em] font-extrabold text-primary">Requirements</h1>
+        <p class="text-on-surface-variant text-base">Manage and track active client requisitions across all portfolios.</p>
+      </div>
+
+      <!-- Controls / Filters -->
+      <div class="p-6 bg-surface-container-lowest rounded-2xl shadow-[0_2px_16px_rgba(24,28,30,0.04)] border border-outline-variant/10">
+        <div class="flex flex-col lg:flex-row gap-4 items-end">
+          <!-- Search -->
+          <div class="w-full lg:w-1/3">
+            <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Search</label>
+            <div class="relative">
+              <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+              <input class="w-full pl-10 pr-4 py-2.5 bg-surface-container-high border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 transition-shadow" placeholder="ID, Title, or Client..." type="text"/>
+            </div>
+          </div>
+          <!-- Filters -->
+          <div class="w-full lg:w-2/3 flex flex-wrap gap-4">
+            <div class="flex-1 min-w-[140px]">
+              <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Status</label>
+              <select class="w-full px-3 py-2.5 bg-surface-container-high border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 transition-shadow appearance-none cursor-pointer">
+                <option>All Statuses</option>
+                <option>Open</option>
+                <option>Testing</option>
+                <option>Urgent</option>
+              </select>
+            </div>
+            <div class="flex-1 min-w-[140px]">
+              <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Client</label>
+              <select class="w-full px-3 py-2.5 bg-surface-container-high border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 transition-shadow appearance-none cursor-pointer">
+                <option>All Clients</option>
+                <option>Acme Corp</option>
+                <option>Globex Inc</option>
+              </select>
+            </div>
+            <div class="flex-1 min-w-[140px]">
+              <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Date Range</label>
+              <select class="w-full px-3 py-2.5 bg-surface-container-high border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 transition-shadow appearance-none cursor-pointer">
+                <option>Last 30 Days</option>
+                <option>Last 90 Days</option>
+                <option>This Year</option>
+              </select>
+            </div>
+            <!-- Action Buttons -->
+            <div class="flex items-end gap-2">
+              <button class="px-4 py-2.5 bg-surface-container text-on-surface rounded-lg text-sm font-medium hover:bg-surface-container-highest transition-colors">Clear</button>
+              <button class="px-4 py-2.5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-lg text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[16px]">filter_list</span>
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Table -->
+      <div class="bg-surface-container-low rounded-2xl p-1.5 border border-outline-variant/10">
+        <!-- Header Row -->
+        <div class="hidden md:grid grid-cols-12 gap-4 px-5 py-3 text-[11px] font-bold text-on-surface-variant uppercase tracking-widest">
+          <div class="col-span-2">Req. ID</div>
+          <div class="col-span-3">Position Title</div>
+          <div class="col-span-2">Client</div>
+          <div class="col-span-2">Work Scheme</div>
+          <div class="col-span-2">Status</div>
+          <div class="col-span-1 text-right">Date</div>
+        </div>
+
+        <!-- Items -->
+        <div class="space-y-1.5">
+
+          <!-- Item 1 -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center px-5 py-4 bg-surface-container-lowest rounded-xl shadow-[0_1px_8px_rgba(24,28,30,0.03)] hover:shadow-[0_4px_20px_rgba(24,28,30,0.07)] transition-all cursor-pointer group border border-outline-variant/10">
+            <div class="col-span-12 md:col-span-2">
+              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">ID:</span>
+              <span class="font-mono text-sm text-primary font-medium">REQ-2023-084</span>
+            </div>
+            <div class="col-span-12 md:col-span-3">
+              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Position:</span>
+              <span class="font-semibold text-on-surface group-hover:text-primary transition-colors text-sm">Senior Product Designer</span>
+            </div>
+            <div class="col-span-12 md:col-span-2">
+              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Client:</span>
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-full bg-surface-container-highest flex items-center justify-center text-[10px] font-bold text-on-surface">A</div>
+                <span class="text-sm text-on-surface-variant">Acme Corp</span>
+              </div>
+            </div>
+            <div class="col-span-12 md:col-span-2">
+              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Scheme:</span>
+              <span class="text-sm text-on-surface-variant">Hybrid (3 days)</span>
+            </div>
+            <div class="col-span-12 md:col-span-2">
+              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Status:</span>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-secondary-container text-on-secondary-container tracking-wide uppercase">Open</span>
+            </div>
+            <div class="col-span-12 md:col-span-1 md:text-right">
+              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Date:</span>
+              <span class="text-sm text-on-surface-variant">Oct 24</span>
+            </div>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center px-5 py-4 bg-surface-container-lowest rounded-xl shadow-[0_1px_8px_rgba(24,28,30,0.03)] hover:shadow-[0_4px_20px_rgba(24,28,30,0.07)] transition-all cursor-pointer group border border-outline-variant/10">
+            <div class="col-span-12 md:col-span-2">
+              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">ID:</span>
+              <span class="font-mono text-sm text-primary font-medium">REQ-2023-085</span>
+            </div>
+            <div class="col-span-12 md:col-span-3">
+              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Position:</span>
+              <span class="font-semibold text-on-surface group-hover:text-primary transition-colors text-sm">Lead Backend Engineer</span>
+            </div>
+            <div class="col-span-12 md:col-span-2">
+              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Client:</span>
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-full bg-surface-container-highest flex items-center justify-center text-[10px] font-bold text-on-surface">G</div>
+                <span class="text-sm text-on-surface-variant">Globex Inc</span>
+              </div>
+            </div>
+            <div class="col-span-12 md:col-span-2">
+              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Scheme:</span>
+              <span class="text-sm text-on-surface-variant">Remote</span>
+            </div>
+            <div class="col-span-12 md:col-span-2">
+              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Status:</span>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-error-container text-on-error-container tracking-wide uppercase">Urgent</span>
+            </div>
+            <div class="col-span-12 md:col-span-1 md:text-right">
+              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Date:</span>
+              <span class="text-sm text-on-surface-variant">Oct 22</span>
+            </div>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center px-5 py-4 bg-surface-container-lowest rounded-xl shadow-[0_1px_8px_rgba(24,28,30,0.03)] hover:shadow-[0_4px_20px_rgba(24,28,30,0.07)] transition-all cursor-pointer group border border-outline-variant/10">
+            <div class="col-span-12 md:col-span-2">
+              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">ID:</span>
+              <span class="font-mono text-sm text-primary font-medium">REQ-2023-081</span>
+            </div>
+            <div class="col-span-12 md:col-span-3">
+              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Position:</span>
+              <span class="font-semibold text-on-surface group-hover:text-primary transition-colors text-sm">Marketing Director</span>
+            </div>
+            <div class="col-span-12 md:col-span-2">
+              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Client:</span>
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-full bg-surface-container-highest flex items-center justify-center text-[10px] font-bold text-on-surface">S</div>
+                <span class="text-sm text-on-surface-variant">Stark Ind.</span>
+              </div>
+            </div>
+            <div class="col-span-12 md:col-span-2">
+              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Scheme:</span>
+              <span class="text-sm text-on-surface-variant">On-site</span>
+            </div>
+            <div class="col-span-12 md:col-span-2">
+              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Status:</span>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-surface-container-high text-on-surface-variant tracking-wide uppercase">Testing</span>
+            </div>
+            <div class="col-span-12 md:col-span-1 md:text-right">
+              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Date:</span>
+              <span class="text-sm text-on-surface-variant">Oct 15</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-4 px-4 py-3 flex items-center justify-between">
+          <p class="text-sm text-on-surface-variant">Showing <span class="font-semibold text-primary">1</span>–<span class="font-semibold text-primary">3</span> of <span class="font-semibold text-primary">42</span> results</p>
+          <div class="flex gap-2">
+            <button class="px-3 py-1.5 rounded-lg border border-outline-variant/30 text-sm font-medium text-on-surface-variant hover:bg-surface-container transition-colors disabled:opacity-40" disabled>Previous</button>
+            <button class="px-3 py-1.5 rounded-lg border border-outline-variant/30 text-sm font-medium text-on-surface-variant hover:bg-surface-container transition-colors">Next</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+</body>
+</html>

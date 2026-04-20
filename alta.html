@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Everscale - Add New Talent</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline": "#757680",
+                      "surface-bright": "#f7fafc",
+                      "surface-container-highest": "#e0e3e5",
+                      "inverse-surface": "#2d3133",
+                      "on-surface": "#181c1e",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container-high": "#e5e9eb",
+                      "on-tertiary-container": "#bc7758",
+                      "on-surface-variant": "#45464f",
+                      "secondary-fixed": "#94fb6f",
+                      "on-background": "#181c1e",
+                      "on-primary-fixed-variant": "#354476",
+                      "tertiary": "#180400",
+                      "surface": "#f7fafc",
+                      "on-error-container": "#93000a",
+                      "surface-container": "#ebeef0",
+                      "outline-variant": "#c6c6d0",
+                      "on-tertiary-fixed": "#360f00",
+                      "surface-variant": "#e0e3e5",
+                      "on-primary-container": "#7786bd",
+                      "on-tertiary-fixed-variant": "#6e381e",
+                      "on-tertiary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "on-secondary": "#ffffff",
+                      "tertiary-fixed-dim": "#ffb596",
+                      "error": "#ba1a1a",
+                      "on-secondary-fixed-variant": "#145200",
+                      "primary-container": "#0b1d4e",
+                      "surface-tint": "#4d5c90",
+                      "surface-container-low": "#f1f4f6",
+                      "on-secondary-container": "#1f7200",
+                      "secondary": "#1d6d00",
+                      "secondary-container": "#91f86c",
+                      "surface-dim": "#d7dadc",
+                      "on-primary-fixed": "#041749",
+                      "primary": "#000726",
+                      "tertiary-fixed": "#ffdbcd",
+                      "tertiary-container": "#3e1300",
+                      "primary-fixed": "#dce1ff",
+                      "background": "#f7fafc",
+                      "error-container": "#ffdad6",
+                      "on-secondary-fixed": "#042100",
+                      "on-primary": "#ffffff",
+                      "inverse-on-surface": "#eef1f3",
+                      "secondary-fixed-dim": "#79de56",
+                      "primary-fixed-dim": "#b5c4ff",
+                      "inverse-primary": "#b5c4ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {},
+              "fontFamily": {
+                      "headline": [
+                              "Inter"
+                      ],
+                      "body": [
+                              "Inter"
+                      ],
+                      "label": [
+                              "Inter"
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        
+        /* Signature Texture Gradient */
+        .signature-gradient {
+            background: linear-gradient(135deg, theme('colors.primary'), theme('colors.primary-container'));
+        }
+
+        /* Ambient Shadow */
+        .ambient-shadow {
+            box-shadow: 0 32px 64px -12px rgba(24, 28, 30, 0.06);
+        }
+
+        /* Hide scrollbar for clean look */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        /* Form Input Animations */
+        .form-input-container {
+            position: relative;
+        }
+        .form-input {
+            width: 100%;
+            background-color: theme('colors.surface-container-highest');
+            border: none;
+            border-bottom: 1px solid theme('colors.outline');
+            padding: 1.5rem 1rem 0.5rem;
+            color: theme('colors.on-surface');
+            transition: border-color 0.3s ease;
+        }
+        .form-input:focus {
+            outline: none;
+            border-bottom-color: theme('colors.secondary');
+        }
+        .form-label {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            color: theme('colors.on-surface-variant');
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        .form-input:focus ~ .form-label,
+        .form-input:not(:placeholder-shown) ~ .form-label {
+            top: 0.25rem;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden bg-background antialiased">
+<!-- TopNavBar (Mobile Only) -->
+<nav class="md:hidden flex justify-between items-center w-full px-8 py-3 z-40 bg-slate-50 dark:bg-slate-950 text-blue-950 dark:text-blue-400 font-inter tracking-tight text-2xl font-bold tracking-tighter text-blue-950 dark:text-slate-50 docked full-width top-0 bg-slate-100 dark:bg-slate-900 tonal-shift shadow-[0_32px_64px_-12px_rgba(24,28,30,0.06)] fixed">
+<div class="flex items-center gap-4">
+<span class="text-2xl font-black">Everscale</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-slate-200/50 transition-colors scale-98 active:opacity-80 transition-all duration-200" data-icon="notifications">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-slate-200/50 transition-colors scale-98 active:opacity-80 transition-all duration-200" data-icon="settings">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<img alt="Recruiter Profile" class="w-8 h-8 rounded-full border border-outline-variant/15" data-alt="Small circular placeholder profile image for recruiter" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9BrTf8wiM84K-zSDmMVaQvvdr8JHSnuCIaHn8hrKUP3rVOcmCtQ13UXcbUuVj3trkOWDwev1eEhm_BD32s1IxIJLabi6ZKziXp7epn-JVGiNVU5MTzSFbf7ySwjxpQLQxwdAxvw9xLj-d-_IW6VKyilfVMUtjNAC9QVeAUB26NjDnsm1mbxp_YSEyCkRi6DBDl8itlKr4REZQPytRl7XX9tH2ux0lFZvbohK5cNiFtry96SfjFPBh837paYV1aN6Jj4Olgv_j"/>
+</div>
+</nav>
+<!-- SideNavBar (Web) -->
+<aside class="hidden md:flex fixed left-0 top-0 flex-col h-full p-4 gap-2 z-50 bg-slate-100 dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 label-md uppercase tracking-widest font-inter text-xl font-black text-blue-950 dark:text-white h-screen w-64 border-r-0 tonal depth layering via surface-container-low flat no-shadows">
+<div class="px-4 py-6 mb-4">
+<h1 class="text-xl font-black text-blue-950 dark:text-white tracking-tighter">Everscale</h1>
+<p class="text-xs text-slate-500 font-medium tracking-widest uppercase mt-1">Talent Ledger</p>
+</div>
+<nav class="flex-1 flex flex-col gap-1">
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:text-blue-950 dark:hover:text-slate-200 hover:translate-x-1 transition-transform duration-300 tap-highlight-none active:scale-95" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl bg-white dark:bg-blue-950 text-blue-950 dark:text-emerald-400 shadow-sm font-bold" href="#">
+<span class="material-symbols-outlined">group</span>
+<span>Talent Directory</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:text-blue-950 dark:hover:text-slate-200 hover:translate-x-1 transition-transform duration-300 tap-highlight-none active:scale-95" href="#">
+<span class="material-symbols-outlined">alt_route</span>
+<span>Pipelines</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:text-blue-950 dark:hover:text-slate-200 hover:translate-x-1 transition-transform duration-300 tap-highlight-none active:scale-95" href="#">
+<span class="material-symbols-outlined">description</span>
+<span>Profile Builder</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:text-blue-950 dark:hover:text-slate-200 hover:translate-x-1 transition-transform duration-300 tap-highlight-none active:scale-95" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span>Analytics</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-1 border-t border-outline-variant/15 pt-4">
+<button class="w-full flex items-center justify-center gap-2 py-3 rounded-xl signature-gradient text-on-primary font-bold shadow-sm hover:opacity-90 transition-opacity mb-4">
+<span class="material-symbols-outlined text-sm">add</span>
+                Add New Talent
+            </button>
+<a class="flex items-center gap-4 px-4 py-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-blue-950 dark:hover:text-slate-200 transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span>Support</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-blue-950 dark:hover:text-slate-200 transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span>Sign Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 ml-0 md:ml-64 mt-16 md:mt-0 overflow-y-auto bg-surface-low p-6 md:p-12 pb-32">
+<!-- Header -->
+<header class="mb-12 flex justify-between items-end">
+<div>
+<h2 class="text-display-md font-headline font-bold text-primary tracking-tight mb-2">New Talent Profile</h2>
+<p class="text-body-lg text-on-surface-variant">Enter the candidate's core details to initiate their ledger entry.</p>
+</div>
+<div class="hidden lg:flex gap-4">
+<button class="px-6 py-3 rounded-full text-primary font-medium border border-outline-variant/30 hover:bg-surface-container transition-colors">Save Draft</button>
+<button class="px-8 py-3 rounded-full signature-gradient text-on-primary font-bold shadow-sm hover:opacity-90 transition-opacity flex items-center gap-2">
+<span class="material-symbols-outlined">check_circle</span>
+                    Commit Profile
+                </button>
+</div>
+</header>
+<!-- Form Canvas -->
+<form class="max-w-6xl mx-auto space-y-12">
+<!-- Section 1: Personal Information -->
+<section class="bg-surface-container-lowest rounded-xl p-8 ambient-shadow border border-outline-variant/10 relative overflow-hidden">
+<div class="absolute top-0 left-0 w-2 h-full signature-gradient"></div>
+<div class="mb-8">
+<h3 class="text-title-lg font-headline font-bold text-primary mb-1">Personal Information</h3>
+<p class="text-body-sm text-on-surface-variant uppercase tracking-widest">Core Identity</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="form-input-container">
+<input class="form-input rounded-t-lg" id="fullName" placeholder=" " type="text"/>
+<label class="form-label" for="fullName">Full Legal Name</label>
+</div>
+<div class="form-input-container">
+<input class="form-input rounded-t-lg" id="email" placeholder=" " type="email"/>
+<label class="form-label" for="email">Primary Email</label>
+</div>
+<div class="form-input-container">
+<input class="form-input rounded-t-lg" id="phone" placeholder=" " type="tel"/>
+<label class="form-label" for="phone">Contact Number</label>
+</div>
+<div class="form-input-container">
+<input class="form-input rounded-t-lg" id="location" placeholder=" " type="text"/>
+<label class="form-label" for="location">Current Location (City, Country)</label>
+</div>
+<div class="form-input-container md:col-span-2">
+<input class="form-input rounded-t-lg" id="linkedin" placeholder=" " type="url"/>
+<label class="form-label" for="linkedin">LinkedIn URL</label>
+</div>
+</div>
+</section>
+<!-- Section 2: Technical Profile -->
+<section class="bg-surface-container-lowest rounded-xl p-8 ambient-shadow border border-outline-variant/10 relative overflow-hidden">
+<div class="absolute top-0 left-0 w-2 h-full bg-secondary"></div>
+<div class="mb-8">
+<h3 class="text-title-lg font-headline font-bold text-primary mb-1">Technical Profile</h3>
+<p class="text-body-sm text-on-surface-variant uppercase tracking-widest">Skills &amp; Expertise</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+<div class="form-input-container">
+<input class="form-input rounded-t-lg" id="primaryTech" placeholder=" " type="text"/>
+<label class="form-label" for="primaryTech">Primary Technology</label>
+</div>
+<div class="form-input-container">
+<input class="form-input rounded-t-lg" id="role" placeholder=" " type="text"/>
+<label class="form-label" for="role">Target Role</label>
+</div>
+<div class="form-input-container">
+<input class="form-input rounded-t-lg" id="experience" placeholder=" " type="number"/>
+<label class="form-label" for="experience">Years Experience</label>
+</div>
+</div>
+<div class="form-input-container mb-8">
+<input class="form-input rounded-t-lg" id="modules" placeholder=" " type="text"/>
+<label class="form-label" for="modules">Key Modules / Frameworks</label>
+</div>
+<div>
+<p class="text-label-md text-on-surface-variant uppercase tracking-widest mb-4">Skillset Tags</p>
+<div class="flex flex-wrap gap-2">
+<span class="px-4 py-2 bg-surface-container rounded-full text-body-sm text-on-surface flex items-center gap-2 cursor-pointer hover:bg-surface-container-high transition-colors">
+                            Java <span class="material-symbols-outlined text-sm">close</span>
+</span>
+<span class="px-4 py-2 bg-surface-container rounded-full text-body-sm text-on-surface flex items-center gap-2 cursor-pointer hover:bg-surface-container-high transition-colors">
+                            Spring Boot <span class="material-symbols-outlined text-sm">close</span>
+</span>
+<button class="px-4 py-2 border border-outline-variant border-dashed rounded-full text-body-sm text-on-surface-variant flex items-center gap-2 hover:bg-surface-container transition-colors" type="button">
+<span class="material-symbols-outlined text-sm">add</span> Add Skill
+                        </button>
+</div>
+</div>
+</section>
+<!-- Section 3: Logistics & CV -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+<!-- Logistics -->
+<section class="lg:col-span-2 bg-surface-container-lowest rounded-xl p-8 ambient-shadow border border-outline-variant/10 relative overflow-hidden">
+<div class="absolute top-0 left-0 w-2 h-full bg-surface-tint"></div>
+<div class="mb-8">
+<h3 class="text-title-lg font-headline font-bold text-primary mb-1">Logistics</h3>
+<p class="text-body-sm text-on-surface-variant uppercase tracking-widest">Requirements &amp; Status</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="form-input-container">
+<select class="form-input rounded-t-lg appearance-none cursor-pointer" id="englishLevel">
+<option disabled="" selected="" value=""></option>
+<option value="b1">B1 Intermediate</option>
+<option value="b2">B2 Upper Intermediate</option>
+<option value="c1">C1 Advanced</option>
+<option value="c2">C2 Native/Bilingual</option>
+</select>
+<label class="form-label" for="englishLevel">English Level</label>
+<span class="material-symbols-outlined absolute right-4 top-5 text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+<div class="form-input-container">
+<select class="form-input rounded-t-lg appearance-none cursor-pointer" id="visaStatus">
+<option disabled="" selected="" value=""></option>
+<option value="citizen">Citizen / Permanent Resident</option>
+<option value="h1b">H1B Visa</option>
+<option value="opt">OPT / CPT</option>
+<option value="sponsorship">Requires Sponsorship</option>
+</select>
+<label class="form-label" for="visaStatus">Visa Status</label>
+<span class="material-symbols-outlined absolute right-4 top-5 text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+<div class="form-input-container">
+<select class="form-input rounded-t-lg appearance-none cursor-pointer" id="scheme">
+<option disabled="" selected="" value=""></option>
+<option value="w2">W2</option>
+<option value="c2c">C2C</option>
+<option value="1099">1099</option>
+</select>
+<label class="form-label" for="scheme">Preferred Scheme</label>
+<span class="material-symbols-outlined absolute right-4 top-5 text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+<div class="form-input-container">
+<input class="form-input rounded-t-lg" id="expectations" placeholder=" " type="text"/>
+<label class="form-label" for="expectations">Salary / Rate Expectations</label>
+</div>
+</div>
+</section>
+<!-- CV Upload -->
+<section class="bg-surface-container-low rounded-xl p-8 border border-outline-variant/20 flex flex-col items-center justify-center text-center">
+<div class="w-16 h-16 rounded-full bg-surface-container-highest flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-primary text-3xl" data-weight="fill">upload_file</span>
+</div>
+<h4 class="text-title-md font-headline font-bold text-primary mb-2">Upload Resume</h4>
+<p class="text-body-sm text-on-surface-variant mb-6">Drag and drop PDF or DOCX file here, or click to browse.</p>
+<button class="px-6 py-2 bg-surface-container-lowest rounded-full text-primary font-medium border border-outline-variant/30 hover:bg-surface-container transition-colors shadow-sm" type="button">
+                        Browse Files
+                    </button>
+<p class="text-xs text-outline mt-4">Max file size: 5MB</p>
+</section>
+</div>
+<!-- Mobile Action Buttons -->
+<div class="lg:hidden flex flex-col gap-4 mt-8">
+<button class="w-full px-8 py-4 rounded-full signature-gradient text-on-primary font-bold shadow-sm hover:opacity-90 transition-opacity flex justify-center items-center gap-2">
+<span class="material-symbols-outlined">check_circle</span>
+                    Commit Profile
+                </button>
+<button class="w-full px-6 py-4 rounded-full text-primary font-medium border border-outline-variant/30 hover:bg-surface-container transition-colors bg-surface-container-lowest">Save Draft</button>
+</div>
+</form>
+</main>
+</body></html>

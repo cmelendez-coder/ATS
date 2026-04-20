@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Everscale - Edit Talent Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline": "#757680",
+                      "surface-bright": "#f7fafc",
+                      "surface-container-highest": "#e0e3e5",
+                      "inverse-surface": "#2d3133",
+                      "on-surface": "#181c1e",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container-high": "#e5e9eb",
+                      "on-tertiary-container": "#bc7758",
+                      "on-surface-variant": "#45464f",
+                      "secondary-fixed": "#94fb6f",
+                      "on-background": "#181c1e",
+                      "on-primary-fixed-variant": "#354476",
+                      "tertiary": "#180400",
+                      "surface": "#f7fafc",
+                      "on-error-container": "#93000a",
+                      "surface-container": "#ebeef0",
+                      "outline-variant": "#c6c6d0",
+                      "on-tertiary-fixed": "#360f00",
+                      "surface-variant": "#e0e3e5",
+                      "on-primary-container": "#7786bd",
+                      "on-tertiary-fixed-variant": "#6e381e",
+                      "on-tertiary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "on-secondary": "#ffffff",
+                      "tertiary-fixed-dim": "#ffb596",
+                      "error": "#ba1a1a",
+                      "on-secondary-fixed-variant": "#145200",
+                      "primary-container": "#0b1d4e",
+                      "surface-tint": "#4d5c90",
+                      "surface-container-low": "#f1f4f6",
+                      "on-secondary-container": "#1f7200",
+                      "secondary": "#1d6d00",
+                      "secondary-container": "#91f86c",
+                      "surface-dim": "#d7dadc",
+                      "on-primary-fixed": "#041749",
+                      "primary": "#000726",
+                      "tertiary-fixed": "#ffdbcd",
+                      "tertiary-container": "#3e1300",
+                      "primary-fixed": "#dce1ff",
+                      "background": "#f7fafc",
+                      "error-container": "#ffdad6",
+                      "on-secondary-fixed": "#042100",
+                      "on-primary": "#ffffff",
+                      "inverse-on-surface": "#eef1f3",
+                      "secondary-fixed-dim": "#79de56",
+                      "primary-fixed-dim": "#b5c4ff",
+                      "inverse-primary": "#b5c4ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {},
+              "fontFamily": {
+                      "headline": [
+                              "Inter"
+                      ],
+                      "body": [
+                              "Inter"
+                      ],
+                      "label": [
+                              "Inter"
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7fafc; color: #181c1e; }
+        .glass-header { backdrop-filter: blur(20px); background-color: rgba(247, 250, 252, 0.8); }
+        .signature-gradient { background: linear-gradient(135deg, #000726 0%, #0b1d4e 100%); }
+        .input-underline { transition: border-color 0.3s ease; }
+        .input-underline:focus-within { border-bottom-color: #1d6d00; }
+        .floating-label { transition: all 0.2s ease; transform-origin: left top; cursor: text; }
+        .input-field:focus + .floating-label, .input-field:not(:placeholder-shown) + .floating-label {
+            transform: translateY(-1.5rem) scale(0.75); color: #1d6d00;
+        }
+    </style>
+</head>
+<body class="bg-surface flex h-screen overflow-hidden">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col h-screen w-64 border-r-0 bg-slate-100 dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 label-md uppercase tracking-widest font-inter fixed left-0 top-0 p-4 gap-2 z-50 tonal depth layering via surface-container-low flat no-shadows tap-highlight-none active:scale-95">
+<div class="mb-8 px-4 mt-4">
+<h1 class="text-xl font-black text-blue-950 dark:text-white">Everscale</h1>
+<p class="text-xs text-slate-500 font-medium tracking-normal mt-1">Talent Ledger</p>
+</div>
+<button class="mb-8 bg-primary text-on-primary rounded-full py-3 px-4 flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-sm">add</span>
+<span class="font-bold tracking-normal normal-case text-sm">Add New Talent</span>
+</button>
+<div class="flex-1 flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:text-blue-950 dark:hover:text-slate-200 hover:translate-x-1 transition-transform duration-300" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-medium text-sm tracking-normal normal-case">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-white dark:bg-blue-950 text-blue-950 dark:text-emerald-400 shadow-sm font-bold hover:translate-x-1 transition-transform duration-300" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="text-sm tracking-normal normal-case">Talent Directory</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:text-blue-950 dark:hover:text-slate-200 hover:translate-x-1 transition-transform duration-300" href="#">
+<span class="material-symbols-outlined">alt_route</span>
+<span class="font-medium text-sm tracking-normal normal-case">Pipelines</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:text-blue-950 dark:hover:text-slate-200 hover:translate-x-1 transition-transform duration-300" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-medium text-sm tracking-normal normal-case">Profile Builder</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:text-blue-950 dark:hover:text-slate-200 hover:translate-x-1 transition-transform duration-300" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-medium text-sm tracking-normal normal-case">Analytics</span>
+</a>
+</div>
+<div class="mt-auto pt-4 border-t border-outline-variant/15 flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">help</span>
+<span class="font-medium text-xs tracking-normal normal-case">Support</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">logout</span>
+<span class="font-medium text-xs tracking-normal normal-case">Sign Out</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-64 flex flex-col h-screen overflow-y-auto bg-surface-container-low">
+<!-- TopAppBar (Mobile Only fallback, usually hidden on destkop with sidenav, but keeping header structural logic) -->
+<header class="glass-header sticky top-0 z-40 px-8 py-6 flex justify-between items-end border-b-0 shadow-[0_32px_64px_-12px_rgba(24,28,30,0.06)]">
+<div class="flex flex-col">
+<p class="text-on-surface-variant font-label text-sm tracking-widest uppercase mb-1">Talent Directory / Edit</p>
+<h2 class="text-4xl font-headline font-bold text-primary tracking-tight">Juan Pérez</h2>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-surface-container transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">history</span>
+</button>
+<button class="signature-gradient text-on-primary px-6 py-3 rounded-full font-bold shadow-lg hover:opacity-90 transition-opacity">
+                    Update Profile
+                </button>
+</div>
+</header>
+<div class="p-8 max-w-5xl mx-auto w-full grid grid-cols-1 lg:grid-cols-3 gap-8 pb-24">
+<!-- Left Column: Core Identity & Status -->
+<div class="lg:col-span-1 flex flex-col gap-8">
+<!-- Profile Identity Card -->
+<section class="bg-surface-container-lowest rounded-xl p-8 relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-24 signature-gradient opacity-10"></div>
+<div class="flex flex-col items-center text-center relative z-10 pt-4">
+<div class="w-24 h-24 rounded-full overflow-hidden border-4 border-surface-container-lowest shadow-sm mb-4">
+<img alt="Juan Pérez Profile" class="w-full h-full object-cover" data-alt="Professional headshot of a confident Hispanic male software developer in his early 30s, wearing a dark navy crew neck sweater, neutral light grey background, soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9_f6QpyknqvuXUu1yB9NM1iwRaShXOR0IcOML_yri3upurkHfhUxVcaP6sTt1XnegABTuG9d9kqjhkwE1KzoSivkEGdLXZawRdOf-rs2FUVazSfld-SU_ldcwgpCHDKwRau0n0o212d9IsTkO3t2r_S4glft491SnNZ4l7N4jSY-cx5oX_noQmdpz4FkgfpOWSm80F9QPoM7UpJWglyQnQgkYEkF-7YKkRlQoaAxyzjJuod7HTIZTuWnDb-kNHzwNF7_xyj_C"/>
+</div>
+<h3 class="text-xl font-bold text-primary">Juan Pérez</h3>
+<p class="text-on-surface-variant font-medium mb-4">Senior Developer</p>
+<div class="flex gap-2">
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">Active</span>
+<span class="bg-surface-container text-on-surface-variant px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">Relocation: Yes</span>
+</div>
+</div>
+</section>
+<!-- Account Status & Danger Zone -->
+<section class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/15">
+<h4 class="font-headline text-lg font-bold text-primary mb-6">Account Status</h4>
+<div class="flex items-center justify-between p-4 bg-surface-container rounded-lg mb-4">
+<div>
+<p class="font-bold text-on-surface">Available for Hire</p>
+<p class="text-sm text-on-surface-variant">Candidate is currently looking for roles.</p>
+</div>
+<div class="w-12 h-6 bg-secondary rounded-full relative cursor-pointer">
+<div class="w-4 h-4 bg-white rounded-full absolute right-1 top-1"></div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-error-container">
+<div class="flex items-start justify-between">
+<div>
+<p class="font-bold text-error">Blacklist Candidate</p>
+<p class="text-xs text-on-surface-variant mt-1 max-w-[200px]">Remove from all active pipelines and block future applications.</p>
+</div>
+<div class="w-12 h-6 bg-surface-container-high rounded-full relative cursor-pointer border border-outline-variant/50">
+<div class="w-4 h-4 bg-outline rounded-full absolute left-1 top-1"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Metadata -->
+<section class="p-6">
+<h4 class="font-label text-xs tracking-widest text-on-surface-variant uppercase mb-4">History &amp; Metadata</h4>
+<ul class="space-y-3 text-sm">
+<li class="flex justify-between">
+<span class="text-on-surface-variant">Last Updated</span>
+<span class="font-medium text-primary">Oct 24, 2023 - 14:32</span>
+</li>
+<li class="flex justify-between">
+<span class="text-on-surface-variant">Created By</span>
+<span class="font-medium text-primary">System Migration</span>
+</li>
+<li class="flex justify-between">
+<span class="text-on-surface-variant">Profile ID</span>
+<span class="font-medium text-primary font-mono text-xs">DEV-88492-JP</span>
+</li>
+</ul>
+</section>
+</div>
+<!-- Right Column: Form Data -->
+<div class="lg:col-span-2 flex flex-col gap-8">
+<!-- Professional Details -->
+<section class="bg-surface-container-lowest rounded-xl p-8">
+<h3 class="text-2xl font-headline font-bold text-primary mb-8 border-b border-outline-variant/15 pb-4">Professional Details</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
+<!-- Input Group -->
+<div class="relative input-underline border-b border-outline">
+<input class="input-field w-full bg-transparent border-none focus:ring-0 px-0 pt-4 pb-2 text-primary font-medium placeholder-transparent" id="firstName" placeholder="First Name" type="text" value="Juan"/>
+<label class="floating-label absolute left-0 top-4 text-on-surface-variant pointer-events-none transform -translate-y-6 scale-75" for="firstName">First Name</label>
+</div>
+<div class="relative input-underline border-b border-outline">
+<input class="input-field w-full bg-transparent border-none focus:ring-0 px-0 pt-4 pb-2 text-primary font-medium placeholder-transparent" id="lastName" placeholder="Last Name" type="text" value="Pérez"/>
+<label class="floating-label absolute left-0 top-4 text-on-surface-variant pointer-events-none transform -translate-y-6 scale-75" for="lastName">Last Name</label>
+</div>
+<div class="relative input-underline border-b border-outline md:col-span-2">
+<input class="input-field w-full bg-transparent border-none focus:ring-0 px-0 pt-4 pb-2 text-primary font-medium placeholder-transparent" id="currentRole" placeholder="Current Role" type="text" value="Senior Backend Developer"/>
+<label class="floating-label absolute left-0 top-4 text-on-surface-variant pointer-events-none transform -translate-y-6 scale-75" for="currentRole">Current Role</label>
+</div>
+<div class="relative input-underline border-b border-outline">
+<input class="input-field w-full bg-transparent border-none focus:ring-0 px-0 pt-4 pb-2 text-primary font-medium placeholder-transparent" id="email" placeholder="Email Address" type="email" value="juan.perez@example.com"/>
+<label class="floating-label absolute left-0 top-4 text-on-surface-variant pointer-events-none transform -translate-y-6 scale-75" for="email">Email Address</label>
+</div>
+<div class="relative input-underline border-b border-outline">
+<input class="input-field w-full bg-transparent border-none focus:ring-0 px-0 pt-4 pb-2 text-primary font-medium placeholder-transparent" id="phone" placeholder="Phone Number" type="tel" value="+34 600 123 456"/>
+<label class="floating-label absolute left-0 top-4 text-on-surface-variant pointer-events-none transform -translate-y-6 scale-75" for="phone">Phone Number</label>
+</div>
+</div>
+</section>
+<!-- Technical Skills -->
+<section class="bg-surface-container-lowest rounded-xl p-8">
+<div class="flex justify-between items-center mb-8 border-b border-outline-variant/15 pb-4">
+<h3 class="text-2xl font-headline font-bold text-primary">Core Competencies</h3>
+<button class="text-secondary font-bold text-sm hover:underline">Add Skill</button>
+</div>
+<div class="flex flex-wrap gap-3">
+<div class="bg-surface-container px-4 py-2 rounded-full flex items-center gap-2 group cursor-pointer hover:bg-surface-container-high transition-colors">
+<span class="font-medium text-primary text-sm">Python</span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant group-hover:text-error">close</span>
+</div>
+<div class="bg-surface-container px-4 py-2 rounded-full flex items-center gap-2 group cursor-pointer hover:bg-surface-container-high transition-colors">
+<span class="font-medium text-primary text-sm">Django</span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant group-hover:text-error">close</span>
+</div>
+<div class="bg-surface-container px-4 py-2 rounded-full flex items-center gap-2 group cursor-pointer hover:bg-surface-container-high transition-colors">
+<span class="font-medium text-primary text-sm">PostgreSQL</span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant group-hover:text-error">close</span>
+</div>
+<div class="bg-surface-container px-4 py-2 rounded-full flex items-center gap-2 group cursor-pointer hover:bg-surface-container-high transition-colors">
+<span class="font-medium text-primary text-sm">AWS Architecture</span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant group-hover:text-error">close</span>
+</div>
+</div>
+<div class="mt-8 relative input-underline border-b border-outline">
+<textarea class="input-field w-full bg-transparent border-none focus:ring-0 px-0 pt-4 pb-2 text-primary font-medium placeholder-transparent resize-none" id="notes" rows="3">Strong backend foundation. Needs brush up on modern frontend frameworks (React/Vue). Excellent communication skills during technical screening.</textarea>
+<label class="floating-label absolute left-0 top-4 text-on-surface-variant pointer-events-none transform -translate-y-6 scale-75" for="notes">Internal Recruiter Notes</label>
+</div>
+</section>
+</div>
+</div>
+</main>
+</body></html>

@@ -81,7 +81,6 @@
   body { font-family: 'Inter', sans-serif; }
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
   .material-symbols-outlined.filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-  /* Shared nav active state */
   .nav-active {
     background-color: #ffffff;
     color: #000726;
@@ -89,16 +88,17 @@
     box-shadow: 0 1px 8px rgba(24,28,30,0.06);
   }
   .nav-active .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24; }
+  .stat-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+  .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(24,28,30,0.09); }
+  .req-row-actions { transition: opacity 0.15s ease; }
 </style>
 </head>
 <body class="bg-surface text-on-surface h-screen flex overflow-hidden antialiased selection:bg-primary-fixed selection:text-on-primary-fixed">
 
 <!-- ═══════════════════════════════════════════════════
-     SIDEBAR — shared across all pages
+     SIDEBAR
 ════════════════════════════════════════════════════ -->
 <nav class="hidden md:flex flex-col h-full py-6 px-4 bg-surface-container-low border-r border-outline-variant/20 w-64 fixed left-0 top-0 z-50 shrink-0">
-
-  <!-- Brand -->
   <div class="flex items-center gap-3 px-2 mb-10">
     <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-sm shrink-0">
       <span class="material-symbols-outlined text-on-primary text-[18px] filled">work</span>
@@ -108,16 +108,12 @@
       <p class="text-[11px] text-on-surface-variant leading-tight">Management Suite</p>
     </div>
   </div>
-
-  <!-- New Entry CTA -->
   <a href="newrequirment.html">
     <button class="mb-8 w-full bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl py-3 px-4 flex justify-center items-center gap-2 hover:opacity-90 transition-opacity font-medium text-sm">
       <span class="material-symbols-outlined text-[18px]">add</span>
       <span>New Entry</span>
     </button>
   </a>
-
-  <!-- Nav Links -->
   <div class="flex-1 space-y-1">
     <a href="index.html" class="nav-active flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150">
       <span class="material-symbols-outlined filled text-[20px]">dashboard</span>
@@ -136,8 +132,6 @@
       <span class="font-medium text-sm">Archive</span>
     </a>
   </div>
-
-  <!-- Footer -->
   <div class="mt-auto space-y-1 pt-6 border-t border-outline-variant/20">
     <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors">
       <span class="material-symbols-outlined text-[20px]">help_outline</span>
@@ -155,7 +149,7 @@
 ════════════════════════════════════════════════════ -->
 <main class="flex-1 flex flex-col md:ml-64 relative h-full overflow-hidden">
 
-  <!-- TOP HEADER — shared across all pages -->
+  <!-- TOP HEADER -->
   <header class="flex justify-between items-center h-16 px-8 w-full sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10 shrink-0">
     <div class="flex items-center gap-4">
       <span class="md:hidden text-lg font-bold tracking-tight text-primary">CRM Ledger</span>
@@ -165,10 +159,11 @@
       </div>
     </div>
     <div class="flex items-center gap-2">
-      <button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors w-9 h-9 flex items-center justify-center">
+      <button title="Notifications" class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors w-9 h-9 flex items-center justify-center relative">
         <span class="material-symbols-outlined text-[20px]">notifications</span>
+        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
       </button>
-      <button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors w-9 h-9 flex items-center justify-center">
+      <button title="Settings" class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors w-9 h-9 flex items-center justify-center">
         <span class="material-symbols-outlined text-[20px]">settings</span>
       </button>
       <div class="w-px h-5 bg-outline-variant/40 mx-1"></div>
@@ -185,121 +180,281 @@
   <div class="flex-1 overflow-y-auto bg-surface p-6 md:p-10 pb-24">
     <div class="max-w-7xl mx-auto space-y-10">
 
-      <!-- Page Header -->
-      <div class="space-y-1.5">
-        <h1 class="text-[2.25rem] leading-none tracking-[-0.02em] font-extrabold text-primary">Overview</h1>
-        <p class="text-on-surface-variant text-base">High-level summary of active operational requirements.</p>
+      <!-- Page Header with greeting -->
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div class="space-y-1">
+          <p id="greeting-line" class="text-sm font-medium text-on-surface-variant"></p>
+          <h1 class="text-[2.25rem] leading-none tracking-[-0.02em] font-extrabold text-primary">Overview</h1>
+          <p class="text-on-surface-variant text-base mt-1">High-level summary of active operational requirements.</p>
+        </div>
+        <p id="current-date" class="text-sm font-medium text-on-surface-variant shrink-0 pb-1"></p>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="flex flex-wrap gap-2">
+        <a href="newrequirment.html" class="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-full text-sm font-medium hover:opacity-90 transition-opacity shadow-sm">
+          <span class="material-symbols-outlined text-[16px]">add</span>
+          New Requirement
+        </a>
+        <a href="list.html" class="inline-flex items-center gap-1.5 px-4 py-2 bg-surface-container-lowest border border-outline-variant/30 text-primary rounded-full text-sm font-medium hover:bg-surface-container transition-colors">
+          <span class="material-symbols-outlined text-[16px]">list_alt</span>
+          All Requirements
+        </a>
+        <button class="inline-flex items-center gap-1.5 px-4 py-2 bg-surface-container-lowest border border-outline-variant/30 text-on-surface-variant rounded-full text-sm font-medium hover:bg-surface-container transition-colors">
+          <span class="material-symbols-outlined text-[16px]">download</span>
+          Export Report
+        </button>
+        <button class="inline-flex items-center gap-1.5 px-4 py-2 bg-surface-container-lowest border border-outline-variant/30 text-on-surface-variant rounded-full text-sm font-medium hover:bg-surface-container transition-colors">
+          <span class="material-symbols-outlined text-[16px]">calendar_month</span>
+          Schedule Review
+        </button>
       </div>
 
       <!-- Summary Bento Grid -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
         <!-- Open Requirements -->
-        <div class="bg-surface-container-lowest rounded-2xl p-7 flex flex-col justify-between min-h-[148px] shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden group border border-outline-variant/10">
+        <a href="list.html" class="stat-card block bg-surface-container-lowest rounded-2xl p-7 shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden border border-outline-variant/10">
           <div class="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent pointer-events-none"></div>
-          <h3 class="text-xs uppercase tracking-[0.08em] font-bold text-on-surface-variant">Open Requirements</h3>
-          <div class="mt-4 flex items-baseline gap-3">
+          <div class="flex items-start justify-between mb-4">
+            <h3 class="text-xs uppercase tracking-[0.08em] font-bold text-on-surface-variant">Open Requirements</h3>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-error-container text-on-error-container text-[10px] font-bold">
+              <span class="material-symbols-outlined filled text-[10px]">arrow_upward</span>+2 this week
+            </span>
+          </div>
+          <div class="flex items-baseline gap-3">
             <span class="text-6xl tracking-tighter font-light text-primary">5</span>
             <span class="material-symbols-outlined text-secondary text-2xl filled">trending_up</span>
           </div>
-        </div>
+          <p class="text-xs text-on-surface-variant mt-3">2 flagged as high priority</p>
+        </a>
+
         <!-- In Progress -->
-        <div class="bg-surface-container-lowest rounded-2xl p-7 flex flex-col justify-between min-h-[148px] shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden border border-outline-variant/10">
+        <div class="stat-card bg-surface-container-lowest rounded-2xl p-7 shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden border border-outline-variant/10">
           <div class="absolute inset-0 bg-gradient-to-br from-secondary/[0.03] to-transparent pointer-events-none"></div>
-          <h3 class="text-xs uppercase tracking-[0.08em] font-bold text-on-surface-variant">In Progress</h3>
-          <div class="mt-4 flex items-baseline gap-3">
+          <div class="flex items-start justify-between mb-4">
+            <h3 class="text-xs uppercase tracking-[0.08em] font-bold text-on-surface-variant">In Progress</h3>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold">
+              On Track
+            </span>
+          </div>
+          <div class="flex items-baseline gap-3">
             <span class="text-6xl tracking-tighter font-light text-primary">8</span>
             <span class="material-symbols-outlined text-outline-variant text-2xl filled">sync</span>
           </div>
+          <div class="mt-3">
+            <div class="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+              <div class="bg-secondary h-full rounded-full" style="width: 62%"></div>
+            </div>
+            <p class="text-xs text-on-surface-variant mt-1.5">62% avg. completion</p>
+          </div>
         </div>
+
         <!-- Resolved -->
-        <div class="bg-surface-container-lowest rounded-2xl p-7 flex flex-col justify-between min-h-[148px] shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden border border-outline-variant/10">
+        <div class="stat-card bg-surface-container-lowest rounded-2xl p-7 shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden border border-outline-variant/10">
           <div class="absolute inset-0 bg-gradient-to-br from-surface-tint/[0.03] to-transparent pointer-events-none"></div>
-          <h3 class="text-xs uppercase tracking-[0.08em] font-bold text-on-surface-variant">Resolved</h3>
-          <div class="mt-4 flex items-baseline gap-3">
+          <div class="flex items-start justify-between mb-4">
+            <h3 class="text-xs uppercase tracking-[0.08em] font-bold text-on-surface-variant">Resolved</h3>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold">
+              <span class="material-symbols-outlined filled text-[10px]">arrow_upward</span>↑ 18%
+            </span>
+          </div>
+          <div class="flex items-baseline gap-3">
             <span class="text-6xl tracking-tighter font-light text-primary">24</span>
             <span class="material-symbols-outlined text-surface-tint text-2xl filled">check_circle</span>
           </div>
+          <p class="text-xs text-on-surface-variant mt-3">vs. 19 resolved last month</p>
         </div>
+
       </div>
 
-      <!-- Priority Requests Section -->
-      <div class="bg-surface-container-low rounded-2xl p-7">
-        <div class="flex items-center justify-between mb-7">
-          <h2 class="text-xl font-bold tracking-tight text-primary">Priority Requests</h2>
-          <a href="list.html" class="text-sm font-medium text-surface-tint hover:text-primary transition-colors flex items-center gap-1">
-            View All
-            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
-          </a>
+      <!-- Priority Requests + Recent Activity — side by side on xl -->
+      <div class="grid grid-cols-1 xl:grid-cols-5 gap-6">
+
+        <!-- Priority Requests -->
+        <div class="xl:col-span-3 bg-surface-container-low rounded-2xl p-7">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h2 class="text-xl font-bold tracking-tight text-primary">Priority Requests</h2>
+              <p class="text-xs text-on-surface-variant mt-0.5">Sorted by urgency — action required</p>
+            </div>
+            <a href="list.html" class="text-sm font-medium text-surface-tint hover:text-primary transition-colors flex items-center gap-1">
+              View All
+              <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+            </a>
+          </div>
+          <div class="space-y-3">
+
+            <!-- High -->
+            <div class="bg-surface-container-lowest p-5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[0_1px_8px_rgba(24,28,30,0.04)] hover:shadow-[0_4px_20px_rgba(24,28,30,0.07)] transition-all duration-200 cursor-pointer group border border-outline-variant/10">
+              <div class="flex items-center gap-4">
+                <div class="w-11 h-11 rounded-xl bg-error-container/20 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-error filled">warning</span>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2.5 mb-1">
+                    <span class="text-[11px] uppercase tracking-wider font-bold text-on-surface-variant">REQ-102</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest bg-error-container text-on-error-container">High</span>
+                  </div>
+                  <h4 class="text-base font-semibold text-primary group-hover:text-surface-tint transition-colors">Sr. Product Manager</h4>
+                  <p class="text-sm text-on-surface-variant mt-0.5">Acme Corp · <span class="text-error font-medium text-xs">Overdue 2 days</span></p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="flex flex-col items-end">
+                  <span class="text-[11px] uppercase tracking-wider font-bold text-on-surface-variant">Due Date</span>
+                  <span class="font-medium text-sm text-error mt-0.5">Oct 12, 2023</span>
+                </div>
+                <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                  <button title="View details" class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors">
+                    <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+                  </button>
+                  <button title="Edit" class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors">
+                    <span class="material-symbols-outlined text-[16px]">edit</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Medium -->
+            <div class="bg-surface-container-lowest p-5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[0_1px_8px_rgba(24,28,30,0.04)] hover:shadow-[0_4px_20px_rgba(24,28,30,0.07)] transition-all duration-200 cursor-pointer group border border-outline-variant/10">
+              <div class="flex items-center gap-4">
+                <div class="w-11 h-11 rounded-xl bg-secondary-container/30 flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-on-secondary-container filled">pending</span>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2.5 mb-1">
+                    <span class="text-[11px] uppercase tracking-wider font-bold text-on-surface-variant">REQ-098</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest bg-secondary-container text-on-secondary-container">Medium</span>
+                  </div>
+                  <h4 class="text-base font-semibold text-primary group-hover:text-surface-tint transition-colors">UX Researcher</h4>
+                  <p class="text-sm text-on-surface-variant mt-0.5">Globex International · <span class="text-xs font-medium">3 days left</span></p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="flex flex-col items-end">
+                  <span class="text-[11px] uppercase tracking-wider font-bold text-on-surface-variant">Due Date</span>
+                  <span class="font-medium text-sm text-primary mt-0.5">Oct 15, 2023</span>
+                </div>
+                <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                  <button title="View details" class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors">
+                    <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+                  </button>
+                  <button title="Edit" class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors">
+                    <span class="material-symbols-outlined text-[16px]">edit</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Low -->
+            <div class="bg-surface-container-lowest p-5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[0_1px_8px_rgba(24,28,30,0.04)] hover:shadow-[0_4px_20px_rgba(24,28,30,0.07)] transition-all duration-200 cursor-pointer group border border-outline-variant/10">
+              <div class="flex items-center gap-4">
+                <div class="w-11 h-11 rounded-xl bg-surface-container-highest flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-outline filled">schedule</span>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2.5 mb-1">
+                    <span class="text-[11px] uppercase tracking-wider font-bold text-on-surface-variant">REQ-114</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest bg-surface-variant text-on-surface-variant">Low</span>
+                  </div>
+                  <h4 class="text-base font-semibold text-primary group-hover:text-surface-tint transition-colors">Lead Engineer</h4>
+                  <p class="text-sm text-on-surface-variant mt-0.5">Initech Solutions · <span class="text-xs font-medium">8 days left</span></p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="flex flex-col items-end">
+                  <span class="text-[11px] uppercase tracking-wider font-bold text-on-surface-variant">Due Date</span>
+                  <span class="font-medium text-sm text-primary mt-0.5">Oct 20, 2023</span>
+                </div>
+                <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                  <button title="View details" class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors">
+                    <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+                  </button>
+                  <button title="Edit" class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors">
+                    <span class="material-symbols-outlined text-[16px]">edit</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
-        <div class="space-y-3">
 
-          <!-- High -->
-          <div class="bg-surface-container-lowest p-5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[0_1px_8px_rgba(24,28,30,0.04)] hover:shadow-[0_4px_20px_rgba(24,28,30,0.07)] transition-shadow duration-200 cursor-pointer group border border-outline-variant/10">
-            <div class="flex items-center gap-4">
-              <div class="w-11 h-11 rounded-xl bg-error-container/20 flex items-center justify-center shrink-0">
-                <span class="material-symbols-outlined text-error filled">warning</span>
-              </div>
-              <div>
-                <div class="flex items-center gap-2.5 mb-1">
-                  <span class="text-[11px] uppercase tracking-wider font-bold text-on-surface-variant">REQ-102</span>
-                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest bg-error-container text-on-error-container">High</span>
-                </div>
-                <h4 class="text-base font-semibold text-primary group-hover:text-surface-tint transition-colors">Sr. Product Manager</h4>
-                <p class="text-sm text-on-surface-variant mt-0.5">Acme Corp</p>
-              </div>
-            </div>
-            <div class="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center px-2">
-              <span class="text-[11px] uppercase tracking-wider font-bold text-on-surface-variant mb-1">Due Date</span>
-              <span class="font-medium text-sm text-primary">Oct 12, 2023</span>
-            </div>
+        <!-- Recent Activity -->
+        <div class="xl:col-span-2 bg-surface-container-lowest rounded-2xl p-7 shadow-[0_2px_16px_rgba(24,28,30,0.05)] border border-outline-variant/10 flex flex-col">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-base font-bold tracking-tight text-primary">Recent Activity</h2>
+            <button class="text-xs font-medium text-on-surface-variant hover:text-primary transition-colors">Mark all read</button>
           </div>
+          <div class="flex-1 space-y-5">
 
-          <!-- Medium -->
-          <div class="bg-surface-container-lowest p-5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[0_1px_8px_rgba(24,28,30,0.04)] hover:shadow-[0_4px_20px_rgba(24,28,30,0.07)] transition-shadow duration-200 cursor-pointer group border border-outline-variant/10">
-            <div class="flex items-center gap-4">
-              <div class="w-11 h-11 rounded-xl bg-secondary-container/30 flex items-center justify-center shrink-0">
-                <span class="material-symbols-outlined text-on-secondary-container filled">pending</span>
+            <div class="flex gap-3 items-start">
+              <div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center shrink-0 mt-0.5">
+                <span class="material-symbols-outlined text-on-secondary-container text-[15px] filled">check_circle</span>
               </div>
-              <div>
-                <div class="flex items-center gap-2.5 mb-1">
-                  <span class="text-[11px] uppercase tracking-wider font-bold text-on-surface-variant">REQ-098</span>
-                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest bg-secondary-container text-on-secondary-container">Medium</span>
-                </div>
-                <h4 class="text-base font-semibold text-primary group-hover:text-surface-tint transition-colors">UX Researcher</h4>
-                <p class="text-sm text-on-surface-variant mt-0.5">Globex International</p>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm text-on-surface leading-snug"><span class="font-semibold text-primary">REQ-097</span> marked as <span class="text-secondary font-medium">Resolved</span></p>
+                <p class="text-xs text-on-surface-variant mt-0.5">Data Analyst · Umbrella Corp</p>
               </div>
+              <span class="text-xs text-on-surface-variant shrink-0 mt-0.5">2h ago</span>
             </div>
-            <div class="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center px-2">
-              <span class="text-[11px] uppercase tracking-wider font-bold text-on-surface-variant mb-1">Due Date</span>
-              <span class="font-medium text-sm text-primary">Oct 15, 2023</span>
+
+            <div class="flex gap-3 items-start">
+              <div class="w-8 h-8 rounded-full bg-error-container flex items-center justify-center shrink-0 mt-0.5">
+                <span class="material-symbols-outlined text-error text-[15px] filled">priority_high</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm text-on-surface leading-snug"><span class="font-semibold text-primary">REQ-102</span> escalated to <span class="text-error font-medium">High Priority</span></p>
+                <p class="text-xs text-on-surface-variant mt-0.5">Sr. Product Manager · Acme Corp</p>
+              </div>
+              <span class="text-xs text-on-surface-variant shrink-0 mt-0.5">5h ago</span>
             </div>
+
+            <div class="flex gap-3 items-start">
+              <div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center shrink-0 mt-0.5">
+                <span class="material-symbols-outlined text-primary text-[15px] filled">add_circle</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm text-on-surface leading-snug">New requirement <span class="font-semibold text-primary">REQ-114</span> created</p>
+                <p class="text-xs text-on-surface-variant mt-0.5">Lead Engineer · Initech Solutions</p>
+              </div>
+              <span class="text-xs text-on-surface-variant shrink-0 mt-0.5">Yesterday</span>
+            </div>
+
+            <div class="flex gap-3 items-start">
+              <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center shrink-0 mt-0.5">
+                <span class="material-symbols-outlined text-on-primary-fixed text-[15px] filled">edit_note</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm text-on-surface leading-snug"><span class="font-semibold text-primary">REQ-098</span> details updated</p>
+                <p class="text-xs text-on-surface-variant mt-0.5">UX Researcher · Globex International</p>
+              </div>
+              <span class="text-xs text-on-surface-variant shrink-0 mt-0.5">2 days ago</span>
+            </div>
+
           </div>
-
-          <!-- Low -->
-          <div class="bg-surface-container-lowest p-5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[0_1px_8px_rgba(24,28,30,0.04)] hover:shadow-[0_4px_20px_rgba(24,28,30,0.07)] transition-shadow duration-200 cursor-pointer group border border-outline-variant/10">
-            <div class="flex items-center gap-4">
-              <div class="w-11 h-11 rounded-xl bg-surface-container-highest flex items-center justify-center shrink-0">
-                <span class="material-symbols-outlined text-outline filled">schedule</span>
-              </div>
-              <div>
-                <div class="flex items-center gap-2.5 mb-1">
-                  <span class="text-[11px] uppercase tracking-wider font-bold text-on-surface-variant">REQ-114</span>
-                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest bg-surface-variant text-on-surface-variant">Low</span>
-                </div>
-                <h4 class="text-base font-semibold text-primary group-hover:text-surface-tint transition-colors">Lead Engineer</h4>
-                <p class="text-sm text-on-surface-variant mt-0.5">Initech Solutions</p>
-              </div>
-            </div>
-            <div class="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center px-2">
-              <span class="text-[11px] uppercase tracking-wider font-bold text-on-surface-variant mb-1">Due Date</span>
-              <span class="font-medium text-sm text-primary">Oct 20, 2023</span>
-            </div>
+          <div class="mt-6 pt-4 border-t border-outline-variant/10">
+            <a href="#" class="text-sm font-medium text-surface-tint hover:text-primary transition-colors flex items-center gap-1">
+              View full history
+              <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+            </a>
           </div>
-
         </div>
+
       </div>
+
     </div>
   </div>
 </main>
+
+<script>
+  const greetingEl = document.getElementById('greeting-line');
+  const dateEl = document.getElementById('current-date');
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  greetingEl.textContent = greeting + ', here\'s your snapshot for today.';
+  dateEl.textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+</script>
 </body>
 </html>

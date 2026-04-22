@@ -99,39 +99,50 @@
      SIDEBAR
 ════════════════════════════════════════════════════ -->
 <nav class="hidden md:flex flex-col h-full py-6 px-4 bg-surface-container-low border-r border-outline-variant/20 w-64 fixed left-0 top-0 z-50 shrink-0">
-  <div class="flex items-center gap-3 px-2 mb-10">
+  <!-- Brand -->
+  <div class="flex items-center gap-3 px-2 mb-8">
     <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-sm shrink-0">
-      <span class="material-symbols-outlined text-on-primary text-[18px] filled">work</span>
+      <span class="material-symbols-outlined text-on-primary text-[18px] filled">corporate_fare</span>
     </div>
     <div>
-      <h1 class="text-base font-bold text-primary tracking-tight leading-tight">CRM Ledger</h1>
-      <p class="text-[11px] text-on-surface-variant leading-tight">Management Suite</p>
+      <h1 class="text-base font-bold text-primary tracking-tight leading-tight">CRM Suite</h1>
+      <p class="text-[11px] text-on-surface-variant leading-tight">Talent &amp; Requirements</p>
     </div>
   </div>
-  <a href="newrequirment.html">
-    <button class="mb-8 w-full bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl py-3 px-4 flex justify-center items-center gap-2 hover:opacity-90 transition-opacity font-medium text-sm">
-      <span class="material-symbols-outlined text-[18px]">add</span>
-      <span>New Entry</span>
-    </button>
-  </a>
-  <div class="flex-1 space-y-1">
-    <a href="index.html" class="nav-active flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150">
-      <span class="material-symbols-outlined filled text-[20px]">dashboard</span>
-      <span class="text-sm">Dashboard</span>
-    </a>
-    <a href="list.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
-      <span class="material-symbols-outlined text-[20px]">list_alt</span>
-      <span class="font-medium text-sm">Requirements</span>
-    </a>
-    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
-      <span class="material-symbols-outlined text-[20px]">analytics</span>
-      <span class="font-medium text-sm">Active Tasks</span>
-    </a>
-    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
-      <span class="material-symbols-outlined text-[20px]">inventory_2</span>
-      <span class="font-medium text-sm">Archive</span>
-    </a>
+  <!-- Nav sections -->
+  <div class="flex-1 space-y-5 overflow-y-auto pr-1">
+    <div>
+      <p class="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-widest px-3 mb-1.5">Requirements</p>
+      <div class="space-y-0.5">
+        <a href="index.html" class="nav-active flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150">
+          <span class="material-symbols-outlined filled text-[20px]">dashboard</span>
+          <span class="text-sm">Dashboard</span>
+        </a>
+        <a href="list.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
+          <span class="material-symbols-outlined text-[20px]">list_alt</span>
+          <span class="font-medium text-sm">Requirements</span>
+        </a>
+        <a href="newrequirment.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
+          <span class="material-symbols-outlined text-[20px]">add_circle</span>
+          <span class="font-medium text-sm">New Requirement</span>
+        </a>
+      </div>
+    </div>
+    <div>
+      <p class="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-widest px-3 mb-1.5">Talent</p>
+      <div class="space-y-0.5">
+        <a href="listtalento.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
+          <span class="material-symbols-outlined text-[20px]">group</span>
+          <span class="font-medium text-sm">Talent Directory</span>
+        </a>
+        <a href="alta.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
+          <span class="material-symbols-outlined text-[20px]">person_add</span>
+          <span class="font-medium text-sm">Add Talent</span>
+        </a>
+      </div>
+    </div>
   </div>
+  <!-- Footer -->
   <div class="mt-auto space-y-1 pt-6 border-t border-outline-variant/20">
     <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors">
       <span class="material-symbols-outlined text-[20px]">help_outline</span>

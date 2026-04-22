@@ -100,39 +100,50 @@
      SIDEBAR
 ════════════════════════════════════════════════════ -->
 <nav class="hidden md:flex flex-col h-full py-6 px-4 bg-surface-container-low border-r border-outline-variant/20 w-64 fixed left-0 top-0 z-50 shrink-0">
-  <div class="flex items-center gap-3 px-2 mb-10">
+  <!-- Brand -->
+  <div class="flex items-center gap-3 px-2 mb-8">
     <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-sm shrink-0">
-      <span class="material-symbols-outlined text-on-primary text-[18px] filled">work</span>
+      <span class="material-symbols-outlined text-on-primary text-[18px] filled">corporate_fare</span>
     </div>
     <div>
-      <h1 class="text-base font-bold text-primary tracking-tight leading-tight">CRM Ledger</h1>
-      <p class="text-[11px] text-on-surface-variant leading-tight">Management Suite</p>
+      <h1 class="text-base font-bold text-primary tracking-tight leading-tight">CRM Suite</h1>
+      <p class="text-[11px] text-on-surface-variant leading-tight">Talent &amp; Requirements</p>
     </div>
   </div>
-  <a href="newrequirment.html">
-    <button class="mb-8 w-full bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl py-3 px-4 flex justify-center items-center gap-2 hover:opacity-90 transition-opacity font-medium text-sm">
-      <span class="material-symbols-outlined text-[18px]">add</span>
-      <span>New Entry</span>
-    </button>
-  </a>
-  <div class="flex-1 space-y-1">
-    <a href="index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
-      <span class="material-symbols-outlined text-[20px]">dashboard</span>
-      <span class="font-medium text-sm">Dashboard</span>
-    </a>
-    <a href="list.html" class="nav-active flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150">
-      <span class="material-symbols-outlined filled text-[20px]">list_alt</span>
-      <span class="text-sm">Requirements</span>
-    </a>
-    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
-      <span class="material-symbols-outlined text-[20px]">analytics</span>
-      <span class="font-medium text-sm">Active Tasks</span>
-    </a>
-    <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
-      <span class="material-symbols-outlined text-[20px]">inventory_2</span>
-      <span class="font-medium text-sm">Archive</span>
-    </a>
+  <!-- Nav sections -->
+  <div class="flex-1 space-y-5 overflow-y-auto pr-1">
+    <div>
+      <p class="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-widest px-3 mb-1.5">Requirements</p>
+      <div class="space-y-0.5">
+        <a href="index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
+          <span class="material-symbols-outlined text-[20px]">dashboard</span>
+          <span class="font-medium text-sm">Dashboard</span>
+        </a>
+        <a href="list.html" class="nav-active flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150">
+          <span class="material-symbols-outlined filled text-[20px]">list_alt</span>
+          <span class="text-sm">Requirements</span>
+        </a>
+        <a href="newrequirment.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
+          <span class="material-symbols-outlined text-[20px]">add_circle</span>
+          <span class="font-medium text-sm">New Requirement</span>
+        </a>
+      </div>
+    </div>
+    <div>
+      <p class="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-widest px-3 mb-1.5">Talent</p>
+      <div class="space-y-0.5">
+        <a href="listtalento.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
+          <span class="material-symbols-outlined text-[20px]">group</span>
+          <span class="font-medium text-sm">Talent Directory</span>
+        </a>
+        <a href="alta.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
+          <span class="material-symbols-outlined text-[20px]">person_add</span>
+          <span class="font-medium text-sm">Add Talent</span>
+        </a>
+      </div>
+    </div>
   </div>
+  <!-- Footer -->
   <div class="mt-auto space-y-1 pt-6 border-t border-outline-variant/20">
     <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors">
       <span class="material-symbols-outlined text-[20px]">help_outline</span>
@@ -236,8 +247,8 @@
               <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Client</label>
               <select class="w-full px-3 py-2.5 bg-surface-container-high border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 transition-shadow appearance-none cursor-pointer">
                 <option>All Clients</option>
-                <option>Acme Corp</option>
-                <option>Globex Inc</option>
+                <option>Logic Monitor</option>
+                <option>Pacvue</option>
               </select>
             </div>
             <div class="flex-1 min-w-[140px]">
@@ -273,64 +284,49 @@
       </div>
 
       <!-- Data Table -->
-      <div class="bg-surface-container-low rounded-2xl p-1.5 border border-outline-variant/10">
+      <div class="space-y-3">
 
-        <!-- Header Row with sort -->
-        <div class="hidden md:grid grid-cols-12 gap-4 px-5 py-3">
-          <button class="col-span-2 flex items-center gap-1 text-[11px] font-bold text-on-surface-variant uppercase tracking-widest hover:text-primary transition-colors sort-btn">
-            Req. ID <span class="material-symbols-outlined text-[14px]">unfold_more</span>
-          </button>
-          <button class="col-span-3 flex items-center gap-1 text-[11px] font-bold text-primary uppercase tracking-widest sort-btn">
-            Position Title <span class="material-symbols-outlined text-[14px] filled">expand_less</span>
-          </button>
-          <button class="col-span-2 flex items-center gap-1 text-[11px] font-bold text-on-surface-variant uppercase tracking-widest hover:text-primary transition-colors sort-btn">
-            Client <span class="material-symbols-outlined text-[14px]">unfold_more</span>
-          </button>
-          <div class="col-span-2 text-[11px] font-bold text-on-surface-variant uppercase tracking-widest">Work Scheme</div>
-          <button class="col-span-2 flex items-center gap-1 text-[11px] font-bold text-on-surface-variant uppercase tracking-widest hover:text-primary transition-colors sort-btn">
-            Status <span class="material-symbols-outlined text-[14px]">unfold_more</span>
-          </button>
-          <button class="col-span-1 flex items-center justify-end gap-1 text-[11px] font-bold text-on-surface-variant uppercase tracking-widest hover:text-primary transition-colors sort-btn">
-            Date <span class="material-symbols-outlined text-[14px]">unfold_more</span>
-          </button>
-        </div>
-
-        <!-- Items -->
-        <div class="space-y-1.5">
-
-          <!-- Item 1 -->
-          <div class="req-row grid grid-cols-1 md:grid-cols-12 gap-4 items-center px-5 py-4 bg-surface-container-lowest rounded-xl shadow-[0_1px_8px_rgba(24,28,30,0.03)] hover:shadow-[0_4px_20px_rgba(24,28,30,0.07)] transition-all cursor-pointer group border border-outline-variant/10">
-            <div class="col-span-12 md:col-span-2">
-              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">ID:</span>
-              <span class="font-mono text-sm text-primary font-medium">REQ-2023-084</span>
+        <!-- ══════════════════════════════════════════
+             REQ-2024-084 · Acme Corp · Blue phases
+        ══════════════════════════════════════════ -->
+        <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-[0_2px_12px_rgba(24,28,30,0.04)] overflow-hidden">
+          <!-- Main row -->
+          <div class="req-row grid grid-cols-1 lg:grid-cols-12 gap-x-4 gap-y-2 items-center px-5 py-4 cursor-pointer group hover:bg-surface-container/30 transition-colors" onclick="togglePhases('phases-1', this)">
+            <!-- Priority -->
+            <div class="lg:col-span-1 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-error shrink-0"></span>
+              <span class="text-[10px] font-bold text-error uppercase tracking-wide">High</span>
             </div>
-            <div class="col-span-12 md:col-span-3">
-              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Position:</span>
-              <span class="font-semibold text-on-surface group-hover:text-primary transition-colors text-sm">Senior Product Designer</span>
+            <!-- Req ID + Title -->
+            <div class="lg:col-span-3">
+              <span class="font-mono text-xs text-on-surface-variant">REQ-2024-084</span>
+              <p class="font-semibold text-primary text-sm leading-tight group-hover:text-surface-tint transition-colors">Senior Product Designer</p>
             </div>
-            <div class="col-span-12 md:col-span-2">
-              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Client:</span>
-              <div class="flex items-center gap-2">
-                <div class="w-6 h-6 rounded-full bg-primary-fixed flex items-center justify-center text-[10px] font-bold text-on-primary-fixed">A</div>
-                <span class="text-sm text-on-surface-variant">Acme Corp</span>
+            <!-- Client -->
+            <div class="lg:col-span-2 flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-[11px] font-bold text-blue-700 shrink-0">A</div>
+              <div>
+                <p class="text-xs font-semibold text-primary">Logic Monitor</p>
+                <p class="text-[10px] text-on-surface-variant">Stage: Active</p>
               </div>
             </div>
-            <div class="col-span-12 md:col-span-2">
-              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Scheme:</span>
-              <span class="text-sm text-on-surface-variant">Hybrid (3 days)</span>
+            <!-- Details -->
+            <div class="lg:col-span-2 space-y-0.5">
+              <p class="text-xs text-on-surface-variant"><span class="font-medium text-primary">$95,000</span> · 15% var</p>
+              <p class="text-xs text-on-surface-variant">Hybrid · New York, US</p>
+              <p class="text-xs text-on-surface-variant">2 FTE's · 6 Months</p>
             </div>
-            <div class="col-span-12 md:col-span-2">
-              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Status:</span>
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-secondary-container text-on-secondary-container tracking-wide uppercase">
+            <!-- Target Date -->
+            <div class="lg:col-span-2 text-center">
+              <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-0.5">Target Fill</p>
+              <p class="text-sm font-semibold text-primary">Nov 30, 2024</p>
+            </div>
+            <!-- Status + actions -->
+            <div class="lg:col-span-2 flex items-center justify-between gap-2">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-secondary-container text-on-secondary-container tracking-wide uppercase">
                 <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>Open
               </span>
-            </div>
-            <div class="col-span-12 md:col-span-1 flex items-center justify-between md:justify-end gap-3">
-              <span class="text-sm text-on-surface-variant">Oct 24</span>
               <div class="row-actions flex gap-1">
-                <button title="View details" class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" onclick="event.stopPropagation()">
-                  <span class="material-symbols-outlined text-[15px]">open_in_new</span>
-                </button>
                 <button title="Edit" class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" onclick="event.stopPropagation()">
                   <span class="material-symbols-outlined text-[15px]">edit</span>
                 </button>
@@ -338,42 +334,123 @@
                   <span class="material-symbols-outlined text-[15px]">delete_outline</span>
                 </button>
               </div>
+              <span class="material-symbols-outlined text-[18px] text-on-surface-variant transition-transform duration-200 phase-chevron">expand_more</span>
             </div>
           </div>
-
-          <!-- Item 2 -->
-          <div class="req-row grid grid-cols-1 md:grid-cols-12 gap-4 items-center px-5 py-4 bg-surface-container-lowest rounded-xl shadow-[0_1px_8px_rgba(24,28,30,0.03)] hover:shadow-[0_4px_20px_rgba(24,28,30,0.07)] transition-all cursor-pointer group border border-outline-variant/10">
-            <div class="col-span-12 md:col-span-2">
-              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">ID:</span>
-              <span class="font-mono text-sm text-primary font-medium">REQ-2023-085</span>
-            </div>
-            <div class="col-span-12 md:col-span-3">
-              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Position:</span>
-              <span class="font-semibold text-on-surface group-hover:text-primary transition-colors text-sm">Lead Backend Engineer</span>
-            </div>
-            <div class="col-span-12 md:col-span-2">
-              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Client:</span>
-              <div class="flex items-center gap-2">
-                <div class="w-6 h-6 rounded-full bg-surface-tint/20 flex items-center justify-center text-[10px] font-bold text-surface-tint">G</div>
-                <span class="text-sm text-on-surface-variant">Globex Inc</span>
+          <!-- Pipeline phases (blue) -->
+          <div id="phases-1" class="hidden border-t border-blue-100 bg-blue-50/40 px-5 py-4">
+            <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-3">Interview Pipeline — Acme Corp</p>
+            <div class="flex flex-wrap items-center gap-0">
+              <!-- phase: done -->
+              <div class="phase-step flex flex-col items-center w-[110px] mb-3">
+                <div class="w-7 h-7 rounded-full bg-blue-500 flex items-center justify-center mb-1 shadow-sm">
+                  <span class="material-symbols-outlined text-white text-[14px] filled">check</span>
+                </div>
+                <span class="text-[10px] font-semibold text-blue-700 text-center leading-tight">Test 1</span>
+                <span class="text-[9px] text-blue-400">Completed</span>
+              </div>
+              <div class="w-8 h-0.5 bg-blue-300 mb-5 -mx-1 shrink-0"></div>
+              <!-- phase: done -->
+              <div class="phase-step flex flex-col items-center w-[110px] mb-3">
+                <div class="w-7 h-7 rounded-full bg-blue-500 flex items-center justify-center mb-1 shadow-sm">
+                  <span class="material-symbols-outlined text-white text-[14px] filled">check</span>
+                </div>
+                <span class="text-[10px] font-semibold text-blue-700 text-center leading-tight">Test 2</span>
+                <span class="text-[9px] text-blue-400">Completed</span>
+              </div>
+              <div class="w-8 h-0.5 bg-blue-300 mb-5 -mx-1 shrink-0"></div>
+              <!-- phase: done -->
+              <div class="phase-step flex flex-col items-center w-[110px] mb-3">
+                <div class="w-7 h-7 rounded-full bg-blue-500 flex items-center justify-center mb-1 shadow-sm">
+                  <span class="material-symbols-outlined text-white text-[14px] filled">check</span>
+                </div>
+                <span class="text-[10px] font-semibold text-blue-700 text-center leading-tight">Luke's Interview</span>
+                <span class="text-[9px] text-blue-400">Completed</span>
+              </div>
+              <div class="w-8 h-0.5 bg-blue-200 mb-5 -mx-1 shrink-0"></div>
+              <!-- phase: current -->
+              <div class="phase-step flex flex-col items-center w-[110px] mb-3">
+                <div class="w-7 h-7 rounded-full bg-blue-600 ring-2 ring-blue-300 ring-offset-1 flex items-center justify-center mb-1 shadow-md">
+                  <span class="material-symbols-outlined text-white text-[14px]">schedule</span>
+                </div>
+                <span class="text-[10px] font-bold text-blue-800 text-center leading-tight">Mark's Interview</span>
+                <span class="text-[9px] text-blue-500 font-semibold">In Progress</span>
+              </div>
+              <div class="w-8 h-0.5 bg-blue-100 mb-5 -mx-1 shrink-0"></div>
+              <!-- phase: pending -->
+              <div class="phase-step flex flex-col items-center w-[110px] mb-3 opacity-50">
+                <div class="w-7 h-7 rounded-full border-2 border-blue-300 bg-white flex items-center justify-center mb-1">
+                  <span class="material-symbols-outlined text-blue-300 text-[14px]">radio_button_unchecked</span>
+                </div>
+                <span class="text-[10px] font-semibold text-blue-600 text-center leading-tight">Ross' Interview</span>
+                <span class="text-[9px] text-blue-300">Pending</span>
+              </div>
+              <div class="w-8 h-0.5 bg-blue-100 mb-5 -mx-1 shrink-0"></div>
+              <div class="phase-step flex flex-col items-center w-[110px] mb-3 opacity-50">
+                <div class="w-7 h-7 rounded-full border-2 border-blue-300 bg-white flex items-center justify-center mb-1">
+                  <span class="material-symbols-outlined text-blue-300 text-[14px]">radio_button_unchecked</span>
+                </div>
+                <span class="text-[10px] font-semibold text-blue-600 text-center leading-tight">Kellena's Interview</span>
+                <span class="text-[9px] text-blue-300">Pending</span>
+              </div>
+              <div class="w-8 h-0.5 bg-blue-100 mb-5 -mx-1 shrink-0"></div>
+              <div class="phase-step flex flex-col items-center w-[110px] mb-3 opacity-50">
+                <div class="w-7 h-7 rounded-full border-2 border-blue-300 bg-white flex items-center justify-center mb-1">
+                  <span class="material-symbols-outlined text-blue-300 text-[14px]">radio_button_unchecked</span>
+                </div>
+                <span class="text-[10px] font-semibold text-blue-600 text-center leading-tight">5th Interview</span>
+                <span class="text-[9px] text-blue-300">Pending</span>
+              </div>
+              <div class="w-8 h-0.5 bg-blue-100 mb-5 -mx-1 shrink-0"></div>
+              <div class="phase-step flex flex-col items-center w-[110px] mb-3 opacity-50">
+                <div class="w-7 h-7 rounded-full border-2 border-blue-300 bg-white flex items-center justify-center mb-1">
+                  <span class="material-symbols-outlined text-blue-300 text-[14px]">emoji_events</span>
+                </div>
+                <span class="text-[10px] font-bold text-blue-600 text-center leading-tight">Final Interview</span>
+                <span class="text-[9px] text-blue-300">Pending</span>
               </div>
             </div>
-            <div class="col-span-12 md:col-span-2">
-              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Scheme:</span>
-              <span class="text-sm text-on-surface-variant">Remote</span>
+            <div class="flex items-center justify-between mt-2 pt-3 border-t border-blue-100">
+              <p class="text-xs text-blue-600"><span class="font-bold">3 of 8</span> phases completed · App. Date: Oct 24, 2024 · VISA: Not required</p>
+              <a href="newrequirment.html" class="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1">Edit Requirement <span class="material-symbols-outlined text-[14px]">arrow_forward</span></a>
             </div>
-            <div class="col-span-12 md:col-span-2">
-              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Status:</span>
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-error-container text-on-error-container tracking-wide uppercase">
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+             REQ-2024-085 · Pacvue · Orange phases
+        ══════════════════════════════════════════ -->
+        <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-[0_2px_12px_rgba(24,28,30,0.04)] overflow-hidden">
+          <div class="req-row grid grid-cols-1 lg:grid-cols-12 gap-x-4 gap-y-2 items-center px-5 py-4 cursor-pointer group hover:bg-surface-container/30 transition-colors" onclick="togglePhases('phases-2', this)">
+            <div class="lg:col-span-1 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-error shrink-0"></span>
+              <span class="text-[10px] font-bold text-error uppercase tracking-wide">High</span>
+            </div>
+            <div class="lg:col-span-3">
+              <span class="font-mono text-xs text-on-surface-variant">REQ-2024-085</span>
+              <p class="font-semibold text-primary text-sm leading-tight group-hover:text-surface-tint transition-colors">Lead Backend Engineer</p>
+            </div>
+            <div class="lg:col-span-2 flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center text-[11px] font-bold text-orange-700 shrink-0">G</div>
+              <div>
+                <p class="text-xs font-semibold text-primary">Pacvue</p>
+                <p class="text-[10px] text-on-surface-variant">Stage: Active</p>
+              </div>
+            </div>
+            <div class="lg:col-span-2 space-y-0.5">
+              <p class="text-xs text-on-surface-variant"><span class="font-medium text-primary">$120,000</span> · 20% var</p>
+              <p class="text-xs text-on-surface-variant">Remote · Austin, TX</p>
+              <p class="text-xs text-on-surface-variant">1 FTE · Permanent</p>
+            </div>
+            <div class="lg:col-span-2 text-center">
+              <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-0.5">Target Fill</p>
+              <p class="text-sm font-semibold text-primary">Dec 15, 2024</p>
+            </div>
+            <div class="lg:col-span-2 flex items-center justify-between gap-2">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-error-container text-on-error-container tracking-wide uppercase">
                 <span class="w-1.5 h-1.5 rounded-full bg-error"></span>Urgent
               </span>
-            </div>
-            <div class="col-span-12 md:col-span-1 flex items-center justify-between md:justify-end gap-3">
-              <span class="text-sm text-on-surface-variant">Oct 22</span>
               <div class="row-actions flex gap-1">
-                <button title="View details" class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" onclick="event.stopPropagation()">
-                  <span class="material-symbols-outlined text-[15px]">open_in_new</span>
-                </button>
                 <button title="Edit" class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" onclick="event.stopPropagation()">
                   <span class="material-symbols-outlined text-[15px]">edit</span>
                 </button>
@@ -381,42 +458,86 @@
                   <span class="material-symbols-outlined text-[15px]">delete_outline</span>
                 </button>
               </div>
+              <span class="material-symbols-outlined text-[18px] text-on-surface-variant transition-transform duration-200 phase-chevron">expand_more</span>
             </div>
           </div>
-
-          <!-- Item 3 -->
-          <div class="req-row grid grid-cols-1 md:grid-cols-12 gap-4 items-center px-5 py-4 bg-surface-container-lowest rounded-xl shadow-[0_1px_8px_rgba(24,28,30,0.03)] hover:shadow-[0_4px_20px_rgba(24,28,30,0.07)] transition-all cursor-pointer group border border-outline-variant/10">
-            <div class="col-span-12 md:col-span-2">
-              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">ID:</span>
-              <span class="font-mono text-sm text-primary font-medium">REQ-2023-081</span>
-            </div>
-            <div class="col-span-12 md:col-span-3">
-              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Position:</span>
-              <span class="font-semibold text-on-surface group-hover:text-primary transition-colors text-sm">Marketing Director</span>
-            </div>
-            <div class="col-span-12 md:col-span-2">
-              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Client:</span>
-              <div class="flex items-center gap-2">
-                <div class="w-6 h-6 rounded-full bg-secondary-container flex items-center justify-center text-[10px] font-bold text-on-secondary-container">S</div>
-                <span class="text-sm text-on-surface-variant">Stark Ind.</span>
+          <!-- Pipeline phases (orange) -->
+          <div id="phases-2" class="hidden border-t border-orange-100 bg-orange-50/40 px-5 py-4">
+            <p class="text-[10px] font-bold text-orange-600 uppercase tracking-widest mb-3">Interview Pipeline — Pacvue</p>
+            <div class="flex flex-wrap items-center gap-0">
+              <div class="phase-step flex flex-col items-center w-[140px] mb-3">
+                <div class="w-7 h-7 rounded-full bg-orange-500 flex items-center justify-center mb-1 shadow-sm">
+                  <span class="material-symbols-outlined text-white text-[14px] filled">check</span>
+                </div>
+                <span class="text-[10px] font-semibold text-orange-700 text-center leading-tight">HR Interview</span>
+                <span class="text-[9px] text-orange-400">Completed</span>
+              </div>
+              <div class="w-8 h-0.5 bg-orange-300 mb-5 -mx-1 shrink-0"></div>
+              <div class="phase-step flex flex-col items-center w-[140px] mb-3">
+                <div class="w-7 h-7 rounded-full bg-orange-600 ring-2 ring-orange-300 ring-offset-1 flex items-center justify-center mb-1 shadow-md">
+                  <span class="material-symbols-outlined text-white text-[14px]">schedule</span>
+                </div>
+                <span class="text-[10px] font-bold text-orange-800 text-center leading-tight">Hiring Manager Interview</span>
+                <span class="text-[9px] text-orange-500 font-semibold">In Progress</span>
+              </div>
+              <div class="w-8 h-0.5 bg-orange-100 mb-5 -mx-1 shrink-0"></div>
+              <div class="phase-step flex flex-col items-center w-[140px] mb-3 opacity-50">
+                <div class="w-7 h-7 rounded-full border-2 border-orange-300 bg-white flex items-center justify-center mb-1">
+                  <span class="material-symbols-outlined text-orange-300 text-[14px]">radio_button_unchecked</span>
+                </div>
+                <span class="text-[10px] font-semibold text-orange-600 text-center leading-tight">Tech Interview</span>
+                <span class="text-[9px] text-orange-300">Pending</span>
+              </div>
+              <div class="w-8 h-0.5 bg-orange-100 mb-5 -mx-1 shrink-0"></div>
+              <div class="phase-step flex flex-col items-center w-[140px] mb-3 opacity-50">
+                <div class="w-7 h-7 rounded-full border-2 border-orange-300 bg-white flex items-center justify-center mb-1">
+                  <span class="material-symbols-outlined text-orange-300 text-[14px]">present_to_all</span>
+                </div>
+                <span class="text-[10px] font-bold text-orange-600 text-center leading-tight">Presentation</span>
+                <span class="text-[9px] text-orange-300">Pending</span>
               </div>
             </div>
-            <div class="col-span-12 md:col-span-2">
-              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Scheme:</span>
-              <span class="text-sm text-on-surface-variant">On-site</span>
+            <div class="flex items-center justify-between mt-2 pt-3 border-t border-orange-100">
+              <p class="text-xs text-orange-600"><span class="font-bold">1 of 4</span> phases completed · App. Date: Oct 22, 2024 · VISA: TBD</p>
+              <a href="newrequirment.html" class="text-xs font-semibold text-orange-600 hover:text-orange-800 transition-colors flex items-center gap-1">Edit Requirement <span class="material-symbols-outlined text-[14px]">arrow_forward</span></a>
             </div>
-            <div class="col-span-12 md:col-span-2">
-              <span class="text-[11px] font-bold text-on-surface-variant uppercase md:hidden mr-2">Status:</span>
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-surface-container-high text-on-surface-variant tracking-wide uppercase">
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+             REQ-2024-081 · Blue Conic · Purple phases
+        ══════════════════════════════════════════ -->
+        <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-[0_2px_12px_rgba(24,28,30,0.04)] overflow-hidden">
+          <div class="req-row grid grid-cols-1 lg:grid-cols-12 gap-x-4 gap-y-2 items-center px-5 py-4 cursor-pointer group hover:bg-surface-container/30 transition-colors" onclick="togglePhases('phases-3', this)">
+            <div class="lg:col-span-1 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-surface-tint shrink-0"></span>
+              <span class="text-[10px] font-bold text-surface-tint uppercase tracking-wide">Med</span>
+            </div>
+            <div class="lg:col-span-3">
+              <span class="font-mono text-xs text-on-surface-variant">REQ-2024-081</span>
+              <p class="font-semibold text-primary text-sm leading-tight group-hover:text-surface-tint transition-colors">Marketing Director</p>
+            </div>
+            <div class="lg:col-span-2 flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-violet-100 flex items-center justify-center text-[11px] font-bold text-violet-700 shrink-0">S</div>
+              <div>
+                <p class="text-xs font-semibold text-primary">Blue Conic</p>
+                <p class="text-[10px] text-on-surface-variant">Stage: Active</p>
+              </div>
+            </div>
+            <div class="lg:col-span-2 space-y-0.5">
+              <p class="text-xs text-on-surface-variant"><span class="font-medium text-primary">$150,000</span> · 25% var</p>
+              <p class="text-xs text-on-surface-variant">On-site · Chicago, IL</p>
+              <p class="text-xs text-on-surface-variant">1 FTE · Permanent</p>
+            </div>
+            <div class="lg:col-span-2 text-center">
+              <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-0.5">Target Fill</p>
+              <p class="text-sm font-semibold text-primary">Jan 10, 2025</p>
+            </div>
+            <div class="lg:col-span-2 flex items-center justify-between gap-2">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-surface-container-high text-on-surface-variant tracking-wide uppercase">
                 <span class="w-1.5 h-1.5 rounded-full bg-outline"></span>Testing
               </span>
-            </div>
-            <div class="col-span-12 md:col-span-1 flex items-center justify-between md:justify-end gap-3">
-              <span class="text-sm text-on-surface-variant">Oct 15</span>
               <div class="row-actions flex gap-1">
-                <button title="View details" class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" onclick="event.stopPropagation()">
-                  <span class="material-symbols-outlined text-[15px]">open_in_new</span>
-                </button>
                 <button title="Edit" class="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" onclick="event.stopPropagation()">
                   <span class="material-symbols-outlined text-[15px]">edit</span>
                 </button>
@@ -424,13 +545,54 @@
                   <span class="material-symbols-outlined text-[15px]">delete_outline</span>
                 </button>
               </div>
+              <span class="material-symbols-outlined text-[18px] text-on-surface-variant transition-transform duration-200 phase-chevron">expand_more</span>
             </div>
           </div>
-
+          <!-- Pipeline phases (purple) -->
+          <div id="phases-3" class="hidden border-t border-violet-100 bg-violet-50/40 px-5 py-4">
+            <p class="text-[10px] font-bold text-violet-600 uppercase tracking-widest mb-3">Interview Pipeline — Blue Conic</p>
+            <div class="flex flex-wrap items-center gap-0">
+              <div class="phase-step flex flex-col items-center w-[140px] mb-3">
+                <div class="w-7 h-7 rounded-full bg-violet-500 flex items-center justify-center mb-1 shadow-sm">
+                  <span class="material-symbols-outlined text-white text-[14px] filled">check</span>
+                </div>
+                <span class="text-[10px] font-semibold text-violet-700 text-center leading-tight">HR Interview</span>
+                <span class="text-[9px] text-violet-400">Completed</span>
+              </div>
+              <div class="w-8 h-0.5 bg-violet-300 mb-5 -mx-1 shrink-0"></div>
+              <div class="phase-step flex flex-col items-center w-[140px] mb-3">
+                <div class="w-7 h-7 rounded-full bg-violet-500 flex items-center justify-center mb-1 shadow-sm">
+                  <span class="material-symbols-outlined text-white text-[14px] filled">check</span>
+                </div>
+                <span class="text-[10px] font-semibold text-violet-700 text-center leading-tight">Interview Hiring Manager</span>
+                <span class="text-[9px] text-violet-400">Completed</span>
+              </div>
+              <div class="w-8 h-0.5 bg-violet-200 mb-5 -mx-1 shrink-0"></div>
+              <div class="phase-step flex flex-col items-center w-[140px] mb-3">
+                <div class="w-7 h-7 rounded-full bg-violet-600 ring-2 ring-violet-300 ring-offset-1 flex items-center justify-center mb-1 shadow-md">
+                  <span class="material-symbols-outlined text-white text-[14px]">schedule</span>
+                </div>
+                <span class="text-[10px] font-bold text-violet-800 text-center leading-tight">Team Interview</span>
+                <span class="text-[9px] text-violet-500 font-semibold">In Progress</span>
+              </div>
+              <div class="w-8 h-0.5 bg-violet-100 mb-5 -mx-1 shrink-0"></div>
+              <div class="phase-step flex flex-col items-center w-[140px] mb-3 opacity-50">
+                <div class="w-7 h-7 rounded-full border-2 border-violet-300 bg-white flex items-center justify-center mb-1">
+                  <span class="material-symbols-outlined text-violet-300 text-[14px]">present_to_all</span>
+                </div>
+                <span class="text-[10px] font-bold text-violet-600 text-center leading-tight">Presentation</span>
+                <span class="text-[9px] text-violet-300">Pending</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between mt-2 pt-3 border-t border-violet-100">
+              <p class="text-xs text-violet-600"><span class="font-bold">2 of 4</span> phases completed · App. Date: Oct 15, 2024 · VISA: Not required</p>
+              <a href="newrequirment.html" class="text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors flex items-center gap-1">Edit Requirement <span class="material-symbols-outlined text-[14px]">arrow_forward</span></a>
+            </div>
+          </div>
         </div>
 
         <!-- Pagination -->
-        <div class="mt-4 px-5 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-outline-variant/10">
+        <div class="mt-2 px-1 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p class="text-sm text-on-surface-variant">
             Showing <span class="font-semibold text-primary">1</span>–<span class="font-semibold text-primary">3</span> of <span class="font-semibold text-primary">42</span> requirements
           </p>
@@ -450,6 +612,16 @@
         </div>
 
       </div>
+
+      <script>
+        function togglePhases(id, row) {
+          const panel = document.getElementById(id);
+          const chevron = row.querySelector('.phase-chevron');
+          const isHidden = panel.classList.contains('hidden');
+          panel.classList.toggle('hidden', !isHidden);
+          chevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+        }
+      </script>
 
     </div>
   </div>

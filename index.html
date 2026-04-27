@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>CRM Ledger — Dashboard</title>
+<title>PRT Ledger — Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -15,15 +15,15 @@
         colors: {
           "outline-variant": "#c6c6d0",
           "outline": "#757680",
-          "primary": "#000726",
+          "primary": "#071736",
           "secondary-fixed": "#94fb6f",
-          "primary-container": "#0b1d4e",
+          "primary-container": "#133469",
           "tertiary-fixed": "#ffdbcd",
           "on-secondary-fixed-variant": "#145200",
           "inverse-on-surface": "#eef1f3",
           "on-secondary-fixed": "#042100",
           "inverse-primary": "#b5c4ff",
-          "secondary": "#1d6d00",
+          "secondary": "#50B152",
           "primary-fixed-dim": "#b5c4ff",
           "on-tertiary": "#ffffff",
           "on-secondary": "#ffffff",
@@ -31,13 +31,13 @@
           "on-error-container": "#93000a",
           "error": "#ba1a1a",
           "surface-container-low": "#f1f4f6",
-          "on-primary-container": "#7786bd",
-          "on-secondary-container": "#1f7200",
+          "on-primary-container": "#8ea7d2",
+          "on-secondary-container": "#1f5f29",
           "surface": "#f7fafc",
           "on-surface-variant": "#45464f",
           "tertiary": "#180400",
           "on-background": "#181c1e",
-          "surface-tint": "#4d5c90",
+          "surface-tint": "#2b5d8d",
           "on-primary": "#ffffff",
           "on-tertiary-container": "#bc7758",
           "on-tertiary-fixed": "#360f00",
@@ -53,13 +53,13 @@
           "primary-fixed": "#dce1ff",
           "tertiary-fixed-dim": "#ffb596",
           "surface-container-high": "#e5e9eb",
-          "secondary-container": "#91f86c",
+          "secondary-container": "#d9f2dc",
           "surface-container-lowest": "#ffffff",
           "on-tertiary-fixed-variant": "#6e381e",
           "surface-variant": "#e0e3e5",
           "tertiary-container": "#3e1300",
           "surface-dim": "#d7dadc",
-          "secondary-fixed-dim": "#79de56"
+          "secondary-fixed-dim": "#7ad27d"
         },
         borderRadius: {
           "DEFAULT": "0.125rem",
@@ -78,12 +78,15 @@
   }
 </script>
 <style>
-  body { font-family: 'Inter', sans-serif; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background-image: linear-gradient(180deg, rgba(7,23,54,0.02) 0%, rgba(80,177,82,0.05) 100%);
+  }
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
   .material-symbols-outlined.filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
   .nav-active {
     background-color: #ffffff;
-    color: #000726;
+    color: #071736;
     font-weight: 600;
     box-shadow: 0 1px 8px rgba(24,28,30,0.06);
   }
@@ -105,8 +108,8 @@
       <span class="material-symbols-outlined text-on-primary text-[18px] filled">corporate_fare</span>
     </div>
     <div>
-      <h1 class="text-base font-bold text-primary tracking-tight leading-tight">CRM Suite</h1>
-      <p class="text-[11px] text-on-surface-variant leading-tight">Talent &amp; Requirements</p>
+      <h1 class="text-base font-bold text-primary tracking-tight leading-tight">PRT Suite</h1>
+      <p class="text-[11px] text-on-surface-variant leading-tight">Talent, Client's &amp; Requirements</p>
     </div>
   </div>
   <!-- Nav sections -->
@@ -125,6 +128,15 @@
         <a href="newrequirment.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
           <span class="material-symbols-outlined text-[20px]">add_circle</span>
           <span class="font-medium text-sm">New Requirement</span>
+        </a>
+      </div>
+    </div>
+    <div>
+      <p class="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-widest px-3 mb-1.5">Client's</p>
+      <div class="space-y-0.5">
+        <a href="clients.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
+          <span class="material-symbols-outlined text-[20px]">apartment</span>
+          <span class="font-medium text-sm">Client Directory</span>
         </a>
       </div>
     </div>
@@ -163,7 +175,7 @@
   <!-- TOP HEADER -->
   <header class="flex justify-between items-center h-16 px-8 w-full sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10 shrink-0">
     <div class="flex items-center gap-4">
-      <span class="md:hidden text-lg font-bold tracking-tight text-primary">CRM Ledger</span>
+      <span class="md:hidden text-lg font-bold tracking-tight text-primary">PRT Ledger</span>
       <div class="relative hidden md:block group">
         <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-[18px]">search</span>
         <input class="bg-surface-container-high border-none outline-none ring-0 h-9 pl-10 pr-4 rounded-full text-sm w-60 focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:text-on-surface-variant" placeholder="Search entries..." type="text"/>
@@ -222,7 +234,7 @@
       </div>
 
       <!-- Summary Bento Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
 
         <!-- Open Requirements -->
         <a href="list.html" class="stat-card block bg-surface-container-lowest rounded-2xl p-7 shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden border border-outline-variant/10">
@@ -277,9 +289,93 @@
           <p class="text-xs text-on-surface-variant mt-3">vs. 19 resolved last month</p>
         </div>
 
+        <a href="clients.html" class="stat-card block bg-surface-container-lowest rounded-2xl p-7 shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden border border-outline-variant/10">
+          <div class="absolute inset-0 bg-gradient-to-br from-secondary/[0.12] via-primary/[0.03] to-transparent pointer-events-none"></div>
+          <div class="flex items-start justify-between mb-4">
+            <h3 class="text-xs uppercase tracking-[0.08em] font-bold text-on-surface-variant">Client's</h3>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold">
+              <span class="material-symbols-outlined filled text-[10px]">apartment</span>Directory
+            </span>
+          </div>
+          <div class="flex items-baseline gap-3">
+            <span class="text-6xl tracking-tighter font-light text-primary">3</span>
+            <span class="material-symbols-outlined text-secondary text-2xl filled">business</span>
+          </div>
+          <p class="text-xs text-on-surface-variant mt-3">Office, timezone, sector and business details</p>
+        </a>
+
       </div>
 
       <!-- Priority Requests + Recent Activity — side by side on xl -->
+      <div class="hidden bg-surface-container-lowest rounded-2xl p-7 shadow-[0_2px_16px_rgba(24,28,30,0.05)] border border-outline-variant/10">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
+          <div>
+            <h2 class="text-xl font-bold tracking-tight text-primary">Client's</h2>
+            <p class="text-sm text-on-surface-variant mt-1">Client reference details used by the recruiting team during intake and follow-up.</p>
+          </div>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant text-xs font-semibold">
+            <span class="material-symbols-outlined text-[15px]">apartment</span>
+            3 active clients
+          </span>
+        </div>
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+          <article class="bg-gradient-to-br from-blue-50 to-white rounded-2xl border border-blue-100 p-5 space-y-4">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-blue-600">Client</p>
+                <h3 class="text-lg font-bold text-primary mt-1">Logic Monitor</h3>
+              </div>
+              <span class="px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold uppercase tracking-wide">SaaS</span>
+            </div>
+            <div class="grid grid-cols-2 gap-3 text-sm">
+              <div class="rounded-xl bg-white/90 border border-blue-100 p-3"><p class="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-1">Office Location</p><p class="font-medium text-primary">New York, US</p></div>
+              <div class="rounded-xl bg-white/90 border border-blue-100 p-3"><p class="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-1">Country</p><p class="font-medium text-primary">United States</p></div>
+              <div class="rounded-xl bg-white/90 border border-blue-100 p-3"><p class="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-1">Business hours</p><p class="font-medium text-primary">9:00 AM - 6:00 PM</p></div>
+              <div class="rounded-xl bg-white/90 border border-blue-100 p-3"><p class="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-1">Benefits</p><p class="font-medium text-primary">Health, PTO, Bonus</p></div>
+              <div class="rounded-xl bg-white/90 border border-blue-100 p-3 col-span-2"><p class="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-1">Headquarters Location</p><p class="font-medium text-primary">Santa Barbara, California</p></div>
+              <div class="rounded-xl bg-white/90 border border-blue-100 p-3"><p class="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-1">Time Zone</p><p class="font-medium text-primary">EST / PST</p></div>
+              <div class="rounded-xl bg-white/90 border border-blue-100 p-3"><p class="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-1">Sector</p><p class="font-medium text-primary">Monitoring Software</p></div>
+            </div>
+          </article>
+          <article class="bg-gradient-to-br from-orange-50 to-white rounded-2xl border border-orange-100 p-5 space-y-4">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-orange-600">Client</p>
+                <h3 class="text-lg font-bold text-primary mt-1">Pacvue</h3>
+              </div>
+              <span class="px-2.5 py-1 rounded-full bg-orange-100 text-orange-700 text-[10px] font-bold uppercase tracking-wide">Ecommerce</span>
+            </div>
+            <div class="grid grid-cols-2 gap-3 text-sm">
+              <div class="rounded-xl bg-white/90 border border-orange-100 p-3"><p class="text-[10px] font-bold uppercase tracking-widest text-orange-600 mb-1">Office Location</p><p class="font-medium text-primary">Austin, Texas</p></div>
+              <div class="rounded-xl bg-white/90 border border-orange-100 p-3"><p class="text-[10px] font-bold uppercase tracking-widest text-orange-600 mb-1">Country</p><p class="font-medium text-primary">United States</p></div>
+              <div class="rounded-xl bg-white/90 border border-orange-100 p-3"><p class="text-[10px] font-bold uppercase tracking-widest text-orange-600 mb-1">Business hours</p><p class="font-medium text-primary">8:00 AM - 5:00 PM</p></div>
+              <div class="rounded-xl bg-white/90 border border-orange-100 p-3"><p class="text-[10px] font-bold uppercase tracking-widest text-orange-600 mb-1">Benefits</p><p class="font-medium text-primary">Medical, 401k, Remote</p></div>
+              <div class="rounded-xl bg-white/90 border border-orange-100 p-3 col-span-2"><p class="text-[10px] font-bold uppercase tracking-widest text-orange-600 mb-1">Headquarters Location</p><p class="font-medium text-primary">Seattle, Washington</p></div>
+              <div class="rounded-xl bg-white/90 border border-orange-100 p-3"><p class="text-[10px] font-bold uppercase tracking-widest text-orange-600 mb-1">Time Zone</p><p class="font-medium text-primary">CST / PST</p></div>
+              <div class="rounded-xl bg-white/90 border border-orange-100 p-3"><p class="text-[10px] font-bold uppercase tracking-widest text-orange-600 mb-1">Sector</p><p class="font-medium text-primary">Retail Media</p></div>
+            </div>
+          </article>
+          <article class="bg-gradient-to-br from-violet-50 to-white rounded-2xl border border-violet-100 p-5 space-y-4">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-violet-600">Client</p>
+                <h3 class="text-lg font-bold text-primary mt-1">BlueConic</h3>
+              </div>
+              <span class="px-2.5 py-1 rounded-full bg-violet-100 text-violet-700 text-[10px] font-bold uppercase tracking-wide">MarTech</span>
+            </div>
+            <div class="grid grid-cols-2 gap-3 text-sm">
+              <div class="rounded-xl bg-white/90 border border-violet-100 p-3"><p class="text-[10px] font-bold uppercase tracking-widest text-violet-600 mb-1">Office Location</p><p class="font-medium text-primary">Chicago, Illinois</p></div>
+              <div class="rounded-xl bg-white/90 border border-violet-100 p-3"><p class="text-[10px] font-bold uppercase tracking-widest text-violet-600 mb-1">Country</p><p class="font-medium text-primary">United States</p></div>
+              <div class="rounded-xl bg-white/90 border border-violet-100 p-3"><p class="text-[10px] font-bold uppercase tracking-widest text-violet-600 mb-1">Business hours</p><p class="font-medium text-primary">9:00 AM - 5:30 PM</p></div>
+              <div class="rounded-xl bg-white/90 border border-violet-100 p-3"><p class="text-[10px] font-bold uppercase tracking-widest text-violet-600 mb-1">Benefits</p><p class="font-medium text-primary">Dental, Vision, Equity</p></div>
+              <div class="rounded-xl bg-white/90 border border-violet-100 p-3 col-span-2"><p class="text-[10px] font-bold uppercase tracking-widest text-violet-600 mb-1">Headquarters Location</p><p class="font-medium text-primary">Boston, Massachusetts</p></div>
+              <div class="rounded-xl bg-white/90 border border-violet-100 p-3"><p class="text-[10px] font-bold uppercase tracking-widest text-violet-600 mb-1">Time Zone</p><p class="font-medium text-primary">CST / EST</p></div>
+              <div class="rounded-xl bg-white/90 border border-violet-100 p-3"><p class="text-[10px] font-bold uppercase tracking-widest text-violet-600 mb-1">Sector</p><p class="font-medium text-primary">Customer Data Platform</p></div>
+            </div>
+          </article>
+        </div>
+      </div>
+
       <div class="grid grid-cols-1 xl:grid-cols-5 gap-6">
 
         <!-- Priority Requests -->

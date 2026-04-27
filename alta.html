@@ -15,15 +15,15 @@
         colors: {
           "outline-variant": "#c6c6d0",
           "outline": "#757680",
-          "primary": "#000726",
+          "primary": "#071736",
           "secondary-fixed": "#94fb6f",
-          "primary-container": "#0b1d4e",
+          "primary-container": "#133469",
           "tertiary-fixed": "#ffdbcd",
           "on-secondary-fixed-variant": "#145200",
           "inverse-on-surface": "#eef1f3",
           "on-secondary-fixed": "#042100",
           "inverse-primary": "#b5c4ff",
-          "secondary": "#1d6d00",
+          "secondary": "#50B152",
           "primary-fixed-dim": "#b5c4ff",
           "on-tertiary": "#ffffff",
           "on-secondary": "#ffffff",
@@ -31,13 +31,13 @@
           "on-error-container": "#93000a",
           "error": "#ba1a1a",
           "surface-container-low": "#f1f4f6",
-          "on-primary-container": "#7786bd",
-          "on-secondary-container": "#1f7200",
+          "on-primary-container": "#8ea7d2",
+          "on-secondary-container": "#1f5f29",
           "surface": "#f7fafc",
           "on-surface-variant": "#45464f",
           "tertiary": "#180400",
           "on-background": "#181c1e",
-          "surface-tint": "#4d5c90",
+          "surface-tint": "#2b5d8d",
           "on-primary": "#ffffff",
           "on-tertiary-container": "#bc7758",
           "on-tertiary-fixed": "#360f00",
@@ -53,13 +53,13 @@
           "primary-fixed": "#dce1ff",
           "tertiary-fixed-dim": "#ffb596",
           "surface-container-high": "#e5e9eb",
-          "secondary-container": "#91f86c",
+          "secondary-container": "#d9f2dc",
           "surface-container-lowest": "#ffffff",
           "on-tertiary-fixed-variant": "#6e381e",
           "surface-variant": "#e0e3e5",
           "tertiary-container": "#3e1300",
           "surface-dim": "#d7dadc",
-          "secondary-fixed-dim": "#79de56"
+          "secondary-fixed-dim": "#7ad27d"
         },
         borderRadius: {
           "DEFAULT": "0.125rem",
@@ -78,12 +78,15 @@
   }
 </script>
 <style>
-  body { font-family: 'Inter', sans-serif; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background-image: linear-gradient(180deg, rgba(7,23,54,0.02) 0%, rgba(80,177,82,0.05) 100%);
+  }
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
   .material-symbols-outlined.filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
   .nav-active {
     background-color: #ffffff;
-    color: #000726;
+    color: #071736;
     font-weight: 600;
     box-shadow: 0 1px 8px rgba(24,28,30,0.06);
   }
@@ -130,8 +133,8 @@
       <span class="material-symbols-outlined text-on-primary text-[18px] filled">corporate_fare</span>
     </div>
     <div>
-      <h1 class="text-base font-bold text-primary tracking-tight leading-tight">CRM Suite</h1>
-      <p class="text-[11px] text-on-surface-variant leading-tight">Talent &amp; Requirements</p>
+      <h1 class="text-base font-bold text-primary tracking-tight leading-tight">PRT Suite</h1>
+      <p class="text-[11px] text-on-surface-variant leading-tight">Talent, Client's &amp; Requirements</p>
     </div>
   </div>
   <!-- Nav sections -->
@@ -150,6 +153,15 @@
         <a href="newrequirment.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
           <span class="material-symbols-outlined text-[20px]">add_circle</span>
           <span class="font-medium text-sm">New Requirement</span>
+        </a>
+      </div>
+    </div>
+    <div>
+      <p class="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-widest px-3 mb-1.5">Client's</p>
+      <div class="space-y-0.5">
+        <a href="clients.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200">
+          <span class="material-symbols-outlined text-[20px]">apartment</span>
+          <span class="font-medium text-sm">Client Directory</span>
         </a>
       </div>
     </div>

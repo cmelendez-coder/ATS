@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #071D47;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.material-symbols-outlined.filled {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.nav-active {
+  background-color: #ffffff;
+  color: #071736;
+  font-weight: 600;
+  box-shadow: 0 1px 8px rgba(24,28,30,0.06);
+}
+
+.nav-active .material-symbols-outlined {
+  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Dashboard */
+.stat-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(24,28,30,0.09); }
+
+/* Requirements list */
+.row-actions { opacity: 0; transition: opacity 0.15s ease; }
+.req-row:hover .row-actions { opacity: 1; }
+
+.pipeline-card,
+.kanban-card {
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(255,255,255,0.72);
+  box-shadow: 0 10px 30px rgba(24,28,30,0.06);
+  backdrop-filter: blur(10px);
+}
+
+.kanban-card textarea { resize: vertical; min-height: 72px; }
+
+.kanban-board {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(260px, 300px);
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  scroll-snap-type: x proximity;
+}
+
+.kanban-column { scroll-snap-align: start; }
+
+.kanban-lane {
+  min-height: 240px;
+  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+}
+
+.kanban-lane.drag-over {
+  border-color: rgba(77,92,144,0.35);
+  background-color: rgba(255,255,255,0.95);
+  transform: translateY(-2px);
+}
+
+.kanban-card.dragging { opacity: 0.45; }
+
+/* New Requirement form */
+.form-field {
+  width: 100%;
+  background-color: #e5e9eb;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0.5rem 0.5rem 0 0;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: #181c1e;
+  font-weight: 500;
+  transition: border-color 0.15s, background-color 0.15s;
+  outline: none;
+}
+.form-field:focus { border-bottom-color: #50B152; background-color: #e0e3e5; }
+.form-field::placeholder { color: #757680; font-weight: 400; }
+
+.priority-btn.active {
+  background-color: #ffffff;
+  box-shadow: 0 1px 6px rgba(24,28,30,0.1);
+  font-weight: 600;
+}
+
+/* Add Talent form — floating labels */
+.form-input-container { position: relative; }
+
+.form-input {
+  width: 100%;
+  background-color: #e0e3e5;
+  border: none;
+  border-bottom: 1px solid #757680;
+  padding: 1.5rem 1rem 0.5rem;
+  color: #181c1e;
+  font-size: 0.875rem;
+  transition: border-color 0.3s ease;
+}
+.form-input:focus { outline: none; border-bottom-color: #50B152; }
+
+.form-label {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  color: #45464f;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+.form-input:focus ~ .form-label,
+.form-input:not(:placeholder-shown) ~ .form-label {
+  top: 0.25rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Edit Talent form — underline floating labels */
+.input-underline { transition: border-color 0.3s ease; }
+.input-underline:focus-within { border-bottom-color: #1d6d00; }
+
+.floating-label {
+  transition: all 0.2s ease;
+  transform-origin: left top;
+  cursor: text;
+}
+.input-field:focus + .floating-label,
+.input-field:not(:placeholder-shown) + .floating-label {
+  transform: translateY(-1.5rem) scale(0.75);
+  color: #50B152;
+}

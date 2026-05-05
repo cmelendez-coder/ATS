@@ -8,14 +8,17 @@ export function AuthProvider({ children }) {
   const [session, setSessionState] = useState(undefined) // undefined = cargando
 
   useEffect(() => {
-    // Verifica si ya hay sesión activa en Supabase Auth al montar
-    getSessionUser().then(user => {
-      setSessionState(user ? { user } : null)
-    })
+    getSessionUser()
+      .then(user => setSessionState(user ? { user } : null))
+      .catch(() => {
+        // Token inválido o expirado — limpiar y pedir login
+        supabase.auth.signOut()
+        setSessionState(null)
+      })
 
-    // Escucha cambios de sesión (logout desde otra pestaña, expiración, etc.)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, supaSession) => {
       if (event === 'SIGNED_OUT') setSessionState(null)
+      if (event === 'TOKEN_REFRESHED' && !supaSession) setSessionState(null)
     })
 
     return () => subscription.unsubscribe()

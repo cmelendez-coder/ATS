@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { searchCandidates } from '../api/talent'
+import { searchCandidates, fetchCatalog } from '../api/talent'
 import { usePermissions } from '../hooks/usePermissions'
 
 // Deterministic color per tech name
@@ -58,6 +58,7 @@ export default function TalentDirectory() {
   const [englishMin, setEnglishMin]     = useState('')
   const [englishMax, setEnglishMax]     = useState('')
   const [searching, setSearching]       = useState(false)
+  const [technologies, setTechnologies] = useState([])
 
   const load = useCallback(async (q = '', tech = '', eMin = '', eMax = '') => {
     try {
@@ -74,6 +75,12 @@ export default function TalentDirectory() {
   }, [])
 
   useEffect(() => { load() }, [load])
+
+  useEffect(() => {
+    fetchCatalog('catalog_technology', 'ct_name_tech', 'technology_id')
+      .then(rows => setTechnologies(rows.map(r => r.ct_name_tech)))
+      .catch(() => {})
+  }, [])
 
   function handleSearch(e) {
     e.preventDefault()
@@ -196,13 +203,21 @@ export default function TalentDirectory() {
             </div>
             <div className="flex gap-3 flex-wrap items-center">
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[16px]">code</span>
-                <input
-                  className="bg-surface-container-high border-none text-sm text-on-surface rounded-lg py-2.5 pl-9 pr-3 focus:ring-2 focus:ring-primary/20 min-w-[180px] placeholder:text-on-surface-variant"
-                  placeholder="Filter by technology…"
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[16px] pointer-events-none">code</span>
+                <select
+                  className="bg-surface-container-high border-none text-sm text-on-surface rounded-lg py-2.5 pl-9 pr-8 focus:ring-2 focus:ring-primary/20 min-w-[180px] appearance-none"
                   value={techFilter}
-                  onChange={e => setTechFilter(e.target.value)}
-                />
+                  onChange={e => {
+                    const val = e.target.value
+                    setTechFilter(val)
+                    load(query, val, englishMin, englishMax)
+                  }}
+                >
+                  <option value="">All technologies</option>
+                  {technologies.map(t => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="text-[11px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">English</span>

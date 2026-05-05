@@ -1,139 +1,465 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { usePermissions } from '../hooks/usePermissions'
+import {
+  listRequirements, deleteRequirement,
+  getRequirementCandidates, addCandidateToRequirement,
+  updateCandidateStage, removeCandidateFromRequirement,
+  getCatalogs, getClientStages, searchCandidatesForReq,
+} from '../api/requirements'
 
-const INITIAL_BOARDS = {
-  acme: {
-    color: 'blue',
-    lanes: [
-      { id: 'l1', name: 'Test 1', subtitle: 'Initial screening', cards: [{ id: 'c1', name: 'Ariana Lopez', status: 'Portfolio and intro call completed', note: 'Responsive and aligned with product thinking. Ready for Test 2.' }] },
-      { id: 'l2', name: 'Test 2', subtitle: 'Design exercise', cards: [{ id: 'c2', name: 'Julia Chen', status: 'Waiting on design challenge feedback', note: 'Great UX rationale. Need final score from design lead.' }] },
-      { id: 'l3', name: "Luke's Interview", subtitle: 'Completed panel', cards: [{ id: 'c3', name: 'Diego Tran', status: 'Passed collaborative round', note: "Strong stakeholder management. Move to Mark's interview this week." }] },
-      { id: 'l4', name: "Mark's Interview", subtitle: 'Current focus', isCurrent: true, cards: [{ id: 'c4', name: 'Mark Lewis', status: 'Panel scheduled for Thursday', note: 'Strong product storytelling. Confirm availability and send case study prep.' }] },
-      { id: 'l5', name: "Ross' Interview", subtitle: 'Tech assessment', cards: [{ id: 'c5', name: 'Ross Logan', status: 'Ready to schedule next step', note: 'Candidate passed previous round. Waiting for interviewer availability.' }] },
-      { id: 'l6', name: "Kellena's Interview", subtitle: 'Follow-up stage', cards: [{ id: 'c6', name: 'Kellena Price', status: 'Pending response in 48h', note: 'Needs stronger follow-up and clearer scheduling options.' }] },
-      { id: 'l7', name: '5th Interview', subtitle: 'Executive checkpoint', cards: [] },
-      { id: 'l8', name: 'Final Interview', subtitle: 'Offer readiness', cards: [] },
-    ],
-  },
-  pacvue: {
-    color: 'orange',
-    lanes: [
-      { id: 'l1', name: 'HR Interview', subtitle: 'Recruiter screen', cards: [{ id: 'c1', name: 'Emma Stone', status: 'Salary and notice period validated', note: 'Good communication. Cleared to move to hiring manager.' }] },
-      { id: 'l2', name: 'Hiring Manager', subtitle: 'Current stage', isCurrent: true, cards: [{ id: 'c2', name: 'Noah Ortiz', status: 'Backend deep dive pending', note: 'Share system design brief before the interview and collect scorecard feedback.' }] },
-      { id: 'l3', name: 'Tech Interview', subtitle: 'Engineering review', cards: [{ id: 'c3', name: 'Liam Scott', status: 'Awaiting coding review slot', note: 'Candidate prefers mornings. Strong microservices background.' }] },
-      { id: 'l4', name: 'Presentation', subtitle: 'Final loop', cards: [] },
-    ],
-  },
-  blueconic: {
-    color: 'violet',
-    lanes: [
-      { id: 'l1', name: 'HR Interview', subtitle: 'Talent acquisition', cards: [{ id: 'c1', name: 'Sofia Miller', status: 'Aligned on compensation range', note: 'Strong GTM exposure. Ready for next panel.' }] },
-      { id: 'l2', name: 'Hiring Manager', subtitle: 'Business alignment', cards: [{ id: 'c2', name: 'Alex Rivera', status: 'Manager round completed', note: 'High executive presence. Move to team interview.' }] },
-      { id: 'l3', name: 'Team Interview', subtitle: 'Current stage', isCurrent: true, cards: [{ id: 'c3', name: 'Jamie Brooks', status: 'Panel score still open', note: 'Need GTM case feedback from 2 interviewers before moving forward.' }] },
-      { id: 'l4', name: 'Presentation', subtitle: 'Final presentation', cards: [] },
-    ],
-  },
+/* ── helpers ── */
+const PRIORITY = {
+  1: { label: 'Low',  color: 'text-on-surface-variant', dot: 'bg-outline' },
+  2: { label: 'Med',  color: 'text-surface-tint',        dot: 'bg-surface-tint' },
+  3: { label: 'High', color: 'text-error',               dot: 'bg-error' },
+}
+const STATUS_STYLE = {
+  'Open':                 { bg: 'bg-secondary-container',    text: 'text-on-secondary-container', dot: 'bg-secondary' },
+  'Pending Validation':   { bg: 'bg-tertiary-container',     text: 'text-on-tertiary-container',  dot: 'bg-tertiary' },
+  'Paused':               { bg: 'bg-surface-container-high', text: 'text-on-surface-variant',     dot: 'bg-outline' },
+  'Closed - Covered':     { bg: 'bg-primary/10',             text: 'text-primary',                dot: 'bg-primary' },
+  'Closed - Not Covered': { bg: 'bg-error-container',        text: 'text-on-error-container',     dot: 'bg-error' },
+}
+const DEFAULT_STATUS = { bg: 'bg-surface-container', text: 'text-on-surface-variant', dot: 'bg-outline' }
+
+function fmt(dateStr) {
+  if (!dateStr) return '—'
+  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+function reqLabel(num, date) {
+  const yr = date ? new Date(date).getFullYear() : new Date().getFullYear()
+  return `REQ-${yr}-${String(num ?? 0).padStart(3, '0')}`
 }
 
-const REQUIREMENTS = [
-  { id: 'req-1', boardId: 'acme', reqId: 'REQ-2024-084', priorityLabel: 'High', priorityColor: 'text-error', priorityDot: 'bg-error', title: 'Senior Product Designer', client: 'Logic Monitor', clientInitial: 'A', clientBadgeBg: 'bg-blue-100', clientBadgeText: 'text-blue-700', salary: '$95,000', variable: '15% var', arrangement: 'Hybrid · New York, US', fte: "2 FTE's · 6 Months", targetFill: 'Nov 30, 2024', statusLabel: 'Open', statusBg: 'bg-secondary-container', statusText: 'text-on-secondary-container', statusDot: 'bg-secondary', phasesBg: 'bg-blue-50/40', phasesLabel: 'text-blue-600', phasesBorder: 'border-blue-100', phasesCompleted: '3 of 8', appDate: 'Oct 24, 2024', visa: 'Not required' },
-  { id: 'req-2', boardId: 'pacvue', reqId: 'REQ-2024-085', priorityLabel: 'High', priorityColor: 'text-error', priorityDot: 'bg-error', title: 'Lead Backend Engineer', client: 'Pacvue', clientInitial: 'G', clientBadgeBg: 'bg-orange-100', clientBadgeText: 'text-orange-700', salary: '$120,000', variable: '20% var', arrangement: 'Remote · Austin, TX', fte: '1 FTE · Permanent', targetFill: 'Dec 15, 2024', statusLabel: 'Urgent', statusBg: 'bg-error-container', statusText: 'text-on-error-container', statusDot: 'bg-error', phasesBg: 'bg-orange-50/40', phasesLabel: 'text-orange-600', phasesBorder: 'border-orange-100', phasesCompleted: '1 of 4', appDate: 'Oct 22, 2024', visa: 'TBD' },
-  { id: 'req-3', boardId: 'blueconic', reqId: 'REQ-2024-081', priorityLabel: 'Med', priorityColor: 'text-surface-tint', priorityDot: 'bg-surface-tint', title: 'Marketing Director', client: 'Blue Conic', clientInitial: 'S', clientBadgeBg: 'bg-violet-100', clientBadgeText: 'text-violet-700', salary: '$150,000', variable: '25% var', arrangement: 'On-site · Chicago, IL', fte: '1 FTE · Permanent', targetFill: 'Jan 10, 2025', statusLabel: 'Testing', statusBg: 'bg-surface-container-high', statusText: 'text-on-surface-variant', statusDot: 'bg-outline', phasesBg: 'bg-violet-50/40', phasesLabel: 'text-violet-600', phasesBorder: 'border-violet-100', phasesCompleted: '2 of 4', appDate: 'Oct 15, 2024', visa: 'Not required' },
-]
+/* ── Add Candidate Modal ── */
+function AddCandidateModal({ reqId, existingIds, firstStageName, onAdd, onClose }) {
+  const [term, setTerm]         = useState('')
+  const [results, setResults]   = useState([])
+  const [searching, setSearching] = useState(false)
+  const [adding, setAdding]     = useState(null) // candidate_id being added
 
-function KanbanBoard({ boardId, board, onDragStart, onDragOver, onDrop, onDragEnd, onDragLeave, dragging, dragOver, canDrag }) {
-  const c = board.color
-  const laneBase = `rounded-3xl border border-${c}-100 bg-surface-container-lowest/70 p-3 space-y-3`
-  const laneCurrent = `rounded-3xl border-2 border-${c}-200 bg-${c}-100/45 p-3 space-y-3`
-  const badgeBg = `bg-${c}-100`
-  const badgeText = `text-${c}-600`
-  const labelText = `text-${c}-600`
+  useEffect(() => {
+    if (term.length < 2) { setResults([]); return }
+    setSearching(true)
+    const t = setTimeout(async () => {
+      try {
+        const data = await searchCandidatesForReq(term)
+        setResults(data)
+      } finally {
+        setSearching(false)
+      }
+    }, 300)
+    return () => clearTimeout(t)
+  }, [term])
+
+  async function pick(candidate) {
+    if (adding) return
+    setAdding(candidate.candidate_id)
+    try {
+      await addCandidateToRequirement(reqId, candidate.candidate_id, firstStageName)
+      onAdd()
+    } finally {
+      setAdding(null)
+    }
+  }
 
   return (
-    <div className="kanban-board">
-      {board.lanes.map((lane) => {
-        const isDragOver = dragOver?.boardId === boardId && dragOver?.laneId === lane.id
-        return (
-          <section key={lane.id} className="kanban-column">
-            <div
-              className={`kanban-lane ${lane.isCurrent ? laneCurrent : laneBase}${isDragOver ? ' drag-over' : ''}`}
-              onDragOver={canDrag ? (e) => { e.preventDefault(); onDragOver(boardId, lane.id) } : undefined}
-              onDrop={canDrag ? () => onDrop(boardId, lane.id) : undefined}
-              onDragLeave={canDrag ? onDragLeave : undefined}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className={`text-[10px] font-bold uppercase tracking-widest ${lane.isCurrent ? `text-${c}-700` : labelText}`}>{lane.name}</p>
-                  <p className={`text-xs ${lane.isCurrent ? `text-${c}-700/80` : 'text-on-surface-variant'}`}>{lane.subtitle}</p>
-                </div>
-                <span className={`text-[10px] font-bold ${lane.isCurrent ? `text-${c}-700 bg-surface-container-lowest` : `${badgeText} ${badgeBg}`} px-2 py-1 rounded-full`}>
-                  {lane.cards.length}
-                </span>
-              </div>
-              {lane.cards.map((card) => {
-                const isDragging = dragging?.boardId === boardId && dragging?.cardId === card.id
-                return (
-                  <article
-                    key={card.id}
-                    className={`kanban-card rounded-2xl p-3 space-y-3${isDragging ? ' dragging' : ''}`}
-                    draggable={canDrag}
-                    onDragStart={canDrag ? () => onDragStart(boardId, lane.id, card.id) : undefined}
-                    onDragEnd={canDrag ? onDragEnd : undefined}
-                  >
-                    <div>
-                      <p className="text-sm font-bold text-primary">{card.name}</p>
-                      <p className="text-[11px] text-on-surface-variant">{card.status}</p>
-                    </div>
-                    <textarea
-                      className={`w-full rounded-2xl border border-${c}-100 bg-surface-container-lowest px-3 py-2.5 text-sm text-on-surface focus:ring-2 focus:ring-${c}-200 focus:border-${c}-200`}
-                      onClick={(e) => e.stopPropagation()}
-                      defaultValue={card.note}
-                      placeholder="Add recruiter notes..."
-                    />
-                  </article>
-                )
-              })}
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
+      <div
+        className="bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden border border-outline-variant/10"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant/10">
+          <div>
+            <h2 className="font-bold text-primary text-base">Add Candidate to Pipeline</h2>
+            <p className="text-xs text-on-surface-variant mt-0.5">The candidate will start in the first stage</p>
+          </div>
+          <button onClick={onClose} className="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors">
+            <span className="material-symbols-outlined text-[20px]">close</span>
+          </button>
+        </div>
+
+        {/* Search */}
+        <div className="px-5 pt-4 pb-2">
+          <div className="relative">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
+              {searching ? 'progress_activity' : 'search'}
+            </span>
+            <input
+              autoFocus
+              className="w-full pl-10 pr-4 py-3 bg-surface-container-high rounded-xl text-sm border-none outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface-variant"
+              placeholder="Buscar candidato por nombre…"
+              value={term}
+              onChange={e => setTerm(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* Results */}
+        <div className="px-5 pb-4 max-h-72 overflow-y-auto space-y-1">
+          {term.length < 2 && (
+            <div className="flex flex-col items-center py-8 gap-2 text-on-surface-variant">
+              <span className="material-symbols-outlined text-[32px] opacity-30">person_search</span>
+              <p className="text-sm">Escribe al menos 2 caracteres para buscar</p>
             </div>
-          </section>
-        )
-      })}
+          )}
+          {term.length >= 2 && !searching && results.length === 0 && (
+            <div className="flex flex-col items-center py-8 gap-2 text-on-surface-variant">
+              <span className="material-symbols-outlined text-[32px] opacity-30">search_off</span>
+              <p className="text-sm">No se encontraron candidatos</p>
+            </div>
+          )}
+          {results.map(c => {
+            const alreadyIn = existingIds.has(c.candidate_id)
+            const isAdding  = adding === c.candidate_id
+            return (
+              <button
+                key={c.candidate_id}
+                disabled={alreadyIn || !!adding}
+                onClick={() => !alreadyIn && pick(c)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-left
+                  ${alreadyIn ? 'opacity-50 cursor-not-allowed' : 'hover:bg-surface-container cursor-pointer'}`}
+              >
+                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary shrink-0">
+                  {c.full_name?.charAt(0)?.toUpperCase() ?? '?'}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-primary truncate">{c.full_name}</p>
+                  <p className="text-xs text-on-surface-variant truncate">
+                    {c.role?.name ?? '—'}{c.seniority?.name ? ` · ${c.seniority.name}` : ''}
+                  </p>
+                </div>
+                <div className="shrink-0">
+                  {alreadyIn ? (
+                    <span className="text-[10px] font-bold text-on-surface-variant bg-surface-container px-2 py-1 rounded-full">Ya agregado</span>
+                  ) : isAdding ? (
+                    <span className="material-symbols-outlined animate-spin text-primary text-[18px]">progress_activity</span>
+                  ) : (
+                    <span className="material-symbols-outlined text-primary text-[20px]">add_circle</span>
+                  )}
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      </div>
     </div>
   )
 }
 
-export default function Requirements() {
-  const { can } = usePermissions()
-  const [expanded, setExpanded] = useState({})
-  const [boards, setBoards] = useState(INITIAL_BOARDS)
+/* ── Pipeline Panel ── */
+function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
+  const [rcList, setRcList]     = useState([])
+  const [stages, setStages]     = useState([])
+  const [loading, setLoading]   = useState(true)
+  const [loadErr, setLoadErr]   = useState(null)
+  const [showAdd, setShowAdd]   = useState(false)
   const [dragging, setDragging] = useState(null)
   const [dragOver, setDragOver] = useState(null)
 
-  const toggleRow = (id) => setExpanded((prev) => ({ ...prev, [id]: !prev[id] }))
+  const load = useCallback(async () => {
+    setLoading(true)
+    setLoadErr(null)
+    try {
+      const [candidates, clientStages] = await Promise.all([
+        getRequirementCandidates(reqId),
+        getClientStages(clientId),
+      ])
+      setRcList(candidates)
+      setStages(clientStages)
+    } catch (err) {
+      setLoadErr(err.message ?? 'Error cargando pipeline')
+    } finally {
+      setLoading(false)
+    }
+  }, [reqId, clientId])
 
-  const handleDragStart = (boardId, laneId, cardId) => setDragging({ boardId, laneId, cardId })
-  const handleDragEnd = () => { setDragging(null); setDragOver(null) }
-  const handleDragOver = (boardId, laneId) => setDragOver({ boardId, laneId })
-  const handleDragLeave = () => setDragOver(null)
+  useEffect(() => { load() }, [load])
 
-  const handleDrop = (boardId, targetLaneId) => {
-    if (!dragging || dragging.boardId !== boardId) return
-    if (dragging.laneId === targetLaneId) return
-    setBoards((prev) => {
-      const board = prev[boardId]
-      const srcIdx = board.lanes.findIndex((l) => l.id === dragging.laneId)
-      const tgtIdx = board.lanes.findIndex((l) => l.id === targetLaneId)
-      const card = board.lanes[srcIdx].cards.find((c) => c.id === dragging.cardId)
-      if (!card) return prev
-      const newLanes = board.lanes.map((lane, i) => {
-        if (i === srcIdx) return { ...lane, cards: lane.cards.filter((c) => c.id !== dragging.cardId) }
-        if (i === tgtIdx) return { ...lane, cards: [...lane.cards, card] }
-        return lane
-      })
-      return { ...prev, [boardId]: { ...board, lanes: newLanes } }
-    })
-    setDragging(null)
-    setDragOver(null)
+  const byStage = stages.reduce((acc, s) => {
+    acc[s.name] = rcList.filter(r => r.submittal_status === s.name)
+    return acc
+  }, {})
+
+  const existingIds = new Set(rcList.map(r => r.candidate?.candidate_id))
+
+  async function handleDrop(stageName) {
+    if (!dragging || dragging.stage === stageName) { setDragging(null); setDragOver(null); return }
+    const rc = rcList.find(r => r.id === dragging.rcId)
+    if (!rc) return
+    setRcList(prev => prev.map(r => r.id === dragging.rcId ? { ...r, submittal_status: stageName } : r))
+    setDragging(null); setDragOver(null)
+    try { await updateCandidateStage(dragging.rcId, stageName) }
+    catch { load() }
+  }
+
+  async function removeCard(rcId) {
+    setRcList(prev => prev.filter(r => r.id !== rcId))
+    try { await removeCandidateFromRequirement(rcId) }
+    catch { load() }
+  }
+
+  if (loading) return (
+    <div className="flex items-center justify-center py-10 gap-2 text-on-surface-variant">
+      <span className="material-symbols-outlined animate-spin text-[20px]">progress_activity</span>
+      <span className="text-sm">Loading pipeline…</span>
+    </div>
+  )
+
+  if (loadErr) return (
+    <div className="flex items-center gap-2 py-6 text-error text-sm">
+      <span className="material-symbols-outlined text-[18px]">error</span>{loadErr}
+    </div>
+  )
+
+  if (stages.length === 0) return (
+    <div className="flex flex-col items-center justify-center py-8 text-center">
+      <span className="material-symbols-outlined text-[36px] text-on-surface-variant/30 mb-2">account_tree</span>
+      <p className="text-sm text-on-surface-variant">No pipeline stages configured for this client.</p>
+    </div>
+  )
+
+  const isDraggingAny = dragging !== null
+
+  return (
+    <div className="space-y-3">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
+            Interview Pipeline
+          </p>
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant">
+            {rcList.length} candidato{rcList.length !== 1 ? 's' : ''}
+          </span>
+          {canDrag && rcList.length > 0 && (
+            <span className="text-[10px] text-on-surface-variant/50 flex items-center gap-1">
+              <span className="material-symbols-outlined text-[11px]">drag_indicator</span>
+              Arrastra para mover
+            </span>
+          )}
+        </div>
+        {canManage && (
+          <button
+            onClick={() => setShowAdd(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors"
+          >
+            <span className="material-symbols-outlined text-[15px]">person_add</span>
+            Agregar Candidato
+          </button>
+        )}
+      </div>
+
+      {/* Kanban board */}
+      <div className="flex gap-2 overflow-x-auto pb-3" style={{ minHeight: 160 }}>
+        {stages.map((stage, idx) => {
+          const cards  = byStage[stage.name] ?? []
+          const isOver = dragOver === stage.name
+          const isFirst = idx === 0
+          return (
+            <div
+              key={stage.stage_id}
+              className={`kanban-column shrink-0 flex flex-col rounded-2xl border-2 transition-all duration-150
+                ${isOver
+                  ? 'border-dashed scale-[1.02] shadow-lg'
+                  : 'border-transparent'}
+              `}
+              style={{
+                width: 180,
+                backgroundColor: isOver ? stage.color + '12' : 'rgba(var(--md-sys-color-surface-container-lowest), 0.7)',
+                borderColor: isOver ? stage.color : 'transparent',
+                outline: !isOver ? `1px solid rgba(var(--md-sys-color-outline-variant), 0.2)` : 'none',
+                borderRadius: 16,
+              }}
+              onDragOver={canDrag ? e => { e.preventDefault(); setDragOver(stage.name) } : undefined}
+              onDrop={canDrag ? () => handleDrop(stage.name) : undefined}
+              onDragLeave={canDrag ? e => { if (!e.currentTarget.contains(e.relatedTarget)) setDragOver(null) } : undefined}
+            >
+              {/* Column header */}
+              <div className="flex items-center justify-between px-3 pt-3 pb-2">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: stage.color }} />
+                  <p className="text-[10px] font-bold uppercase tracking-wider truncate" style={{ color: stage.color }}>
+                    {stage.name}
+                  </p>
+                </div>
+                <span
+                  className="text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ml-1"
+                  style={{ backgroundColor: stage.color + '22', color: stage.color }}
+                >
+                  {cards.length}
+                </span>
+              </div>
+
+              {/* Cards */}
+              <div className="flex-1 px-2 space-y-1.5 overflow-y-auto" style={{ maxHeight: 260 }}>
+                {cards.map(rc => (
+                  <div
+                    key={rc.id}
+                    draggable={canDrag}
+                    onDragStart={canDrag ? (e) => {
+                      e.dataTransfer.effectAllowed = 'move'
+                      setDragging({ rcId: rc.id, stage: stage.name })
+                    } : undefined}
+                    onDragEnd={canDrag ? () => { setDragging(null); setDragOver(null) } : undefined}
+                    className={`group relative rounded-xl border transition-all select-none
+                      ${canDrag ? 'cursor-grab active:cursor-grabbing' : ''}
+                      ${dragging?.rcId === rc.id ? 'opacity-40 scale-95' : 'hover:shadow-md'}
+                    `}
+                    style={{
+                      background: 'rgba(255,255,255,0.96)',
+                      borderColor: 'rgba(0,0,0,0.07)',
+                      borderLeftWidth: 3,
+                      borderLeftColor: stage.color,
+                    }}
+                  >
+                    {/* Drag handle strip */}
+                    {canDrag && (
+                      <span
+                        className="material-symbols-outlined absolute left-0 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-60 transition-opacity text-slate-400 pointer-events-none select-none"
+                        style={{ fontSize: 14, marginLeft: -2 }}
+                      >drag_indicator</span>
+                    )}
+
+                    <div className="px-3 py-2.5">
+                      <p className="text-sm font-bold text-slate-800 leading-snug pr-5">
+                        {rc.candidate?.full_name ?? '—'}
+                      </p>
+                      {rc.candidate?.role?.name && (
+                        <p className="text-xs text-slate-500 mt-0.5 leading-tight">
+                          {rc.candidate.role.name}
+                        </p>
+                      )}
+                      {(() => {
+                        const techs = [...new Set(
+                          (rc.candidate?.candidate_stack ?? [])
+                            .map(s => s.technology?.ct_name_tech)
+                            .filter(Boolean)
+                        )].slice(0, 3)
+                        return techs.length > 0 ? (
+                          <div className="flex flex-wrap gap-1 mt-1.5">
+                            {techs.map(t => (
+                              <span key={t} className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                                {t}
+                              </span>
+                            ))}
+                          </div>
+                        ) : null
+                      })()}
+                      {rc.submitted_at && (
+                        <p className="text-[10px] text-slate-400 mt-1.5 font-medium">
+                          {new Date(rc.submitted_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}
+                        </p>
+                      )}
+                    </div>
+
+                    {canManage && (
+                      <button
+                        onClick={e => { e.stopPropagation(); removeCard(rc.id) }}
+                        className="absolute top-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded-md bg-white/80 text-slate-400 hover:text-red-500 hover:bg-red-50"
+                        title="Quitar candidato"
+                      >
+                        <span className="material-symbols-outlined text-[14px]">close</span>
+                      </button>
+                    )}
+                  </div>
+                ))}
+
+                {/* Drop zone hint while dragging */}
+                {isDraggingAny && dragging?.stage !== stage.name && (
+                  <div
+                    className="rounded-xl border-2 border-dashed flex items-center justify-center py-3 transition-all"
+                    style={{ borderColor: isOver ? stage.color : stage.color + '44', backgroundColor: isOver ? stage.color + '10' : 'transparent' }}
+                  >
+                    <span className="text-[10px] font-medium" style={{ color: stage.color + 'aa' }}>
+                      Soltar aquí
+                    </span>
+                  </div>
+                )}
+
+                {/* Empty state (no dragging) */}
+                {!isDraggingAny && cards.length === 0 && (
+                  <div className="text-[10px] text-on-surface-variant/30 text-center py-3 select-none">
+                    Sin candidatos
+                  </div>
+                )}
+              </div>
+
+              {/* Add button at bottom of first column */}
+              {canManage && isFirst && (
+                <button
+                  onClick={() => setShowAdd(true)}
+                  className="mx-2 mb-2 mt-1 flex items-center justify-center gap-1 py-1.5 rounded-lg border border-dashed text-[10px] font-medium transition-colors hover:border-opacity-80"
+                  style={{ borderColor: stage.color + '66', color: stage.color + 'cc' }}
+                >
+                  <span className="material-symbols-outlined text-[13px]">add</span>
+                  Agregar
+                </button>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      {showAdd && (
+        <AddCandidateModal
+          reqId={reqId}
+          existingIds={existingIds}
+          firstStageName={stages[0]?.name ?? 'Submitted'}
+          onAdd={() => { load(); setShowAdd(false) }}
+          onClose={() => setShowAdd(false)}
+        />
+      )}
+    </div>
+  )
+}
+
+/* ── Main Page ── */
+export default function Requirements() {
+  const { can } = usePermissions()
+  const [requirements, setRequirements] = useState([])
+  const [loading, setLoading]           = useState(true)
+  const [catalogs, setCatalogs]         = useState({ statuses: [], clients: [], stages: [] })
+  const [expanded, setExpanded]         = useState({})
+  const [search, setSearch]             = useState('')
+  const [filterStatus, setFilterStatus] = useState('')
+  const [filterClient, setFilterClient] = useState('')
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      const [reqs, cats] = await Promise.all([
+        listRequirements({ search, statusId: filterStatus, clientId: filterClient }),
+        getCatalogs(),
+      ])
+      setRequirements(reqs)
+      setCatalogs(cats)
+    } finally {
+      setLoading(false)
+    }
+  }, [search, filterStatus, filterClient])
+
+  useEffect(() => { load() }, [load])
+
+  const toggleRow = (id) => setExpanded(prev => ({ ...prev, [id]: !prev[id] }))
+
+  async function handleDelete(e, id) {
+    e.stopPropagation()
+    if (!confirm('¿Eliminar este requerimiento?')) return
+    try {
+      await deleteRequirement(id)
+      setRequirements(prev => prev.filter(r => r.id !== id))
+    } catch (err) {
+      alert(err.message)
+    }
+  }
+
+  function clearFilters() {
+    setSearch('')
+    setFilterStatus('')
+    setFilterClient('')
   }
 
   return (
@@ -144,16 +470,17 @@ export default function Requirements() {
           <span className="md:hidden text-lg font-bold tracking-tight text-primary">PRT Ledger</span>
           <div className="relative hidden md:block group">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-[18px]">search</span>
-            <input className="bg-surface-container-high border-none outline-none ring-0 h-9 pl-10 pr-4 rounded-full text-sm w-60 focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:text-on-surface-variant" placeholder="Search requirements..." type="text" />
+            <input
+              className="bg-surface-container-high border-none outline-none ring-0 h-9 pl-10 pr-4 rounded-full text-sm w-60 focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:text-on-surface-variant"
+              placeholder="Search requirements..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
           </div>
         </div>
         <div className="flex items-center gap-2">
           <button title="Notifications" className="p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors w-9 h-9 flex items-center justify-center relative">
             <span className="material-symbols-outlined text-[20px]">notifications</span>
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
-          </button>
-          <button title="Settings" className="p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors w-9 h-9 flex items-center justify-center">
-            <span className="material-symbols-outlined text-[20px]">settings</span>
           </button>
           <div className="w-px h-5 bg-outline-variant/40 mx-1"></div>
           {can('requirements.create') && (
@@ -163,7 +490,6 @@ export default function Requirements() {
               </button>
             </Link>
           )}
-          <img alt="User profile" className="w-8 h-8 rounded-full border border-outline-variant/30 cursor-pointer object-cover ml-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcjxCoEU9wqgY-RA76AIwKTdn1GjOF66DwOYITaUQg7dQ5rjK9CS9w5YxzIg1-zw6ZLzaieMyWh4iVZJYuWjJB_RB0DbrYWSTt6gcOYiaw8vPuvj5eUP0NqEg5LPou3UcQ1YY5s6p35xp827zSyE6oywlUV5eSwQib2m5kCcFwNLcGrCnhNWaZ17fsBzhrliKPw8wu1m0g9tTyxRCD0_6nRVtmuoBii36VvWbn3-2MXqCjK3i0Uij3nxvIi5n20KRR2ZZUfWRj" />
         </div>
       </header>
 
@@ -181,14 +507,11 @@ export default function Requirements() {
               </div>
               <div className="flex items-center gap-3">
                 <h1 className="text-[2.25rem] leading-none tracking-[-0.02em] font-extrabold text-primary">Requirements</h1>
-                <span className="px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant text-xs font-bold">42</span>
+                <span className="px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant text-xs font-bold">{requirements.length}</span>
               </div>
               <p className="text-on-surface-variant text-base">Manage and track active client requisitions across all portfolios.</p>
             </div>
             <div className="flex gap-2 shrink-0">
-              <button className="flex items-center gap-1.5 px-4 py-2.5 bg-surface-container-lowest border border-outline-variant/30 text-primary rounded-xl text-sm font-medium hover:bg-surface-container transition-colors">
-                <span className="material-symbols-outlined text-[16px]">download</span>Export
-              </button>
               {can('requirements.create') && (
                 <Link to="/requirements/new">
                   <button className="flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity">
@@ -206,52 +529,69 @@ export default function Requirements() {
                 <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Search</label>
                 <div className="relative">
                   <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
-                  <input className="w-full pl-10 pr-4 py-2.5 bg-surface-container-high border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 transition-shadow placeholder:text-on-surface-variant" placeholder="ID, title, or client..." type="text" />
+                  <input
+                    className="w-full pl-10 pr-4 py-2.5 bg-surface-container-high border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 transition-shadow placeholder:text-on-surface-variant"
+                    placeholder="ID, title, or client..."
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                  />
                 </div>
               </div>
               <div className="w-full lg:w-2/3 flex flex-wrap gap-3">
                 <div className="flex-1 min-w-[140px]">
                   <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Status</label>
-                  <select className="w-full px-3 py-2.5 bg-surface-container-high border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer">
-                    <option>All Statuses</option><option>Open</option><option>Testing</option><option>Urgent</option>
+                  <select
+                    className="w-full px-3 py-2.5 bg-surface-container-high border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer"
+                    value={filterStatus}
+                    onChange={e => setFilterStatus(e.target.value)}
+                  >
+                    <option value="">All Statuses</option>
+                    {catalogs.statuses.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                   </select>
                 </div>
                 <div className="flex-1 min-w-[140px]">
                   <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Client</label>
-                  <select className="w-full px-3 py-2.5 bg-surface-container-high border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer">
-                    <option>All Clients</option><option>Logic Monitor</option><option>Pacvue</option>
-                  </select>
-                </div>
-                <div className="flex-1 min-w-[140px]">
-                  <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Date Range</label>
-                  <select className="w-full px-3 py-2.5 bg-surface-container-high border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer">
-                    <option>Last 30 Days</option><option>Last 90 Days</option><option>This Year</option>
+                  <select
+                    className="w-full px-3 py-2.5 bg-surface-container-high border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer"
+                    value={filterClient}
+                    onChange={e => setFilterClient(e.target.value)}
+                  >
+                    <option value="">All Clients</option>
+                    {catalogs.clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </div>
                 <div className="flex items-end gap-2">
-                  <button className="px-4 py-2.5 bg-surface-container text-on-surface rounded-lg text-sm font-medium hover:bg-surface-container-highest transition-colors">Clear</button>
-                  <button className="px-4 py-2.5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-lg text-sm font-medium hover:opacity-90 transition-opacity flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-[16px]">filter_list</span>Apply
-                  </button>
+                  <button onClick={clearFilters} className="px-4 py-2.5 bg-surface-container text-on-surface rounded-lg text-sm font-medium hover:bg-surface-container-highest transition-colors">Clear</button>
                 </div>
               </div>
             </div>
-            <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-outline-variant/10">
-              <span className="text-xs font-medium text-on-surface-variant mr-1">Active filters:</span>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/[0.08] text-primary text-xs font-medium border border-primary/[0.15]">
-                Status: Open <button className="hover:text-error transition-colors"><span className="material-symbols-outlined text-[12px]">close</span></button>
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant text-xs font-medium border border-outline-variant/20">
-                Last 30 days <button className="hover:text-error transition-colors"><span className="material-symbols-outlined text-[12px]">close</span></button>
-              </span>
-            </div>
           </div>
 
-          {/* Requirement Rows */}
+          {/* Requirements List */}
           <div className="space-y-3">
-            {REQUIREMENTS.map((req) => {
+            {loading && (
+              <div className="flex items-center justify-center py-16 gap-2 text-on-surface-variant">
+                <span className="material-symbols-outlined animate-spin text-[24px]">progress_activity</span>
+                <span className="text-sm">Loading requirements…</span>
+              </div>
+            )}
+
+            {!loading && requirements.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <span className="material-symbols-outlined text-[48px] text-on-surface-variant/30 mb-3">assignment</span>
+                <p className="text-on-surface-variant font-medium">No requirements found</p>
+                <p className="text-sm text-on-surface-variant/60 mt-1">
+                  {can('requirements.create') ? 'Create your first requirement to get started.' : 'No hay requerimientos activos.'}
+                </p>
+              </div>
+            )}
+
+            {!loading && requirements.map(req => {
               const isExpanded = expanded[req.id]
-              const board = boards[req.boardId]
+              const pri = PRIORITY[req.priority] ?? PRIORITY[2]
+              const st  = STATUS_STYLE[req.status?.name] ?? DEFAULT_STATUS
+              const candidateCount = req.rc_count?.length ?? 0
+
               return (
                 <div key={req.id} className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-[0_2px_12px_rgba(24,28,30,0.04)] overflow-hidden">
                   {/* Main row */}
@@ -259,103 +599,90 @@ export default function Requirements() {
                     className="req-row grid grid-cols-1 lg:grid-cols-12 gap-x-4 gap-y-2 items-center px-5 py-4 cursor-pointer group hover:bg-surface-container/30 transition-colors"
                     onClick={() => toggleRow(req.id)}
                   >
+                    {/* Priority */}
                     <div className="lg:col-span-1 flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full ${req.priorityDot} shrink-0`}></span>
-                      <span className={`text-[10px] font-bold ${req.priorityColor} uppercase tracking-wide`}>{req.priorityLabel}</span>
+                      <span className={`w-2 h-2 rounded-full ${pri.dot} shrink-0`}></span>
+                      <span className={`text-[10px] font-bold ${pri.color} uppercase tracking-wide`}>{pri.label}</span>
                     </div>
+
+                    {/* ID + Title */}
                     <div className="lg:col-span-3">
-                      <span className="font-mono text-xs text-on-surface-variant">{req.reqId}</span>
-                      <p className="font-semibold text-primary text-sm leading-tight group-hover:text-surface-tint transition-colors">{req.title}</p>
+                      <span className="font-mono text-xs text-on-surface-variant">{reqLabel(req.req_number, req.application_date)}</span>
+                      <p className="font-semibold text-primary text-sm leading-tight group-hover:text-surface-tint transition-colors">{req.job_title}</p>
                     </div>
+
+                    {/* Client */}
                     <div className="lg:col-span-2 flex items-center gap-2">
-                      <div className={`w-7 h-7 rounded-full ${req.clientBadgeBg} flex items-center justify-center text-[11px] font-bold ${req.clientBadgeText} shrink-0`}>{req.clientInitial}</div>
+                      <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-[11px] font-bold text-primary shrink-0">
+                        {req.client?.name?.charAt(0) ?? '?'}
+                      </div>
                       <div>
-                        <p className="text-xs font-semibold text-primary">{req.client}</p>
-                        <p className="text-[10px] text-on-surface-variant">Stage: Active</p>
+                        <p className="text-xs font-semibold text-primary">{req.client?.name ?? '—'}</p>
+                        <p className="text-[10px] text-on-surface-variant">{candidateCount} candidate{candidateCount !== 1 ? 's' : ''}</p>
                       </div>
                     </div>
+
+                    {/* Comp + details */}
                     <div className="lg:col-span-2 space-y-0.5">
-                      <p className="text-xs text-on-surface-variant"><span className="font-medium text-primary">{req.salary}</span> · {req.variable}</p>
-                      <p className="text-xs text-on-surface-variant">{req.arrangement}</p>
-                      <p className="text-xs text-on-surface-variant">{req.fte}</p>
+                      {req.salary_cap && (
+                        <p className="text-xs text-on-surface-variant">
+                          <span className="font-medium text-primary">${Number(req.salary_cap).toLocaleString()}</span>
+                          {req.variable ? ` · ${req.variable}` : ''}
+                        </p>
+                      )}
+                      <p className="text-xs text-on-surface-variant">{req.work_arrangement?.name ?? '—'}{req.desired_location ? ` · ${req.desired_location}` : ''}</p>
+                      <p className="text-xs text-on-surface-variant">{req.fte_count ?? 1} FTE{(req.fte_count ?? 1) !== 1 ? "'" : ''}{req.duration ? ` · ${req.duration}` : ''}</p>
                     </div>
+
+                    {/* Target date */}
                     <div className="lg:col-span-2 text-center">
                       <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-0.5">Target Fill</p>
-                      <p className="text-sm font-semibold text-primary">{req.targetFill}</p>
+                      <p className="text-sm font-semibold text-primary">{fmt(req.target_fill_date)}</p>
                     </div>
+
+                    {/* Status + actions */}
                     <div className="lg:col-span-2 flex items-center justify-between gap-2">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold ${req.statusBg} ${req.statusText} tracking-wide uppercase`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${req.statusDot}`}></span>{req.statusLabel}
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold ${st.bg} ${st.text} tracking-wide uppercase`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${st.dot}`}></span>{req.status?.name ?? '—'}
                       </span>
                       <div className="row-actions flex gap-1">
-                        {can('requirements.edit') && (
-                          <button title="Edit" className="p-1.5 rounded-lg hover:bg-surface-container text-on-surface-variant transition-colors" onClick={(e) => e.stopPropagation()}>
-                            <span className="material-symbols-outlined text-[15px]">edit</span>
-                          </button>
-                        )}
                         {can('requirements.delete') && (
-                          <button title="Delete" className="p-1.5 rounded-lg hover:bg-error-container text-on-surface-variant hover:text-error transition-colors" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            title="Delete"
+                            className="p-1.5 rounded-lg hover:bg-error-container text-on-surface-variant hover:text-error transition-colors"
+                            onClick={e => handleDelete(e, req.id)}
+                          >
                             <span className="material-symbols-outlined text-[15px]">delete_outline</span>
                           </button>
                         )}
                       </div>
-                      <span className="material-symbols-outlined text-[18px] text-on-surface-variant transition-transform duration-200" style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>expand_more</span>
+                      <span
+                        className="material-symbols-outlined text-[18px] text-on-surface-variant transition-transform duration-200"
+                        style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                      >expand_more</span>
                     </div>
                   </div>
 
                   {/* Pipeline panel */}
                   {isExpanded && (
-                    <div className={`border-t ${req.phasesBorder} ${req.phasesBg} px-5 py-4`}>
-                      <p className={`text-[10px] font-bold ${req.phasesLabel} uppercase tracking-widest mb-3`}>
-                        Interview Pipeline — {req.client}
-                      </p>
-                      <KanbanBoard
-                        boardId={req.boardId}
-                        board={board}
-                        dragging={dragging}
-                        dragOver={dragOver}
-                        onDragStart={handleDragStart}
-                        onDragEnd={handleDragEnd}
-                        onDragOver={handleDragOver}
-                        onDragLeave={handleDragLeave}
-                        onDrop={handleDrop}
+                    <div className="border-t border-outline-variant/10 bg-surface-container/30 px-5 py-4">
+                      <PipelinePanel
+                        reqId={req.id}
+                        clientId={req.client?.id}
                         canDrag={can('requirements.pipeline')}
+                        canManage={can('requirements.edit')}
                       />
-                      <div className={`flex items-center justify-between mt-2 pt-3 border-t ${req.phasesBorder}`}>
-                        <p className={`text-xs ${req.phasesLabel}`}>
-                          <span className="font-bold">{req.phasesCompleted}</span> phases completed · App. Date: {req.appDate} · VISA: {req.visa}
+                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-outline-variant/10">
+                        <p className="text-xs text-on-surface-variant">
+                          App. Date: <span className="font-medium">{fmt(req.application_date)}</span>
+                          &nbsp;·&nbsp; VISA: <span className="font-medium">{req.visa_us_required ? 'Required' : 'Not required'}</span>
                         </p>
-                        {can('requirements.edit') && (
-                          <Link to="/requirements/new" className={`text-xs font-semibold ${req.phasesLabel} hover:opacity-80 transition-opacity flex items-center gap-1`}>
-                            Edit Requirement <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-                          </Link>
-                        )}
                       </div>
                     </div>
                   )}
                 </div>
               )
             })}
-
-            {/* Pagination */}
-            <div className="mt-2 px-1 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <p className="text-sm text-on-surface-variant">
-                Showing <span className="font-semibold text-primary">1</span>–<span className="font-semibold text-primary">3</span> of <span className="font-semibold text-primary">42</span> requirements
-              </p>
-              <div className="flex items-center gap-1">
-                <button className="px-3 py-1.5 rounded-lg border border-outline-variant/30 text-sm font-medium text-on-surface-variant hover:bg-surface-container transition-colors disabled:opacity-40" disabled>
-                  <span className="material-symbols-outlined text-[16px]">chevron_left</span>
-                </button>
-                <button className="w-8 h-8 rounded-lg bg-primary text-on-primary text-sm font-bold">1</button>
-                <button className="w-8 h-8 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container transition-colors">2</button>
-                <button className="w-8 h-8 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container transition-colors">3</button>
-                <span className="text-on-surface-variant px-1">…</span>
-                <button className="w-8 h-8 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container transition-colors">14</button>
-                <button className="px-3 py-1.5 rounded-lg border border-outline-variant/30 text-sm font-medium text-on-surface-variant hover:bg-surface-container transition-colors">
-                  <span className="material-symbols-outlined text-[16px]">chevron_right</span>
-                </button>
-              </div>
-            </div>
           </div>
 
         </div>

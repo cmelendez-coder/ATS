@@ -34,47 +34,34 @@ export default function Login() {
   return (
     <div className="min-h-screen font-sans relative selection:bg-blue-600/30" style={{ backgroundColor: '#0f172a', color: '#f1f5f9' }}>
 
-      {/* Header */}
-      <header className="absolute top-0 left-0 p-8 z-20 flex items-center gap-4">
-        <img
-          src="https://portal.everscalegroup.com/wp-content/uploads/2019/10/Secondary-Logo_white-01.png"
-          alt="Everscale Group"
-          className="h-8 object-contain"
-          onError={e => { e.currentTarget.style.display = 'none' }}
-        />
-        <div className="h-6 w-px bg-slate-700" />
-        <span className="text-slate-400 font-medium text-sm md:text-base">System Talent Portal</span>
-      </header>
-
       <div className="flex flex-col items-center w-full min-h-screen">
 
-        {/* Hero image */}
-        <div className="w-full overflow-hidden relative" style={{ height: '45vh' }}>
-          <div
-            className="w-full h-full bg-center bg-cover bg-no-repeat"
-            style={{
-              backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuBLZBZm09lPx5dnQQQliIC_joobm7K7JtoxQsrzzXce1TxcpnwDaQ7tHW-F9JIB03ZrNM-DcY133krxFraMWkzryG1V816DPBcx4H-gAF2qLE5i8yZEUnl4oiHd1nXa2jFJBdNvBw0eSv-Iuhx1UGKaptXU0kH6yaeD7iior8kaLD0NNtQoEOv-bRL4IAJVdkX31E4Wq47keTyT2AHf_UKDUS1gONcP-ez79ZzPccTlQGEeOcHXqRsJzCHh3p79-O1Gg_xxebwDqsmc")`,
-            }}
-          >
-            <div
-              className="absolute inset-0"
-              style={{ background: 'linear-gradient(to bottom, rgba(15,23,42,0.4) 0%, rgba(15,23,42,0.2) 50%, #0f172a 100%)' }}
-            />
-          </div>
-        </div>
-
         {/* Login card */}
-        <main className="flex-1 flex flex-col items-center justify-center w-full max-w-[1200px] px-4 relative z-10 pb-16" style={{ marginTop: '-8rem' }}>
+        <main className="flex-1 flex flex-col items-center justify-center w-full px-4 py-12">
           <div
-            className="w-full max-w-[450px] p-10 rounded-xl border border-slate-800 shadow-2xl relative overflow-hidden"
-            style={{ backgroundColor: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(12px)' }}
+            className="w-full max-w-[460px] p-10 rounded-2xl border border-slate-800 shadow-2xl relative overflow-hidden"
+            style={{ backgroundColor: '#111827' }}
           >
             {/* Green accent bar */}
-            <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl" style={{ backgroundColor: '#99ff99' }} />
+            <div className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl" style={{ backgroundColor: '#99ff99' }} />
 
-            <div className="mb-10 text-center">
-              <h1 className="text-3xl font-black text-white mb-3 tracking-tight">Bienvenido</h1>
-              <p className="text-slate-400 text-sm">Ingrese sus credenciales para acceder al portal</p>
+            {/* Logos */}
+            <div className="flex flex-col items-center gap-5 mb-10">
+              <img
+                src="/logo-prt.png"
+                alt="PRT Logo"
+                className="w-64 object-contain"
+              />
+              <div className="h-px w-full bg-slate-700" />
+              <img
+                src="/icon-prt.png"
+                alt="PRT Icon"
+                className="w-20 h-20 object-contain"
+              />
+              <div className="text-center">
+                <h1 className="text-2xl font-black text-white tracking-tight">Bienvenido</h1>
+                <p className="text-slate-400 text-sm mt-1">Ingrese sus credenciales para acceder al portal</p>
+              </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -191,7 +178,7 @@ export default function Login() {
           </div>
         </main>
 
-        <footer className="w-full py-8 text-center text-xs mt-auto text-slate-600">
+        <footer className="w-full py-6 text-center text-xs text-slate-600">
           <p>© {new Date().getFullYear()} PRT Suite — Everscale Group. Todos los derechos reservados.</p>
         </footer>
       </div>

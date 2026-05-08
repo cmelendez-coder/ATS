@@ -34,9 +34,11 @@ export default function Sidebar() {
     <nav className="hidden md:flex flex-col h-full py-6 px-4 bg-surface-container-low border-r border-outline-variant/20 w-64 fixed left-0 top-0 z-50 shrink-0">
       {/* Brand */}
       <div className="flex items-center gap-3 px-2 mb-8">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-sm shrink-0">
-          <span className="material-symbols-outlined text-on-primary text-[18px] filled">corporate_fare</span>
-        </div>
+        <img
+          src="/icon-prt.png"
+          alt="PRT Icon"
+          className="w-10 h-10 object-contain shrink-0"
+        />
         <div>
           <h1 className="text-base font-bold text-primary tracking-tight leading-tight">PRT Suite</h1>
           <p className="text-[11px] text-on-surface-variant leading-tight">Talent, Client&apos;s &amp; Requirements</p>

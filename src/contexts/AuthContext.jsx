@@ -19,6 +19,12 @@ export function AuthProvider({ children }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, supaSession) => {
       if (event === 'SIGNED_OUT') setSessionState(null)
       if (event === 'TOKEN_REFRESHED' && !supaSession) setSessionState(null)
+      if (event === 'SIGNED_IN' && !supaSession) setSessionState(null)
+      // Refresh token inválido → limpiar localStorage y forzar login
+      if (event === 'INITIAL_SESSION' && !supaSession) {
+        localStorage.removeItem('sb-tcizdsspibdoqqgpreay-auth-token')
+        setSessionState(null)
+      }
     })
 
     return () => subscription.unsubscribe()

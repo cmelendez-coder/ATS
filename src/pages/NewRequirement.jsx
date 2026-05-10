@@ -275,7 +275,7 @@ export default function NewRequirement() {
                   <div>
                     <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Variable</label>
                     <div className="relative">
-                      <input className="form-field pr-8" placeholder="0" type="number" min="0" max="100" value={form.variable} onChange={e => set('variable', e.target.value)} />
+                      <input className="form-field pr-8" placeholder="0" type="number" min="0" value={form.variable} onChange={e => set('variable', e.target.value)} />
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm font-medium">%</span>
                     </div>
                     <p className="text-xs text-on-surface-variant mt-1">Performance bonus percentage.</p>

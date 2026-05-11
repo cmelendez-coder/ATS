@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard'
 import Clients from './pages/Clients'
 import Requirements from './pages/Requirements'
 import NewRequirement from './pages/NewRequirement'
+import EditRequirement from './pages/EditRequirement'
 import TalentDirectory from './pages/TalentDirectory'
 import AddTalent from './pages/AddTalent'
 import EditTalent from './pages/EditTalent'
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="/clients"             element={<Protected><Clients /></Protected>} />
           <Route path="/requirements"        element={<Protected><Requirements /></Protected>} />
           <Route path="/requirements/new"    element={<Protected permission="requirements.create"><NewRequirement /></Protected>} />
+          <Route path="/requirements/edit/:id" element={<Protected permission="requirements.edit"><EditRequirement /></Protected>} />
           <Route path="/talent"              element={<Protected><TalentDirectory /></Protected>} />
           <Route path="/talent/new"          element={<Protected permission="talent.create"><AddTalent /></Protected>} />
           <Route path="/talent/edit/:code"   element={<Protected><EditTalent /></Protected>} />

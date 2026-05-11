@@ -2,7 +2,7 @@ import { supabase } from '../lib/supabase'
 
 const REQ_SELECT = `
   id, req_number, job_title, priority, stage,
-  application_date, target_fill_date, salary_cap, variable,
+  application_date, target_fill_date, first_resource_sent, salary_cap, variable,
   desired_location, fte_count, duration, visa_us_required,
   tech_reqs, special_request, notes, created_at,
   work_arrangement_id, office_hours_id, status_id,
@@ -31,6 +31,27 @@ export async function createRequirement(payload) {
   const { data, error } = await supabase
     .from('requirement')
     .insert(payload)
+    .select('id, req_number')
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function getRequirement(id) {
+  const { data, error } = await supabase
+    .from('requirement')
+    .select(REQ_SELECT)
+    .eq('id', id)
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function updateRequirement(id, payload) {
+  const { data, error } = await supabase
+    .from('requirement')
+    .update(payload)
+    .eq('id', id)
     .select('id, req_number')
     .single()
   if (error) throw error

@@ -646,6 +646,16 @@ export default function Requirements() {
                         <span className={`w-1.5 h-1.5 rounded-full ${st.dot}`}></span>{req.status?.name ?? '—'}
                       </span>
                       <div className="row-actions flex gap-1">
+                        {can('requirements.edit') && (
+                          <Link
+                            to={`/requirements/edit/${req.id}`}
+                            title="Edit"
+                            className="p-1.5 rounded-lg hover:bg-primary/10 text-on-surface-variant hover:text-primary transition-colors"
+                            onClick={e => e.stopPropagation()}
+                          >
+                            <span className="material-symbols-outlined text-[15px]">edit</span>
+                          </Link>
+                        )}
                         {can('requirements.delete') && (
                           <button
                             title="Delete"

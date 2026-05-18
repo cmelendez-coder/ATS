@@ -65,7 +65,6 @@ export default function Dashboard() {
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
               <h1 className="text-[2.25rem] leading-none tracking-[-0.02em] font-extrabold text-primary">Overview</h1>
-              <p className="text-sm text-on-surface-variant mt-1">Real-time snapshot of your talent pipeline.</p>
             </div>
             <p className="text-sm font-medium text-on-surface-variant shrink-0 pb-1">{currentDate}</p>
           </div>

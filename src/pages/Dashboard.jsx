@@ -203,39 +203,6 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* Candidate Status Breakdown */}
-          {!loading && stats?.candidateStatusMap && (
-            <div className="bg-surface-container-lowest rounded-2xl p-7 shadow-[0_2px_16px_rgba(24,28,30,0.05)] border border-outline-variant/10">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-xl font-bold tracking-tight text-primary">Talent by Status</h2>
-                  <p className="text-xs text-on-surface-variant mt-0.5">{(stats.totalCandidates ?? 0).toLocaleString()} candidates total</p>
-                </div>
-                <Link to="/talent" className="text-sm font-medium text-surface-tint hover:text-primary transition-colors flex items-center gap-1">
-                  Directory <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-                </Link>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                {Object.entries(stats.candidateStatusMap)
-                  .filter(([, count]) => count > 0)
-                  .sort(([, a], [, b]) => b - a)
-                  .map(([status, count]) => {
-                    const pct = stats.totalCandidates ? Math.round(count / stats.totalCandidates * 100) : 0
-                    return (
-                      <div key={status} className="bg-surface-container-low rounded-xl p-4 border border-outline-variant/10">
-                        <p className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider truncate mb-1">{status}</p>
-                        <p className="text-2xl font-light text-primary">{count.toLocaleString()}</p>
-                        <div className="mt-2 h-1 bg-surface-container-high rounded-full overflow-hidden">
-                          <div className="h-full bg-primary/40 rounded-full" style={{ width: `${pct}%` }} />
-                        </div>
-                        <p className="text-[10px] text-on-surface-variant/60 mt-1">{pct}%</p>
-                      </div>
-                    )
-                  })}
-              </div>
-            </div>
-          )}
-
         </div>
       </div>
     </>

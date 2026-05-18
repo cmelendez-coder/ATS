@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { getCandidate, updateCandidate, fetchCatalog } from '../api/talent'
 
@@ -31,6 +31,8 @@ function Field({ id, label, children }) {
 export default function EditTalent() {
   const { code }   = useParams()
   const navigate   = useNavigate()
+  const formRef    = useRef(null)
+  const draftKey   = code ? `edit-talent-draft:${code}` : null
 
   // ── Data state ─────────────────────────────────────────────────
   const [talent, setTalent]         = useState(null)
@@ -66,6 +68,7 @@ export default function EditTalent() {
             .map(s => s.technology?.ct_name_tech)
             .filter(Boolean)
         )
+        setAvailable(data.status?.name === 'Available')
       } catch {
         setLoadError('No se encontró el candidato o hubo un error de conexión.')
       } finally {
@@ -92,6 +95,61 @@ export default function EditTalent() {
   }
 
   // ── Submit ─────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!talent || !draftKey || !formRef.current) return
+
+    const rawDraft = sessionStorage.getItem(draftKey)
+    if (!rawDraft) return
+
+    try {
+      const draft = JSON.parse(rawDraft)
+      const form = formRef.current
+
+      Object.entries(draft.fields ?? {}).forEach(([name, value]) => {
+        const field = form.elements.namedItem(name)
+        if (!field || typeof value !== 'string') return
+        if ('value' in field) field.value = value
+      })
+
+      if (Array.isArray(draft.stack)) setStack(draft.stack)
+      if (typeof draft.stackModified === 'boolean') setStackModified(draft.stackModified)
+      if (typeof draft.available === 'boolean') setAvailable(draft.available)
+    } catch {
+      sessionStorage.removeItem(draftKey)
+    }
+  }, [talent, draftKey])
+
+  useEffect(() => {
+    if (!talent || !draftKey || !formRef.current) return
+
+    function saveDraft() {
+      const form = formRef.current
+      if (!form) return
+
+      const fields = {}
+      for (const [name, value] of new FormData(form).entries()) {
+        fields[name] = String(value)
+      }
+
+      sessionStorage.setItem(draftKey, JSON.stringify({
+        fields,
+        stack,
+        stackModified,
+        available,
+      }))
+    }
+
+    const form = formRef.current
+    form.addEventListener('input', saveDraft)
+    form.addEventListener('change', saveDraft)
+    saveDraft()
+
+    return () => {
+      form.removeEventListener('input', saveDraft)
+      form.removeEventListener('change', saveDraft)
+    }
+  }, [talent, draftKey, stack, stackModified, available])
+
   async function handleSubmit(e) {
     e.preventDefault()
     setSaving(true)
@@ -121,6 +179,7 @@ export default function EditTalent() {
           replaceStack: true,
         }),
       })
+      if (draftKey) sessionStorage.removeItem(draftKey)
       navigate('/talent')
     } catch {
       setSaveError('Error al actualizar el candidato. Intenta de nuevo.')
@@ -223,7 +282,7 @@ export default function EditTalent() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit}>
+          <form ref={formRef} onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
               {/* ── Left sidebar ─────────────────────────────── */}

@@ -8,6 +8,7 @@ const RULES = {
   'talent.edit':             ['gerente', 'administrador'],
   'talent.delete':           ['gerente', 'administrador'],
   'talent.pipeline':         ['usuario', 'gerente', 'administrador'],
+  'clients.create':          ['gerente', 'administrador'],
   'clients.contacts.manage': ['gerente', 'administrador'],
   'users.manage':            ['administrador'],
 }

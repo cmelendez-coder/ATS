@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabase'
 
 const CLIENT_COLUMNS = 'id, name, sector, country, office_location, business_hours, benefits, headquarters_location, timezone, notes'
+const CLIENT_MUTABLE_FIELDS = ['name', 'sector', 'country', 'office_location', 'business_hours', 'benefits', 'headquarters_location', 'timezone', 'notes']
 
 export async function listClients() {
   const [{ data: clients, error: cErr }, { data: contacts, error: ctErr }] = await Promise.all([
@@ -13,6 +14,20 @@ export async function listClients() {
     ...c,
     contacts: (contacts ?? []).filter(ct => ct.client_id === c.id),
   }))
+}
+
+export async function createClient(payload) {
+  const clean = Object.fromEntries(
+    CLIENT_MUTABLE_FIELDS.map(k => [k, payload[k]?.trim?.() ? payload[k].trim() : payload[k] ?? null])
+  )
+
+  const { data, error } = await supabase
+    .from('client')
+    .insert(clean)
+    .select(CLIENT_COLUMNS)
+    .single()
+  if (error) throw error
+  return { ...data, contacts: [] }
 }
 
 const CLIENT_UPDATABLE = ['sector', 'country', 'office_location', 'business_hours', 'benefits', 'headquarters_location', 'timezone', 'notes']

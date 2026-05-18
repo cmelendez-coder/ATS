@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { usePermissions } from '../hooks/usePermissions'
-import { listClients, updateClient, createContact, updateContact, deleteContact } from '../api/clients'
+import ClientCreateForm from '../components/ClientCreateForm'
+import { listClients, createClient, updateClient, createContact, updateContact, deleteContact } from '../api/clients'
 
 const EMPTY_FORM = { name: '', job_title: '', email: '', mobile: '', location: '', timezone: '' }
 
@@ -103,6 +104,7 @@ export default function Clients() {
   // contact ui state: null | { clientId, mode: 'add' } | { clientId, mode: 'edit', contact }
   const [editing, setEditing]         = useState(null)
   const [editingClient, setEditingClient] = useState(null) // clientId being edited
+  const [showCreateClient, setShowCreateClient] = useState(false)
   const [saving, setSaving]           = useState(false)
 
   const load = useCallback(async () => {
@@ -119,11 +121,30 @@ export default function Clients() {
 
   useEffect(() => { load() }, [load])
 
+  function sortClients(rows) {
+    return [...rows].sort((a, b) => (a.name ?? '').localeCompare(b.name ?? '', 'es', { sensitivity: 'base' }))
+  }
+
+  async function handleCreateClient(form) {
+    if (!form.name.trim()) return
+    setSaving(true)
+    try {
+      const newClient = await createClient(form)
+      setClients(prev => sortClients([...prev, newClient]))
+      setShowCreateClient(false)
+      setError(null)
+    } catch (e) {
+      alert(e.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
   async function handleSaveClient(clientId, form) {
     setSaving(true)
     try {
       await updateClient(clientId, form)
-      setClients(prev => prev.map(c => c.id === clientId ? { ...c, ...form } : c))
+      setClients(prev => sortClients(prev.map(c => c.id === clientId ? { ...c, ...form } : c)))
       setEditingClient(null)
     } catch (e) { alert(e.message) }
     finally { setSaving(false) }
@@ -196,12 +217,24 @@ export default function Clients() {
               <h1 className="text-[2.25rem] leading-none tracking-[-0.02em] font-extrabold text-primary">Clients</h1>
               <p className="text-on-surface-variant text-base">Oficinas, zonas horarias, sector y detalles operativos de cada cliente.</p>
             </div>
-            {!loading && (
-              <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-surface-container text-on-surface-variant text-sm font-semibold shrink-0">
-                <span className="material-symbols-outlined text-[16px]">apartment</span>
-                {clients.length} clientes activos
-              </span>
-            )}
+            <div className="flex flex-wrap items-center gap-3">
+              {!loading && (
+                <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-surface-container text-on-surface-variant text-sm font-semibold shrink-0">
+                  <span className="material-symbols-outlined text-[16px]">apartment</span>
+                  {clients.length} clientes activos
+                </span>
+              )}
+              {can('clients.create') && (
+                <button
+                  type="button"
+                  onClick={() => setShowCreateClient(prev => !prev)}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity"
+                >
+                  <span className="material-symbols-outlined text-[16px]">{showCreateClient ? 'close' : 'add'}</span>
+                  {showCreateClient ? 'Cerrar formulario' : 'Nuevo cliente'}
+                </button>
+              )}
+            </div>
           </div>
 
           {error && (
@@ -209,6 +242,14 @@ export default function Clients() {
               <span className="material-symbols-outlined text-[20px]">error</span>
               <p className="text-sm">{error}</p>
             </div>
+          )}
+
+          {showCreateClient && can('clients.create') && (
+            <ClientCreateForm
+              onSave={handleCreateClient}
+              onCancel={() => setShowCreateClient(false)}
+              saving={saving}
+            />
           )}
 
           {loading ? (

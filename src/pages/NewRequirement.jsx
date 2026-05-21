@@ -28,6 +28,7 @@ export default function NewRequirement() {
     desired_location:    '',
     salary_cap:          '',
     variable:            '',
+    periodicidad:        '',
     work_arrangement_id: '',
     office_hours:        '',
     visa_us_required:    false,
@@ -73,6 +74,7 @@ export default function NewRequirement() {
         desired_location:    form.desired_location || null,
         salary_cap:          form.salary_cap ? Number(form.salary_cap) : null,
         variable:            form.variable ? String(form.variable) + '%' : null,
+        periodicidad:        form.periodicidad || null,
         work_arrangement_id: form.work_arrangement_id ? Number(form.work_arrangement_id) : null,
         visa_us_required:    form.visa_us_required,
         tech_reqs:           form.tech_reqs || null,
@@ -279,6 +281,15 @@ export default function NewRequirement() {
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm font-medium">%</span>
                     </div>
                     <p className="text-xs text-on-surface-variant mt-1">Performance bonus percentage.</p>
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Periodicidad</label>
+                    <select className="form-field appearance-none cursor-pointer" value={form.periodicidad} onChange={e => set('periodicidad', e.target.value)}>
+                      <option value="">Seleccionar…</option>
+                      <option value="Mensual">Mensual</option>
+                      <option value="Trimestral">Trimestral</option>
+                      <option value="Anual">Anual</option>
+                    </select>
                   </div>
                 </div>
               </div>

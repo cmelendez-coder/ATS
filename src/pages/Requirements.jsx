@@ -977,12 +977,10 @@ export default function Requirements() {
                                 <p className="font-semibold text-primary text-sm leading-snug group-hover:text-surface-tint transition-colors mt-0.5">{req.job_title}</p>
                               </div>
 
-                              {/* Logo + candidates */}
-                              <div className="lg:col-span-1 flex flex-col items-center gap-1">
-                                <div className="flex items-center justify-center h-8 px-2 rounded-lg bg-white border border-outline-variant/10 shadow-sm shrink-0">
-                                  <ClientLogo name={clientName} size="sm" />
-                                </div>
-                                <p className="text-[9px] text-on-surface-variant/60 whitespace-nowrap font-medium">
+                              {/* Candidates */}
+                              <div className="lg:col-span-1 flex flex-col items-center gap-0.5">
+                                <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">group</span>
+                                <p className="text-[10px] text-on-surface-variant/60 whitespace-nowrap font-medium">
                                   {candidateCount} cand{candidateCount !== 1 ? 's' : '.'}
                                 </p>
                               </div>

@@ -3,6 +3,7 @@ const RULES = {
   'requirements.create':     ['gerente', 'administrador'],
   'requirements.edit':       ['gerente', 'administrador'],
   'requirements.delete':     ['gerente', 'administrador'],
+  'requirements.approve':    ['administrador'],
   'requirements.pipeline':   ['usuario', 'gerente', 'administrador'],
   'talent.create':           ['gerente', 'administrador'],
   'talent.edit':             ['gerente', 'administrador'],

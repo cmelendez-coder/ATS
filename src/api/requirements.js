@@ -12,19 +12,43 @@ const REQ_SELECT = `
   rc_count:requirement_candidate(id)
 `
 
-export async function listRequirements({ search = '', statusId = '', clientId = '' } = {}) {
+export async function listRequirements({ search = '', statusId = '', clientId = '', excludePending = false } = {}) {
   let q = supabase
     .from('requirement')
     .select(REQ_SELECT)
     .order('created_at', { ascending: false })
 
-  if (search)   q = q.ilike('job_title', `%${search}%`)
-  if (statusId) q = q.eq('status_id', statusId)
-  if (clientId) q = q.eq('client_id', clientId)
+  if (search)         q = q.ilike('job_title', `%${search}%`)
+  if (statusId)       q = q.eq('status_id', statusId)
+  if (clientId)       q = q.eq('client_id', clientId)
+  if (excludePending) q = q.neq('status_id', 1)
 
   const { data, error } = await q
   if (error) throw error
   return data ?? []
+}
+
+export async function listPendingApprovals() {
+  const { data, error } = await supabase
+    .from('requirement')
+    .select(REQ_SELECT)
+    .eq('status_id', 1)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data ?? []
+}
+
+export async function approveRequirement(id) {
+  const { error } = await supabase
+    .from('requirement')
+    .update({ status_id: 2 })
+    .eq('id', id)
+  if (error) throw error
+}
+
+export async function rejectRequirement(id) {
+  const { error } = await supabase.from('requirement').delete().eq('id', id)
+  if (error) throw error
 }
 
 export async function createRequirement(payload) {

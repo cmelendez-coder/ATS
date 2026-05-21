@@ -6,6 +6,7 @@ import {
   getRequirementCandidates, addCandidateToRequirement,
   updateCandidateStage, updateCandidateNotes, removeCandidateFromRequirement,
   getCatalogs, getClientStages, searchCandidatesForReq,
+  listPendingApprovals, approveRequirement, rejectRequirement,
 } from '../api/requirements'
 
 /* ── helpers ── */
@@ -16,6 +17,7 @@ const PRIORITY = {
 }
 const STATUS_STYLE = {
   'Open':                 { bg: 'bg-secondary-container',    text: 'text-on-secondary-container', dot: 'bg-secondary' },
+  'Pending Approval':     { bg: 'bg-tertiary-container',     text: 'text-on-tertiary-container',  dot: 'bg-tertiary' },
   'Pending Validation':   { bg: 'bg-tertiary-container',     text: 'text-on-tertiary-container',  dot: 'bg-tertiary' },
   'Paused':               { bg: 'bg-surface-container-high', text: 'text-on-surface-variant',     dot: 'bg-outline' },
   'Closed - Covered':     { bg: 'bg-primary/10',             text: 'text-primary',                dot: 'bg-primary' },
@@ -599,6 +601,108 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
   )
 }
 
+/* ── Pending Approvals Section ── */
+function PendingApprovalsSection({ onApproved }) {
+  const [pending, setPending]   = useState([])
+  const [loading, setLoading]   = useState(true)
+  const [expanded, setExpanded] = useState(false)
+  const [acting, setActing]     = useState(null)
+
+  useEffect(() => {
+    listPendingApprovals()
+      .then(setPending)
+      .finally(() => setLoading(false))
+  }, [])
+
+  async function handleApprove(id) {
+    setActing(id)
+    try {
+      await approveRequirement(id)
+      setPending(prev => prev.filter(r => r.id !== id))
+      onApproved()
+    } finally { setActing(null) }
+  }
+
+  async function handleReject(id) {
+    if (!confirm('¿Rechazar y eliminar este requerimiento?')) return
+    setActing(id)
+    try {
+      await rejectRequirement(id)
+      setPending(prev => prev.filter(r => r.id !== id))
+    } finally { setActing(null) }
+  }
+
+  if (loading || pending.length === 0) return null
+
+  return (
+    <div className="rounded-2xl border-2 border-tertiary/30 bg-tertiary/[0.04] overflow-hidden">
+      {/* Header banner */}
+      <button
+        onClick={() => setExpanded(v => !v)}
+        className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-tertiary/[0.06] transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-tertiary/15 flex items-center justify-center">
+            <span className="material-symbols-outlined text-[18px] text-tertiary">pending_actions</span>
+          </div>
+          <div className="text-left">
+            <p className="text-sm font-bold text-tertiary">
+              {pending.length} requerimiento{pending.length !== 1 ? 's' : ''} pendiente{pending.length !== 1 ? 's' : ''} de aprobación
+            </p>
+            <p className="text-xs text-on-surface-variant">Revisar y autorizar para que aparezcan en el sistema</p>
+          </div>
+        </div>
+        <span
+          className="material-symbols-outlined text-[20px] text-tertiary transition-transform duration-200"
+          style={{ transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+        >expand_more</span>
+      </button>
+
+      {expanded && (
+        <div className="border-t border-tertiary/20 divide-y divide-tertiary/10">
+          {pending.map(req => {
+            const pri = PRIORITY[req.priority] ?? PRIORITY[2]
+            const isActing = acting === req.id
+            return (
+              <div key={req.id} className="flex items-center gap-4 px-5 py-3.5 bg-surface/60">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="font-mono text-[11px] text-on-surface-variant">
+                      {`REQ-${new Date(req.created_at).getFullYear()}-${String(req.req_number ?? 0).padStart(3, '0')}`}
+                    </span>
+                    <span className={`text-[9px] font-bold uppercase tracking-widest ${pri.color}`}>{pri.label}</span>
+                  </div>
+                  <p className="text-sm font-semibold text-primary truncate">{req.job_title}</p>
+                  <p className="text-xs text-on-surface-variant">{req.client?.name ?? '—'} · {req.target_fill_date ? new Date(req.target_fill_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    disabled={!!acting}
+                    onClick={() => handleApprove(req.id)}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-secondary-container text-on-secondary-container text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
+                  >
+                    {isActing ? <span className="material-symbols-outlined animate-spin text-[14px]">progress_activity</span>
+                              : <span className="material-symbols-outlined text-[14px]">check_circle</span>}
+                    Aprobar
+                  </button>
+                  <button
+                    disabled={!!acting}
+                    onClick={() => handleReject(req.id)}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-error-container text-on-error-container text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
+                  >
+                    <span className="material-symbols-outlined text-[14px]">cancel</span>
+                    Rechazar
+                  </button>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
 /* ── Main Page ── */
 export default function Requirements() {
   const { can } = usePermissions()
@@ -614,7 +718,7 @@ export default function Requirements() {
     setLoading(true)
     try {
       const [reqs, cats] = await Promise.all([
-        listRequirements({ search, statusId: filterStatus, clientId: filterClient }),
+        listRequirements({ search, statusId: filterStatus, clientId: filterClient, excludePending: true }),
         getCatalogs(),
       ])
       setRequirements(reqs)
@@ -729,7 +833,7 @@ export default function Requirements() {
                     onChange={e => setFilterStatus(e.target.value)}
                   >
                     <option value="">All Statuses</option>
-                    {catalogs.statuses.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                    {catalogs.statuses.filter(s => s.id !== 1).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                   </select>
                 </div>
                 <div className="flex-1 min-w-[140px]">
@@ -749,6 +853,11 @@ export default function Requirements() {
               </div>
             </div>
           </div>
+
+          {/* Pending Approvals (admin only) */}
+          {can('requirements.approve') && (
+            <PendingApprovalsSection onApproved={load} />
+          )}
 
           {/* Requirements List */}
           <div className="space-y-3">

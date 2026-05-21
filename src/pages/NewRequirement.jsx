@@ -12,6 +12,8 @@ export default function NewRequirement() {
   const [charCount, setCharCount]   = useState(0)
   const [loading, setLoading]       = useState(false)
   const [error, setError]           = useState(null)
+  const [submitted, setSubmitted]   = useState(false)
+  const [savedReqLabel, setSavedReqLabel] = useState('')
   const [nextReqNum, setNextReqNum] = useState(null)
   const [catalogs, setCatalogs]     = useState({ statuses: [], arrangements: [], clients: [] })
 
@@ -65,7 +67,7 @@ export default function NewRequirement() {
         job_title:           form.job_title,
         priority:            priority,
         stage:               form.stage,
-        status_id:           Number(form.status_id) || null,
+        status_id:           1, // Always starts as Pending Approval
         application_date:    form.application_date,
         target_fill_date:    form.target_fill_date,
         first_resource_sent: form.first_resource_sent || null,
@@ -82,7 +84,8 @@ export default function NewRequirement() {
         created_by_user_id:  session?.user?.id ?? null,
         created_at:          new Date().toISOString(),
       })
-      navigate('/requirements')
+      setSavedReqLabel(`REQ-${new Date().getFullYear()}-${String(nextReqNum).padStart(3, '0')}`)
+      setSubmitted(true)
     } catch (err) {
       setError(err.message ?? 'Error al guardar.')
     } finally {
@@ -93,6 +96,45 @@ export default function NewRequirement() {
   const reqLabel = nextReqNum != null
     ? `REQ-${new Date().getFullYear()}-${String(nextReqNum).padStart(3, '0')}`
     : 'Cargando…'
+
+  if (submitted) {
+    return (
+      <div className="flex-1 flex items-center justify-center bg-surface p-8">
+        <div className="max-w-md w-full text-center space-y-6">
+          <div className="w-20 h-20 rounded-full bg-secondary-container flex items-center justify-center mx-auto">
+            <span className="material-symbols-outlined text-[40px] text-secondary">schedule_send</span>
+          </div>
+          <div>
+            <h2 className="text-2xl font-extrabold tracking-tight text-primary">Enviado para aprobación</h2>
+            <p className="text-on-surface-variant mt-2 text-sm leading-relaxed">
+              El requerimiento <span className="font-bold text-primary font-mono">{savedReqLabel}</span> fue registrado y está pendiente de autorización.<br />
+              Un administrador deberá aprobarlo antes de que aparezca oficialmente en el sistema.
+            </p>
+          </div>
+          <div className="bg-surface-container-low rounded-2xl px-5 py-4 text-left border border-outline-variant/10">
+            <div className="flex items-center gap-2 text-xs text-on-surface-variant">
+              <span className="material-symbols-outlined text-[16px] text-secondary">info</span>
+              El administrador verá una notificación en la sección de Requerimientos para revisar y aprobar la solicitud.
+            </div>
+          </div>
+          <div className="flex gap-3 justify-center">
+            <Link
+              to="/requirements"
+              className="px-6 py-2.5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity"
+            >
+              Ir a Requerimientos
+            </Link>
+            <button
+              onClick={() => { setSubmitted(false); setForm(f => ({ ...f, job_title: '', client_id: '' })) }}
+              className="px-6 py-2.5 bg-surface-container text-on-surface rounded-xl text-sm font-medium hover:bg-surface-container-high transition-colors"
+            >
+              Crear otro
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>

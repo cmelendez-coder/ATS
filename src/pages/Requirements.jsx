@@ -11,9 +11,30 @@ import {
 
 /* ── helpers ── */
 const PRIORITY = {
-  1: { label: 'Low',  color: 'text-on-surface-variant', dot: 'bg-outline' },
-  2: { label: 'Med',  color: 'text-surface-tint',        dot: 'bg-surface-tint' },
-  3: { label: 'High', color: 'text-error',               dot: 'bg-error' },
+  1: { label: 'Low',    bg: 'bg-blue-500/15',  text: 'text-blue-300',  border: 'border-blue-500/25' },
+  2: { label: 'Medium', bg: 'bg-amber-500/15', text: 'text-amber-300', border: 'border-amber-500/25' },
+  3: { label: 'High',   bg: 'bg-red-500/15',   text: 'text-red-400',   border: 'border-red-500/25' },
+}
+
+const CLIENT_LOGOS = {
+  'PacVue':       '/logos/pacvue.png',
+  'LogicMonitor': '/logos/logicmonitor.png',
+  'BlueConic':    '/logos/blueoconic.png',
+}
+
+function ClientLogo({ name = '', size = 'sm' }) {
+  const [err, setErr] = useState(false)
+  const src = CLIENT_LOGOS[name]
+  if (src && !err) {
+    const cls = size === 'header' ? 'h-7 w-auto max-w-[90px]' : 'h-5 w-auto max-w-[52px]'
+    return <img src={src} alt={name} className={`${cls} object-contain`} onError={() => setErr(true)} />
+  }
+  const av = size === 'header' ? 'w-8 h-8 text-sm' : 'w-6 h-6 text-[11px]'
+  return (
+    <div className={`${av} rounded-lg bg-primary/10 flex items-center justify-center font-bold text-primary shrink-0`}>
+      {name.charAt(0).toUpperCase()}
+    </div>
+  )
 }
 const STATUS_STYLE = {
   'Open':                 { bg: 'bg-secondary-container',    text: 'text-on-secondary-container', dot: 'bg-secondary' },
@@ -854,138 +875,208 @@ export default function Requirements() {
             </div>
           </div>
 
+          {/* Summary cards */}
+          {!loading && (() => {
+            const openCount    = requirements.filter(r => r.status?.name === 'Open').length
+            const highPriCount = requirements.filter(r => r.priority === 3).length
+            const noCandsCount = requirements.filter(r => (r.rc_count?.length ?? 0) === 0).length
+            const clientCount  = new Set(requirements.map(r => r.client?.id).filter(Boolean)).size
+            return (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[
+                  { label: 'Open Requirements', value: openCount,    icon: 'folder_open',  color: 'text-primary',   bg: 'bg-primary/5' },
+                  { label: 'High Priority',     value: highPriCount, icon: 'priority_high', color: 'text-red-400',  bg: 'bg-red-500/5' },
+                  { label: 'No Candidates',     value: noCandsCount, icon: 'person_off',   color: 'text-amber-400', bg: 'bg-amber-500/5' },
+                  { label: 'Clients',           value: clientCount,  icon: 'business',     color: 'text-secondary', bg: 'bg-secondary/5' },
+                ].map(m => (
+                  <div key={m.label} className={`${m.bg} rounded-xl px-4 py-3.5 border border-outline-variant/10 shadow-[0_1px_8px_rgba(24,28,30,0.04)] flex items-center gap-3`}>
+                    <span className={`material-symbols-outlined text-[22px] ${m.color} opacity-80`}>{m.icon}</span>
+                    <div>
+                      <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest leading-tight">{m.label}</p>
+                      <p className={`text-2xl font-bold leading-tight ${m.color}`}>{m.value}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
+
           {/* Pending Approvals (admin only) */}
           {can('requirements.approve') && (
             <PendingApprovalsSection onApproved={load} />
           )}
 
-          {/* Requirements List */}
-          <div className="space-y-3">
-            {loading && (
-              <div className="flex items-center justify-center py-16 gap-2 text-on-surface-variant">
-                <span className="material-symbols-outlined animate-spin text-[24px]">progress_activity</span>
-                <span className="text-sm">Loading requirements…</span>
-              </div>
-            )}
+          {/* Requirements grouped by client */}
+          {(() => {
+            const grouped = requirements.reduce((acc, req) => {
+              const key = req.client?.name ?? 'Unknown'
+              if (!acc[key]) acc[key] = { client: req.client, reqs: [] }
+              acc[key].reqs.push(req)
+              return acc
+            }, {})
+            const groupEntries = Object.entries(grouped)
 
-            {!loading && requirements.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                <span className="material-symbols-outlined text-[48px] text-on-surface-variant/30 mb-3">assignment</span>
-                <p className="text-on-surface-variant font-medium">No requirements found</p>
-                <p className="text-sm text-on-surface-variant/60 mt-1">
-                  {can('requirements.create') ? 'Create your first requirement to get started.' : 'No hay requerimientos activos.'}
-                </p>
-              </div>
-            )}
+            return (
+              <div className="space-y-10">
+                {loading && (
+                  <div className="flex items-center justify-center py-16 gap-2 text-on-surface-variant">
+                    <span className="material-symbols-outlined animate-spin text-[24px]">progress_activity</span>
+                    <span className="text-sm">Loading requirements…</span>
+                  </div>
+                )}
 
-            {!loading && requirements.map(req => {
-              const isExpanded = expanded[req.id]
-              const pri = PRIORITY[req.priority] ?? PRIORITY[2]
-              const st  = STATUS_STYLE[req.status?.name] ?? DEFAULT_STATUS
-              const candidateCount = req.rc_count?.length ?? 0
+                {!loading && requirements.length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-16 text-center">
+                    <span className="material-symbols-outlined text-[48px] text-on-surface-variant/30 mb-3">assignment</span>
+                    <p className="text-on-surface-variant font-medium">No requirements found</p>
+                    <p className="text-sm text-on-surface-variant/60 mt-1">
+                      {can('requirements.create') ? 'Create your first requirement to get started.' : 'No hay requerimientos activos.'}
+                    </p>
+                  </div>
+                )}
 
-              return (
-                <div key={req.id} className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-[0_2px_12px_rgba(24,28,30,0.04)] overflow-hidden">
-                  {/* Main row */}
-                  <div
-                    className="req-row grid grid-cols-1 lg:grid-cols-12 gap-x-4 gap-y-2 items-center px-5 py-4 cursor-pointer group hover:bg-surface-container/30 transition-colors"
-                    onClick={() => toggleRow(req.id)}
-                  >
-                    {/* Priority */}
-                    <div className="lg:col-span-1 flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full ${pri.dot} shrink-0`}></span>
-                      <span className={`text-[10px] font-bold ${pri.color} uppercase tracking-wide`}>{pri.label}</span>
-                    </div>
+                {!loading && groupEntries.map(([clientName, { client, reqs }]) => (
+                  <div key={clientName} className="space-y-3">
 
-                    {/* ID + Title */}
-                    <div className="lg:col-span-3">
-                      <span className="font-mono text-xs text-on-surface-variant">{reqLabel(req.req_number, req.application_date)}</span>
-                      <p className="font-semibold text-primary text-sm leading-tight group-hover:text-surface-tint transition-colors">{req.job_title}</p>
-                    </div>
-
-                    {/* Client */}
-                    <div className="lg:col-span-2 flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-[11px] font-bold text-primary shrink-0">
-                        {req.client?.name?.charAt(0) ?? '?'}
+                    {/* Client group header */}
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-surface-container-lowest border border-outline-variant/15 shadow-sm p-1.5 shrink-0">
+                        <ClientLogo name={clientName} size="header" />
                       </div>
-                      <div>
-                        <p className="text-xs font-semibold text-primary">{req.client?.name ?? '—'}</p>
-                        <p className="text-[10px] text-on-surface-variant">{candidateCount} candidate{candidateCount !== 1 ? 's' : ''}</p>
+                      <div className="flex items-center gap-2.5">
+                        <h2 className="text-lg font-bold text-primary tracking-tight">{clientName}</h2>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant">
+                          {reqs.length} req{reqs.length !== 1 ? 's' : ''}
+                        </span>
                       </div>
+                      <div className="flex-1 h-px bg-outline-variant/15 ml-1" />
                     </div>
 
-                    {/* Comp + details */}
-                    <div className="lg:col-span-2 space-y-0.5">
-                      {req.salary_cap && (
-                        <p className="text-xs text-on-surface-variant">
-                          <span className="font-medium text-primary">${Number(req.salary_cap).toLocaleString()}</span>
-                          {req.variable ? ` · ${req.variable}` : ''}
-                        </p>
-                      )}
-                      <p className="text-xs text-on-surface-variant">{req.work_arrangement?.name ?? '—'}{req.desired_location ? ` · ${req.desired_location}` : ''}</p>
-                      <p className="text-xs text-on-surface-variant">{req.fte_count ?? 1} FTE{(req.fte_count ?? 1) !== 1 ? "'" : ''}{req.duration ? ` · ${req.duration}` : ''}</p>
-                    </div>
+                    {/* Requirement cards */}
+                    <div className="space-y-2 pl-1">
+                      {reqs.map(req => {
+                        const isExpanded     = expanded[req.id]
+                        const pri            = PRIORITY[req.priority] ?? PRIORITY[2]
+                        const st             = STATUS_STYLE[req.status?.name] ?? DEFAULT_STATUS
+                        const candidateCount = req.rc_count?.length ?? 0
 
-                    {/* Target date */}
-                    <div className="lg:col-span-2 text-center">
-                      <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider mb-0.5">Target Fill</p>
-                      <p className="text-sm font-semibold text-primary">{fmt(req.target_fill_date)}</p>
-                    </div>
+                        return (
+                          <div key={req.id} className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-[0_2px_12px_rgba(24,28,30,0.04)] overflow-hidden">
+                            {/* Main row */}
+                            <div
+                              className="grid grid-cols-1 lg:grid-cols-12 gap-x-3 gap-y-2 items-center px-5 py-4 cursor-pointer group hover:bg-surface-container/25 transition-colors"
+                              onClick={() => toggleRow(req.id)}
+                            >
+                              {/* Priority pill */}
+                              <div className="lg:col-span-1 flex items-center">
+                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wide whitespace-nowrap ${pri.bg} ${pri.text} ${pri.border}`}>
+                                  {pri.label}
+                                </span>
+                              </div>
 
-                    {/* Status + actions */}
-                    <div className="lg:col-span-2 flex items-center justify-between gap-2">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold ${st.bg} ${st.text} tracking-wide uppercase`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${st.dot}`}></span>{req.status?.name ?? '—'}
-                      </span>
-                      <div className="row-actions flex gap-1">
-                        {can('requirements.edit') && (
-                          <Link
-                            to={`/requirements/edit/${req.id}`}
-                            title="Edit"
-                            className="p-1.5 rounded-lg hover:bg-primary/10 text-on-surface-variant hover:text-primary transition-colors"
-                            onClick={e => e.stopPropagation()}
-                          >
-                            <span className="material-symbols-outlined text-[15px]">edit</span>
-                          </Link>
-                        )}
-                        {can('requirements.delete') && (
-                          <button
-                            title="Delete"
-                            className="p-1.5 rounded-lg hover:bg-error-container text-on-surface-variant hover:text-error transition-colors"
-                            onClick={e => handleDelete(e, req.id)}
-                          >
-                            <span className="material-symbols-outlined text-[15px]">delete_outline</span>
-                          </button>
-                        )}
-                      </div>
-                      <span
-                        className="material-symbols-outlined text-[18px] text-on-surface-variant transition-transform duration-200"
-                        style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                      >expand_more</span>
+                              {/* REQ ID + Title */}
+                              <div className="lg:col-span-4">
+                                <span className="font-mono text-[11px] text-on-surface-variant/70">{reqLabel(req.req_number, req.application_date)}</span>
+                                <p className="font-semibold text-primary text-sm leading-snug group-hover:text-surface-tint transition-colors mt-0.5">{req.job_title}</p>
+                              </div>
+
+                              {/* Logo + candidates */}
+                              <div className="lg:col-span-1 flex flex-col items-center gap-1">
+                                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-surface-container border border-outline-variant/10 p-1 shrink-0">
+                                  <ClientLogo name={clientName} size="sm" />
+                                </div>
+                                <p className="text-[9px] text-on-surface-variant/60 whitespace-nowrap font-medium">
+                                  {candidateCount} cand{candidateCount !== 1 ? 's' : '.'}
+                                </p>
+                              </div>
+
+                              {/* Salary + mode */}
+                              <div className="lg:col-span-2 space-y-0.5">
+                                {req.salary_cap ? (
+                                  <p className="text-xs">
+                                    <span className="font-semibold text-primary">${Number(req.salary_cap).toLocaleString()}</span>
+                                    {req.variable && <span className="text-on-surface-variant"> · {req.variable}</span>}
+                                  </p>
+                                ) : (
+                                  <p className="text-xs text-on-surface-variant/40">No salary</p>
+                                )}
+                                <p className="text-xs text-on-surface-variant/70">
+                                  {req.work_arrangement?.name ?? '—'}{req.desired_location ? ` · ${req.desired_location}` : ''}
+                                </p>
+                              </div>
+
+                              {/* FTE */}
+                              <div className="lg:col-span-1">
+                                <p className="text-xs text-on-surface-variant/70">{req.fte_count ?? 1} FTE</p>
+                                {req.duration && <p className="text-[10px] text-on-surface-variant/50">{req.duration}</p>}
+                              </div>
+
+                              {/* Target fill date */}
+                              <div className="lg:col-span-1">
+                                <p className="text-[9px] font-bold text-on-surface-variant/50 uppercase tracking-wider mb-0.5">Target</p>
+                                <p className="text-xs font-semibold text-primary">{fmt(req.target_fill_date)}</p>
+                              </div>
+
+                              {/* Status + actions */}
+                              <div className="lg:col-span-2 flex items-center justify-end gap-1.5">
+                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap ${st.bg} ${st.text} tracking-wide`}>
+                                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${st.dot}`}></span>
+                                  {req.status?.name ?? '—'}
+                                </span>
+                                <div className="flex gap-0.5 shrink-0">
+                                  {can('requirements.edit') && (
+                                    <Link
+                                      to={`/requirements/edit/${req.id}`}
+                                      title="Edit"
+                                      className="p-1.5 rounded-lg hover:bg-primary/10 text-on-surface-variant hover:text-primary transition-colors"
+                                      onClick={e => e.stopPropagation()}
+                                    >
+                                      <span className="material-symbols-outlined text-[15px]">edit</span>
+                                    </Link>
+                                  )}
+                                  {can('requirements.delete') && (
+                                    <button
+                                      title="Delete"
+                                      className="p-1.5 rounded-lg hover:bg-error-container text-on-surface-variant hover:text-error transition-colors"
+                                      onClick={e => handleDelete(e, req.id)}
+                                    >
+                                      <span className="material-symbols-outlined text-[15px]">delete_outline</span>
+                                    </button>
+                                  )}
+                                </div>
+                                <span
+                                  className="material-symbols-outlined text-[18px] text-on-surface-variant transition-transform duration-200 shrink-0"
+                                  style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                                >expand_more</span>
+                              </div>
+                            </div>
+
+                            {/* Pipeline panel */}
+                            {isExpanded && (
+                              <div className="border-t border-outline-variant/10 bg-surface-container/30 px-5 py-4">
+                                <PipelinePanel
+                                  reqId={req.id}
+                                  clientId={client?.id}
+                                  canDrag={can('requirements.pipeline')}
+                                  canManage={can('requirements.edit')}
+                                />
+                                <div className="flex items-center justify-between mt-3 pt-3 border-t border-outline-variant/10">
+                                  <p className="text-xs text-on-surface-variant">
+                                    App. Date: <span className="font-medium">{fmt(req.application_date)}</span>
+                                    &nbsp;·&nbsp; VISA: <span className="font-medium">{req.visa_us_required ? 'Required' : 'Not required'}</span>
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
                     </div>
                   </div>
-
-                  {/* Pipeline panel */}
-                  {isExpanded && (
-                    <div className="border-t border-outline-variant/10 bg-surface-container/30 px-5 py-4">
-                      <PipelinePanel
-                        reqId={req.id}
-                        clientId={req.client?.id}
-                        canDrag={can('requirements.pipeline')}
-                        canManage={can('requirements.edit')}
-                      />
-                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-outline-variant/10">
-                        <p className="text-xs text-on-surface-variant">
-                          App. Date: <span className="font-medium">{fmt(req.application_date)}</span>
-                          &nbsp;·&nbsp; VISA: <span className="font-medium">{req.visa_us_required ? 'Required' : 'Not required'}</span>
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
+                ))}
+              </div>
+            )
+          })()}
 
         </div>
       </div>

@@ -26,7 +26,7 @@ function ClientLogo({ name = '', size = 'sm' }) {
   const [err, setErr] = useState(false)
   const src = CLIENT_LOGOS[name]
   if (src && !err) {
-    const cls = size === 'header' ? 'h-7 w-auto max-w-[90px]' : 'h-5 w-auto max-w-[52px]'
+    const cls = size === 'header' ? 'h-8 w-auto max-w-[120px]' : 'h-5 w-auto max-w-[56px]'
     return <img src={src} alt={name} className={`${cls} object-contain`} onError={() => setErr(true)} />
   }
   const av = size === 'header' ? 'w-8 h-8 text-sm' : 'w-6 h-6 text-[11px]'
@@ -940,16 +940,13 @@ export default function Requirements() {
 
                     {/* Client group header */}
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-surface-container-lowest border border-outline-variant/15 shadow-sm p-1.5 shrink-0">
+                      <div className="flex items-center justify-center h-12 px-4 rounded-xl bg-white shadow-sm border border-outline-variant/10 shrink-0">
                         <ClientLogo name={clientName} size="header" />
                       </div>
-                      <div className="flex items-center gap-2.5">
-                        <h2 className="text-lg font-bold text-primary tracking-tight">{clientName}</h2>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant">
-                          {reqs.length} req{reqs.length !== 1 ? 's' : ''}
-                        </span>
-                      </div>
-                      <div className="flex-1 h-px bg-outline-variant/15 ml-1" />
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant shrink-0">
+                        {reqs.length} req{reqs.length !== 1 ? 's' : ''}
+                      </span>
+                      <div className="flex-1 h-px bg-outline-variant/15" />
                     </div>
 
                     {/* Requirement cards */}
@@ -982,7 +979,7 @@ export default function Requirements() {
 
                               {/* Logo + candidates */}
                               <div className="lg:col-span-1 flex flex-col items-center gap-1">
-                                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-surface-container border border-outline-variant/10 p-1 shrink-0">
+                                <div className="flex items-center justify-center h-8 px-2 rounded-lg bg-white border border-outline-variant/10 shadow-sm shrink-0">
                                   <ClientLogo name={clientName} size="sm" />
                                 </div>
                                 <p className="text-[9px] text-on-surface-variant/60 whitespace-nowrap font-medium">

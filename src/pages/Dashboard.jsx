@@ -88,7 +88,7 @@ export default function Dashboard() {
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
               {
                 to: '/requirements',
@@ -113,16 +113,6 @@ export default function Dashboard() {
                 icon: 'people',
                 sub: loading ? '' : `${activeCount.toLocaleString()} activos`,
                 gradient: 'from-tertiary/[0.05] to-transparent',
-              },
-              {
-                to: '/talent',
-                label: 'Activos',
-                value: loading ? '…' : activeCount.toLocaleString(),
-                icon: 'person_check',
-                sub: loading ? '' : stats?.totalCandidates
-                  ? `${Math.round(activeCount / stats.totalCandidates * 100)}% del total`
-                  : '',
-                gradient: 'from-secondary/[0.08] to-transparent',
               },
             ].map(card => (
               <Link

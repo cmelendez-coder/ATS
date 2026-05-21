@@ -4,7 +4,7 @@ import { usePermissions } from '../hooks/usePermissions'
 import {
   listRequirements, deleteRequirement,
   getRequirementCandidates, addCandidateToRequirement,
-  updateCandidateStage, removeCandidateFromRequirement,
+  updateCandidateStage, updateCandidateNotes, removeCandidateFromRequirement,
   getCatalogs, getClientStages, searchCandidatesForReq,
 } from '../api/requirements'
 
@@ -323,7 +323,7 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
                       >drag_indicator</span>
                     )}
 
-                    <div className="px-3 py-2.5">
+                    <div className="px-3 pt-2.5 pb-2">
                       <p className="text-sm font-bold text-slate-800 leading-snug pr-5">
                         {rc.candidate?.full_name ?? '—'}
                       </p>
@@ -353,6 +353,18 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
                           {new Date(rc.submitted_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}
                         </p>
                       )}
+                      <textarea
+                        defaultValue={rc.notes ?? ''}
+                        placeholder="Notas…"
+                        rows={2}
+                        onBlur={e => {
+                          const val = e.target.value
+                          if (val !== (rc.notes ?? '')) updateCandidateNotes(rc.id, val)
+                        }}
+                        onClick={e => e.stopPropagation()}
+                        onMouseDown={e => e.stopPropagation()}
+                        className="mt-2 w-full text-[10px] text-slate-600 placeholder:text-slate-300 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 resize-none outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300 transition-colors"
+                      />
                     </div>
 
                     {canManage && (

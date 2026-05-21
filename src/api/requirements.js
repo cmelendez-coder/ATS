@@ -104,6 +104,14 @@ export async function updateCandidateStage(rcId, stage) {
   if (error) throw error
 }
 
+export async function updateCandidateNotes(rcId, notes) {
+  const { error } = await supabase
+    .from('requirement_candidate')
+    .update({ notes })
+    .eq('id', rcId)
+  if (error) throw error
+}
+
 export async function removeCandidateFromRequirement(rcId) {
   const { error } = await supabase
     .from('requirement_candidate')

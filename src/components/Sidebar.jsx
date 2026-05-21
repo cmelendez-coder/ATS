@@ -40,7 +40,7 @@ export default function Sidebar() {
           className="w-10 h-10 object-contain shrink-0"
         />
         <div>
-          <h1 className="text-base font-bold text-primary tracking-tight leading-tight">PRT Suite</h1>
+          <h1 className="text-base font-bold text-primary tracking-tight leading-tight">Positions Requirement Tracker</h1>
           <p className="text-[11px] text-on-surface-variant leading-tight">Talent, Client&apos;s &amp; Requirements</p>
         </div>
       </div>

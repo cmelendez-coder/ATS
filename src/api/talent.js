@@ -17,7 +17,7 @@ export async function searchCandidates({ q = '', tech = '', englishMin = '', eng
   let query = supabase
     .from('candidate')
     .select(`
-      candidate_id, candidate_code, full_name, email,
+      candidate_id, candidate_code, full_name, email, phone,
       english_score, years_experience,
       status:catalog_status!status_id(name),
       seniority:catalog_seniority!seniority_id(name),

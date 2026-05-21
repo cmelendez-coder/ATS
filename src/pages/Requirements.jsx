@@ -18,8 +18,8 @@ const PRIORITY = {
 
 const CLIENT_LOGOS = {
   'PacVue':       '/logos/pacvue.png',
-  'LogicMonitor': '/logos/logicmonitor.png',
-  'BlueConic':    '/logos/blueoconic.png',
+  'LogicMonitor': '/logos/logicmonitor.webp',
+  'BlueConic':    '/logos/blueconic.png',
 }
 
 function ClientLogo({ name = '', size = 'sm' }) {

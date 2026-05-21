@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { usePermissions } from '../hooks/usePermissions'
 import {
@@ -149,6 +149,164 @@ function AddCandidateModal({ reqId, existingIds, firstStageName, onAdd, onClose 
   )
 }
 
+/* ── Card Detail Modal (Trello-style) ── */
+function CardDetailModal({ rc, stages, canManage, onClose, onStageChange, onNotesUpdate, onRemove }) {
+  const [notes, setNotes]   = useState(rc.notes ?? '')
+  const [saving, setSaving] = useState(false)
+  const [savedOk, setSavedOk] = useState(false)
+  const [removing, setRemoving] = useState(false)
+
+  const isDirty = notes !== (rc.notes ?? '')
+  const stage   = stages.find(s => s.name === rc.submittal_status)
+
+  const techs = [...new Set(
+    (rc.candidate?.candidate_stack ?? [])
+      .map(s => s.technology?.ct_name_tech)
+      .filter(Boolean)
+  )]
+
+  async function save() {
+    if (!isDirty) return
+    setSaving(true)
+    try {
+      await updateCandidateNotes(rc.id, notes)
+      onNotesUpdate(rc.id, notes)
+      setSavedOk(true)
+      setTimeout(() => setSavedOk(false), 2000)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function handleRemove() {
+    if (!confirm('¿Quitar candidato del pipeline?')) return
+    setRemoving(true)
+    try { await onRemove(rc.id); onClose() }
+    finally { setRemoving(false) }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 backdrop-blur-sm pt-12 pb-10 px-4 overflow-y-auto"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Stage color bar */}
+        {stage && <div className="h-1.5 w-full" style={{ backgroundColor: stage.color }} />}
+
+        {/* Header */}
+        <div className="flex items-start gap-4 px-6 pt-5 pb-3">
+          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-lg font-bold text-primary shrink-0">
+            {rc.candidate?.full_name?.charAt(0)?.toUpperCase() ?? '?'}
+          </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg font-bold text-slate-900 leading-snug">{rc.candidate?.full_name ?? '—'}</h2>
+            <p className="text-sm text-slate-500 mt-0.5">
+              {[rc.candidate?.role?.name, rc.candidate?.seniority?.name].filter(Boolean).join(' · ')}
+            </p>
+          </div>
+          <button onClick={onClose} className="mt-0.5 p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors shrink-0">
+            <span className="material-symbols-outlined text-[20px]">close</span>
+          </button>
+        </div>
+
+        <div className="px-6 pb-6 space-y-5">
+          {/* Tech stack */}
+          {techs.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {techs.map(t => (
+                <span key={t} className="text-xs font-medium px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">{t}</span>
+              ))}
+            </div>
+          )}
+
+          {/* Submitted date */}
+          {rc.submitted_at && (
+            <div className="flex items-center gap-2 text-xs text-slate-400">
+              <span className="material-symbols-outlined text-[14px]">calendar_today</span>
+              Enviado el {new Date(rc.submitted_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}
+            </div>
+          )}
+
+          {/* Stage selector */}
+          <div>
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2.5">Etapa</p>
+            <div className="flex flex-wrap gap-1.5">
+              {stages.map(s => {
+                const active = s.name === rc.submittal_status
+                return (
+                  <button
+                    key={s.stage_id}
+                    disabled={!canManage}
+                    onClick={() => canManage && onStageChange(rc.id, s.name)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all
+                      ${active ? 'shadow-sm' : 'opacity-50 hover:opacity-80'}`}
+                    style={active
+                      ? { backgroundColor: s.color + '22', borderColor: s.color, color: s.color }
+                      : { backgroundColor: 'transparent', borderColor: s.color + '55', color: s.color }
+                    }
+                  >
+                    {active && <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: s.color }} />}
+                    {s.name}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Notes */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[14px]">description</span>
+                Notas
+              </p>
+              {isDirty ? (
+                <button
+                  onClick={save}
+                  disabled={saving}
+                  className="flex items-center gap-1 px-3 py-1 rounded-lg bg-primary text-on-primary text-xs font-semibold hover:opacity-90 transition-opacity"
+                >
+                  {saving && <span className="material-symbols-outlined animate-spin text-[13px]">progress_activity</span>}
+                  Guardar
+                </button>
+              ) : savedOk ? (
+                <span className="flex items-center gap-1 text-xs text-green-600 font-medium">
+                  <span className="material-symbols-outlined text-[13px]">check_circle</span>Guardado
+                </span>
+              ) : null}
+            </div>
+            <textarea
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              placeholder="Añade notas sobre este candidato…"
+              rows={5}
+              className="w-full text-sm text-slate-700 placeholder:text-slate-300 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-3 resize-none outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition-all"
+            />
+          </div>
+
+          {/* Remove */}
+          {canManage && (
+            <div className="pt-1 border-t border-slate-100">
+              <button
+                onClick={handleRemove}
+                disabled={removing}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-500 hover:bg-red-50 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[14px]">person_remove</span>
+                Quitar del pipeline
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ── Pipeline Panel ── */
 function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
   const [rcList, setRcList]     = useState([])
@@ -158,6 +316,8 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
   const [showAdd, setShowAdd]   = useState(false)
   const [dragging, setDragging] = useState(null)
   const [dragOver, setDragOver] = useState(null)
+  const [openCard, setOpenCard] = useState(null)
+  const dragStartedRef          = useRef(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -199,6 +359,17 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
     setRcList(prev => prev.filter(r => r.id !== rcId))
     try { await removeCandidateFromRequirement(rcId) }
     catch { load() }
+  }
+
+  function handleModalStageChange(rcId, stageName) {
+    setRcList(prev => prev.map(r => r.id === rcId ? { ...r, submittal_status: stageName } : r))
+    setOpenCard(prev => prev?.id === rcId ? { ...prev, submittal_status: stageName } : prev)
+    updateCandidateStage(rcId, stageName).catch(load)
+  }
+
+  function handleModalNotesUpdate(rcId, notes) {
+    setRcList(prev => prev.map(r => r.id === rcId ? { ...r, notes } : r))
+    setOpenCard(prev => prev?.id === rcId ? { ...prev, notes } : prev)
   }
 
   if (loading) return (
@@ -301,12 +472,17 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
                     draggable={canDrag}
                     onDragStart={canDrag ? (e) => {
                       e.dataTransfer.effectAllowed = 'move'
+                      dragStartedRef.current = true
                       setDragging({ rcId: rc.id, stage: stage.name })
                     } : undefined}
-                    onDragEnd={canDrag ? () => { setDragging(null); setDragOver(null) } : undefined}
-                    className={`group relative rounded-xl border transition-all select-none
-                      ${canDrag ? 'cursor-grab active:cursor-grabbing' : ''}
-                      ${dragging?.rcId === rc.id ? 'opacity-40 scale-95' : 'hover:shadow-md'}
+                    onDragEnd={canDrag ? () => {
+                      setDragging(null); setDragOver(null)
+                      setTimeout(() => { dragStartedRef.current = false }, 0)
+                    } : undefined}
+                    onClick={() => { if (!dragStartedRef.current) setOpenCard(rc) }}
+                    className={`group relative rounded-xl border transition-all select-none cursor-pointer
+                      ${canDrag ? 'active:cursor-grabbing' : ''}
+                      ${dragging?.rcId === rc.id ? 'opacity-40 scale-95' : 'hover:shadow-md hover:-translate-y-px'}
                     `}
                     style={{
                       background: 'rgba(255,255,255,0.96)',
@@ -323,7 +499,7 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
                       >drag_indicator</span>
                     )}
 
-                    <div className="px-3 pt-2.5 pb-2">
+                    <div className="px-3 pt-2.5 pb-2.5">
                       <p className="text-sm font-bold text-slate-800 leading-snug pr-5">
                         {rc.candidate?.full_name ?? '—'}
                       </p>
@@ -348,34 +524,17 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
                           </div>
                         ) : null
                       })()}
-                      {rc.submitted_at && (
-                        <p className="text-[10px] text-slate-400 mt-1.5 font-medium">
-                          {new Date(rc.submitted_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}
-                        </p>
-                      )}
-                      <textarea
-                        defaultValue={rc.notes ?? ''}
-                        placeholder="Notas…"
-                        rows={2}
-                        onBlur={e => {
-                          const val = e.target.value
-                          if (val !== (rc.notes ?? '')) updateCandidateNotes(rc.id, val)
-                        }}
-                        onClick={e => e.stopPropagation()}
-                        onMouseDown={e => e.stopPropagation()}
-                        className="mt-2 w-full text-[10px] text-slate-600 placeholder:text-slate-300 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 resize-none outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300 transition-colors"
-                      />
+                      <div className="flex items-center justify-between mt-1.5">
+                        {rc.submitted_at && (
+                          <p className="text-[10px] text-slate-400 font-medium">
+                            {new Date(rc.submitted_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}
+                          </p>
+                        )}
+                        {rc.notes && (
+                          <span className="material-symbols-outlined text-[13px] text-slate-400 ml-auto" title="Tiene notas">description</span>
+                        )}
+                      </div>
                     </div>
-
-                    {canManage && (
-                      <button
-                        onClick={e => { e.stopPropagation(); removeCard(rc.id) }}
-                        className="absolute top-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded-md bg-white/80 text-slate-400 hover:text-red-500 hover:bg-red-50"
-                        title="Quitar candidato"
-                      >
-                        <span className="material-symbols-outlined text-[14px]">close</span>
-                      </button>
-                    )}
                   </div>
                 ))}
 
@@ -422,6 +581,18 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
           firstStageName={stages[0]?.name ?? 'Submitted'}
           onAdd={() => { load(); setShowAdd(false) }}
           onClose={() => setShowAdd(false)}
+        />
+      )}
+
+      {openCard && (
+        <CardDetailModal
+          rc={openCard}
+          stages={stages}
+          canManage={canManage}
+          onClose={() => setOpenCard(null)}
+          onStageChange={handleModalStageChange}
+          onNotesUpdate={handleModalNotesUpdate}
+          onRemove={removeCard}
         />
       )}
     </div>

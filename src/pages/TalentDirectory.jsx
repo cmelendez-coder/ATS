@@ -292,7 +292,7 @@ export default function TalentDirectory() {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-surface-container-low">
-                      {['Name / E-mail', 'Technology', 'Seniority', 'English', 'Exp.', 'Location', 'Status'].map(h => (
+                      {['Name / E-mail', 'Technology', 'Seniority', 'English', 'Exp.', 'Location'].map(h => (
                         <th key={h} className="py-3.5 px-5 text-[11px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">{h}</th>
                       ))}
                       <th className="py-3.5 px-4 sticky right-0 bg-surface-container-low z-10 shadow-[-8px_0_16px_rgba(0,0,0,0.25)]"></th>
@@ -358,13 +358,6 @@ export default function TalentDirectory() {
                             <span className="flex items-center gap-1.5">
                               <span className="material-symbols-outlined text-[14px] text-on-surface-variant/60">location_on</span>
                               {c.location?.name ?? '—'}
-                            </span>
-                          </td>
-
-                          {/* Status */}
-                          <td className="py-4 px-5">
-                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap ${sc.bg} ${sc.text} tracking-wide`}>
-                              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${sc.dot}`} />{statusName}
                             </span>
                           </td>
 

@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { usePermissions } from '../hooks/usePermissions'
+import { useRequirementAlerts } from '../hooks/useRequirementAlerts'
+import RequirementAlertBell from '../components/RequirementAlertBell'
 import {
   listRequirements, deleteRequirement,
   getRequirementCandidates, addCandidateToRequirement,
-  updateCandidateStage, updateCandidateNotes, removeCandidateFromRequirement,
+  updateCandidateStage, updateRequirementCandidateNotes, removeCandidateFromRequirement,
   getCatalogs, getClientStages, searchCandidatesForReq,
   listPendingApprovals, approveRequirement, rejectRequirement,
 } from '../api/requirements'
@@ -192,7 +194,7 @@ function CardDetailModal({ rc, stages, canManage, onClose, onStageChange, onNote
     if (!isDirty) return
     setSaving(true)
     try {
-      await updateCandidateNotes(rc.id, notes)
+      await updateRequirementCandidateNotes(rc.id, notes)
       onNotesUpdate(rc.id, notes)
       setSavedOk(true)
       setTimeout(() => setSavedOk(false), 2000)
@@ -331,6 +333,126 @@ function CardDetailModal({ rc, stages, canManage, onClose, onStageChange, onNote
 }
 
 /* ── Pipeline Panel ── */
+function CandidateNotes({ rc, canManage, onSave }) {
+  const [showModal, setShowModal] = useState(false)
+  const [draft, setDraft] = useState(rc.notes ?? '')
+  const [saving, setSaving] = useState(false)
+  const hasNotes = Boolean(rc.notes?.trim())
+
+  useEffect(() => {
+    setDraft(rc.notes ?? '')
+  }, [rc.id, rc.notes])
+
+  async function handleSave() {
+    if (saving) return
+    setSaving(true)
+    try {
+      await onSave(draft)
+      setShowModal(false)
+    } catch (err) {
+      alert(err.message ?? 'No se pudieron guardar las notas')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (!canManage && !hasNotes) return null
+
+  return (
+    <>
+      <div className="mt-2 rounded-xl border border-primary/10 bg-gradient-to-br from-surface-container-lowest to-surface-container p-2.5 shadow-sm">
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-primary/80">
+            <span className="material-symbols-outlined text-[13px]">note_stack</span>
+            Follow-Up Notes
+          </div>
+          {hasNotes && (
+            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary">
+              Active
+            </span>
+          )}
+        </div>
+
+        <p className={`min-h-[34px] text-[11px] leading-relaxed ${hasNotes ? 'text-on-surface-variant' : 'text-on-surface-variant/60 italic'}`}>
+          {hasNotes ? rc.notes : 'No follow-up notes yet.'}
+        </p>
+
+        {canManage && (
+          <button
+            type="button"
+            onClick={() => setShowModal(true)}
+            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary/90 to-primary-container px-3 py-2 text-[11px] font-semibold text-on-primary shadow-[0_8px_18px_rgba(7,29,71,0.18)] transition-all hover:opacity-95"
+          >
+            <span className="material-symbols-outlined text-[14px]">{hasNotes ? 'edit_note' : 'note_add'}</span>
+            {hasNotes ? 'Open Notes' : 'Add Notes'}
+          </button>
+        )}
+      </div>
+
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#071D47]/55 p-4 backdrop-blur-sm" onClick={() => !saving && setShowModal(false)}>
+          <div
+            className="w-full max-w-2xl rounded-3xl border border-outline-variant/20 bg-surface-container-lowest shadow-[0_20px_60px_rgba(7,29,71,0.32)]"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4 border-b border-outline-variant/15 px-6 py-5">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary/70">Interview Pipeline</p>
+                <h3 className="mt-1 text-xl font-bold text-primary">Candidate Notes</h3>
+                <p className="mt-1 text-sm text-on-surface-variant">{rc.candidate?.full_name ?? 'Candidate'}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => !saving && setShowModal(false)}
+                className="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container hover:text-primary"
+              >
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </div>
+
+            <div className="space-y-4 px-6 py-5">
+              <div className="rounded-2xl border border-primary/10 bg-surface-container/70 p-4">
+                <p className="mb-2 text-[11px] font-bold uppercase tracking-widest text-primary/75">Tracking Notes</p>
+                <textarea
+                  rows={10}
+                  value={draft}
+                  onChange={e => setDraft(e.target.value)}
+                  placeholder="Add detailed follow-up notes, interview feedback, reminders, blockers, next steps, or any relevant context for this candidate..."
+                  className="w-full resize-none rounded-2xl border border-outline-variant/20 bg-surface-container-lowest px-4 py-3 text-sm leading-6 text-on-surface outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs text-on-surface-variant">
+                  {draft.trim() ? `${draft.trim().length} characters` : 'No notes added yet'}
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { setDraft(rc.notes ?? ''); setShowModal(false) }}
+                    className="rounded-full border border-outline-variant/25 px-4 py-2 text-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={saving}
+                    onClick={handleSave}
+                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-primary-container px-5 py-2 text-sm font-semibold text-on-primary shadow-[0_10px_20px_rgba(7,29,71,0.18)] disabled:opacity-60"
+                  >
+                    {saving && <span className="material-symbols-outlined animate-spin text-[16px]">progress_activity</span>}
+                    Save Notes
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
 function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
   const [rcList, setRcList]     = useState([])
   const [stages, setStages]     = useState([])
@@ -393,6 +515,17 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
   function handleModalNotesUpdate(rcId, notes) {
     setRcList(prev => prev.map(r => r.id === rcId ? { ...r, notes } : r))
     setOpenCard(prev => prev?.id === rcId ? { ...prev, notes } : prev)
+  }
+
+  async function saveNotes(rcId, notes) {
+    const previous = rcList
+    setRcList(prev => prev.map(r => r.id === rcId ? { ...r, notes } : r))
+    try {
+      await updateRequirementCandidateNotes(rcId, notes)
+    } catch {
+      setRcList(previous)
+      throw new Error('No se pudieron guardar las notas')
+    }
   }
 
   if (loading) return (
@@ -488,7 +621,7 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
               </div>
 
               {/* Cards */}
-              <div className="flex-1 px-2 space-y-1.5 overflow-y-auto" style={{ maxHeight: 260 }}>
+              <div className="flex-1 px-2 space-y-1.5 overflow-y-auto" style={{ maxHeight: 320 }}>
                 {cards.map(rc => (
                   <div
                     key={rc.id}
@@ -549,13 +682,15 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
                       })()}
                       <div className="flex items-center justify-between mt-1.5">
                         {rc.submitted_at && (
-                          <p className="text-[10px] text-slate-400 font-medium">
+                          <p className="text-[10px] text-slate-400 mt-1.5 font-medium">
                             {new Date(rc.submitted_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}
                           </p>
                         )}
-                        {rc.notes && (
-                          <span className="material-symbols-outlined text-[13px] text-slate-400 ml-auto" title="Tiene notas">description</span>
-                        )}
+                        <CandidateNotes
+                          rc={rc}
+                          canManage={canManage}
+                          onSave={(notes) => saveNotes(rc.id, notes)}
+                        />
                       </div>
                     </div>
                   </div>
@@ -727,6 +862,7 @@ function PendingApprovalsSection({ onApproved }) {
 /* ── Main Page ── */
 export default function Requirements() {
   const { can } = usePermissions()
+  const { pendingCount, loading: alertsLoading, showAlerts } = useRequirementAlerts()
   const [requirements, setRequirements] = useState([])
   const [loading, setLoading]           = useState(true)
   const [catalogs, setCatalogs]         = useState({ statuses: [], clients: [], stages: [] })
@@ -787,9 +923,7 @@ export default function Requirements() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button title="Notifications" className="p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors w-9 h-9 flex items-center justify-center relative">
-            <span className="material-symbols-outlined text-[20px]">notifications</span>
-          </button>
+          <RequirementAlertBell count={pendingCount} loading={alertsLoading} show={showAlerts} />
           <div className="w-px h-5 bg-outline-variant/40 mx-1"></div>
           {can('requirements.create') && (
             <Link to="/requirements/new">

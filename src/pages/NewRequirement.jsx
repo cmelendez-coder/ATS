@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { createRequirement, getCatalogs, getNextReqNumber } from '../api/requirements'
+import {
+  createRequirement,
+  getCatalogs,
+  getNextReqNumber,
+  notifyManagersNewRequirement,
+} from '../api/requirements'
 
 const DURATION_OPTIONS = ['Permanent', '3 Months', '6 Months', '12 Months', 'Contract']
 
@@ -61,7 +66,7 @@ export default function NewRequirement() {
     setLoading(true)
     setError(null)
     try {
-      await createRequirement({
+      const requirement = await createRequirement({
         req_number:          nextReqNum,
         client_id:           Number(form.client_id),
         job_title:           form.job_title,
@@ -84,7 +89,15 @@ export default function NewRequirement() {
         created_by_user_id:  session?.user?.id ?? null,
         created_at:          new Date().toISOString(),
       })
+
       setSavedReqLabel(`REQ-${new Date().getFullYear()}-${String(nextReqNum).padStart(3, '0')}`)
+
+      try {
+        await notifyManagersNewRequirement(requirement.id)
+      } catch (notifyError) {
+        console.error('No se pudo enviar la notificacion por correo del requerimiento:', notifyError)
+      }
+
       setSubmitted(true)
     } catch (err) {
       setError(err.message ?? 'Error al guardar.')

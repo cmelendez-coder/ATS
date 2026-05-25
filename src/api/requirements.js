@@ -51,6 +51,28 @@ export async function rejectRequirement(id) {
   if (error) throw error
 }
 
+export async function getPendingRequirementAlertCount() {
+  const { data, error } = await supabase
+    .from('requirement')
+    .select(`
+      id,
+      stage,
+      status:status_id(name),
+      rc_count:requirement_candidate(id)
+    `)
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+
+  return (data ?? []).filter(req => {
+    const statusName = String(req.status?.name ?? '').toLowerCase()
+    const stageName = String(req.stage ?? '').toLowerCase()
+    const hasCandidates = (req.rc_count?.length ?? 0) > 0
+    const isClosed = statusName.startsWith('closed') || stageName === 'closed'
+    return !hasCandidates && !isClosed
+  }).length
+}
+
 export async function createRequirement(payload) {
   const { data, error } = await supabase
     .from('requirement')
@@ -67,6 +89,14 @@ export async function getRequirement(id) {
     .select(REQ_SELECT)
     .eq('id', id)
     .single()
+  if (error) throw error
+  return data
+}
+
+export async function notifyManagersNewRequirement(requirementId) {
+  const { data, error } = await supabase.functions.invoke('notify-new-requirement', {
+    body: { requirementId },
+  })
   if (error) throw error
   return data
 }
@@ -128,10 +158,10 @@ export async function updateCandidateStage(rcId, stage) {
   if (error) throw error
 }
 
-export async function updateCandidateNotes(rcId, notes) {
+export async function updateRequirementCandidateNotes(rcId, notes) {
   const { error } = await supabase
     .from('requirement_candidate')
-    .update({ notes })
+    .update({ notes: notes?.trim() ? notes.trim() : null })
     .eq('id', rcId)
   if (error) throw error
 }

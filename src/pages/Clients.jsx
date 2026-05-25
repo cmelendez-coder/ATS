@@ -2,9 +2,20 @@ import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { usePermissions } from '../hooks/usePermissions'
 import ClientCreateForm from '../components/ClientCreateForm'
-import { listClients, createClient, updateClient, createContact, updateContact, deleteContact } from '../api/clients'
+import {
+  listClients,
+  createClient,
+  updateClient,
+  createContact,
+  updateContact,
+  deleteContact,
+  createClientStage,
+  updateClientStage,
+  deleteClientStage,
+} from '../api/clients'
 
 const EMPTY_FORM = { name: '', job_title: '', email: '', mobile: '', location: '', timezone: '' }
+const EMPTY_STAGE_FORM = { name: '', color: '#1D4ED8', position: 1 }
 
 const inputCls = 'bg-surface-container border border-outline-variant/20 rounded-lg px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 outline-none focus:ring-2 focus:ring-primary/30 w-full'
 
@@ -95,6 +106,61 @@ function ClientForm({ initial, onSave, onCancel, saving }) {
   )
 }
 
+function StageForm({ initial = EMPTY_STAGE_FORM, onSave, onCancel, saving }) {
+  const [form, setForm] = useState({ ...EMPTY_STAGE_FORM, ...initial })
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
+
+  return (
+    <div className="mt-3 rounded-xl border border-outline-variant/20 bg-surface-container p-4 space-y-3">
+      <div className="grid grid-cols-1 sm:grid-cols-[1.6fr_110px_90px] gap-2">
+        <input
+          className={inputCls}
+          placeholder="Nombre de la fase *"
+          value={form.name}
+          onChange={e => set('name', e.target.value)}
+        />
+        <input
+          className={`${inputCls} h-[42px] p-1.5`}
+          type="color"
+          value={form.color}
+          onChange={e => set('color', e.target.value)}
+        />
+        <input
+          className={inputCls}
+          type="number"
+          min="1"
+          value={form.position}
+          onChange={e => set('position', e.target.value)}
+        />
+      </div>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-xs text-on-surface-variant">
+          <span className="inline-block w-3 h-3 rounded-full border border-white/60" style={{ backgroundColor: form.color }}></span>
+          Posicion {form.position || 1}
+        </div>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-4 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:bg-surface-container-high transition-colors border border-outline-variant/20"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={() => onSave(form)}
+            disabled={!form.name.trim() || saving}
+            className="px-4 py-1.5 rounded-full text-sm font-bold bg-primary text-on-primary hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-1.5"
+          >
+            {saving && <span className="material-symbols-outlined animate-spin text-[14px]">progress_activity</span>}
+            Guardar fase
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Clients() {
   const { can } = usePermissions()
   const [clients, setClients] = useState([])
@@ -104,6 +170,7 @@ export default function Clients() {
   // contact ui state: null | { clientId, mode: 'add' } | { clientId, mode: 'edit', contact }
   const [editing, setEditing]         = useState(null)
   const [editingClient, setEditingClient] = useState(null) // clientId being edited
+  const [stageEditing, setStageEditing] = useState(null) // null | { clientId, mode, stage? }
   const [showCreateClient, setShowCreateClient] = useState(false)
   const [saving, setSaving]           = useState(false)
 
@@ -188,6 +255,52 @@ export default function Clients() {
     } catch (e) { alert(e.message) }
   }
 
+  function sortStages(stages) {
+    return [...stages].sort((a, b) => {
+      const posDiff = (a.position ?? 0) - (b.position ?? 0)
+      return posDiff !== 0 ? posDiff : (a.stage_id ?? 0) - (b.stage_id ?? 0)
+    })
+  }
+
+  async function handleSaveNewStage(clientId, form) {
+    if (!form.name.trim()) return
+    setSaving(true)
+    try {
+      const newStage = await createClientStage(clientId, form)
+      setClients(prev => prev.map(c =>
+        c.id === clientId ? { ...c, stages: sortStages([...(c.stages ?? []), newStage]) } : c
+      ))
+      setStageEditing(null)
+    } catch (e) { alert(e.message) }
+    finally { setSaving(false) }
+  }
+
+  async function handleSaveEditStage(clientId, stageId, form) {
+    if (!form.name.trim()) return
+    setSaving(true)
+    try {
+      const updated = await updateClientStage(stageId, form)
+      setClients(prev => prev.map(c =>
+        c.id === clientId
+          ? { ...c, stages: sortStages((c.stages ?? []).map(stage => stage.stage_id === stageId ? updated : stage)) }
+          : c
+      ))
+      setStageEditing(null)
+    } catch (e) { alert(e.message) }
+    finally { setSaving(false) }
+  }
+
+  async function handleDeleteStage(clientId, stageId) {
+    if (!confirm('¿Eliminar esta fase del pipeline?')) return
+    try {
+      await deleteClientStage(stageId)
+      setClients(prev => prev.map(c =>
+        c.id === clientId ? { ...c, stages: (c.stages ?? []).filter(stage => stage.stage_id !== stageId) } : c
+      ))
+      setStageEditing(current => current?.stage?.stage_id === stageId ? null : current)
+    } catch (e) { alert(e.message) }
+  }
+
   return (
     <>
       {/* TOP HEADER */}
@@ -261,7 +374,9 @@ export default function Clients() {
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
               {clients.map(client => {
                 const contacts = client.contacts ?? []
+                const stages = client.stages ?? []
                 const isAdding = editing?.clientId === client.id && editing?.mode === 'add'
+                const isAddingStage = stageEditing?.clientId === client.id && stageEditing?.mode === 'add'
 
                 return (
                   <article key={client.id} className="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 p-6 space-y-4 shadow-[0_2px_16px_rgba(24,28,30,0.08)]">
@@ -327,6 +442,90 @@ export default function Clients() {
                         )}
                       </div>
                     )}
+
+                    {/* Pipeline Stages */}
+                    <div className="pt-4 border-t border-outline-variant/20">
+                      <div className="flex items-center justify-between mb-3 gap-3">
+                        <div>
+                          <h3 className="text-[10px] font-bold uppercase tracking-[0.16em] text-on-surface-variant flex items-center gap-1.5">
+                            <span className="material-symbols-outlined text-[13px]">account_tree</span>
+                            Client Pipeline
+                          </h3>
+                          <p className="text-[11px] text-on-surface-variant mt-1">Fases que se usan para el pipeline del cliente.</p>
+                        </div>
+                        {can('clients.contacts.manage') && (
+                          <button
+                            type="button"
+                            onClick={() => setStageEditing({ clientId: client.id, mode: 'add' })}
+                            className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors border border-primary/20"
+                          >
+                            <span className="material-symbols-outlined text-[11px]">add</span>
+                            Agregar fase
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        {stages.length === 0 && (
+                          <div className="rounded-xl border border-dashed border-outline-variant/25 bg-surface-container/40 px-4 py-4 text-sm text-on-surface-variant">
+                            Este cliente todavia no tiene fases configuradas.
+                          </div>
+                        )}
+
+                        {stages.map(stage => {
+                          const isEditingStage = stageEditing?.mode === 'edit' && stageEditing?.stage?.stage_id === stage.stage_id
+                          return isEditingStage ? (
+                            <StageForm
+                              key={stage.stage_id}
+                              initial={stage}
+                              onSave={form => handleSaveEditStage(client.id, stage.stage_id, form)}
+                              onCancel={() => setStageEditing(null)}
+                              saving={saving}
+                            />
+                          ) : (
+                            <div key={stage.stage_id} className="rounded-xl border border-outline-variant/15 bg-surface-container/60 p-3">
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <span className="inline-block w-3 h-3 rounded-full border border-white/60 shrink-0" style={{ backgroundColor: stage.color }}></span>
+                                    <p className="font-semibold text-primary text-sm truncate">{stage.name}</p>
+                                  </div>
+                                  <p className="text-[11px] text-on-surface-variant mt-1">Posicion {stage.position}</p>
+                                </div>
+                                {can('clients.contacts.manage') && (
+                                  <div className="flex gap-1 shrink-0">
+                                    <button
+                                      type="button"
+                                      onClick={() => setStageEditing({ clientId: client.id, mode: 'edit', stage })}
+                                      className="p-1.5 rounded-lg text-on-surface-variant/60 hover:text-primary hover:bg-primary/10 transition-colors"
+                                      title="Editar fase"
+                                    >
+                                      <span className="material-symbols-outlined text-[14px]">edit</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteStage(client.id, stage.stage_id)}
+                                      className="p-1.5 rounded-lg text-on-surface-variant/60 hover:text-error hover:bg-error/10 transition-colors"
+                                      title="Eliminar fase"
+                                    >
+                                      <span className="material-symbols-outlined text-[14px]">delete</span>
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+
+                      {can('clients.contacts.manage') && isAddingStage && (
+                        <StageForm
+                          onSave={form => handleSaveNewStage(client.id, form)}
+                          onCancel={() => setStageEditing(null)}
+                          saving={saving}
+                        />
+                      )}
+                    </div>
 
                     {/* HR Contacts */}
                     <div className="pt-4 border-t border-outline-variant/20">

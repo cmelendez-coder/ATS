@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { usePermissions } from '../hooks/usePermissions'
+import { useRequirementAlerts } from '../hooks/useRequirementAlerts'
 import { getDashboardStats } from '../api/dashboard'
+import RequirementAlertBell from '../components/RequirementAlertBell'
 
 const PRIORITY = {
   1: { label: 'Low',  bg: 'bg-surface-variant',       text: 'text-on-surface-variant', dot: 'bg-outline' },
@@ -21,6 +23,7 @@ function reqLabel(num, date) {
 
 export default function Dashboard() {
   const { can } = usePermissions()
+  const { pendingCount, loading: alertsLoading, showAlerts } = useRequirementAlerts()
   const [currentDate, setCurrentDate] = useState('')
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -43,9 +46,7 @@ export default function Dashboard() {
           <span className="md:hidden text-lg font-bold tracking-tight text-primary">PRT Suite</span>
         </div>
         <div className="flex items-center gap-2">
-          <button title="Notifications" className="p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors w-9 h-9 flex items-center justify-center">
-            <span className="material-symbols-outlined text-[20px]">notifications</span>
-          </button>
+          <RequirementAlertBell count={pendingCount} loading={alertsLoading} show={showAlerts} />
           <div className="w-px h-5 bg-outline-variant/40 mx-1"></div>
           {can('requirements.create') && (
             <Link to="/requirements/new">

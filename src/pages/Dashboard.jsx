@@ -72,6 +72,10 @@ export default function Dashboard() {
 
           {/* Quick Actions */}
           <div className="flex flex-wrap gap-2">
+            <Link to="/reports" className="inline-flex items-center gap-1.5 px-4 py-2 bg-surface-container-lowest border border-outline-variant/30 text-primary rounded-full text-sm font-medium hover:bg-surface-container transition-colors">
+              <span className="material-symbols-outlined text-[16px]">analytics</span>
+              Reports
+            </Link>
             {can('requirements.create') && (
               <Link to="/requirements/new" className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-full text-sm font-medium hover:opacity-90 transition-opacity shadow-sm">
                 <span className="material-symbols-outlined text-[16px]">add</span>

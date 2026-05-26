@@ -7,20 +7,20 @@ const linkClass = ({ isActive }) =>
     ? 'nav-active flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150'
     : 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200'
 
-function NavItem({ to, end, icon, label }) {
+function NavItem({ to, end, icon, label, collapsed = false }) {
   return (
-    <NavLink to={to} end={end} className={linkClass}>
+    <NavLink to={to} end={end} className={linkClass} title={collapsed ? label : undefined}>
       {({ isActive }) => (
         <>
-          <span className={`material-symbols-outlined text-[20px]${isActive ? ' filled' : ''}`}>{icon}</span>
-          <span className="font-medium text-sm">{label}</span>
+          <span className={`material-symbols-outlined text-[20px] shrink-0${isActive ? ' filled' : ''}`}>{icon}</span>
+          {!collapsed && <span className="font-medium text-sm">{label}</span>}
         </>
       )}
     </NavLink>
   )
 }
 
-export default function Sidebar() {
+export default function Sidebar({ collapsed = false, onToggle }) {
   const { session, clearSession } = useAuth()
   const navigate = useNavigate()
   const { can } = usePermissions()
@@ -31,41 +31,54 @@ export default function Sidebar() {
   }
 
   return (
-    <nav className="hidden md:flex flex-col h-full py-6 px-4 bg-surface-container-low border-r border-outline-variant/20 w-64 fixed left-0 top-0 z-50 shrink-0">
+    <nav className={`hidden md:flex flex-col h-full py-6 px-4 bg-surface-container-low border-r border-outline-variant/20 fixed left-0 top-0 z-50 shrink-0 transition-[width] duration-200 ${collapsed ? 'w-20' : 'w-64'}`}>
       {/* Brand */}
-      <div className="flex items-center gap-3 px-2 mb-8">
-        <img
-          src="/icon-prt.png"
-          alt="PRT Icon"
-          className="w-10 h-10 object-contain shrink-0"
-        />
-        <div>
-          <h1 className="text-base font-bold text-primary tracking-tight leading-tight">PRT</h1>
-          <p className="text-[11px] text-on-surface-variant leading-tight">Talent, Client&apos;s &amp; Requirements</p>
+      <div className={`flex items-center px-2 mb-8 ${collapsed ? 'justify-center' : 'justify-between gap-3'}`}>
+        <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3'} min-w-0`}>
+          <img
+            src="/icon-prt.png"
+            alt="PRT Icon"
+            className="w-10 h-10 object-contain shrink-0"
+          />
+          {!collapsed && (
+            <div>
+              <h1 className="text-base font-bold text-primary tracking-tight leading-tight">PRT</h1>
+              <p className="text-[11px] text-on-surface-variant leading-tight">Talent, Client&apos;s &amp; Requirements</p>
+            </div>
+          )}
         </div>
+        <button
+          type="button"
+          onClick={onToggle}
+          className={`rounded-full p-2 text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors ${collapsed ? 'absolute top-6 -right-4 bg-surface-container-low border border-outline-variant/20 shadow-sm' : ''}`}
+          title={collapsed ? 'Expandir menu' : 'Contraer menu'}
+        >
+          <span className="material-symbols-outlined text-[18px]">{collapsed ? 'chevron_right' : 'chevron_left'}</span>
+        </button>
       </div>
 
       {/* Nav */}
       <div className="flex-1 space-y-5 overflow-y-auto pr-1">
         <div>
-          <p className="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-widest px-3 mb-1.5">Requirements</p>
+          {!collapsed && <p className="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-widest px-3 mb-1.5">Requirements</p>}
           <div className="space-y-0.5">
-            <NavItem to="/" end icon="dashboard" label="Dashboard" />
-            <NavItem to="/requirements" icon="list_alt" label="Requirements" />
-            {can('requirements.create') && <NavItem to="/requirements/new" icon="add_circle" label="New Requirement" />}
+            <NavItem to="/" end icon="dashboard" label="Dashboard" collapsed={collapsed} />
+            <NavItem to="/reports" icon="analytics" label="Reports" collapsed={collapsed} />
+            <NavItem to="/requirements" icon="list_alt" label="Requirements" collapsed={collapsed} />
+            {can('requirements.create') && <NavItem to="/requirements/new" icon="add_circle" label="New Requirement" collapsed={collapsed} />}
           </div>
         </div>
         <div>
-          <p className="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-widest px-3 mb-1.5">Client&apos;s</p>
+          {!collapsed && <p className="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-widest px-3 mb-1.5">Client&apos;s</p>}
           <div className="space-y-0.5">
-            <NavItem to="/clients" icon="apartment" label="Client Directory" />
+            <NavItem to="/clients" icon="apartment" label="Client Directory" collapsed={collapsed} />
           </div>
         </div>
         <div>
-          <p className="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-widest px-3 mb-1.5">Talent</p>
+          {!collapsed && <p className="text-[10px] font-bold text-on-surface-variant/50 uppercase tracking-widest px-3 mb-1.5">Talent</p>}
           <div className="space-y-0.5">
-            <NavItem to="/talent" end icon="group" label="Talent Directory" />
-            {can('talent.create') && <NavItem to="/talent/new" icon="person_add" label="Add Talent" />}
+            <NavItem to="/talent" end icon="group" label="Talent Directory" collapsed={collapsed} />
+            {can('talent.create') && <NavItem to="/talent/new" icon="person_add" label="Add Talent" collapsed={collapsed} />}
           </div>
         </div>
       </div>
@@ -74,28 +87,31 @@ export default function Sidebar() {
       <div className="mt-auto pt-6 border-t border-outline-variant/20">
         {/* Logged-in user */}
         {session?.user && (
-          <div className="flex items-center gap-3 px-3 py-2 mb-2 rounded-lg bg-surface-container">
+          <div className={`px-3 py-2 mb-2 rounded-lg bg-surface-container ${collapsed ? 'flex justify-center' : 'flex items-center gap-3'}`} title={collapsed ? session.user.name : undefined}>
             <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center shrink-0">
               <span className="text-on-primary text-xs font-bold">
                 {session.user.name?.[0]?.toUpperCase() ?? '?'}
               </span>
             </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-on-surface truncate">{session.user.name}</p>
-              <p className="text-[10px] text-on-surface-variant truncate">{session.user.username}</p>
-            </div>
+            {!collapsed && (
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-on-surface truncate">{session.user.name}</p>
+                <p className="text-[10px] text-on-surface-variant truncate">{session.user.username}</p>
+              </div>
+            )}
           </div>
         )}
-        <a href="#" className="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors">
+        <a href="#" className={`px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors ${collapsed ? 'flex justify-center' : 'flex items-center gap-3'}`} title="Help Center">
           <span className="material-symbols-outlined text-[20px]">help_outline</span>
-          <span className="text-sm">Help Center</span>
+          {!collapsed && <span className="text-sm">Help Center</span>}
         </a>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors"
+          className={`w-full px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors ${collapsed ? 'flex justify-center' : 'flex items-center gap-3'}`}
+          title="Log Out"
         >
           <span className="material-symbols-outlined text-[20px]">logout</span>
-          <span className="text-sm">Log Out</span>
+          {!collapsed && <span className="text-sm">Log Out</span>}
         </button>
       </div>
     </nav>

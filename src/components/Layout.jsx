@@ -1,10 +1,16 @@
+import { useState } from 'react'
 import Sidebar from './Sidebar'
 
 export default function Layout({ children }) {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+
   return (
     <div className="bg-surface text-on-surface h-screen flex overflow-hidden antialiased selection:bg-primary-fixed selection:text-on-primary-fixed">
-      <Sidebar />
-      <main className="flex-1 flex flex-col md:ml-64 relative h-full overflow-hidden">
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        onToggle={() => setSidebarCollapsed(prev => !prev)}
+      />
+      <main className={`flex-1 flex flex-col relative h-full overflow-hidden transition-[margin] duration-200 ${sidebarCollapsed ? 'md:ml-20' : 'md:ml-64'}`}>
         {children}
       </main>
     </div>

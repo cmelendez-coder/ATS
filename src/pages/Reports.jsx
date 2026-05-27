@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import {
   getReportsSummary,
   listOpenRequirementsForReports,
   getClientReportPdfData,
   getRequirementReportPdfData,
+  listClientsForReports,
+  listAllPipelineStages,
 } from '../api/reports'
 import {
   openPrintableReport,
@@ -37,27 +39,60 @@ function MetricCard({ label, value, icon, tone = 'primary', sublabel = '' }) {
   )
 }
 
+const EMPTY_FILTERS = { clientId: '', dateFrom: '', dateTo: '', stage: '' }
+
 export default function Reports() {
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [report, setReport] = useState(null)
+  const [loading, setLoading]                   = useState(true)
+  const [error, setError]                       = useState(null)
+  const [report, setReport]                     = useState(null)
   const [requirementOptions, setRequirementOptions] = useState([])
   const [selectedClientId, setSelectedClientId] = useState('')
   const [selectedRequirementId, setSelectedRequirementId] = useState('')
-  const [exporting, setExporting] = useState('')
+  const [exporting, setExporting]               = useState('')
+
+  // Filter state
+  const [filters, setFilters]                   = useState(EMPTY_FILTERS)
+  const [applied, setApplied]                   = useState(EMPTY_FILTERS)
+  const [filterOptions, setFilterOptions]       = useState({ clients: [], stages: [] })
+
+  const hasActive = Object.values(applied).some(Boolean)
+
+  const fetchReport = useCallback(async (f = EMPTY_FILTERS) => {
+    setLoading(true)
+    setError(null)
+    try {
+      const [summary, requirements] = await Promise.all([
+        getReportsSummary(f),
+        listOpenRequirementsForReports({ clientId: f.clientId, dateFrom: f.dateFrom, dateTo: f.dateTo }),
+      ])
+      setReport(summary)
+      setRequirementOptions(requirements)
+      setSelectedClientId(String(summary.clients?.[0]?.clientId ?? ''))
+      setSelectedRequirementId(String(requirements?.[0]?.id ?? ''))
+    } catch (err) {
+      setError(err.message ?? 'No se pudieron cargar los reportes.')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
-    Promise.all([getReportsSummary(), listOpenRequirementsForReports()])
-      .then(([summary, requirements]) => {
-        setReport(summary)
-        setRequirementOptions(requirements)
-        setSelectedClientId(String(summary.clients?.[0]?.clientId ?? ''))
-        setSelectedRequirementId(String(requirements?.[0]?.id ?? ''))
-        setError(null)
-      })
-      .catch(err => setError(err.message ?? 'No se pudieron cargar los reportes.'))
-      .finally(() => setLoading(false))
-  }, [])
+    Promise.all([fetchReport(), listClientsForReports(), listAllPipelineStages()])
+      .then(([, clients, stages]) => setFilterOptions({ clients, stages }))
+  }, [fetchReport])
+
+  function applyFilters() {
+    setApplied(filters)
+    fetchReport(filters)
+  }
+
+  function clearFilters() {
+    setFilters(EMPTY_FILTERS)
+    setApplied(EMPTY_FILTERS)
+    fetchReport(EMPTY_FILTERS)
+  }
+
+  const setF = (k, v) => setFilters(prev => ({ ...prev, [k]: v }))
 
   const topStage = report?.stageTotals?.[0]
 
@@ -100,7 +135,7 @@ export default function Reports() {
     if (!selectedClientId) return
     setExporting('client')
     try {
-      const client = await getClientReportPdfData(Number(selectedClientId))
+      const client = await getClientReportPdfData(Number(selectedClientId), { dateFrom: applied.dateFrom, dateTo: applied.dateTo, stage: applied.stage })
       const bodyHtml = [
         renderMetricCards([
           { label: 'Cliente', value: client.clientName },
@@ -137,7 +172,7 @@ export default function Reports() {
     if (!selectedRequirementId) return
     setExporting('requirement')
     try {
-      const requirement = await getRequirementReportPdfData(Number(selectedRequirementId))
+      const requirement = await getRequirementReportPdfData(Number(selectedRequirementId), { stage: applied.stage })
       const bodyHtml = [
         renderMetricCards([
           { label: 'Cliente', value: requirement.clientName },
@@ -195,6 +230,81 @@ export default function Reports() {
               Resumen operativo de candidatos, requerimientos por cliente y distribucion de candidatos en cada fase del pipeline.
             </p>
           </div>
+
+          {/* Filter Panel */}
+          <section className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px] text-primary">tune</span>
+                <h2 className="text-sm font-bold text-primary">Filtros de reporte</h2>
+                {hasActive && (
+                  <span className="px-2 py-0.5 rounded-full bg-primary/15 text-primary text-[10px] font-bold">Activos</span>
+                )}
+              </div>
+              {hasActive && (
+                <button onClick={clearFilters} className="text-xs text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[14px]">close</span>
+                  Limpiar filtros
+                </button>
+              )}
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <div>
+                <label className="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1.5">Cliente</label>
+                <select
+                  className="w-full px-3 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer"
+                  value={filters.clientId}
+                  onChange={e => setF('clientId', e.target.value)}
+                >
+                  <option value="">Todos los clientes</option>
+                  {filterOptions.clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1.5">Fecha desde</label>
+                <input
+                  type="date"
+                  className="w-full px-3 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20"
+                  value={filters.dateFrom}
+                  onChange={e => setF('dateFrom', e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1.5">Fecha hasta</label>
+                <input
+                  type="date"
+                  className="w-full px-3 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20"
+                  value={filters.dateTo}
+                  onChange={e => setF('dateTo', e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1.5">Etapa del proceso</label>
+                <select
+                  className="w-full px-3 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer"
+                  value={filters.stage}
+                  onChange={e => setF('stage', e.target.value)}
+                >
+                  <option value="">Todas las etapas</option>
+                  {filterOptions.stages.map(s => <option key={s.stage_id} value={s.name}>{s.name}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 pt-1">
+              <button
+                onClick={applyFilters}
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity"
+              >
+                <span className="material-symbols-outlined text-[16px]">search</span>
+                Aplicar filtros
+              </button>
+              {hasActive && (
+                <p className="text-xs text-on-surface-variant">
+                  Mostrando datos filtrados — los PDFs generados respetarán los filtros activos.
+                </p>
+              )}
+            </div>
+          </section>
 
           {error && (
             <div className="flex items-center gap-3 p-4 rounded-xl bg-red-900/20 border border-red-800 text-red-400">

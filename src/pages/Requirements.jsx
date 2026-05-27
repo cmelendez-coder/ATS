@@ -790,63 +790,75 @@ function PendingApprovalsSection({ onApproved }) {
 
   if (loading || pending.length === 0) return null
 
+  const PRI_BADGE = {
+    1: 'bg-blue-600 text-white',
+    2: 'bg-amber-500 text-white',
+    3: 'bg-red-600 text-white',
+  }
+
   return (
-    <div className="rounded-2xl border-2 border-tertiary/30 bg-tertiary/[0.04] overflow-hidden">
+    <div className="rounded-2xl border border-yellow-500/40 bg-yellow-500/8 overflow-hidden">
       {/* Header banner */}
       <button
         onClick={() => setExpanded(v => !v)}
-        className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-tertiary/[0.06] transition-colors"
+        className="w-full flex items-center justify-between px-5 py-4 hover:bg-yellow-500/10 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-tertiary/15 flex items-center justify-center">
-            <span className="material-symbols-outlined text-[18px] text-tertiary">pending_actions</span>
+          <div className="w-9 h-9 rounded-full bg-yellow-500/20 flex items-center justify-center">
+            <span className="material-symbols-outlined text-[20px] text-yellow-400">pending_actions</span>
           </div>
           <div className="text-left">
-            <p className="text-sm font-bold text-tertiary">
+            <p className="text-sm font-bold text-yellow-300">
               {pending.length} requerimiento{pending.length !== 1 ? 's' : ''} pendiente{pending.length !== 1 ? 's' : ''} de aprobación
             </p>
-            <p className="text-xs text-on-surface-variant">Revisar y autorizar para que aparezcan en el sistema</p>
+            <p className="text-xs text-slate-400">Revisar y autorizar para que aparezcan en el sistema</p>
           </div>
         </div>
         <span
-          className="material-symbols-outlined text-[20px] text-tertiary transition-transform duration-200"
+          className="material-symbols-outlined text-[20px] text-yellow-400 transition-transform duration-200"
           style={{ transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
         >expand_more</span>
       </button>
 
       {expanded && (
-        <div className="border-t border-tertiary/20 divide-y divide-tertiary/10">
+        <div className="border-t border-yellow-500/20 divide-y divide-white/5">
           {pending.map(req => {
             const pri = PRIORITY[req.priority] ?? PRIORITY[2]
             const isActing = acting === req.id
             return (
-              <div key={req.id} className="flex items-center gap-4 px-5 py-3.5 bg-surface/60">
+              <div key={req.id} className="flex items-center gap-4 px-5 py-4 bg-black/20">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="font-mono text-[11px] text-on-surface-variant">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-mono text-xs font-semibold text-slate-300">
                       {`REQ-${new Date(req.created_at).getFullYear()}-${String(req.req_number ?? 0).padStart(3, '0')}`}
                     </span>
-                    <span className={`text-[9px] font-bold uppercase tracking-widest ${pri.color}`}>{pri.label}</span>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${PRI_BADGE[req.priority] ?? PRI_BADGE[2]}`}>
+                      {pri.label}
+                    </span>
                   </div>
-                  <p className="text-sm font-semibold text-primary truncate">{req.job_title}</p>
-                  <p className="text-xs text-on-surface-variant">{req.client?.name ?? '—'} · {req.target_fill_date ? new Date(req.target_fill_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</p>
+                  <p className="text-sm font-bold text-white truncate">{req.job_title}</p>
+                  <p className="text-xs text-slate-300 mt-0.5">
+                    {req.client?.name ?? '—'}
+                    {req.target_fill_date ? ` · Target: ${new Date(req.target_fill_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` : ''}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     disabled={!!acting}
                     onClick={() => handleApprove(req.id)}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-secondary-container text-on-secondary-container text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-green-600 hover:bg-green-500 text-white text-xs font-bold transition-colors disabled:opacity-40"
                   >
-                    {isActing ? <span className="material-symbols-outlined animate-spin text-[14px]">progress_activity</span>
-                              : <span className="material-symbols-outlined text-[14px]">check_circle</span>}
+                    {isActing
+                      ? <span className="material-symbols-outlined animate-spin text-[15px]">progress_activity</span>
+                      : <span className="material-symbols-outlined text-[15px]">check_circle</span>}
                     Aprobar
                   </button>
                   <button
                     disabled={!!acting}
                     onClick={() => handleReject(req.id)}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-error-container text-on-error-container text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition-colors disabled:opacity-40"
                   >
-                    <span className="material-symbols-outlined text-[14px]">cancel</span>
+                    <span className="material-symbols-outlined text-[15px]">cancel</span>
                     Rechazar
                   </button>
                 </div>

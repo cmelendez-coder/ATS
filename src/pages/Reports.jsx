@@ -108,8 +108,8 @@ export default function Reports() {
       renderMetricCards([
         { label: 'Candidatos totales', value: report.totalCandidates.toLocaleString() },
         { label: 'Requerimientos abiertos', value: report.totalRequirements.toLocaleString() },
-        { label: 'Clientes con abiertos', value: report.totalClients.toLocaleString() },
-        { label: 'Candidatos en requerimientos', value: report.totalClientCandidates.toLocaleString() },
+        { label: 'Clientes con reqs. abiertos', value: report.totalClients.toLocaleString() },
+        { label: 'Candidatos en proceso', value: report.totalClientCandidates.toLocaleString() },
       ]),
       renderStageList('Fases principales', report.stageTotals),
       renderTable(
@@ -391,7 +391,7 @@ export default function Reports() {
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                 <MetricCard label="Candidatos totales" value={report.totalCandidates.toLocaleString()} icon="group" tone="primary" />
                 <MetricCard label="Requerimientos abiertos" value={report.totalRequirements.toLocaleString()} icon="assignment" tone="secondary" />
-                <MetricCard label="Clientes con abiertos" value={report.totalClients.toLocaleString()} icon="apartment" tone="tertiary" />
+                <MetricCard label="Clientes con reqs. abiertos" value={report.totalClients.toLocaleString()} icon="apartment" tone="tertiary" />
                 <MetricCard
                   label="Fase con mas candidatos"
                   value={topStage?.count?.toLocaleString?.() ?? '0'}

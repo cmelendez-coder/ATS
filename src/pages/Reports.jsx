@@ -61,14 +61,8 @@ export default function Reports() {
     setLoading(true)
     setError(null)
     try {
-      const [summary, requirements] = await Promise.all([
-        getReportsSummary(f),
-        listOpenRequirementsForReports({ clientId: f.clientId, dateFrom: f.dateFrom, dateTo: f.dateTo }),
-      ])
+      const summary = await getReportsSummary(f)
       setReport(summary)
-      setRequirementOptions(requirements)
-      setSelectedClientId(String(summary.clients?.[0]?.clientId ?? ''))
-      setSelectedRequirementId(String(requirements?.[0]?.id ?? ''))
     } catch (err) {
       setError(err.message ?? 'No se pudieron cargar los reportes.')
     } finally {
@@ -77,8 +71,17 @@ export default function Reports() {
   }, [])
 
   useEffect(() => {
-    Promise.all([fetchReport(), listClientsForReports(), listAllPipelineStages()])
-      .then(([, clients, stages]) => setFilterOptions({ clients, stages }))
+    Promise.all([
+      fetchReport(),
+      listClientsForReports(),
+      listAllPipelineStages(),
+      listOpenRequirementsForReports({}),
+    ]).then(([, clients, stages, allRequirements]) => {
+      setFilterOptions({ clients, stages })
+      setRequirementOptions(allRequirements)
+      setSelectedClientId(String(clients?.[0]?.id ?? ''))
+      setSelectedRequirementId(String(allRequirements?.[0]?.id ?? ''))
+    })
   }, [fetchReport])
 
   function applyFilters() {
@@ -400,8 +403,8 @@ export default function Reports() {
                       value={selectedClientId}
                       onChange={e => setSelectedClientId(e.target.value)}
                     >
-                      {report.clients.map(client => (
-                        <option key={client.clientId} value={client.clientId}>{client.clientName}</option>
+                      {filterOptions.clients.map(client => (
+                        <option key={client.id} value={client.id}>{client.name}</option>
                       ))}
                     </select>
                     <button

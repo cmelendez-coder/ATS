@@ -229,20 +229,25 @@ export async function getClientReportPdfData(clientId, { dateFrom = null, dateTo
 
 export async function getCandidateSummary() {
   const { data, error } = await supabase
-    .from('candidate')
-    .select('status:status_id(name)')
+    .from('requirement_candidate')
+    .select('submittal_status, requirement:requirement_id(status:status_id(name))')
   if (error) throw error
 
-  const statusCounts = {}
-  for (const candidate of data ?? []) {
-    const name = candidate.status?.name ?? 'Sin estado'
-    statusCounts[name] = (statusCounts[name] ?? 0) + 1
+  const active = (data ?? []).filter(rc => {
+    const reqStatus = String(rc.requirement?.status?.name ?? '').toLowerCase()
+    return !reqStatus.startsWith('closed')
+  })
+
+  const phaseCounts = {}
+  for (const rc of active) {
+    const name = rc.submittal_status ?? 'Sin fase'
+    phaseCounts[name] = (phaseCounts[name] ?? 0) + 1
   }
 
-  const total = data?.length ?? 0
+  const total = active.length
   return {
     total,
-    byStatus: Object.entries(statusCounts)
+    byStatus: Object.entries(phaseCounts)
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count),
   }

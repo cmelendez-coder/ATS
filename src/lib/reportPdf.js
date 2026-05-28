@@ -240,9 +240,10 @@ export function openPrintableReport({ title, subtitle = '', bodyHtml = '' }) {
   }
 }
 
-export function renderSectionHeader(title) {
+export function renderSectionHeader(title, { pageBreak = false } = {}) {
+  const breakStyle = pageBreak ? 'page-break-before:always; padding-top:40px;' : 'margin-top:36px;'
   return `
-    <div style="margin-top:36px; margin-bottom:4px; padding-bottom:10px; border-bottom:2px solid var(--brand); display:flex; align-items:center; gap:10px;">
+    <div style="${breakStyle} margin-bottom:4px; padding-bottom:10px; border-bottom:2px solid var(--brand);">
       <span style="font-size:11px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted);">${escapeHtml(title)}</span>
     </div>
   `

@@ -134,7 +134,7 @@ export default function Reports() {
         ),
 
         // ── Sección 2: Candidatos ──
-        renderSectionHeader('Seguimiento de Candidatos'),
+        renderSectionHeader('Seguimiento de Candidatos', { pageBreak: true }),
         renderMetricCards([
           { label: 'Candidatos totales', value: candidateSummary.total.toLocaleString() },
           ...candidateSummary.byStatus.slice(0, 3).map(s => ({

@@ -230,13 +230,10 @@ export async function getClientReportPdfData(clientId, { dateFrom = null, dateTo
 export async function getCandidateSummary() {
   const { data, error } = await supabase
     .from('requirement_candidate')
-    .select('submittal_status, requirement:requirement_id(status:status_id(name))')
+    .select('submittal_status, requirement:requirement_id(status:status_id(name), stage)')
   if (error) throw error
 
-  const active = (data ?? []).filter(rc => {
-    const reqStatus = String(rc.requirement?.status?.name ?? '').toLowerCase()
-    return !reqStatus.startsWith('closed')
-  })
+  const active = (data ?? []).filter(rc => isRequirementOpen(rc.requirement ?? {}))
 
   const phaseCounts = {}
   for (const rc of active) {

@@ -114,7 +114,7 @@ export function openPrintableReport({ title, subtitle = '', bodyHtml = '' }) {
       }
       .card .value {
         margin-top: 8px;
-        font-size: 22px;
+        font-size: 16px;
         font-weight: 700;
         word-break: break-word;
         overflow-wrap: break-word;

@@ -234,12 +234,12 @@ export default function AddTalent() {
                   <div className="form-input-container">
                     <select className="form-input rounded-t-lg appearance-none cursor-pointer" id="englishLevel" name="englishLevel" defaultValue="">
                       <option disabled value=""></option>
-                      <option value="90">Advanced 90% (Similar to native english speaker)</option>
-                      <option value="85">Advanced 85% (Minimum or no accent)</option>
-                      <option value="80">Advanced 80% (Fluent conversation)</option>
-                      <option value="75">Advanced 75% (Fluent conversation with accent)</option>
-                      <option value="70">Intermediate 70% (Can write/read. Heavy accent)</option>
-                      <option value="65">Intermediate 65% (Can write/read. Cannot hold a conversation)</option>
+                      <option value="90">90</option>
+                      <option value="85">85</option>
+                      <option value="80">80</option>
+                      <option value="75">75</option>
+                      <option value="70">70</option>
+                      <option value="65">65</option>
                     </select>
                     <label className="form-label" htmlFor="englishLevel">English Level</label>
                     <span className="material-symbols-outlined absolute right-4 top-5 text-on-surface-variant pointer-events-none text-[18px]">expand_more</span>

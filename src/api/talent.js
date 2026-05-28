@@ -98,8 +98,6 @@ export async function fetchCatalog(table, nameCol, idCol) {
 
 // ─── Create a new candidate ───────────────────────────────────────
 export async function createCandidate(form) {
-  const ENGLISH_MAP = { b1: 60, b2: 72, c1: 85, c2: 95 }
-
   const [roleId, locationId, contractId] = await Promise.all([
     upsertCatalog('catalog_role',          'name',         'role_id',          form.role),
     upsertCatalog('catalog_location',      'name',         'location_id',      form.location),
@@ -124,9 +122,7 @@ export async function createCandidate(form) {
       location_id:      locationId,
       status_id:        statusId,
       contract_type_id: contractId,
-      english_score:    form.englishLevel
-        ? (ENGLISH_MAP[form.englishLevel] ?? null)
-        : null,
+      english_score:    form.englishLevel ? Number(form.englishLevel) : null,
       years_experience: form.yearsExp ? Number(form.yearsExp) : null,
     })
     .select('candidate_id, candidate_code')

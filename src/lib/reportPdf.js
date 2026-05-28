@@ -72,8 +72,8 @@ export function openPrintableReport({ title, subtitle = '', bodyHtml = '' }) {
       }
       h1 {
         margin: 10px 0 8px;
-        font-size: 32px;
-        line-height: 1.05;
+        font-size: 22px;
+        line-height: 1.2;
       }
       .subtitle {
         margin: 0;
@@ -114,8 +114,10 @@ export function openPrintableReport({ title, subtitle = '', bodyHtml = '' }) {
       }
       .card .value {
         margin-top: 8px;
-        font-size: 28px;
+        font-size: 22px;
         font-weight: 700;
+        word-break: break-word;
+        overflow-wrap: break-word;
       }
       table {
         width: 100%;

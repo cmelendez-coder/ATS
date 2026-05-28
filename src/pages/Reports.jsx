@@ -168,6 +168,50 @@ export default function Reports() {
     }
   }
 
+  async function exportCustomPdf() {
+    if (exporting) return
+    setExporting('custom')
+    setApplied(filters)
+    fetchReport(filters)
+    try {
+      const summary = await getReportsSummary(filters)
+      const filterLabel = [
+        filters.clientId && filterOptions.clients.find(c => String(c.id) === String(filters.clientId))?.name,
+        filters.dateFrom && `Desde ${fmtDate(filters.dateFrom)}`,
+        filters.dateTo && `Hasta ${fmtDate(filters.dateTo)}`,
+        filters.stage && `Etapa: ${filters.stage}`,
+      ].filter(Boolean).join(' · ')
+
+      const bodyHtml = [
+        renderMetricCards([
+          { label: 'Candidatos totales', value: summary.totalCandidates.toLocaleString() },
+          { label: 'Requerimientos abiertos', value: summary.totalRequirements.toLocaleString() },
+          { label: 'Clientes con reqs. abiertos', value: summary.totalClients.toLocaleString() },
+          { label: 'Candidatos en proceso', value: summary.totalClientCandidates.toLocaleString() },
+        ]),
+        renderStageList('Fases principales', summary.stageTotals),
+        renderTable(
+          'Resumen por cliente',
+          ['Cliente', 'Requerimientos abiertos', 'Candidatos', 'Fase dominante'],
+          summary.clients.map(client => [
+            escapeHtml(client.clientName),
+            escapeHtml(client.requirementCount),
+            escapeHtml(client.candidateCount),
+            escapeHtml(client.stages[0]?.name ?? 'Sin candidatos'),
+          ]),
+        ),
+      ].join('')
+
+      openPrintableReport({
+        title: 'Reporte Personalizado',
+        subtitle: filterLabel || 'Sin filtros aplicados — vista completa de todos los datos.',
+        bodyHtml,
+      })
+    } finally {
+      setExporting('')
+    }
+  }
+
   async function exportRequirementPdf() {
     if (!selectedRequirementId) return
     setExporting('requirement')
@@ -290,13 +334,22 @@ export default function Reports() {
                 </select>
               </div>
             </div>
-            <div className="flex items-center gap-2 pt-1">
+            <div className="flex flex-wrap items-center gap-2 pt-1">
               <button
                 onClick={applyFilters}
                 className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity"
               >
                 <span className="material-symbols-outlined text-[16px]">search</span>
                 Aplicar filtros
+              </button>
+              <button
+                type="button"
+                disabled={exporting === 'custom'}
+                onClick={exportCustomPdf}
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-br from-secondary to-secondary-container text-on-secondary-container text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
+              >
+                <span className="material-symbols-outlined text-[16px]">{exporting === 'custom' ? 'progress_activity' : 'picture_as_pdf'}</span>
+                Exportar reporte personalizado
               </button>
               {hasActive && (
                 <p className="text-xs text-on-surface-variant">

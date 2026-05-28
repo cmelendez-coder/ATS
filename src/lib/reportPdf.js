@@ -240,6 +240,14 @@ export function openPrintableReport({ title, subtitle = '', bodyHtml = '' }) {
   }
 }
 
+export function renderSectionHeader(title) {
+  return `
+    <div style="margin-top:36px; margin-bottom:4px; padding-bottom:10px; border-bottom:2px solid var(--brand); display:flex; align-items:center; gap:10px;">
+      <span style="font-size:11px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted);">${escapeHtml(title)}</span>
+    </div>
+  `
+}
+
 export function renderMetricCards(metrics) {
   return `
     <section class="section">

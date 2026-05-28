@@ -7,12 +7,14 @@ import {
   getRequirementReportPdfData,
   listClientsForReports,
   listAllPipelineStages,
+  getCandidateSummary,
 } from '../api/reports'
 import {
   openPrintableReport,
   renderMetricCards,
   renderStageList,
   renderTable,
+  renderSectionHeader,
   escapeHtml,
 } from '../lib/reportPdf'
 
@@ -104,34 +106,61 @@ export default function Reports() {
     return new Date(dateStr).toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' })
   }
 
-  function exportGeneralPdf() {
+  async function exportGeneralPdf() {
     if (!report) return
+    setExporting('general')
+    try {
+      const candidateSummary = await getCandidateSummary()
 
-    const bodyHtml = [
-      renderMetricCards([
-        { label: 'Candidatos totales', value: report.totalCandidates.toLocaleString() },
-        { label: 'Requerimientos abiertos', value: report.totalRequirements.toLocaleString() },
-        { label: 'Clientes con reqs. abiertos', value: report.totalClients.toLocaleString() },
-        { label: 'Candidatos en proceso', value: report.totalClientCandidates.toLocaleString() },
-      ]),
-      renderStageList('Fases principales', report.stageTotals),
-      renderTable(
-        'Resumen por cliente',
-        ['Cliente', 'Requerimientos abiertos', 'Candidatos', 'Fase dominante'],
-        report.clients.map(client => [
-          escapeHtml(client.clientName),
-          escapeHtml(client.requirementCount),
-          escapeHtml(client.candidateCount),
-          escapeHtml(client.stages[0]?.name ?? 'Sin candidatos'),
+      const bodyHtml = [
+        // ── Sección 1: Requerimientos ──
+        renderSectionHeader('Análisis de Requerimientos'),
+        renderMetricCards([
+          { label: 'Requerimientos abiertos', value: report.totalRequirements.toLocaleString() },
+          { label: 'Clientes con reqs. abiertos', value: report.totalClients.toLocaleString() },
+          { label: 'Candidatos en proceso', value: report.totalClientCandidates.toLocaleString() },
+          { label: 'Fases activas', value: report.stageTotals.length.toLocaleString() },
         ]),
-      ),
-    ].join('')
+        renderStageList('Fases del pipeline', report.stageTotals),
+        renderTable(
+          'Resumen por cliente',
+          ['Cliente', 'Requerimientos abiertos', 'Candidatos', 'Fase dominante'],
+          report.clients.map(client => [
+            escapeHtml(client.clientName),
+            escapeHtml(client.requirementCount),
+            escapeHtml(client.candidateCount),
+            escapeHtml(client.stages[0]?.name ?? 'Sin candidatos'),
+          ]),
+        ),
 
-    openPrintableReport({
-      title: 'Reporte General',
-      subtitle: 'Vista consolidada de clientes con requerimientos abiertos, candidatos asociados y fases principales del pipeline.',
-      bodyHtml,
-    })
+        // ── Sección 2: Candidatos ──
+        renderSectionHeader('Seguimiento de Candidatos'),
+        renderMetricCards([
+          { label: 'Candidatos totales', value: candidateSummary.total.toLocaleString() },
+          ...candidateSummary.byStatus.slice(0, 3).map(s => ({
+            label: s.name,
+            value: s.count.toLocaleString(),
+          })),
+        ]),
+        renderTable(
+          'Distribución por estado',
+          ['Estado', 'Candidatos', '% del total'],
+          candidateSummary.byStatus.map(s => [
+            escapeHtml(s.name),
+            escapeHtml(s.count.toLocaleString()),
+            escapeHtml(`${Math.round(s.count / candidateSummary.total * 100)}%`),
+          ]),
+        ),
+      ].join('')
+
+      openPrintableReport({
+        title: 'Reporte General',
+        subtitle: 'Vista consolidada de requerimientos activos y seguimiento del pool de candidatos.',
+        bodyHtml,
+      })
+    } finally {
+      setExporting('')
+    }
   }
 
   async function exportClientPdf() {

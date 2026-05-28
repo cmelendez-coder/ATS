@@ -227,6 +227,27 @@ export async function getClientReportPdfData(clientId, { dateFrom = null, dateTo
   }
 }
 
+export async function getCandidateSummary() {
+  const { data, error } = await supabase
+    .from('candidate')
+    .select('status:status_id(name)')
+  if (error) throw error
+
+  const statusCounts = {}
+  for (const candidate of data ?? []) {
+    const name = candidate.status?.name ?? 'Sin estado'
+    statusCounts[name] = (statusCounts[name] ?? 0) + 1
+  }
+
+  const total = data?.length ?? 0
+  return {
+    total,
+    byStatus: Object.entries(statusCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count),
+  }
+}
+
 export async function getRequirementReportPdfData(requirementId, { stage = null } = {}) {
   const { data, error } = await supabase
     .from('requirement')

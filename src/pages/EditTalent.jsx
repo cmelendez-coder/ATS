@@ -171,6 +171,8 @@ export default function EditTalent() {
         hiringPref:       fd.get('hiringPref'),
         scheme:           fd.get('scheme'),
         salaryExpectation: fd.get('salaryExpectation'),
+        lastContactDate:  fd.get('lastContactDate'),
+        availabilityNotes: fd.get('availabilityNotes'),
         skillset:         fd.get('skillset'),
         linkedin:         fd.get('linkedin'),
         recruiter_notes:  fd.get('recruiterNotes'),
@@ -194,6 +196,9 @@ export default function EditTalent() {
 
   const lastComp = talent?.candidate_compensation
     ?.sort((a, b) => new Date(b.recorded_at) - new Date(a.recorded_at))[0]
+
+  const lastAvailability = talent?.candidate_availability
+    ?.sort((a, b) => b.availability_id - a.availability_id)[0]
 
   const lastUpdate = talent?.updated_at
     ? new Date(talent.updated_at).toLocaleDateString('es-MX', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -504,6 +509,12 @@ export default function EditTalent() {
                     </div>
                     <Field id="salaryExpectation" label="Salary Expectation (USD/mo)">
                       <input className="input-field w-full bg-transparent border-none focus:ring-0 px-0 pt-5 pb-1 text-primary font-medium placeholder-transparent text-sm" id="salaryExpectation" name="salaryExpectation" defaultValue={lastComp?.cost_text ?? ''} placeholder="5000" type="text" />
+                    </Field>
+                    <Field id="lastContactDate" label="Último Contacto">
+                      <input className="input-field w-full bg-transparent border-none focus:ring-0 px-0 pt-5 pb-1 text-primary font-medium placeholder-transparent text-sm" id="lastContactDate" name="lastContactDate" defaultValue={lastAvailability?.last_contact_date ?? ''} type="date" />
+                    </Field>
+                    <Field id="availabilityNotes" label="Nota de disponibilidad">
+                      <input className="input-field w-full bg-transparent border-none focus:ring-0 px-0 pt-5 pb-1 text-primary font-medium placeholder-transparent text-sm" id="availabilityNotes" name="availabilityNotes" defaultValue={lastAvailability?.notes ?? ''} placeholder="Ej. Hybrid, Solo remoto…" type="text" />
                     </Field>
                   </div>
                 </section>

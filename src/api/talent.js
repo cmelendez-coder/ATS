@@ -78,7 +78,8 @@ export async function getCandidate(code) {
         technology:catalog_technology!technology_id(technology_id, ct_name_tech)
       ),
       candidate_compensation(comp_id, cost_text, recorded_at),
-      candidate_note(note_id, note_type, note_text)
+      candidate_note(note_id, note_type, note_text),
+      candidate_availability(availability_id, last_contact_date, notes, available_from, available_to, recorded_at)
     `)
     .eq('candidate_code', code)
     .single()
@@ -230,6 +231,27 @@ export async function updateCandidate(code, form) {
     } else if (form[noteType]?.trim()) {
       await supabase.from('candidate_note')
         .insert({ candidate_id: candidateId, note_type: noteType, note_text: form[noteType] })
+    }
+  }
+
+  // Upsert availability (last_contact_date + notes)
+  if (form.lastContactDate !== undefined || form.availabilityNotes !== undefined) {
+    const { data: existing } = await supabase
+      .from('candidate_availability').select('availability_id')
+      .eq('candidate_id', candidateId).order('availability_id', { ascending: false }).limit(1)
+
+    const avPatch = {}
+    if (form.lastContactDate !== undefined)
+      avPatch.last_contact_date = form.lastContactDate || null
+    if (form.availabilityNotes !== undefined)
+      avPatch.notes = form.availabilityNotes || null
+
+    if (existing?.length) {
+      await supabase.from('candidate_availability')
+        .update(avPatch).eq('availability_id', existing[0].availability_id)
+    } else {
+      await supabase.from('candidate_availability')
+        .insert({ candidate_id: candidateId, ...avPatch })
     }
   }
 }

@@ -247,9 +247,6 @@ export default function AddTalent() {
                   <div className="form-input-container">
                     <select className="form-input rounded-t-lg appearance-none cursor-pointer" id="scheme" name="scheme" defaultValue="">
                       <option disabled value=""></option>
-                      <option value="W2">W2</option>
-                      <option value="C2C">C2C</option>
-                      <option value="1099">1099</option>
                       <option value="Contract">Contract</option>
                       <option value="Full-Time">Full-Time</option>
                     </select>

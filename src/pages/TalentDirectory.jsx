@@ -48,6 +48,30 @@ function englishLabel(score) {
   return 'A2'
 }
 
+function formatDate(value) {
+  if (!value) return '—'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return '—'
+  return date.toLocaleDateString('es-MX', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
+function getLastContactDate(candidate) {
+  if (candidate?.last_contact_date) return candidate.last_contact_date
+  const availability = candidate?.candidate_availability
+  if (!Array.isArray(availability) || availability.length === 0) return null
+
+  return [...availability]
+    .sort((a, b) => {
+      const aTime = a?.recorded_at ? new Date(a.recorded_at).getTime() : 0
+      const bTime = b?.recorded_at ? new Date(b.recorded_at).getTime() : 0
+      return bTime - aTime
+    })[0]?.last_contact_date ?? null
+}
+
 export default function TalentDirectory() {
   const { can } = usePermissions()
   const [candidates, setCandidates] = useState([])
@@ -191,8 +215,8 @@ export default function TalentDirectory() {
           </div>
 
           {/* Search & Filters */}
-          <form onSubmit={handleSearch} className="p-4 bg-surface-container-lowest rounded-2xl shadow-[0_2px_16px_rgba(24,28,30,0.04)] border border-outline-variant/10 flex flex-col md:flex-row gap-4">
-            <div className="relative flex-grow">
+          <form onSubmit={handleSearch} className="p-4 bg-surface-container-lowest rounded-2xl shadow-[0_2px_16px_rgba(24,28,30,0.04)] border border-outline-variant/10 grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto]">
+            <div className="relative min-w-0 w-full">
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
               <input
                 className="w-full pl-10 pr-4 py-2.5 bg-surface-container-high border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 transition-shadow placeholder:text-on-surface-variant text-on-surface"
@@ -201,11 +225,11 @@ export default function TalentDirectory() {
                 onChange={e => setQuery(e.target.value)}
               />
             </div>
-            <div className="flex gap-3 flex-wrap items-center">
+            <div className="flex gap-3 flex-wrap items-center justify-start">
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[16px] pointer-events-none">code</span>
                 <select
-                  className="bg-surface-container-high border-none text-sm text-on-surface rounded-lg py-2.5 pl-9 pr-8 focus:ring-2 focus:ring-primary/20 min-w-[180px] appearance-none"
+                  className="bg-surface-container-high border-none text-sm text-on-surface rounded-lg py-2.5 pl-9 pr-8 focus:ring-2 focus:ring-primary/20 min-w-[220px] appearance-none"
                   value={techFilter}
                   onChange={e => {
                     const val = e.target.value
@@ -289,11 +313,16 @@ export default function TalentDirectory() {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+                <table className="min-w-[1140px] w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-surface-container-low">
-                      {['Name / E-mail', 'Technology', 'Seniority', 'English', 'Exp.', 'Location'].map(h => (
-                        <th key={h} className="py-3.5 px-5 text-[11px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">{h}</th>
+                      {['Name / E-mail', 'Technology', 'Seniority', 'English', 'Exp.', 'Location', 'Last Contact'].map(h => (
+                        <th
+                          key={h}
+                          className={`py-3.5 px-5 text-[11px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap ${h === 'Last Contact' ? 'min-w-[150px]' : ''}`}
+                        >
+                          {h}
+                        </th>
                       ))}
                       <th className="py-3.5 px-4 sticky right-0 bg-surface-container-low z-10 shadow-[-8px_0_16px_rgba(0,0,0,0.25)]"></th>
                     </tr>
@@ -359,6 +388,11 @@ export default function TalentDirectory() {
                               <span className="material-symbols-outlined text-[14px] text-on-surface-variant/60">location_on</span>
                               {c.location?.name ?? '—'}
                             </span>
+                          </td>
+
+                          {/* Last contact */}
+                          <td className="py-4 px-5 text-sm text-on-surface-variant whitespace-nowrap min-w-[150px]">
+                            {formatDate(getLastContactDate(c))}
                           </td>
 
                           {/* Actions — sticky right */}

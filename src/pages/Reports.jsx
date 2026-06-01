@@ -1,22 +1,21 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   getReportsSummary,
   listOpenRequirementsForReports,
   getClientReportPdfData,
   getRequirementReportPdfData,
-  listClientsForReports,
-  listAllPipelineStages,
-  getCandidateSummary,
 } from '../api/reports'
 import {
+  buildReportHtml,
+  downloadReportHtml,
   openPrintableReport,
   renderMetricCards,
   renderStageList,
   renderTable,
-  renderSectionHeader,
   escapeHtml,
 } from '../lib/reportPdf'
+import ReportPreviewModal from '../components/ReportPreviewModal'
 
 function MetricCard({ label, value, icon, tone = 'primary', sublabel = '' }) {
   const toneMap = {
@@ -41,242 +40,397 @@ function MetricCard({ label, value, icon, tone = 'primary', sublabel = '' }) {
   )
 }
 
-const EMPTY_FILTERS = { clientId: '', dateFrom: '', dateTo: '', stage: '' }
+function slugify(value) {
+  return String(value ?? '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
 
 export default function Reports() {
-  const [loading, setLoading]                   = useState(true)
-  const [error, setError]                       = useState(null)
-  const [report, setReport]                     = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [report, setReport] = useState(null)
   const [requirementOptions, setRequirementOptions] = useState([])
-  const [selectedClientId, setSelectedClientId] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
+  const [selectedClientId, setSelectedClientId] = useState('all')
   const [selectedRequirementId, setSelectedRequirementId] = useState('')
-  const [exporting, setExporting]               = useState('')
-
-  // Filter state
-  const [filters, setFilters]                   = useState(EMPTY_FILTERS)
-  const [applied, setApplied]                   = useState(EMPTY_FILTERS)
-  const [filterOptions, setFilterOptions]       = useState({ clients: [], stages: [] })
-
-  const hasActive = Object.values(applied).some(Boolean)
-
-  const fetchReport = useCallback(async (f = EMPTY_FILTERS) => {
-    setLoading(true)
-    setError(null)
-    try {
-      const summary = await getReportsSummary(f)
-      setReport(summary)
-    } catch (err) {
-      setError(err.message ?? 'No se pudieron cargar los reportes.')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  const [preview, setPreview] = useState(null)
+  const [busy, setBusy] = useState('')
 
   useEffect(() => {
-    Promise.all([
-      fetchReport(),
-      listClientsForReports(),
-      listAllPipelineStages(),
-      listOpenRequirementsForReports({}),
-    ]).then(([, clients, stages, allRequirements]) => {
-      setFilterOptions({ clients, stages })
-      setRequirementOptions(allRequirements)
-      setSelectedClientId(String(clients?.[0]?.id ?? ''))
-      setSelectedRequirementId(String(allRequirements?.[0]?.id ?? ''))
-    })
-  }, [fetchReport])
-
-  function applyFilters() {
-    setApplied(filters)
-    fetchReport(filters)
-  }
-
-  function clearFilters() {
-    setFilters(EMPTY_FILTERS)
-    setApplied(EMPTY_FILTERS)
-    fetchReport(EMPTY_FILTERS)
-  }
-
-  const setF = (k, v) => setFilters(prev => ({ ...prev, [k]: v }))
-
-  const topStage = report?.stageTotals?.[0]
+    Promise.all([getReportsSummary(), listOpenRequirementsForReports()])
+      .then(([summary, requirements]) => {
+        setReport(summary)
+        setRequirementOptions(requirements)
+        setSelectedClientId('all')
+        setSelectedRequirementId(String(requirements?.[0]?.id ?? ''))
+        setError(null)
+      })
+      .catch(err => setError(err.message ?? 'No se pudieron cargar los reportes.'))
+      .finally(() => setLoading(false))
+  }, [])
 
   function fmtDate(dateStr) {
     if (!dateStr) return 'Sin fecha'
     return new Date(dateStr).toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' })
   }
 
-  async function exportGeneralPdf() {
+  function isWithinRange(dateStr) {
+    if (!dateStr) return false
+    const value = new Date(dateStr).getTime()
+    if (Number.isNaN(value)) return false
+    if (dateFrom) {
+      const from = new Date(dateFrom).getTime()
+      if (value < from) return false
+    }
+    if (dateTo) {
+      const to = new Date(`${dateTo}T23:59:59.999`).getTime()
+      if (value > to) return false
+    }
+    return true
+  }
+
+  const visibleClientsDetailed = useMemo(() => {
+    if (!report?.clients) return []
+    return report.clients
+      .filter(client => selectedClientId === 'all' || String(client.clientId) === String(selectedClientId))
+      .map(client => {
+        const requirements = client.requirements.filter(req => isWithinRange(req.applicationDate))
+        const stageCounts = {}
+
+        for (const requirement of requirements) {
+          for (const [stageName, count] of Object.entries(requirement.stageCounts ?? {})) {
+            stageCounts[stageName] = (stageCounts[stageName] ?? 0) + count
+          }
+        }
+
+        const stages = Object.entries(stageCounts)
+          .map(([name, count]) => {
+            const stage = client.stages.find(item => item.name === name)
+            return {
+              name,
+              count,
+              color: stage?.color ?? '#64748B',
+              position: stage?.position ?? Number.MAX_SAFE_INTEGER,
+            }
+          })
+          .filter(stage => stage.count > 0)
+          .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+
+        return {
+          ...client,
+          requirements,
+          requirementCount: requirements.length,
+          candidateCount: requirements.reduce((sum, req) => sum + (req.candidateCount ?? 0), 0),
+          stages,
+        }
+      })
+      .filter(client => client.requirementCount > 0)
+  }, [report, selectedClientId, dateFrom, dateTo])
+
+  const visibleRequirementOptions = useMemo(() => {
+    const filtered = requirementOptions.filter(req => isWithinRange(req.applicationDate))
+    if (selectedClientId === 'all') return filtered
+    return filtered.filter(req => String(req.clientId) === String(selectedClientId))
+  }, [requirementOptions, selectedClientId, dateFrom, dateTo])
+
+  useEffect(() => {
+    if (!visibleRequirementOptions.length) {
+      setSelectedRequirementId('')
+      return
+    }
+    if (!visibleRequirementOptions.some(req => String(req.id) === String(selectedRequirementId))) {
+      setSelectedRequirementId(String(visibleRequirementOptions[0].id))
+    }
+  }, [visibleRequirementOptions, selectedRequirementId])
+
+  const visibleStageTotals = useMemo(() => {
+    const stageMap = new Map()
+    for (const client of visibleClientsDetailed) {
+      for (const stage of client.stages) {
+        if (!stageMap.has(stage.name)) {
+          stageMap.set(stage.name, { name: stage.name, count: 0, color: stage.color, position: stage.position })
+        }
+        stageMap.get(stage.name).count += stage.count
+      }
+    }
+
+    return [...stageMap.values()]
+      .filter(stage => stage.count > 0)
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+      .slice(0, 5)
+  }, [visibleClientsDetailed])
+
+  const totalRequirementsVisible = visibleClientsDetailed.reduce((sum, client) => sum + client.requirementCount, 0)
+  const totalClientCandidatesVisible = visibleClientsDetailed.reduce((sum, client) => sum + client.candidateCount, 0)
+  const totalCandidatesGeneral = report?.totalCandidates ?? 0
+  const topStage = visibleStageTotals?.[0]
+
+  function openPreview(title, subtitle, bodyHtml, onDownload) {
+    setPreview({
+      title,
+      html: buildReportHtml({ title, subtitle, bodyHtml }),
+      onDownload,
+    })
+  }
+
+  function buildGeneralBody(stageTotals, clients, totals) {
+    return [
+      renderMetricCards([
+        { label: 'Candidatos totales', value: totals.candidates.toLocaleString() },
+        { label: 'Requerimientos abiertos', value: totals.requirements.toLocaleString() },
+        { label: 'Clientes visibles', value: totals.clients.toLocaleString() },
+        { label: 'Candidatos visibles', value: totals.visibleCandidates.toLocaleString() },
+      ]),
+      renderStageList('Fases principales', stageTotals),
+      renderTable(
+        'Resumen por cliente',
+        ['Cliente', 'Requerimientos abiertos', 'Candidatos', 'Fase dominante'],
+        clients.map(client => [
+          escapeHtml(client.clientName),
+          escapeHtml(client.requirementCount),
+          escapeHtml(client.candidateCount),
+          escapeHtml(client.stages[0]?.name ?? 'Sin candidatos'),
+        ]),
+      ),
+    ].join('')
+  }
+
+  function buildClientBody(client) {
+    return [
+      renderMetricCards([
+        { label: 'Cliente', value: client.clientName },
+        { label: 'Req. abiertos', value: client.requirementCount.toLocaleString() },
+        { label: 'Candidatos', value: client.candidateCount.toLocaleString() },
+        { label: 'Fases activas', value: client.stages.length.toLocaleString() },
+      ]),
+      renderStageList('Candidatos por fase', client.stages),
+      renderTable(
+        'Requerimientos abiertos del cliente',
+        ['Folio', 'Posicion', 'Status', 'Aplicacion', 'Target', 'Candidatos'],
+        client.requirements.map(requirement => [
+          escapeHtml(`REQ-${new Date(requirement.applicationDate ?? Date.now()).getFullYear()}-${String(requirement.reqNumber).padStart(3, '0')}`),
+          escapeHtml(requirement.jobTitle),
+          `<span class="pill">${escapeHtml(requirement.statusName)}</span>`,
+          escapeHtml(fmtDate(requirement.applicationDate)),
+          escapeHtml(fmtDate(requirement.targetFillDate)),
+          escapeHtml(requirement.candidateCount),
+        ]),
+      ),
+    ].join('')
+  }
+
+  function buildRequirementBody(requirement) {
+    return [
+      renderMetricCards([
+        { label: 'Cliente', value: requirement.clientName },
+        { label: 'Status', value: requirement.statusName },
+        { label: 'Candidatos', value: requirement.candidateCount.toLocaleString() },
+        { label: 'Target Fill', value: fmtDate(requirement.targetFillDate) },
+      ]),
+      renderTable(
+        'Resumen del requerimiento',
+        ['Folio', 'Posicion', 'Aplicacion', 'Target', 'Status actual'],
+        [[
+          escapeHtml(`REQ-${new Date(requirement.applicationDate ?? Date.now()).getFullYear()}-${String(requirement.reqNumber).padStart(3, '0')}`),
+          escapeHtml(requirement.jobTitle),
+          escapeHtml(fmtDate(requirement.applicationDate)),
+          escapeHtml(fmtDate(requirement.targetFillDate)),
+          `<span class="pill">${escapeHtml(requirement.statusName)}</span>`,
+        ]],
+      ),
+      renderStageList('Distribucion de candidatos por fase', requirement.stages),
+    ].join('')
+  }
+
+  function clearFilters() {
+    setDateFrom('')
+    setDateTo('')
+    setSelectedClientId('all')
+  }
+
+  function handleGeneralPreview() {
     if (!report) return
-    setExporting('general')
+    const title = 'Reporte General'
+    const subtitle = 'Vista consolidada de clientes con requerimientos abiertos, candidatos asociados y fases principales del pipeline.'
+    const bodyHtml = buildGeneralBody(report.stageTotals, report.clients, {
+      candidates: totalCandidatesGeneral,
+      requirements: report.totalRequirements ?? 0,
+      clients: report.totalClients ?? 0,
+      visibleCandidates: report.totalClientCandidates ?? 0,
+    })
+    openPreview(title, subtitle, bodyHtml, () => downloadReportHtml({ filename: 'reporte-general.html', title, subtitle, bodyHtml }))
+  }
+
+  function handleGeneralDownload() {
+    if (!report) return
+    const title = 'Reporte General'
+    const subtitle = 'Vista consolidada de clientes con requerimientos abiertos, candidatos asociados y fases principales del pipeline.'
+    const bodyHtml = buildGeneralBody(report.stageTotals, report.clients, {
+      candidates: totalCandidatesGeneral,
+      requirements: report.totalRequirements ?? 0,
+      clients: report.totalClients ?? 0,
+      visibleCandidates: report.totalClientCandidates ?? 0,
+    })
+    downloadReportHtml({ filename: 'reporte-general.html', title, subtitle, bodyHtml })
+  }
+
+  function handleGeneralPrint() {
+    if (!report) return
+    const title = 'Reporte General'
+    const subtitle = 'Vista consolidada de clientes con requerimientos abiertos, candidatos asociados y fases principales del pipeline.'
+    const bodyHtml = buildGeneralBody(report.stageTotals, report.clients, {
+      candidates: totalCandidatesGeneral,
+      requirements: report.totalRequirements ?? 0,
+      clients: report.totalClients ?? 0,
+      visibleCandidates: report.totalClientCandidates ?? 0,
+    })
+    openPrintableReport({ title, subtitle, bodyHtml })
+  }
+
+  function handleFilteredPreview() {
+    if (!report) return
+    const title = 'Reporte Con Filtro'
+    const subtitle = 'Resumen ajustado por cliente y rango de fechas.'
+    const bodyHtml = buildGeneralBody(visibleStageTotals, visibleClientsDetailed, {
+      candidates: totalCandidatesGeneral,
+      requirements: totalRequirementsVisible,
+      clients: visibleClientsDetailed.length,
+      visibleCandidates: totalClientCandidatesVisible,
+    })
+    openPreview(title, subtitle, bodyHtml, () => downloadReportHtml({ filename: 'reporte-con-filtro.html', title, subtitle, bodyHtml }))
+  }
+
+  function handleFilteredDownload() {
+    if (!report) return
+    const title = 'Reporte Con Filtro'
+    const subtitle = 'Resumen ajustado por cliente y rango de fechas.'
+    const bodyHtml = buildGeneralBody(visibleStageTotals, visibleClientsDetailed, {
+      candidates: totalCandidatesGeneral,
+      requirements: totalRequirementsVisible,
+      clients: visibleClientsDetailed.length,
+      visibleCandidates: totalClientCandidatesVisible,
+    })
+    downloadReportHtml({ filename: 'reporte-con-filtro.html', title, subtitle, bodyHtml })
+  }
+
+  function handleFilteredPrint() {
+    if (!report) return
+    const title = 'Reporte Con Filtro'
+    const subtitle = 'Resumen ajustado por cliente y rango de fechas.'
+    const bodyHtml = buildGeneralBody(visibleStageTotals, visibleClientsDetailed, {
+      candidates: totalCandidatesGeneral,
+      requirements: totalRequirementsVisible,
+      clients: visibleClientsDetailed.length,
+      visibleCandidates: totalClientCandidatesVisible,
+    })
+    openPrintableReport({ title, subtitle, bodyHtml })
+  }
+
+  async function handleClientPreview() {
+    if (!selectedClientId || selectedClientId === 'all') return
+    setBusy('client-preview')
     try {
-      const candidateSummary = await getCandidateSummary()
-
-      const bodyHtml = [
-        // ── Sección 1: Requerimientos ──
-        renderSectionHeader('Análisis de Requerimientos'),
-        renderMetricCards([
-          { label: 'Requerimientos abiertos', value: report.totalRequirements.toLocaleString() },
-          { label: 'Clientes con reqs. abiertos', value: report.totalClients.toLocaleString() },
-          { label: 'Candidatos en proceso', value: report.totalClientCandidates.toLocaleString() },
-          { label: 'Fases activas', value: report.stageTotals.length.toLocaleString() },
-        ]),
-        renderStageList('Fases del pipeline', report.stageTotals),
-        renderTable(
-          'Resumen por cliente',
-          ['Cliente', 'Requerimientos abiertos', 'Candidatos', 'Fase dominante'],
-          report.clients.map(client => [
-            escapeHtml(client.clientName),
-            escapeHtml(client.requirementCount),
-            escapeHtml(client.candidateCount),
-            escapeHtml(client.stages[0]?.name ?? 'Sin candidatos'),
-          ]),
-        ),
-
-        // ── Sección 2: Candidatos ──
-        renderSectionHeader('Seguimiento de Candidatos', { pageBreak: true }),
-        renderMetricCards([
-          { label: 'Candidatos totales', value: candidateSummary.total.toLocaleString() },
-          ...candidateSummary.byStatus.slice(0, 3).map(s => ({
-            label: s.name,
-            value: s.count.toLocaleString(),
-          })),
-        ]),
-        renderTable(
-          'Distribución por estado',
-          ['Estado', 'Candidatos', '% del total'],
-          candidateSummary.byStatus.map(s => [
-            escapeHtml(s.name),
-            escapeHtml(s.count.toLocaleString()),
-            escapeHtml(`${Math.round(s.count / candidateSummary.total * 100)}%`),
-          ]),
-        ),
-      ].join('')
-
-      openPrintableReport({
-        title: 'Reporte General',
-        subtitle: 'Vista consolidada de requerimientos activos y seguimiento del pool de candidatos.',
+      const client = await getClientReportPdfData(Number(selectedClientId))
+      const title = `Reporte de Cliente - ${client.clientName}`
+      const subtitle = 'Desglose del pipeline para requerimientos abiertos del cliente seleccionado.'
+      const bodyHtml = buildClientBody(client)
+      openPreview(title, subtitle, bodyHtml, () => downloadReportHtml({
+        filename: `${slugify(`reporte-cliente-${client.clientName}`)}.html`,
+        title,
+        subtitle,
         bodyHtml,
-      })
+      }))
     } finally {
-      setExporting('')
+      setBusy('')
     }
   }
 
-  async function exportClientPdf() {
-    if (!selectedClientId) return
-    setExporting('client')
+  async function handleClientDownload() {
+    if (!selectedClientId || selectedClientId === 'all') return
+    setBusy('client-download')
     try {
-      const client = await getClientReportPdfData(Number(selectedClientId), { dateFrom: applied.dateFrom, dateTo: applied.dateTo, stage: applied.stage })
-      const bodyHtml = [
-        renderMetricCards([
-          { label: 'Cliente', value: client.clientName },
-          { label: 'Req. abiertos', value: client.requirementCount.toLocaleString() },
-          { label: 'Candidatos', value: client.candidateCount.toLocaleString() },
-          { label: 'Fases activas', value: client.stages.length.toLocaleString() },
-        ]),
-        renderStageList('Candidatos por fase', client.stages),
-        renderTable(
-          'Requerimientos abiertos del cliente',
-          ['Folio', 'Posicion', 'Status', 'Aplicacion', 'Target', 'Candidatos'],
-          client.requirements.map(requirement => [
-            escapeHtml(`REQ-${new Date(requirement.applicationDate ?? Date.now()).getFullYear()}-${String(requirement.reqNumber).padStart(3, '0')}`),
-            escapeHtml(requirement.jobTitle),
-            `<span class="pill">${escapeHtml(requirement.statusName)}</span>`,
-            escapeHtml(fmtDate(requirement.applicationDate)),
-            escapeHtml(fmtDate(requirement.targetFillDate)),
-            escapeHtml(requirement.candidateCount),
-          ]),
-        ),
-      ].join('')
-
-      openPrintableReport({
-        title: `Reporte de Cliente - ${client.clientName}`,
-        subtitle: 'Desglose del pipeline para requerimientos abiertos del cliente seleccionado.',
+      const client = await getClientReportPdfData(Number(selectedClientId))
+      const title = `Reporte de Cliente - ${client.clientName}`
+      const subtitle = 'Desglose del pipeline para requerimientos abiertos del cliente seleccionado.'
+      const bodyHtml = buildClientBody(client)
+      downloadReportHtml({
+        filename: `${slugify(`reporte-cliente-${client.clientName}`)}.html`,
+        title,
+        subtitle,
         bodyHtml,
       })
     } finally {
-      setExporting('')
+      setBusy('')
     }
   }
 
-  async function exportCustomPdf() {
-    if (exporting) return
-    setExporting('custom')
-    setApplied(filters)
-    fetchReport(filters)
+  async function handleClientPrint() {
+    if (!selectedClientId || selectedClientId === 'all') return
+    setBusy('client-print')
     try {
-      const summary = await getReportsSummary(filters)
-      const filterLabel = [
-        filters.clientId && filterOptions.clients.find(c => String(c.id) === String(filters.clientId))?.name,
-        filters.dateFrom && `Desde ${fmtDate(filters.dateFrom)}`,
-        filters.dateTo && `Hasta ${fmtDate(filters.dateTo)}`,
-        filters.stage && `Etapa: ${filters.stage}`,
-      ].filter(Boolean).join(' · ')
-
-      const bodyHtml = [
-        renderMetricCards([
-          { label: 'Candidatos totales', value: summary.totalCandidates.toLocaleString() },
-          { label: 'Requerimientos abiertos', value: summary.totalRequirements.toLocaleString() },
-          { label: 'Clientes con reqs. abiertos', value: summary.totalClients.toLocaleString() },
-          { label: 'Candidatos en proceso', value: summary.totalClientCandidates.toLocaleString() },
-        ]),
-        renderStageList('Fases principales', summary.stageTotals),
-        renderTable(
-          'Resumen por cliente',
-          ['Cliente', 'Requerimientos abiertos', 'Candidatos', 'Fase dominante'],
-          summary.clients.map(client => [
-            escapeHtml(client.clientName),
-            escapeHtml(client.requirementCount),
-            escapeHtml(client.candidateCount),
-            escapeHtml(client.stages[0]?.name ?? 'Sin candidatos'),
-          ]),
-        ),
-      ].join('')
-
-      openPrintableReport({
-        title: 'Reporte Personalizado',
-        subtitle: filterLabel || 'Sin filtros aplicados — vista completa de todos los datos.',
-        bodyHtml,
-      })
+      const client = await getClientReportPdfData(Number(selectedClientId))
+      const title = `Reporte de Cliente - ${client.clientName}`
+      const subtitle = 'Desglose del pipeline para requerimientos abiertos del cliente seleccionado.'
+      const bodyHtml = buildClientBody(client)
+      openPrintableReport({ title, subtitle, bodyHtml })
     } finally {
-      setExporting('')
+      setBusy('')
     }
   }
 
-  async function exportRequirementPdf() {
+  async function handleRequirementPreview() {
     if (!selectedRequirementId) return
-    setExporting('requirement')
+    setBusy('requirement-preview')
     try {
-      const requirement = await getRequirementReportPdfData(Number(selectedRequirementId), { stage: applied.stage })
-      const bodyHtml = [
-        renderMetricCards([
-          { label: 'Cliente', value: requirement.clientName },
-          { label: 'Status', value: requirement.statusName },
-          { label: 'Candidatos', value: requirement.candidateCount.toLocaleString() },
-          { label: 'Target Fill', value: fmtDate(requirement.targetFillDate) },
-        ]),
-        renderTable(
-          'Resumen del requerimiento',
-          ['Folio', 'Posicion', 'Aplicacion', 'Target', 'Status actual'],
-          [[
-            escapeHtml(`REQ-${new Date(requirement.applicationDate ?? Date.now()).getFullYear()}-${String(requirement.reqNumber).padStart(3, '0')}`),
-            escapeHtml(requirement.jobTitle),
-            escapeHtml(fmtDate(requirement.applicationDate)),
-            escapeHtml(fmtDate(requirement.targetFillDate)),
-            `<span class="pill">${escapeHtml(requirement.statusName)}</span>`,
-          ]],
-        ),
-        renderStageList('Distribucion de candidatos por fase', requirement.stages),
-      ].join('')
+      const requirement = await getRequirementReportPdfData(Number(selectedRequirementId))
+      const title = `Reporte por Requerimiento - ${requirement.jobTitle}`
+      const subtitle = `Cliente: ${requirement.clientName}`
+      const bodyHtml = buildRequirementBody(requirement)
+      openPreview(title, subtitle, bodyHtml, () => downloadReportHtml({
+        filename: `${slugify(`reporte-requerimiento-${requirement.jobTitle}`)}.html`,
+        title,
+        subtitle,
+        bodyHtml,
+      }))
+    } finally {
+      setBusy('')
+    }
+  }
 
-      openPrintableReport({
-        title: `Reporte por Requerimiento - ${requirement.jobTitle}`,
-        subtitle: `Cliente: ${requirement.clientName}`,
+  async function handleRequirementDownload() {
+    if (!selectedRequirementId) return
+    setBusy('requirement-download')
+    try {
+      const requirement = await getRequirementReportPdfData(Number(selectedRequirementId))
+      const title = `Reporte por Requerimiento - ${requirement.jobTitle}`
+      const subtitle = `Cliente: ${requirement.clientName}`
+      const bodyHtml = buildRequirementBody(requirement)
+      downloadReportHtml({
+        filename: `${slugify(`reporte-requerimiento-${requirement.jobTitle}`)}.html`,
+        title,
+        subtitle,
         bodyHtml,
       })
     } finally {
-      setExporting('')
+      setBusy('')
+    }
+  }
+
+  async function handleRequirementPrint() {
+    if (!selectedRequirementId) return
+    setBusy('requirement-print')
+    try {
+      const requirement = await getRequirementReportPdfData(Number(selectedRequirementId))
+      const title = `Reporte por Requerimiento - ${requirement.jobTitle}`
+      const subtitle = `Cliente: ${requirement.clientName}`
+      const bodyHtml = buildRequirementBody(requirement)
+      openPrintableReport({ title, subtitle, bodyHtml })
+    } finally {
+      setBusy('')
     }
   }
 
@@ -307,90 +461,6 @@ export default function Reports() {
             </p>
           </div>
 
-          {/* Filter Panel */}
-          <section className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-[18px] text-primary">tune</span>
-                <h2 className="text-sm font-bold text-primary">Filtros de reporte</h2>
-                {hasActive && (
-                  <span className="px-2 py-0.5 rounded-full bg-primary/15 text-primary text-[10px] font-bold">Activos</span>
-                )}
-              </div>
-              {hasActive && (
-                <button onClick={clearFilters} className="text-xs text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[14px]">close</span>
-                  Limpiar filtros
-                </button>
-              )}
-            </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              <div>
-                <label className="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1.5">Cliente</label>
-                <select
-                  className="w-full px-3 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer"
-                  value={filters.clientId}
-                  onChange={e => setF('clientId', e.target.value)}
-                >
-                  <option value="">Todos los clientes</option>
-                  {filterOptions.clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1.5">Fecha desde</label>
-                <input
-                  type="date"
-                  className="w-full px-3 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20"
-                  value={filters.dateFrom}
-                  onChange={e => setF('dateFrom', e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1.5">Fecha hasta</label>
-                <input
-                  type="date"
-                  className="w-full px-3 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20"
-                  value={filters.dateTo}
-                  onChange={e => setF('dateTo', e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1.5">Etapa del proceso</label>
-                <select
-                  className="w-full px-3 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer"
-                  value={filters.stage}
-                  onChange={e => setF('stage', e.target.value)}
-                >
-                  <option value="">Todas las etapas</option>
-                  {filterOptions.stages.map(s => <option key={s.stage_id} value={s.name}>{s.name}</option>)}
-                </select>
-              </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-2 pt-1">
-              <button
-                onClick={applyFilters}
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity"
-              >
-                <span className="material-symbols-outlined text-[16px]">search</span>
-                Aplicar filtros
-              </button>
-              <button
-                type="button"
-                disabled={exporting === 'custom'}
-                onClick={exportCustomPdf}
-                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-br from-secondary to-secondary-container text-on-secondary-container text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
-              >
-                <span className="material-symbols-outlined text-[16px]">{exporting === 'custom' ? 'progress_activity' : 'picture_as_pdf'}</span>
-                Exportar reporte personalizado
-              </button>
-              {hasActive && (
-                <p className="text-xs text-on-surface-variant">
-                  Mostrando datos filtrados — los PDFs generados respetarán los filtros activos.
-                </p>
-              )}
-            </div>
-          </section>
-
           {error && (
             <div className="flex items-center gap-3 p-4 rounded-xl bg-red-900/20 border border-red-800 text-red-400">
               <span className="material-symbols-outlined text-[20px]">error</span>
@@ -405,78 +475,130 @@ export default function Reports() {
             </div>
           ) : report && (
             <>
-              <section className="bg-surface-container-lowest rounded-3xl border border-outline-variant/10 shadow-[0_2px_18px_rgba(24,28,30,0.06)] p-6 md:p-7 space-y-5">
+              <section className="bg-surface-container-lowest rounded-3xl border border-outline-variant/10 shadow-[0_2px_18px_rgba(24,28,30,0.06)] p-6 md:p-7 space-y-6">
                 <div>
-                  <h2 className="text-xl font-bold text-primary">Exportar PDF</h2>
-                  <p className="text-sm text-on-surface-variant mt-1">Genera un reporte general, por cliente o por requerimiento y guardalo como PDF desde la ventana de impresion.</p>
+                  <h2 className="text-xl font-bold text-primary">Filtros</h2>
+                  <p className="text-sm text-on-surface-variant mt-1">Filtra por cliente y por rango de fechas antes de ver o descargar cualquier reporte.</p>
                 </div>
 
-                <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-                  <div className="rounded-2xl border border-outline-variant/10 bg-surface-container p-4 space-y-3">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-on-surface-variant">General</p>
-                    <p className="text-sm text-on-surface-variant">Incluye resumen operativo, fases principales y clientes con requerimientos abiertos.</p>
-                    <button
-                      type="button"
-                      onClick={exportGeneralPdf}
-                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity"
-                    >
+                <div className="grid grid-cols-1 xl:grid-cols-[1.2fr_1fr_1fr_auto] gap-3">
+                  <select className="w-full px-3 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer" value={selectedClientId} onChange={e => setSelectedClientId(e.target.value)}>
+                    <option value="all">Todos los clientes</option>
+                    {report.clients.map(client => (
+                      <option key={client.clientId} value={client.clientId}>{client.clientName}</option>
+                    ))}
+                  </select>
+                  <input className="w-full px-3 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 outline-none" type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
+                  <input className="w-full px-3 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 outline-none" type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} />
+                  <button type="button" onClick={clearFilters} className="px-4 py-2.5 rounded-xl border border-outline-variant/20 text-sm font-medium text-on-surface-variant hover:bg-surface-container transition-colors">
+                    Limpiar
+                  </button>
+                </div>
+
+                <div className="rounded-2xl border border-outline-variant/10 bg-surface-container p-4 space-y-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-primary">Con filtro</h3>
+                    <p className="text-sm text-on-surface-variant mt-1">Este reporte respeta el cliente y el rango de fechas que tengas arriba.</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button onClick={handleFilteredPreview} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity">
+                      <span className="material-symbols-outlined text-[16px]">visibility</span>
+                      Vista previa
+                    </button>
+                    <button onClick={handleFilteredDownload} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity">
+                      <span className="material-symbols-outlined text-[16px]">download</span>
+                      Descargar
+                    </button>
+                    <button onClick={handleFilteredPrint} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-secondary to-secondary-container text-on-secondary-container text-sm font-semibold hover:opacity-90 transition-opacity">
                       <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
-                      Exportar general
-                    </button>
-                  </div>
-
-                  <div className="rounded-2xl border border-outline-variant/10 bg-surface-container p-4 space-y-3">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-on-surface-variant">Por cliente</p>
-                    <select
-                      className="w-full px-3 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer"
-                      value={selectedClientId}
-                      onChange={e => setSelectedClientId(e.target.value)}
-                    >
-                      {filterOptions.clients.map(client => (
-                        <option key={client.id} value={client.id}>{client.name}</option>
-                      ))}
-                    </select>
-                    <button
-                      type="button"
-                      disabled={!selectedClientId || exporting === 'client'}
-                      onClick={exportClientPdf}
-                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-secondary to-secondary-container text-on-secondary-container text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">{exporting === 'client' ? 'progress_activity' : 'picture_as_pdf'}</span>
-                      Exportar cliente
-                    </button>
-                  </div>
-
-                  <div className="rounded-2xl border border-outline-variant/10 bg-surface-container p-4 space-y-3">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-on-surface-variant">Por requerimiento</p>
-                    <select
-                      className="w-full px-3 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer"
-                      value={selectedRequirementId}
-                      onChange={e => setSelectedRequirementId(e.target.value)}
-                    >
-                      {requirementOptions.map(requirement => (
-                        <option key={requirement.id} value={requirement.id}>
-                          {requirement.clientName} - REQ-{String(requirement.reqNumber).padStart(3, '0')} - {requirement.jobTitle}
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      type="button"
-                      disabled={!selectedRequirementId || exporting === 'requirement'}
-                      onClick={exportRequirementPdf}
-                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-tertiary to-tertiary-container text-on-tertiary-container text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">{exporting === 'requirement' ? 'progress_activity' : 'picture_as_pdf'}</span>
-                      Exportar requerimiento
+                      Imprimir PDF
                     </button>
                   </div>
                 </div>
               </section>
 
+              <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+                <section className="bg-surface-container-lowest rounded-3xl border border-outline-variant/10 shadow-[0_2px_18px_rgba(24,28,30,0.06)] p-6 md:p-7 space-y-5">
+                  <div>
+                    <h2 className="text-xl font-bold text-primary">General</h2>
+                    <p className="text-sm text-on-surface-variant mt-1">Reporte general sin depender de los filtros activos.</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button onClick={handleGeneralPreview} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity">
+                      <span className="material-symbols-outlined text-[16px]">visibility</span>
+                      Vista previa
+                    </button>
+                    <button onClick={handleGeneralDownload} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity">
+                      <span className="material-symbols-outlined text-[16px]">download</span>
+                      Descargar
+                    </button>
+                    <button onClick={handleGeneralPrint} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity">
+                      <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+                      Imprimir PDF
+                    </button>
+                  </div>
+                </section>
+
+                <section className="bg-surface-container-lowest rounded-3xl border border-outline-variant/10 shadow-[0_2px_18px_rgba(24,28,30,0.06)] p-6 md:p-7 space-y-5">
+                  <div>
+                    <h2 className="text-xl font-bold text-primary">Por cliente</h2>
+                    <p className="text-sm text-on-surface-variant mt-1">Selecciona un cliente para ver su reporte individual.</p>
+                  </div>
+                  <select className="w-full px-3 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer" value={selectedClientId} onChange={e => setSelectedClientId(e.target.value)}>
+                    <option value="all">Selecciona un cliente</option>
+                    {report.clients.map(client => (
+                      <option key={client.clientId} value={client.clientId}>{client.clientName}</option>
+                    ))}
+                  </select>
+                  <div className="flex flex-wrap gap-2">
+                    <button onClick={handleClientPreview} disabled={!selectedClientId || selectedClientId === 'all' || busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
+                      <span className="material-symbols-outlined text-[16px]">visibility</span>
+                      Vista previa
+                    </button>
+                    <button onClick={handleClientDownload} disabled={!selectedClientId || selectedClientId === 'all' || busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
+                      <span className="material-symbols-outlined text-[16px]">download</span>
+                      Descargar
+                    </button>
+                    <button onClick={handleClientPrint} disabled={!selectedClientId || selectedClientId === 'all' || busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-tertiary to-tertiary-container text-on-tertiary-container text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
+                      <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+                      Imprimir PDF
+                    </button>
+                  </div>
+                </section>
+
+                <section className="bg-surface-container-lowest rounded-3xl border border-outline-variant/10 shadow-[0_2px_18px_rgba(24,28,30,0.06)] p-6 md:p-7 space-y-5">
+                  <div>
+                    <h2 className="text-xl font-bold text-primary">Por requerimiento</h2>
+                    <p className="text-sm text-on-surface-variant mt-1">Selecciona un requerimiento abierto para su reporte individual.</p>
+                  </div>
+                  <select className="w-full px-3 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer" value={selectedRequirementId} onChange={e => setSelectedRequirementId(e.target.value)}>
+                    {visibleRequirementOptions.map(requirement => (
+                      <option key={requirement.id} value={requirement.id}>
+                        {requirement.clientName} - REQ-{String(requirement.reqNumber).padStart(3, '0')} - {requirement.jobTitle}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="flex flex-wrap gap-2">
+                    <button onClick={handleRequirementPreview} disabled={!selectedRequirementId || busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
+                      <span className="material-symbols-outlined text-[16px]">visibility</span>
+                      Vista previa
+                    </button>
+                    <button onClick={handleRequirementDownload} disabled={!selectedRequirementId || busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
+                      <span className="material-symbols-outlined text-[16px]">download</span>
+                      Descargar
+                    </button>
+                    <button onClick={handleRequirementPrint} disabled={!selectedRequirementId || busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
+                      <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+                      Imprimir PDF
+                    </button>
+                  </div>
+                </section>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                <MetricCard label="Candidatos totales" value={report.totalCandidates.toLocaleString()} icon="group" tone="primary" />
-                <MetricCard label="Requerimientos abiertos" value={report.totalRequirements.toLocaleString()} icon="assignment" tone="secondary" />
-                <MetricCard label="Clientes con reqs. abiertos" value={report.totalClients.toLocaleString()} icon="apartment" tone="tertiary" />
+                <MetricCard label="Candidatos totales" value={totalCandidatesGeneral.toLocaleString()} icon="group" tone="primary" />
+                <MetricCard label="Requerimientos abiertos" value={totalRequirementsVisible.toLocaleString()} icon="assignment" tone="secondary" />
+                <MetricCard label="Clientes visibles" value={visibleClientsDetailed.length.toLocaleString()} icon="apartment" tone="tertiary" />
                 <MetricCard
                   label="Fase con mas candidatos"
                   value={topStage?.count?.toLocaleString?.() ?? '0'}
@@ -486,30 +608,6 @@ export default function Reports() {
                 />
               </div>
 
-              <section className="bg-surface-container-lowest rounded-3xl border border-outline-variant/10 shadow-[0_2px_18px_rgba(24,28,30,0.06)] p-6 md:p-7 space-y-5">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <h2 className="text-xl font-bold text-primary">Distribucion global por fase</h2>
-                    <p className="text-sm text-on-surface-variant mt-1">Total de candidatos en las fases principales del pipeline para requerimientos abiertos.</p>
-                  </div>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant text-xs font-bold">
-                    {report.totalClientCandidates} candidatos ligados a requerimientos
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
-                  {report.stageTotals.map(stage => (
-                    <div key={stage.name} className="rounded-2xl border border-outline-variant/10 bg-surface-container p-4">
-                      <div className="flex items-center gap-2">
-                        <span className="inline-block w-3 h-3 rounded-full border border-white/60" style={{ backgroundColor: stage.color }}></span>
-                        <p className="text-sm font-semibold text-primary">{stage.name}</p>
-                      </div>
-                      <p className="mt-3 text-3xl font-extrabold tracking-tight text-primary">{stage.count}</p>
-                    </div>
-                  ))}
-                </div>
-              </section>
-
               <section className="space-y-4">
                 <div>
                   <h2 className="text-xl font-bold text-primary">Detalle por cliente</h2>
@@ -517,7 +615,7 @@ export default function Reports() {
                 </div>
 
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                  {report.clients.map(client => (
+                  {visibleClientsDetailed.map(client => (
                     <article key={client.clientId} className="rounded-3xl border border-outline-variant/10 bg-surface-container-lowest shadow-[0_2px_18px_rgba(24,28,30,0.06)] overflow-hidden">
                       <div className="px-6 py-5 border-b border-outline-variant/10 bg-gradient-to-r from-surface-container/60 to-transparent">
                         <div className="flex items-start justify-between gap-4">
@@ -557,10 +655,42 @@ export default function Reports() {
                   ))}
                 </div>
               </section>
+
+              <section className="bg-surface-container-lowest rounded-3xl border border-outline-variant/10 shadow-[0_2px_18px_rgba(24,28,30,0.06)] p-6 md:p-7 space-y-5">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-bold text-primary">Distribucion global por fase</h2>
+                    <p className="text-sm text-on-surface-variant mt-1">Total de candidatos en las fases principales del pipeline para los clientes visibles.</p>
+                  </div>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant text-xs font-bold">
+                    {totalClientCandidatesVisible} candidatos ligados a requerimientos
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+                  {visibleStageTotals.map(stage => (
+                    <div key={stage.name} className="rounded-2xl border border-outline-variant/10 bg-surface-container p-4">
+                      <div className="flex items-center gap-2">
+                        <span className="inline-block w-3 h-3 rounded-full border border-white/60" style={{ backgroundColor: stage.color }}></span>
+                        <p className="text-sm font-semibold text-primary">{stage.name}</p>
+                      </div>
+                      <p className="mt-3 text-3xl font-extrabold tracking-tight text-primary">{stage.count}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
             </>
           )}
         </div>
       </div>
+
+      <ReportPreviewModal
+        open={Boolean(preview)}
+        title={preview?.title ?? ''}
+        html={preview?.html ?? ''}
+        onClose={() => setPreview(null)}
+        onDownload={preview?.onDownload}
+      />
     </>
   )
 }

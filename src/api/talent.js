@@ -23,6 +23,7 @@ export async function searchCandidates({ q = '', tech = '', englishMin = '', eng
       seniority:catalog_seniority!seniority_id(name),
       location:catalog_location!location_id(name),
       role:catalog_role!role_id(name),
+      candidate_availability(availability_id, last_contact_date, recorded_at),
       candidate_stack(technology:catalog_technology!technology_id(ct_name_tech))
     `)
     .order('created_at', { ascending: false })

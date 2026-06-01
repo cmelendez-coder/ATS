@@ -366,7 +366,7 @@ export default function TalentDirectory() {
                           {/* English */}
                           <td className="py-4 px-5">
                             {c.english_score != null
-                              ? <span className="text-sm font-bold text-on-surface tabular-nums">{c.english_score}</span>
+                              ? <span className="text-sm font-bold text-on-surface tabular-nums">{c.english_score}%</span>
                               : <span className="text-xs text-on-surface-variant/40">—</span>}
                           </td>
 

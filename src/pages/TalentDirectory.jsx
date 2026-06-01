@@ -316,7 +316,7 @@ export default function TalentDirectory() {
                 <table className="min-w-[1140px] w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-surface-container-low">
-                      {['Name / E-mail', 'Technology', 'Seniority', 'English', 'Exp.', 'Location', 'Last Contact'].map(h => (
+                      {['Name / E-mail', 'Technology', 'English', 'YoE', 'Location', 'Last Contact'].map(h => (
                         <th
                           key={h}
                           className={`py-3.5 px-5 text-[11px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap ${h === 'Last Contact' ? 'min-w-[150px]' : ''}`}
@@ -361,13 +361,6 @@ export default function TalentDirectory() {
                                 ))
                                 : <span className="text-xs text-on-surface-variant/40">—</span>}
                             </div>
-                          </td>
-
-                          {/* Seniority */}
-                          <td className="py-4 px-5">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold ${sn} tracking-wide uppercase`}>
-                              {seniorityName}
-                            </span>
                           </td>
 
                           {/* English */}

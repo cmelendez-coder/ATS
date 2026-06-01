@@ -218,21 +218,6 @@ export default function NewRequirement() {
                     <input className="form-field" type="date" value={form.application_date} onChange={e => set('application_date', e.target.value)} required />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Stage</label>
-                    <div className="relative">
-                      <select className="form-field appearance-none cursor-pointer pr-9" value={form.stage} onChange={e => set('stage', e.target.value)}>
-                        <option value="New">New</option>
-                        <option value="Sourcing">Sourcing</option>
-                        <option value="Screening">Screening</option>
-                        <option value="Submission">Submission</option>
-                        <option value="Interview">Interview</option>
-                        <option value="Offer">Offer</option>
-                        <option value="Closed">Closed</option>
-                      </select>
-                      <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[18px]">arrow_drop_down</span>
-                    </div>
-                  </div>
-                  <div>
                     <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Status <span className="text-error">*</span></label>
                     <div className="relative">
                       <select className="form-field appearance-none cursor-pointer pr-9" value={form.status_id} onChange={e => set('status_id', e.target.value)}>

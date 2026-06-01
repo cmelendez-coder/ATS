@@ -220,8 +220,8 @@ export default function AddTalent() {
             </section>
 
             {/* Section 3: Logistics */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <section className="lg:col-span-2 bg-surface-container-lowest rounded-2xl p-6 shadow-[0_2px_16px_rgba(24,28,30,0.04)] border border-outline-variant/10 relative overflow-hidden">
+            <div>
+              <section className="bg-surface-container-lowest rounded-2xl p-6 shadow-[0_2px_16px_rgba(24,28,30,0.04)] border border-outline-variant/10 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-1 h-full bg-surface-tint rounded-l-2xl"></div>
                 <div className="mb-6">
                   <h3 className="text-base font-semibold text-primary mb-0.5 flex items-center gap-2">
@@ -261,16 +261,6 @@ export default function AddTalent() {
                     <label className="form-label" htmlFor="expectations">Salary / Rate Expectations (USD/mo)</label>
                   </div>
                 </div>
-              </section>
-
-              {/* CV info panel */}
-              <section className="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/10 shadow-[0_2px_16px_rgba(24,28,30,0.04)] flex flex-col items-center justify-center text-center">
-                <div className="w-14 h-14 rounded-xl bg-surface-container-highest flex items-center justify-center mb-4">
-                  <span className="material-symbols-outlined text-primary text-[28px]">link</span>
-                </div>
-                <h4 className="text-base font-semibold text-primary mb-1">CV Link</h4>
-                <p className="text-sm text-on-surface-variant mb-2">Add a Google Drive, Dropbox or OneDrive link in the Personal Information section.</p>
-                <p className="text-xs text-outline mt-2">PDF or DOCX preferred</p>
               </section>
             </div>
 

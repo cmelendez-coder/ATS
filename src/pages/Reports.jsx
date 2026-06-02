@@ -43,15 +43,22 @@ function MetricCard({ label, value, icon, tone = 'primary', sublabel = '' }) {
 
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
 
+function localDateStr(d) {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
 function generateWeeks2026() {
   const weeks = []
-  const start = new Date('2025-12-29') // ISO Week 1 of 2026
+  const start = new Date(2025, 11, 29) // ISO Week 1 of 2026 — local date
   for (let w = 0; w < 52; w++) {
     const monday = new Date(start)
     monday.setDate(start.getDate() + w * 7)
     const sunday = new Date(monday)
     sunday.setDate(monday.getDate() + 6)
-    const mondayStr = monday.toISOString().slice(0, 10)
+    const mondayStr = localDateStr(monday)
     const mDay = monday.getDate()
     const sDay = sunday.getDate()
     const mMonth = MESES[monday.getMonth()]

@@ -45,7 +45,7 @@ const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto'
 
 function generateWeeks2026() {
   const weeks = []
-  const start = new Date('2026-01-05')
+  const start = new Date('2025-12-29') // ISO Week 1 of 2026
   for (let w = 0; w < 52; w++) {
     const monday = new Date(start)
     monday.setDate(start.getDate() + w * 7)

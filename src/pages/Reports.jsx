@@ -73,6 +73,11 @@ function generateWeeks2026() {
 
 const WEEKS_2026 = generateWeeks2026()
 
+function toTitleCase(str) {
+  if (!str) return ''
+  return str.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+}
+
 function slugify(value) {
   return String(value ?? '')
     .toLowerCase()
@@ -322,7 +327,7 @@ export default function Reports() {
       `Candidatos enviados a cliente — ${weekLabel}`,
       ['Candidato', 'Cliente', 'Requerimiento', 'Posición', 'Fecha enviado', 'Notas'],
       rows.map(row => [
-        escapeHtml(row.candidateName),
+        escapeHtml(toTitleCase(row.candidateName)),
         escapeHtml(row.clientName),
         escapeHtml(`REQ-${String(row.reqNumber).padStart(3, '0')}`),
         escapeHtml(row.jobTitle),
@@ -779,7 +784,7 @@ export default function Reports() {
                       <tbody>
                         {weeklySubmittals.map((row, i) => (
                           <tr key={row.id} className={i % 2 === 0 ? 'bg-surface-container-lowest' : 'bg-surface-container/30'}>
-                            <td className="px-4 py-3 font-semibold text-primary">{row.candidateName}</td>
+                            <td className="px-4 py-3 font-semibold text-primary">{toTitleCase(row.candidateName)}</td>
                             <td className="px-4 py-3 text-on-surface-variant">{row.clientName}</td>
                             <td className="px-4 py-3 text-on-surface-variant font-mono text-xs">REQ-{String(row.reqNumber).padStart(3, '0')}</td>
                             <td className="px-4 py-3 text-on-surface-variant">{row.jobTitle}</td>

@@ -41,6 +41,31 @@ function MetricCard({ label, value, icon, tone = 'primary', sublabel = '' }) {
   )
 }
 
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
+
+function generateWeeks2026() {
+  const weeks = []
+  const start = new Date('2026-01-05')
+  for (let w = 0; w < 52; w++) {
+    const monday = new Date(start)
+    monday.setDate(start.getDate() + w * 7)
+    const sunday = new Date(monday)
+    sunday.setDate(monday.getDate() + 6)
+    const mondayStr = monday.toISOString().slice(0, 10)
+    const mDay = monday.getDate()
+    const sDay = sunday.getDate()
+    const mMonth = MESES[monday.getMonth()]
+    const sMonth = MESES[sunday.getMonth()]
+    const label = monday.getMonth() === sunday.getMonth()
+      ? `Semana ${w + 1} — ${mDay} a ${sDay} de ${mMonth}`
+      : `Semana ${w + 1} — ${mDay} de ${mMonth} a ${sDay} de ${sMonth}`
+    weeks.push({ value: mondayStr, label })
+  }
+  return weeks
+}
+
+const WEEKS_2026 = generateWeeks2026()
+
 function slugify(value) {
   return String(value ?? '')
     .toLowerCase()
@@ -704,13 +729,15 @@ export default function Reports() {
                     <p className="text-sm text-on-surface-variant mt-1">Candidatos enviados a cliente (fase "Submitted to Client") en la semana seleccionada.</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Semana del</label>
-                    <input
-                      type="date"
+                    <select
                       value={selectedWeek}
                       onChange={e => setSelectedWeek(e.target.value)}
-                      className="px-3 py-2 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 outline-none"
-                    />
+                      className="px-3 py-2 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 outline-none appearance-none cursor-pointer"
+                    >
+                      {WEEKS_2026.map(w => (
+                        <option key={w.value} value={w.value}>{w.label}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 

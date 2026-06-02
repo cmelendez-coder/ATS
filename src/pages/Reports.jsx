@@ -517,6 +517,54 @@ export default function Reports() {
                 </div>
               </section>
 
+              <section className="space-y-4">
+                <div>
+                  <h2 className="text-xl font-bold text-primary">Detalle por cliente</h2>
+                  <p className="text-sm text-on-surface-variant mt-1">Solo se muestran clientes con requerimientos abiertos y las fases principales.</p>
+                </div>
+
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                  {visibleClientsDetailed.map(client => (
+                    <article key={client.clientId} className="rounded-3xl border border-outline-variant/10 bg-surface-container-lowest shadow-[0_2px_18px_rgba(24,28,30,0.06)] overflow-hidden">
+                      <div className="px-6 py-5 border-b border-outline-variant/10 bg-gradient-to-r from-surface-container/60 to-transparent">
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-on-surface-variant/70">Cliente</p>
+                            <h3 className="mt-1 text-xl font-bold text-primary">{client.clientName}</h3>
+                          </div>
+                          <div className="flex gap-2">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold">
+                              {client.requirementCount} req
+                            </span>
+                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-bold">
+                              {client.candidateCount} cand
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-6 space-y-3">
+                        {client.stages.length === 0 ? (
+                          <div className="rounded-2xl border border-dashed border-outline-variant/25 bg-surface-container/40 px-4 py-4 text-sm text-on-surface-variant">
+                            Este cliente no tiene fases configuradas.
+                          </div>
+                        ) : (
+                          client.stages.map(stage => (
+                            <div key={stage.name} className="flex items-center justify-between gap-3 rounded-2xl border border-outline-variant/10 bg-surface-container px-4 py-3">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className="inline-block w-3 h-3 rounded-full border border-white/60 shrink-0" style={{ backgroundColor: stage.color }}></span>
+                                <span className="text-sm font-semibold text-primary truncate">{stage.name}</span>
+                              </div>
+                              <span className="text-sm font-bold text-on-surface-variant">{stage.count}</span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </section>
+
               <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
                 <section className="bg-surface-container-lowest rounded-3xl border border-outline-variant/10 shadow-[0_2px_18px_rgba(24,28,30,0.06)] p-6 md:p-7 space-y-5">
                   <div>
@@ -607,54 +655,6 @@ export default function Reports() {
                   sublabel={topStage ? topStage.name : 'Sin datos'}
                 />
               </div>
-
-              <section className="space-y-4">
-                <div>
-                  <h2 className="text-xl font-bold text-primary">Detalle por cliente</h2>
-                  <p className="text-sm text-on-surface-variant mt-1">Solo se muestran clientes con requerimientos abiertos y las fases principales.</p>
-                </div>
-
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                  {visibleClientsDetailed.map(client => (
-                    <article key={client.clientId} className="rounded-3xl border border-outline-variant/10 bg-surface-container-lowest shadow-[0_2px_18px_rgba(24,28,30,0.06)] overflow-hidden">
-                      <div className="px-6 py-5 border-b border-outline-variant/10 bg-gradient-to-r from-surface-container/60 to-transparent">
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
-                            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-on-surface-variant/70">Cliente</p>
-                            <h3 className="mt-1 text-xl font-bold text-primary">{client.clientName}</h3>
-                          </div>
-                          <div className="flex gap-2">
-                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                              {client.requirementCount} req
-                            </span>
-                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-bold">
-                              {client.candidateCount} cand
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="p-6 space-y-3">
-                        {client.stages.length === 0 ? (
-                          <div className="rounded-2xl border border-dashed border-outline-variant/25 bg-surface-container/40 px-4 py-4 text-sm text-on-surface-variant">
-                            Este cliente no tiene fases configuradas.
-                          </div>
-                        ) : (
-                          client.stages.map(stage => (
-                            <div key={stage.name} className="flex items-center justify-between gap-3 rounded-2xl border border-outline-variant/10 bg-surface-container px-4 py-3">
-                              <div className="flex items-center gap-2 min-w-0">
-                                <span className="inline-block w-3 h-3 rounded-full border border-white/60 shrink-0" style={{ backgroundColor: stage.color }}></span>
-                                <span className="text-sm font-semibold text-primary truncate">{stage.name}</span>
-                              </div>
-                              <span className="text-sm font-bold text-on-surface-variant">{stage.count}</span>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </section>
 
               <section className="bg-surface-container-lowest rounded-3xl border border-outline-variant/10 shadow-[0_2px_18px_rgba(24,28,30,0.06)] p-6 md:p-7 space-y-5">
                 <div className="flex items-center justify-between gap-4">

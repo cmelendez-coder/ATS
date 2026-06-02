@@ -323,18 +323,62 @@ export default function Reports() {
     if (!rows.length) {
       return `<p style="color:#64748b;font-size:14px;">Sin candidatos enviados a cliente esta semana.</p>`
     }
-    return renderTable(
-      `Candidatos enviados a cliente — ${weekLabel}`,
-      ['Candidato', 'Cliente', 'Requerimiento', 'Posición', 'Fecha enviado', 'Notas'],
+
+    const total = rows.length
+
+    const byClient = {}
+    const byPosition = {}
+    for (const row of rows) {
+      byClient[row.clientName] = (byClient[row.clientName] ?? 0) + 1
+      byPosition[row.jobTitle] = (byPosition[row.jobTitle] ?? 0) + 1
+    }
+
+    const clientEntries = Object.entries(byClient).sort((a, b) => b[1] - a[1])
+    const positionEntries = Object.entries(byPosition).sort((a, b) => b[1] - a[1])
+
+    const CLIENT_COLORS = ['#143b7a','#1e56a0','#2563eb','#3b82f6','#60a5fa','#93c5fd']
+    const POSITION_COLORS = ['#166534','#16a34a','#22c55e','#4ade80','#86efac','#bbf7d0']
+
+    const rowList = (entries, colors) => entries.map(([name, count], i) => `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #e9eef8;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="width:10px;height:10px;border-radius:50%;background:${escapeHtml(colors[i % colors.length])};flex-shrink:0;"></span>
+          <span style="font-size:13px;">${escapeHtml(name)}</span>
+        </div>
+        <strong style="font-size:14px;min-width:24px;text-align:right;">${count}</strong>
+      </div>`).join('')
+
+    const dashboardHtml = `
+      <section class="section">
+        <div style="display:grid;grid-template-columns:160px 1fr 1fr;gap:16px;align-items:start;">
+          <div class="card" style="background:#10213d;border-color:#10213d;text-align:center;padding:24px 16px;">
+            <div class="label" style="color:rgba(255,255,255,0.55);">Total enviados</div>
+            <div style="font-size:64px;font-weight:800;color:#4ade80;line-height:1.1;margin:12px 0 8px;">${total}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);">candidatos</div>
+          </div>
+          <div class="card">
+            <div class="label" style="margin-bottom:8px;">Por cliente</div>
+            ${rowList(clientEntries, CLIENT_COLORS)}
+          </div>
+          <div class="card">
+            <div class="label" style="margin-bottom:8px;">Por posición</div>
+            ${rowList(positionEntries, POSITION_COLORS)}
+          </div>
+        </div>
+      </section>`
+
+    const tableHtml = renderTable(
+      `Detalle — ${weekLabel}`,
+      ['Candidato', 'Cliente', 'Posición', 'Fecha enviado'],
       rows.map(row => [
         escapeHtml(toTitleCase(row.candidateName)),
         escapeHtml(row.clientName),
-        escapeHtml(`REQ-${String(row.reqNumber).padStart(3, '0')}`),
         escapeHtml(row.jobTitle),
         escapeHtml(fmtDate(row.sentAt)),
-        escapeHtml(row.notes),
       ]),
     )
+
+    return dashboardHtml + tableHtml
   }
 
   function getWeekLabel(mondayStr) {

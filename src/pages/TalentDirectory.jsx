@@ -316,7 +316,7 @@ export default function TalentDirectory() {
                 <table className="min-w-[1140px] w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-surface-container-low">
-                      {['Name / E-mail', 'Technology', 'English', 'YoE', 'Location'].map(h => (
+                      {['Name / E-mail', 'Technology', 'English', 'YoE', 'Location', 'Last Contact'].map(h => (
                         <th
                           key={h}
                           className={`py-3.5 px-5 text-[11px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap ${h === 'Last Contact' ? 'min-w-[150px]' : ''}`}
@@ -381,6 +381,19 @@ export default function TalentDirectory() {
                               <span className="material-symbols-outlined text-[14px] text-on-surface-variant/60">location_on</span>
                               {c.location?.name ?? '—'}
                             </span>
+                          </td>
+
+                          {/* Last Contact */}
+                          <td className="py-4 px-5 whitespace-nowrap">
+                            {(() => {
+                              const d = getLastContactDate(c)
+                              return d
+                                ? <span className="flex items-center gap-1.5 text-sm text-on-surface-variant">
+                                    <span className="material-symbols-outlined text-[14px] text-on-surface-variant/60">calendar_month</span>
+                                    {formatDate(d)}
+                                  </span>
+                                : <span className="text-xs text-on-surface-variant/40">—</span>
+                            })()}
                           </td>
 
                           {/* Actions — sticky right */}

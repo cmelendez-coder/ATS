@@ -5,6 +5,7 @@ import {
   listOpenRequirementsForReports,
   getClientReportPdfData,
   getRequirementReportPdfData,
+  getWeeklySubmittalsData,
 } from '../api/reports'
 import {
   buildReportHtml,
@@ -59,6 +60,17 @@ export default function Reports() {
   const [selectedRequirementId, setSelectedRequirementId] = useState('')
   const [preview, setPreview] = useState(null)
   const [busy, setBusy] = useState('')
+
+  // Weekly Submittals state
+  const [weeklySubmittals, setWeeklySubmittals] = useState([])
+  const [weeklyLoading, setWeeklyLoading] = useState(false)
+  const [weeklyError, setWeeklyError] = useState(null)
+  const [selectedWeek, setSelectedWeek] = useState(() => {
+    const now = new Date()
+    const monday = new Date(now)
+    monday.setDate(now.getDate() - ((now.getDay() + 6) % 7))
+    return monday.toISOString().slice(0, 10)
+  })
 
   useEffect(() => {
     Promise.all([getReportsSummary(), listOpenRequirementsForReports()])
@@ -244,6 +256,79 @@ export default function Reports() {
       ),
       renderStageList('Distribucion de candidatos por fase', requirement.stages),
     ].join('')
+  }
+
+  function getWeekRange(mondayStr) {
+    const start = new Date(`${mondayStr}T00:00:00`)
+    const end = new Date(start)
+    end.setDate(start.getDate() + 6)
+    end.setHours(23, 59, 59, 999)
+    return { start: start.toISOString(), end: end.toISOString(), sundayStr: end.toISOString().slice(0, 10) }
+  }
+
+  async function loadWeeklySubmittals(mondayStr) {
+    setWeeklyLoading(true)
+    setWeeklyError(null)
+    try {
+      const { start, end } = getWeekRange(mondayStr)
+      const rows = await getWeeklySubmittalsData(start, end)
+      setWeeklySubmittals(rows)
+    } catch {
+      setWeeklyError('No se pudieron cargar los submittals de la semana.')
+    } finally {
+      setWeeklyLoading(false)
+    }
+  }
+
+  useEffect(() => { loadWeeklySubmittals(selectedWeek) }, [selectedWeek])
+
+  function buildWeeklyBody(rows, weekLabel) {
+    if (!rows.length) {
+      return `<p style="color:#64748b;font-size:14px;">Sin candidatos enviados a cliente esta semana.</p>`
+    }
+    return renderTable(
+      `Candidatos enviados a cliente — ${weekLabel}`,
+      ['Candidato', 'Cliente', 'Requerimiento', 'Posición', 'Fecha enviado', 'Notas'],
+      rows.map(row => [
+        escapeHtml(row.candidateName),
+        escapeHtml(row.clientName),
+        escapeHtml(`REQ-${String(row.reqNumber).padStart(3, '0')}`),
+        escapeHtml(row.jobTitle),
+        escapeHtml(fmtDate(row.sentAt)),
+        escapeHtml(row.notes),
+      ]),
+    )
+  }
+
+  function getWeekLabel(mondayStr) {
+    const { sundayStr } = getWeekRange(mondayStr)
+    return `${fmtDate(mondayStr)} – ${fmtDate(sundayStr)}`
+  }
+
+  function handleWeeklyPreview() {
+    const weekLabel = getWeekLabel(selectedWeek)
+    const title = 'Weekly Submittals'
+    const subtitle = `Candidatos enviados a cliente del ${weekLabel}`
+    const bodyHtml = buildWeeklyBody(weeklySubmittals, weekLabel)
+    openPreview(title, subtitle, bodyHtml, () =>
+      downloadReportHtml({ filename: `weekly-submittals-${selectedWeek}.html`, title, subtitle, bodyHtml })
+    )
+  }
+
+  function handleWeeklyDownload() {
+    const weekLabel = getWeekLabel(selectedWeek)
+    const title = 'Weekly Submittals'
+    const subtitle = `Candidatos enviados a cliente del ${weekLabel}`
+    const bodyHtml = buildWeeklyBody(weeklySubmittals, weekLabel)
+    downloadReportHtml({ filename: `weekly-submittals-${selectedWeek}.html`, title, subtitle, bodyHtml })
+  }
+
+  function handleWeeklyPrint() {
+    const weekLabel = getWeekLabel(selectedWeek)
+    const title = 'Weekly Submittals'
+    const subtitle = `Candidatos enviados a cliente del ${weekLabel}`
+    const bodyHtml = buildWeeklyBody(weeklySubmittals, weekLabel)
+    openPrintableReport({ title, subtitle, bodyHtml })
   }
 
   function clearFilters() {
@@ -475,6 +560,21 @@ export default function Reports() {
             </div>
           ) : report && (
             <>
+              {/* 1. Metric cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                <MetricCard label="Candidatos totales" value={totalCandidatesGeneral.toLocaleString()} icon="group" tone="primary" />
+                <MetricCard label="Requerimientos abiertos" value={totalRequirementsVisible.toLocaleString()} icon="assignment" tone="secondary" />
+                <MetricCard label="Clientes visibles" value={visibleClientsDetailed.length.toLocaleString()} icon="apartment" tone="tertiary" />
+                <MetricCard
+                  label="Fase con mas candidatos"
+                  value={topStage?.count?.toLocaleString?.() ?? '0'}
+                  icon="insights"
+                  tone="neutral"
+                  sublabel={topStage ? topStage.name : 'Sin datos'}
+                />
+              </div>
+
+              {/* 2. Filtros de reporte */}
               <section className="bg-surface-container-lowest rounded-3xl border border-outline-variant/10 shadow-[0_2px_18px_rgba(24,28,30,0.06)] p-6 md:p-7 space-y-6">
                 <div>
                   <h2 className="text-xl font-bold text-primary">Filtros</h2>
@@ -517,54 +617,7 @@ export default function Reports() {
                 </div>
               </section>
 
-              <section className="space-y-4">
-                <div>
-                  <h2 className="text-xl font-bold text-primary">Detalle por cliente</h2>
-                  <p className="text-sm text-on-surface-variant mt-1">Solo se muestran clientes con requerimientos abiertos y las fases principales.</p>
-                </div>
-
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                  {visibleClientsDetailed.map(client => (
-                    <article key={client.clientId} className="rounded-3xl border border-outline-variant/10 bg-surface-container-lowest shadow-[0_2px_18px_rgba(24,28,30,0.06)] overflow-hidden">
-                      <div className="px-6 py-5 border-b border-outline-variant/10 bg-gradient-to-r from-surface-container/60 to-transparent">
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
-                            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-on-surface-variant/70">Cliente</p>
-                            <h3 className="mt-1 text-xl font-bold text-primary">{client.clientName}</h3>
-                          </div>
-                          <div className="flex gap-2">
-                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold">
-                              {client.requirementCount} req
-                            </span>
-                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-bold">
-                              {client.candidateCount} cand
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="p-6 space-y-3">
-                        {client.stages.length === 0 ? (
-                          <div className="rounded-2xl border border-dashed border-outline-variant/25 bg-surface-container/40 px-4 py-4 text-sm text-on-surface-variant">
-                            Este cliente no tiene fases configuradas.
-                          </div>
-                        ) : (
-                          client.stages.map(stage => (
-                            <div key={stage.name} className="flex items-center justify-between gap-3 rounded-2xl border border-outline-variant/10 bg-surface-container px-4 py-3">
-                              <div className="flex items-center gap-2 min-w-0">
-                                <span className="inline-block w-3 h-3 rounded-full border border-white/60 shrink-0" style={{ backgroundColor: stage.color }}></span>
-                                <span className="text-sm font-semibold text-primary truncate">{stage.name}</span>
-                              </div>
-                              <span className="text-sm font-bold text-on-surface-variant">{stage.count}</span>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </section>
-
+              {/* 3. Tipos de reporte: General, Por cliente, Por requerimiento */}
               <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
                 <section className="bg-surface-container-lowest rounded-3xl border border-outline-variant/10 shadow-[0_2px_18px_rgba(24,28,30,0.06)] p-6 md:p-7 space-y-5">
                   <div>
@@ -643,19 +696,129 @@ export default function Reports() {
                 </section>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                <MetricCard label="Candidatos totales" value={totalCandidatesGeneral.toLocaleString()} icon="group" tone="primary" />
-                <MetricCard label="Requerimientos abiertos" value={totalRequirementsVisible.toLocaleString()} icon="assignment" tone="secondary" />
-                <MetricCard label="Clientes visibles" value={visibleClientsDetailed.length.toLocaleString()} icon="apartment" tone="tertiary" />
-                <MetricCard
-                  label="Fase con mas candidatos"
-                  value={topStage?.count?.toLocaleString?.() ?? '0'}
-                  icon="insights"
-                  tone="neutral"
-                  sublabel={topStage ? topStage.name : 'Sin datos'}
-                />
-              </div>
+              {/* 4. Weekly Submittals */}
+              <section className="bg-surface-container-lowest rounded-3xl border border-outline-variant/10 shadow-[0_2px_18px_rgba(24,28,30,0.06)] p-6 md:p-7 space-y-5">
+                <div className="flex items-start justify-between gap-4 flex-wrap">
+                  <div>
+                    <h2 className="text-xl font-bold text-primary">Weekly Submittals</h2>
+                    <p className="text-sm text-on-surface-variant mt-1">Candidatos enviados a cliente (fase "Submitted to Client") en la semana seleccionada.</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Semana del</label>
+                    <input
+                      type="date"
+                      value={selectedWeek}
+                      onChange={e => setSelectedWeek(e.target.value)}
+                      className="px-3 py-2 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                    />
+                  </div>
+                </div>
 
+                {weeklyLoading ? (
+                  <div className="flex items-center gap-2 py-4 text-on-surface-variant text-sm">
+                    <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                    Cargando…
+                  </div>
+                ) : weeklyError ? (
+                  <p className="text-sm text-red-400">{weeklyError}</p>
+                ) : weeklySubmittals.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-outline-variant/25 bg-surface-container/40 px-4 py-6 text-sm text-on-surface-variant text-center">
+                    Sin candidatos enviados a cliente en esta semana.
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto rounded-2xl border border-outline-variant/10">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="bg-surface-container border-b border-outline-variant/10">
+                          <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Candidato</th>
+                          <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Cliente</th>
+                          <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Requerimiento</th>
+                          <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Posición</th>
+                          <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Fecha enviado</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {weeklySubmittals.map((row, i) => (
+                          <tr key={row.id} className={i % 2 === 0 ? 'bg-surface-container-lowest' : 'bg-surface-container/30'}>
+                            <td className="px-4 py-3 font-semibold text-primary">{row.candidateName}</td>
+                            <td className="px-4 py-3 text-on-surface-variant">{row.clientName}</td>
+                            <td className="px-4 py-3 text-on-surface-variant font-mono text-xs">REQ-{String(row.reqNumber).padStart(3, '0')}</td>
+                            <td className="px-4 py-3 text-on-surface-variant">{row.jobTitle}</td>
+                            <td className="px-4 py-3 text-on-surface-variant">{fmtDate(row.sentAt)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant text-xs font-bold self-center">
+                    {weeklySubmittals.length} candidato{weeklySubmittals.length !== 1 ? 's' : ''}
+                  </span>
+                  <button onClick={handleWeeklyPreview} disabled={weeklyLoading} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50">
+                    <span className="material-symbols-outlined text-[16px]">visibility</span>
+                    Vista previa
+                  </button>
+                  <button onClick={handleWeeklyDownload} disabled={weeklyLoading} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50">
+                    <span className="material-symbols-outlined text-[16px]">download</span>
+                    Descargar
+                  </button>
+                  <button onClick={handleWeeklyPrint} disabled={weeklyLoading} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50">
+                    <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+                    Imprimir PDF
+                  </button>
+                </div>
+              </section>
+
+              {/* 5. Detalle por cliente */}
+              <section className="space-y-4">
+                <div>
+                  <h2 className="text-xl font-bold text-primary">Detalle por cliente</h2>
+                  <p className="text-sm text-on-surface-variant mt-1">Solo se muestran clientes con requerimientos abiertos y las fases principales.</p>
+                </div>
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                  {visibleClientsDetailed.map(client => (
+                    <article key={client.clientId} className="rounded-3xl border border-outline-variant/10 bg-surface-container-lowest shadow-[0_2px_18px_rgba(24,28,30,0.06)] overflow-hidden">
+                      <div className="px-6 py-5 border-b border-outline-variant/10 bg-gradient-to-r from-surface-container/60 to-transparent">
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-on-surface-variant/70">Cliente</p>
+                            <h3 className="mt-1 text-xl font-bold text-primary">{client.clientName}</h3>
+                          </div>
+                          <div className="flex gap-2">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold">
+                              {client.requirementCount} req
+                            </span>
+                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-bold">
+                              {client.candidateCount} cand
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-6 space-y-3">
+                        {client.stages.length === 0 ? (
+                          <div className="rounded-2xl border border-dashed border-outline-variant/25 bg-surface-container/40 px-4 py-4 text-sm text-on-surface-variant">
+                            Este cliente no tiene fases configuradas.
+                          </div>
+                        ) : (
+                          client.stages.map(stage => (
+                            <div key={stage.name} className="flex items-center justify-between gap-3 rounded-2xl border border-outline-variant/10 bg-surface-container px-4 py-3">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className="inline-block w-3 h-3 rounded-full border border-white/60 shrink-0" style={{ backgroundColor: stage.color }}></span>
+                                <span className="text-sm font-semibold text-primary truncate">{stage.name}</span>
+                              </div>
+                              <span className="text-sm font-bold text-on-surface-variant">{stage.count}</span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </section>
+
+              {/* 6. Distribución global por fase */}
               <section className="bg-surface-container-lowest rounded-3xl border border-outline-variant/10 shadow-[0_2px_18px_rgba(24,28,30,0.06)] p-6 md:p-7 space-y-5">
                 <div className="flex items-center justify-between gap-4">
                   <div>
@@ -666,7 +829,6 @@ export default function Reports() {
                     {totalClientCandidatesVisible} candidatos ligados a requerimientos
                   </span>
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
                   {visibleStageTotals.map(stage => (
                     <div key={stage.name} className="rounded-2xl border border-outline-variant/10 bg-surface-container p-4">

@@ -153,7 +153,7 @@ export async function addCandidateToRequirement(requirementId, candidateId, firs
 export async function updateCandidateStage(rcId, stage) {
   const { error } = await supabase
     .from('requirement_candidate')
-    .update({ submittal_status: stage })
+    .update({ submittal_status: stage, stage_updated_at: new Date().toISOString() })
     .eq('id', rcId)
   if (error) throw error
 }

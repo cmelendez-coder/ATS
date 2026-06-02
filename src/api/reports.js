@@ -205,6 +205,35 @@ export async function getClientReportPdfData(clientId) {
   }
 }
 
+export async function getWeeklySubmittalsData(weekStart, weekEnd) {
+  const { data, error } = await supabase
+    .from('requirement_candidate')
+    .select(`
+      id, submitted_at, stage_updated_at, submittal_status, notes,
+      candidate:candidate_id(full_name, email, role:role_id(name), seniority:seniority_id(name)),
+      requirement:requirement_id(id, req_number, job_title, client:client_id(name))
+    `)
+    .ilike('submittal_status', 'submitted to client')
+    .gte('stage_updated_at', weekStart)
+    .lte('stage_updated_at', weekEnd)
+    .order('stage_updated_at', { ascending: true })
+
+  if (error) throw error
+
+  return (data ?? []).map(rc => ({
+    id: rc.id,
+    candidateName: rc.candidate?.full_name ?? 'Sin nombre',
+    candidateEmail: rc.candidate?.email ?? '',
+    role: rc.candidate?.role?.name ?? '',
+    seniority: rc.candidate?.seniority?.name ?? '',
+    clientName: rc.requirement?.client?.name ?? 'Sin cliente',
+    reqNumber: rc.requirement?.req_number ?? '',
+    jobTitle: rc.requirement?.job_title ?? '',
+    sentAt: rc.stage_updated_at,
+    notes: rc.notes ?? '',
+  }))
+}
+
 export async function getRequirementReportPdfData(requirementId) {
   const { data, error } = await supabase
     .from('requirement')

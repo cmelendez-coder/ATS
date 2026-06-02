@@ -333,14 +333,19 @@ export default function Reports() {
   }
 
   function getWeekLabel(mondayStr) {
-    const { sundayStr } = getWeekRange(mondayStr)
-    return `${fmtDate(mondayStr)} – ${fmtDate(sundayStr)}`
+    const weekNum = WEEKS_2026.findIndex(w => w.value === mondayStr) + 1
+    const [y, mo, d] = mondayStr.split('-').map(Number)
+    const start = new Date(y, mo - 1, d)
+    const end = new Date(y, mo - 1, d + 6)
+    const startFmt = start.toLocaleDateString('es-MX', { day: 'numeric', month: 'long' })
+    const endFmt = end.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })
+    return `Semana ${weekNum > 0 ? weekNum : ''}: del ${startFmt} al ${endFmt}`
   }
 
   function handleWeeklyPreview() {
     const weekLabel = getWeekLabel(selectedWeek)
     const title = 'Weekly Submittals'
-    const subtitle = `Candidatos enviados a cliente del ${weekLabel}`
+    const subtitle = `Candidatos enviados a cliente en la ${weekLabel}`
     const bodyHtml = buildWeeklyBody(weeklySubmittals, weekLabel)
     openPreview(title, subtitle, bodyHtml, () =>
       downloadReportHtml({ filename: `weekly-submittals-${selectedWeek}.html`, title, subtitle, bodyHtml })
@@ -350,7 +355,7 @@ export default function Reports() {
   function handleWeeklyDownload() {
     const weekLabel = getWeekLabel(selectedWeek)
     const title = 'Weekly Submittals'
-    const subtitle = `Candidatos enviados a cliente del ${weekLabel}`
+    const subtitle = `Candidatos enviados a cliente en la ${weekLabel}`
     const bodyHtml = buildWeeklyBody(weeklySubmittals, weekLabel)
     downloadReportHtml({ filename: `weekly-submittals-${selectedWeek}.html`, title, subtitle, bodyHtml })
   }
@@ -358,7 +363,7 @@ export default function Reports() {
   function handleWeeklyPrint() {
     const weekLabel = getWeekLabel(selectedWeek)
     const title = 'Weekly Submittals'
-    const subtitle = `Candidatos enviados a cliente del ${weekLabel}`
+    const subtitle = `Candidatos enviados a cliente en la ${weekLabel}`
     const bodyHtml = buildWeeklyBody(weeklySubmittals, weekLabel)
     openPrintableReport({ title, subtitle, bodyHtml })
   }

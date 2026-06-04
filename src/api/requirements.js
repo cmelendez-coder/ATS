@@ -136,26 +136,54 @@ export async function getRequirementCandidates(requirementId) {
 }
 
 export async function addCandidateToRequirement(requirementId, candidateId, firstStageName = 'Submitted') {
+  const now = new Date().toISOString()
   const { data, error } = await supabase
     .from('requirement_candidate')
     .insert({
       requirement_id:   requirementId,
       candidate_id:     candidateId,
-      submitted_at:     new Date().toISOString(),
+      submitted_at:     now,
       submittal_status: firstStageName,
+      stage_updated_at: now,
     })
     .select('id')
     .single()
   if (error) throw error
+
+  await supabase.from('requirement_candidate_stage_history').insert({
+    rc_id:          data.id,
+    candidate_id:   candidateId,
+    requirement_id: requirementId,
+    stage_name:     firstStageName,
+    entered_at:     now,
+  })
+
   return data
 }
 
 export async function updateCandidateStage(rcId, stage) {
+  const now = new Date().toISOString()
+
+  const { data: rc, error: fetchErr } = await supabase
+    .from('requirement_candidate')
+    .select('candidate_id, requirement_id')
+    .eq('id', rcId)
+    .single()
+  if (fetchErr) throw fetchErr
+
   const { error } = await supabase
     .from('requirement_candidate')
-    .update({ submittal_status: stage, stage_updated_at: new Date().toISOString() })
+    .update({ submittal_status: stage, stage_updated_at: now })
     .eq('id', rcId)
   if (error) throw error
+
+  await supabase.from('requirement_candidate_stage_history').insert({
+    rc_id:          rcId,
+    candidate_id:   rc.candidate_id,
+    requirement_id: rc.requirement_id,
+    stage_name:     stage,
+    entered_at:     now,
+  })
 }
 
 export async function updateRequirementCandidateNotes(rcId, notes) {

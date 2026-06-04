@@ -106,7 +106,7 @@ export default function Reports() {
     const now = new Date()
     const monday = new Date(now)
     monday.setDate(now.getDate() - ((now.getDay() + 6) % 7))
-    return monday.toISOString().slice(0, 10)
+    return localDateStr(monday)
   })
 
   useEffect(() => {
@@ -369,11 +369,13 @@ export default function Reports() {
 
     const tableHtml = renderTable(
       `Detalle — ${weekLabel}`,
-      ['Candidato', 'Cliente', 'Posición', 'Fecha enviado'],
+      ['Candidato', 'Cliente', 'Requerimiento', 'Posición', 'Fase actual', 'Fecha enviado'],
       rows.map(row => [
         escapeHtml(toTitleCase(row.candidateName)),
         escapeHtml(row.clientName),
+        escapeHtml(`REQ-${String(row.reqNumber).padStart(3, '0')}`),
         escapeHtml(row.jobTitle),
+        escapeHtml(row.currentStage),
         escapeHtml(fmtDate(row.sentAt)),
       ]),
     )
@@ -822,6 +824,7 @@ export default function Reports() {
                           <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Cliente</th>
                           <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Requerimiento</th>
                           <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Posición</th>
+                          <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Fase actual</th>
                           <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Fecha enviado</th>
                         </tr>
                       </thead>
@@ -832,6 +835,11 @@ export default function Reports() {
                             <td className="px-4 py-3 text-on-surface-variant">{row.clientName}</td>
                             <td className="px-4 py-3 text-on-surface-variant font-mono text-xs">REQ-{String(row.reqNumber).padStart(3, '0')}</td>
                             <td className="px-4 py-3 text-on-surface-variant">{row.jobTitle}</td>
+                            <td className="px-4 py-3">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+                                {row.currentStage}
+                              </span>
+                            </td>
                             <td className="px-4 py-3 text-on-surface-variant">{fmtDate(row.sentAt)}</td>
                           </tr>
                         ))}

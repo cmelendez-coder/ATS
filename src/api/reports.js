@@ -206,31 +206,37 @@ export async function getClientReportPdfData(clientId) {
 }
 
 export async function getWeeklySubmittalsData(weekStart, weekEnd) {
+  // Query history table: candidates who entered "Submitted to Client" during the week
+  // Show their current stage from requirement_candidate
   const { data, error } = await supabase
-    .from('requirement_candidate')
+    .from('requirement_candidate_stage_history')
     .select(`
-      id, submitted_at, stage_updated_at, submittal_status, notes,
-      candidate:candidate_id(full_name, email, role:role_id(name), seniority:seniority_id(name)),
-      requirement:requirement_id(id, req_number, job_title, client:client_id(name))
+      id, stage_name, entered_at,
+      rc:requirement_candidate!rc_id(
+        id, submittal_status, notes,
+        candidate:candidate_id(full_name, email, role:role_id(name), seniority:seniority_id(name)),
+        requirement:requirement_id(id, req_number, job_title, client:client_id(name))
+      )
     `)
-    .ilike('submittal_status', 'submitted to client')
-    .gte('stage_updated_at', weekStart)
-    .lte('stage_updated_at', weekEnd)
-    .order('stage_updated_at', { ascending: true })
+    .ilike('stage_name', 'submitted to client')
+    .gte('entered_at', weekStart)
+    .lte('entered_at', weekEnd)
+    .order('entered_at', { ascending: true })
 
   if (error) throw error
 
-  return (data ?? []).map(rc => ({
-    id: rc.id,
-    candidateName: rc.candidate?.full_name ?? 'Sin nombre',
-    candidateEmail: rc.candidate?.email ?? '',
-    role: rc.candidate?.role?.name ?? '',
-    seniority: rc.candidate?.seniority?.name ?? '',
-    clientName: rc.requirement?.client?.name ?? 'Sin cliente',
-    reqNumber: rc.requirement?.req_number ?? '',
-    jobTitle: rc.requirement?.job_title ?? '',
-    sentAt: rc.stage_updated_at,
-    notes: rc.notes ?? '',
+  return (data ?? []).map(h => ({
+    id: h.id,
+    candidateName: h.rc?.candidate?.full_name ?? 'Sin nombre',
+    candidateEmail: h.rc?.candidate?.email ?? '',
+    role: h.rc?.candidate?.role?.name ?? '',
+    seniority: h.rc?.candidate?.seniority?.name ?? '',
+    clientName: h.rc?.requirement?.client?.name ?? 'Sin cliente',
+    reqNumber: h.rc?.requirement?.req_number ?? '',
+    jobTitle: h.rc?.requirement?.job_title ?? '',
+    sentAt: h.entered_at,
+    currentStage: h.rc?.submittal_status ?? '',
+    notes: h.rc?.notes ?? '',
   }))
 }
 

@@ -29,6 +29,53 @@ const REQUIREMENT_REPORT_SELECT = `
   requirement_candidate(id, submittal_status, submitted_at)
 `
 
+const REPORT_STAGE_PIVOTS = new Set([
+  'submitted to client',
+  'enviado al cliente',
+  'sent to client',
+])
+
+function normalizeStageName(name) {
+  return String(name ?? '').trim().toLowerCase().replace(/\s+/g, ' ')
+}
+
+function sortStagesByPipeline(stages = []) {
+  return [...stages].sort((a, b) => {
+    const posDiff = (a.position ?? Number.MAX_SAFE_INTEGER) - (b.position ?? Number.MAX_SAFE_INTEGER)
+    return posDiff !== 0 ? posDiff : (a.stage_id ?? 0) - (b.stage_id ?? 0)
+  })
+}
+
+function filterStagesFromSubmittedOnward(stages = []) {
+  const sortedStages = sortStagesByPipeline(stages)
+  const pivotStage = sortedStages.find(stage => REPORT_STAGE_PIVOTS.has(normalizeStageName(stage.name)))
+  if (!pivotStage) return sortedStages
+
+  const pivotPosition = pivotStage.position ?? Number.MAX_SAFE_INTEGER
+  return sortedStages.filter(stage => (stage.position ?? Number.MAX_SAFE_INTEGER) >= pivotPosition)
+}
+
+function createStageLookup(stages = []) {
+  return new Map(stages.map(stage => [normalizeStageName(stage.name), stage.name]))
+}
+
+function countCandidatesByVisibleStage(candidates = [], visibleStages = []) {
+  const canonicalStages = filterStagesFromSubmittedOnward(visibleStages)
+  const stageLookup = createStageLookup(canonicalStages)
+  const stageCounts = Object.fromEntries(canonicalStages.map(stage => [stage.name, 0]))
+
+  let candidateCount = 0
+  for (const candidate of candidates ?? []) {
+    const canonicalStageName = stageLookup.get(normalizeStageName(candidate.submittal_status))
+    if (!canonicalStageName) continue
+
+    stageCounts[canonicalStageName] = (stageCounts[canonicalStageName] ?? 0) + 1
+    candidateCount += 1
+  }
+
+  return { candidateCount, stageCounts, canonicalStages }
+}
+
 function isRequirementOpen(requirement) {
   const statusName = String(requirement.status?.name ?? '').toLowerCase()
   const stageName = String(requirement.stage ?? '').toLowerCase()
@@ -51,32 +98,22 @@ export async function getReportsSummary() {
   if (clientsError) throw clientsError
 
   const clientReports = (clients ?? []).map(client => {
-    const stages = [...(client.catalog_pipeline_stage ?? [])].sort((a, b) => {
-      const posDiff = (a.position ?? 0) - (b.position ?? 0)
-      return posDiff !== 0 ? posDiff : (a.stage_id ?? 0) - (b.stage_id ?? 0)
-    })
+    const stages = filterStagesFromSubmittedOnward(client.catalog_pipeline_stage ?? [])
 
     const openRequirements = (client.requirement ?? []).filter(isRequirementOpen)
-    const stageCounts = Object.fromEntries(stages.map(stage => [stage.name, 0]))
+    const { candidateCount, stageCounts } = countCandidatesByVisibleStage(
+      openRequirements.flatMap(requirement => requirement.requirement_candidate ?? []),
+      stages,
+    )
 
-    let candidateCount = 0
-    for (const requirement of openRequirements) {
-      for (const candidate of requirement.requirement_candidate ?? []) {
-        candidateCount += 1
-        const stageName = candidate.submittal_status ?? 'Sin fase'
-        stageCounts[stageName] = (stageCounts[stageName] ?? 0) + 1
-      }
-    }
-
-    const stageReport = Object.entries(stageCounts).map(([name, count]) => {
-      const stage = stages.find(item => item.name === name)
-      return {
-        name,
-        count,
-        color: stage?.color ?? '#64748B',
-        position: stage?.position ?? Number.MAX_SAFE_INTEGER,
-      }
-    }).sort((a, b) => a.position - b.position || a.name.localeCompare(b.name))
+    const stageReport = stages.map(stage => ({
+      name: stage.name,
+      count: stageCounts[stage.name] ?? 0,
+      color: stage.color ?? '#64748B',
+      position: stage.position ?? Number.MAX_SAFE_INTEGER,
+    }))
+      .filter(stage => stage.count > 0)
+      .sort((a, b) => a.position - b.position || a.name.localeCompare(b.name))
 
     return {
       clientId: client.id,
@@ -90,12 +127,8 @@ export async function getReportsSummary() {
         applicationDate: requirement.application_date,
         targetFillDate: requirement.target_fill_date,
         statusName: requirement.status?.name ?? '',
-        candidateCount: requirement.requirement_candidate?.length ?? 0,
-        stageCounts: (requirement.requirement_candidate ?? []).reduce((acc, candidate) => {
-          const stageName = candidate.submittal_status ?? 'Sin fase'
-          acc[stageName] = (acc[stageName] ?? 0) + 1
-          return acc
-        }, {}),
+        candidateCount: countCandidatesByVisibleStage(requirement.requirement_candidate ?? [], stages).candidateCount,
+        stageCounts: countCandidatesByVisibleStage(requirement.requirement_candidate ?? [], stages).stageCounts,
       })),
       stages: stageReport,
     }
@@ -113,21 +146,15 @@ export async function getReportsSummary() {
 
   const stageTotals = Object.values(totalsByStage)
     .filter(stage => stage.count > 0)
-    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
-
-  const primaryStageNames = stageTotals.slice(0, 5).map(stage => stage.name)
-  const filteredClients = clientReports.map(client => ({
-    ...client,
-    stages: client.stages.filter(stage => primaryStageNames.includes(stage.name) && stage.count > 0),
-  }))
+    .sort((a, b) => a.position - b.position || a.name.localeCompare(b.name))
 
   return {
     totalCandidates: totalCandidates ?? 0,
-    totalRequirements: filteredClients.reduce((sum, client) => sum + client.requirementCount, 0),
-    totalClients: filteredClients.length,
-    totalClientCandidates: filteredClients.reduce((sum, client) => sum + client.candidateCount, 0),
+    totalRequirements: clientReports.reduce((sum, client) => sum + client.requirementCount, 0),
+    totalClients: clientReports.length,
+    totalClientCandidates: clientReports.reduce((sum, client) => sum + client.candidateCount, 0),
     stageTotals,
-    clients: filteredClients,
+    clients: clientReports,
   }
 }
 
@@ -162,17 +189,14 @@ export async function getClientReportPdfData(clientId) {
 
   if (error) throw error
 
-  const stages = [...(data.catalog_pipeline_stage ?? [])].sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+  const stages = filterStagesFromSubmittedOnward(data.catalog_pipeline_stage ?? [])
   const openRequirements = (data.requirement ?? []).filter(isRequirementOpen)
-  const stageCounts = Object.fromEntries(stages.map(stage => [stage.name, 0]))
+  const { candidateCount, stageCounts } = countCandidatesByVisibleStage(
+    openRequirements.flatMap(requirement => requirement.requirement_candidate ?? []),
+    stages,
+  )
 
   const requirements = openRequirements.map(requirement => {
-    const candidateCount = requirement.requirement_candidate?.length ?? 0
-    for (const candidate of requirement.requirement_candidate ?? []) {
-      const stageName = candidate.submittal_status ?? 'Sin fase'
-      stageCounts[stageName] = (stageCounts[stageName] ?? 0) + 1
-    }
-
     return {
       id: requirement.id,
       reqNumber: requirement.req_number,
@@ -180,7 +204,7 @@ export async function getClientReportPdfData(clientId) {
       statusName: requirement.status?.name ?? 'Sin status',
       applicationDate: requirement.application_date,
       targetFillDate: requirement.target_fill_date,
-      candidateCount,
+      candidateCount: countCandidatesByVisibleStage(requirement.requirement_candidate ?? [], stages).candidateCount,
     }
   })
 
@@ -189,16 +213,13 @@ export async function getClientReportPdfData(clientId) {
     clientName: data.name,
     requirementCount: requirements.length,
     candidateCount: requirements.reduce((sum, requirement) => sum + requirement.candidateCount, 0),
-    stages: Object.entries(stageCounts)
-      .map(([name, count]) => {
-        const stage = stages.find(item => item.name === name)
-        return {
-          name,
-          count,
-          color: stage?.color ?? '#64748B',
-          position: stage?.position ?? Number.MAX_SAFE_INTEGER,
-        }
-      })
+    stages: stages
+      .map(stage => ({
+        name: stage.name,
+        count: stageCounts[stage.name] ?? 0,
+        color: stage.color ?? '#64748B',
+        position: stage.position ?? Number.MAX_SAFE_INTEGER,
+      }))
       .filter(stage => stage.count > 0)
       .sort((a, b) => a.position - b.position || a.name.localeCompare(b.name)),
     requirements,
@@ -257,11 +278,11 @@ export async function getRequirementReportPdfData(requirementId) {
 
   if (stagesError) throw stagesError
 
-  const stageCounts = Object.fromEntries((stages ?? []).map(stage => [stage.name, 0]))
-  for (const candidate of data.requirement_candidate ?? []) {
-    const stageName = candidate.submittal_status ?? 'Sin fase'
-    stageCounts[stageName] = (stageCounts[stageName] ?? 0) + 1
-  }
+  const visibleStages = filterStagesFromSubmittedOnward(stages ?? [])
+  const { candidateCount, stageCounts } = countCandidatesByVisibleStage(
+    data.requirement_candidate ?? [],
+    visibleStages,
+  )
 
   return {
     id: data.id,
@@ -271,17 +292,14 @@ export async function getRequirementReportPdfData(requirementId) {
     statusName: data.status?.name ?? 'Sin status',
     applicationDate: data.application_date,
     targetFillDate: data.target_fill_date,
-    candidateCount: data.requirement_candidate?.length ?? 0,
-    stages: Object.entries(stageCounts)
-      .map(([name, count]) => {
-        const stage = (stages ?? []).find(item => item.name === name)
-        return {
-          name,
-          count,
-          color: stage?.color ?? '#64748B',
-          position: stage?.position ?? Number.MAX_SAFE_INTEGER,
-        }
-      })
+    candidateCount,
+    stages: visibleStages
+      .map(stage => ({
+        name: stage.name,
+        count: stageCounts[stage.name] ?? 0,
+        color: stage.color ?? '#64748B',
+        position: stage.position ?? Number.MAX_SAFE_INTEGER,
+      }))
       .filter(stage => stage.count > 0)
       .sort((a, b) => a.position - b.position || a.name.localeCompare(b.name)),
   }

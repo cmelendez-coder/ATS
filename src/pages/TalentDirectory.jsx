@@ -48,29 +48,6 @@ function englishLabel(score) {
   return 'A2'
 }
 
-function formatDate(value) {
-  if (!value) return '—'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return '—'
-  return date.toLocaleDateString('es-MX', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  })
-}
-
-function getLastContactDate(candidate) {
-  if (candidate?.last_contact_date) return candidate.last_contact_date
-  const availability = candidate?.candidate_availability
-  if (!Array.isArray(availability) || availability.length === 0) return null
-
-  return [...availability]
-    .sort((a, b) => {
-      const aTime = a?.recorded_at ? new Date(a.recorded_at).getTime() : 0
-      const bTime = b?.recorded_at ? new Date(b.recorded_at).getTime() : 0
-      return bTime - aTime
-    })[0]?.last_contact_date ?? null
-}
 
 export default function TalentDirectory() {
   const { can } = usePermissions()
@@ -316,10 +293,10 @@ export default function TalentDirectory() {
                 <table className="min-w-[1140px] w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-surface-container-low">
-                      {['Name / E-mail', 'Technology', 'English', 'YoE', 'Location', 'Last Contact'].map(h => (
+                      {['Name / E-mail', 'Technology', 'English', 'YoE', 'Location'].map(h => (
                         <th
                           key={h}
-                          className={`py-3.5 px-5 text-[11px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap ${h === 'Last Contact' ? 'min-w-[150px]' : ''}`}
+                          className="py-3.5 px-5 text-[11px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap"
                         >
                           {h}
                         </th>
@@ -383,22 +360,38 @@ export default function TalentDirectory() {
                             </span>
                           </td>
 
-                          {/* Last Contact */}
-                          <td className="py-4 px-5 whitespace-nowrap">
-                            {(() => {
-                              const d = getLastContactDate(c)
-                              return d
-                                ? <span className="flex items-center gap-1.5 text-sm text-on-surface-variant">
-                                    <span className="material-symbols-outlined text-[14px] text-on-surface-variant/60">calendar_month</span>
-                                    {formatDate(d)}
-                                  </span>
-                                : <span className="text-xs text-on-surface-variant/40">—</span>
-                            })()}
-                          </td>
-
                           {/* Actions — sticky right */}
                           <td className="py-4 px-4 sticky right-0 bg-surface-container-lowest z-10 shadow-[-8px_0_12px_rgba(0,0,0,0.15)] group-hover:bg-surface-container/80">
                             <div className="flex items-center gap-1.5">
+                              {c.linkedin_url && (
+                                <a
+                                  href={c.linkedin_url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  title="Ver LinkedIn"
+                                  className="p-1.5 rounded-lg hover:bg-blue-500/10 transition-colors"
+                                  style={{ color: '#0077B5' }}
+                                >
+                                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                                  </svg>
+                                </a>
+                              )}
+                              {c.cv_url && (
+                                <a
+                                  href={c.cv_url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  title="Ver CV en Google Drive"
+                                  className="p-1.5 rounded-lg hover:bg-surface-container-high transition-colors"
+                                >
+                                  <svg viewBox="0 0 24 24" className="w-4 h-4">
+                                    <path d="M12 2L2 21l10-8z" fill="#00AC47"/>
+                                    <path d="M12 2l10 19-10-8z" fill="#FBBC04"/>
+                                    <path d="M2 21h20l-10-8z" fill="#4285F4"/>
+                                  </svg>
+                                </a>
+                              )}
                               {c.phone && (
                                 <a
                                   href={`https://wa.me/${c.phone.replace(/\D/g, '')}`}

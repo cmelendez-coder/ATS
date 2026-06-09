@@ -18,7 +18,7 @@ export async function searchCandidates({ q = '', tech = '', englishMin = '', eng
     .from('candidate')
     .select(`
       candidate_id, candidate_code, full_name, email, phone,
-      english_score, years_experience,
+      english_score, years_experience, cv_url, linkedin_url,
       status:catalog_status!status_id(name),
       seniority:catalog_seniority!seniority_id(name),
       location:catalog_location!location_id(name),

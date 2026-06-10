@@ -228,12 +228,6 @@ export default function Reports() {
 
   function buildGeneralBody(stageTotals, clients, totals) {
     return [
-      renderMetricCards([
-        { label: 'Candidatos totales', value: totals.candidates.toLocaleString() },
-        { label: 'Requerimientos abiertos', value: totals.requirements.toLocaleString() },
-        { label: 'Clientes visibles', value: totals.clients.toLocaleString() },
-        { label: 'Candidatos visibles', value: totals.visibleCandidates.toLocaleString() },
-      ]),
       renderStageList('Fases principales', stageTotals),
       renderTable(
         'Resumen por cliente',

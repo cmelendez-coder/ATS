@@ -13,9 +13,10 @@ import {
 
 /* ── helpers ── */
 const PRIORITY = {
-  1: { label: 'Low',    bg: 'bg-blue-500/15',  text: 'text-blue-300',  border: 'border-blue-500/25' },
-  2: { label: 'Medium', bg: 'bg-amber-500/15', text: 'text-amber-300', border: 'border-amber-500/25' },
-  3: { label: 'High',   bg: 'bg-red-500/15',   text: 'text-red-400',   border: 'border-red-500/25' },
+  0: { label: 'Alta',  bg: 'bg-red-500/15',    text: 'text-red-400',    border: 'border-red-500/25' },
+  1: { label: 'Media', bg: 'bg-amber-500/15',  text: 'text-amber-300',  border: 'border-amber-500/25' },
+  2: { label: 'Baja',  bg: 'bg-blue-500/15',   text: 'text-blue-300',   border: 'border-blue-500/25' },
+  3: { label: 'Pausa', bg: 'bg-surface-variant/50', text: 'text-on-surface-variant', border: 'border-outline-variant/30' },
 }
 
 const CLIENT_LOGOS = {

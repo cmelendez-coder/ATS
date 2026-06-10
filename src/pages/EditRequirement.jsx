@@ -8,7 +8,7 @@ export default function EditRequirement() {
   const { id } = useParams()
   const navigate = useNavigate()
 
-  const [priority, setPriority] = useState(2)
+  const [priority, setPriority] = useState(1)
   const [charCount, setCharCount] = useState(0)
   const [loading, setLoading] = useState(false)
   const [initialLoading, setInitialLoading] = useState(true)
@@ -223,7 +223,7 @@ export default function EditRequirement() {
                   <div>
                     <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Priority <span className="text-error">*</span></label>
                     <div className="flex bg-surface-container p-1 rounded-xl">
-                      {[{ v: 1, l: 'Low' }, { v: 2, l: 'Med' }, { v: 3, l: 'High' }].map(({ v, l }) => (
+                      {[{ v: 0, l: 'Alta' }, { v: 1, l: 'Media' }, { v: 2, l: 'Baja' }, { v: 3, l: 'Pausa' }].map(({ v, l }) => (
                         <button
                           key={v}
                           type="button"

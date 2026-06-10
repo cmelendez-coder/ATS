@@ -13,7 +13,7 @@ const DURATION_OPTIONS = ['Permanent', '3 Months', '6 Months', '12 Months', 'Con
 export default function NewRequirement() {
   const navigate            = useNavigate()
   const { session }         = useAuth()
-  const [priority, setPriority]     = useState(2)
+  const [priority, setPriority]     = useState(1)
   const [charCount, setCharCount]   = useState(0)
   const [loading, setLoading]       = useState(false)
   const [error, setError]           = useState(null)
@@ -229,7 +229,7 @@ export default function NewRequirement() {
                   <div>
                     <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Priority <span className="text-error">*</span></label>
                     <div className="flex bg-surface-container p-1 rounded-xl">
-                      {[{ v: 1, l: 'Low' }, { v: 2, l: 'Med' }, { v: 3, l: 'High' }].map(({ v, l }) => (
+                      {[{ v: 0, l: 'Alta' }, { v: 1, l: 'Media' }, { v: 2, l: 'Baja' }, { v: 3, l: 'Pausa' }].map(({ v, l }) => (
                         <button
                           key={v} type="button"
                           className={`priority-btn flex-1 py-1.5 text-xs rounded-lg transition-all focus:outline-none ${priority === v ? 'active text-primary' : 'font-medium text-on-surface-variant hover:text-primary'}`}

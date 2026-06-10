@@ -6,9 +6,10 @@ import { getDashboardStats } from '../api/dashboard'
 import RequirementAlertBell from '../components/RequirementAlertBell'
 
 const PRIORITY = {
-  1: { label: 'Low',  bg: 'bg-surface-variant',       text: 'text-on-surface-variant', dot: 'bg-outline' },
-  2: { label: 'Med',  bg: 'bg-secondary-container',    text: 'text-on-secondary-container', dot: 'bg-secondary' },
-  3: { label: 'High', bg: 'bg-error-container',        text: 'text-on-error-container', dot: 'bg-error' },
+  0: { label: 'Alta',  bg: 'bg-error-container',        text: 'text-on-error-container',        dot: 'bg-error' },
+  1: { label: 'Media', bg: 'bg-secondary-container',    text: 'text-on-secondary-container',    dot: 'bg-secondary' },
+  2: { label: 'Baja',  bg: 'bg-surface-variant',        text: 'text-on-surface-variant',         dot: 'bg-outline' },
+  3: { label: 'Pausa', bg: 'bg-surface-container',      text: 'text-on-surface-variant/60',      dot: 'bg-outline-variant' },
 }
 
 function fmt(dateStr) {

@@ -203,7 +203,7 @@ export default function AddTalent() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div className="form-input-container">
                   <input className="form-input rounded-t-lg" id="primaryTech" name="primaryTech" placeholder=" " type="text" />
-                  <label className="form-label" htmlFor="primaryTech">Primary Technology</label>
+                  <label className="form-label" htmlFor="primaryTech">Technologies</label>
                 </div>
                 <div className="form-input-container">
                   <input className="form-input rounded-t-lg" id="role" name="role" placeholder=" " type="text" />
@@ -278,7 +278,7 @@ export default function AddTalent() {
                   <div className="form-input-container">
                     <select className="form-input rounded-t-lg appearance-none cursor-pointer" id="scheme" name="scheme" defaultValue="">
                       <option disabled value=""></option>
-                      <option value="Contract">Contract</option>
+                      <option value="Contractor">Contractor</option>
                       <option value="Full-Time">Full-Time</option>
                     </select>
                     <label className="form-label" htmlFor="scheme">Preferred Scheme</label>

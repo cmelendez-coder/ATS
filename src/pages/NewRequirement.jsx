@@ -229,7 +229,7 @@ export default function NewRequirement() {
                   <div>
                     <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Priority <span className="text-error">*</span></label>
                     <div className="flex bg-surface-container p-1 rounded-xl">
-                      {[{ v: 0, l: 'Alta' }, { v: 1, l: 'Media' }, { v: 2, l: 'Baja' }, { v: 3, l: 'Pausa' }].map(({ v, l }) => (
+                      {[{ v: 0, l: '0' }, { v: 1, l: '1' }, { v: 2, l: '2' }, { v: 3, l: 'On hold' }].map(({ v, l }) => (
                         <button
                           key={v} type="button"
                           className={`priority-btn flex-1 py-1.5 text-xs rounded-lg transition-all focus:outline-none ${priority === v ? 'active text-primary' : 'font-medium text-on-surface-variant hover:text-primary'}`}

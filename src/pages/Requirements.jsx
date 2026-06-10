@@ -13,10 +13,10 @@ import {
 
 /* ── helpers ── */
 const PRIORITY = {
-  0: { label: 'Alta',  bg: 'bg-red-500/15',    text: 'text-red-400',    border: 'border-red-500/25' },
-  1: { label: 'Media', bg: 'bg-amber-500/15',  text: 'text-amber-300',  border: 'border-amber-500/25' },
-  2: { label: 'Baja',  bg: 'bg-blue-500/15',   text: 'text-blue-300',   border: 'border-blue-500/25' },
-  3: { label: 'Pausa', bg: 'bg-surface-variant/50', text: 'text-on-surface-variant', border: 'border-outline-variant/30' },
+  0: { label: '0',       bg: 'bg-red-500/15',    text: 'text-red-400',    border: 'border-red-500/25' },
+  1: { label: '1',       bg: 'bg-amber-500/15',  text: 'text-amber-300',  border: 'border-amber-500/25' },
+  2: { label: '2',       bg: 'bg-blue-500/15',   text: 'text-blue-300',   border: 'border-blue-500/25' },
+  3: { label: 'On hold', bg: 'bg-surface-variant/50', text: 'text-on-surface-variant', border: 'border-outline-variant/30' },
 }
 
 const CLIENT_LOGOS = {
@@ -834,7 +834,7 @@ function PendingApprovalsSection({ onApproved }) {
                       {`REQ-${new Date(req.created_at).getFullYear()}-${String(req.req_number ?? 0).padStart(3, '0')}`}
                     </span>
                     <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${PRI_BADGE[req.priority] ?? PRI_BADGE[2]}`}>
-                      {pri.label}
+                      Prioridad: {pri.label}
                     </span>
                   </div>
                   <p className="text-sm font-bold text-white truncate">{req.job_title}</p>
@@ -1114,7 +1114,7 @@ export default function Requirements() {
                               {/* Priority pill */}
                               <div className="lg:col-span-1 flex items-center">
                                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wide whitespace-nowrap ${pri.bg} ${pri.text} ${pri.border}`}>
-                                  {pri.label}
+                                  Prioridad: {pri.label}
                                 </span>
                               </div>
 

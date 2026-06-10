@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { createCandidate } from '../api/talent'
+import { createCandidate, fetchClientsSimple, fetchRequirementsByClient, fetchStagesByClient } from '../api/talent'
 
 export default function AddTalent() {
   const navigate = useNavigate()
@@ -10,6 +10,32 @@ export default function AddTalent() {
   const [addingSkill, setAddingSkill] = useState(false)
   const [loading, setLoading]       = useState(false)
   const [error, setError]           = useState(null)
+
+  const [clients, setClients]                   = useState([])
+  const [requirements, setRequirements]         = useState([])
+  const [stages, setStages]                     = useState([])
+  const [selectedClientId, setSelectedClientId] = useState('')
+  const [selectedReqId, setSelectedReqId]       = useState('')
+  const [selectedStage, setSelectedStage]       = useState('')
+
+  useEffect(() => {
+    fetchClientsSimple().then(setClients).catch(() => {})
+  }, [])
+
+  async function handleClientChange(clientId) {
+    setSelectedClientId(clientId)
+    setSelectedReqId('')
+    setSelectedStage('')
+    setRequirements([])
+    setStages([])
+    if (!clientId) return
+    const [reqs, stgs] = await Promise.all([
+      fetchRequirementsByClient(Number(clientId)),
+      fetchStagesByClient(Number(clientId)),
+    ])
+    setRequirements(reqs)
+    setStages(stgs)
+  }
 
   function removeSkill(skill) {
     setSkills(prev => prev.filter(s => s !== skill))
@@ -27,6 +53,9 @@ export default function AddTalent() {
     setLoading(true)
     setError(null)
 
+    if (!selectedClientId) { setError('Selecciona un cliente.'); setLoading(false); return }
+    if (!selectedReqId)     { setError('Selecciona una posición.'); setLoading(false); return }
+
     const fd = new FormData(e.currentTarget)
 
     // Combine primary tech field + skills tags into the technologies array
@@ -37,19 +66,21 @@ export default function AddTalent() {
 
     try {
       await createCandidate({
-        fullName:         fd.get('fullName'),
-        email:            fd.get('email'),
-        phone:            fd.get('phone'),
-        location:         fd.get('location'),
-        linkedin:         fd.get('linkedin'),
-        cvUrl:            fd.get('cvUrl'),
-        role:             fd.get('role'),
-        yearsExp:         fd.get('experience'),
-        technologies:     techList,
-        skillset:         skills.join(', '),
-        englishLevel:     fd.get('englishLevel'),
-        scheme:           fd.get('scheme'),
+        fullName:          fd.get('fullName'),
+        email:             fd.get('email'),
+        phone:             fd.get('phone'),
+        location:          fd.get('location'),
+        linkedin:          fd.get('linkedin'),
+        cvUrl:             fd.get('cvUrl'),
+        role:              fd.get('role'),
+        yearsExp:          fd.get('experience'),
+        technologies:      techList,
+        skillset:          skills.join(', '),
+        englishLevel:      fd.get('englishLevel'),
+        scheme:            fd.get('scheme'),
         salaryExpectation: fd.get('expectations'),
+        requirementId:     Number(selectedReqId),
+        stageName:         selectedStage || null,
       })
       navigate('/talent')
     } catch (err) {
@@ -260,6 +291,74 @@ export default function AddTalent() {
                 </div>
               </section>
             </div>
+
+            {/* Section 4: Asignación */}
+            <section className="bg-surface-container-lowest rounded-2xl p-6 shadow-[0_2px_16px_rgba(24,28,30,0.04)] border border-outline-variant/10 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1 h-full bg-tertiary rounded-l-2xl"></div>
+              <div className="mb-6">
+                <h3 className="text-base font-semibold text-primary mb-0.5 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[18px] filled">work</span>
+                  Asignación
+                </h3>
+                <p className="text-[11px] text-on-surface-variant uppercase tracking-widest">Cliente &amp; Requerimiento</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                {/* Cliente */}
+                <div className="form-input-container">
+                  <select
+                    className="form-input rounded-t-lg appearance-none cursor-pointer"
+                    id="clientId"
+                    value={selectedClientId}
+                    onChange={e => handleClientChange(e.target.value)}
+                  >
+                    <option value="" disabled></option>
+                    {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                  <label className="form-label" htmlFor="clientId">
+                    Cliente <span className="text-error text-xs">*</span>
+                  </label>
+                  <span className="material-symbols-outlined absolute right-4 top-5 text-on-surface-variant pointer-events-none text-[18px]">expand_more</span>
+                </div>
+
+                {/* Posición */}
+                <div className="form-input-container">
+                  <select
+                    className={`form-input rounded-t-lg appearance-none ${selectedClientId ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
+                    id="reqId"
+                    value={selectedReqId}
+                    disabled={!selectedClientId}
+                    onChange={e => { setSelectedReqId(e.target.value); setSelectedStage('') }}
+                  >
+                    <option value="" disabled></option>
+                    {requirements.map(r => (
+                      <option key={r.id} value={r.id}>{r.job_title} — {r.req_number}</option>
+                    ))}
+                  </select>
+                  <label className="form-label" htmlFor="reqId">
+                    Posición <span className="text-error text-xs">*</span>
+                  </label>
+                  <span className="material-symbols-outlined absolute right-4 top-5 text-on-surface-variant pointer-events-none text-[18px]">expand_more</span>
+                </div>
+
+                {/* Fase */}
+                <div className="form-input-container">
+                  <select
+                    className={`form-input rounded-t-lg appearance-none ${selectedReqId ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
+                    id="stageName"
+                    value={selectedStage}
+                    disabled={!selectedReqId}
+                    onChange={e => setSelectedStage(e.target.value)}
+                  >
+                    <option value="">Sin fase</option>
+                    {stages.map(s => <option key={s.stage_id} value={s.name}>{s.name}</option>)}
+                  </select>
+                  <label className="form-label" htmlFor="stageName">Fase (opcional)</label>
+                  <span className="material-symbols-outlined absolute right-4 top-5 text-on-surface-variant pointer-events-none text-[18px]">expand_more</span>
+                </div>
+
+              </div>
+            </section>
 
             {/* Submit Actions */}
             <div className="flex justify-end gap-3">

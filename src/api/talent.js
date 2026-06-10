@@ -120,6 +120,7 @@ export async function createCandidate(form) {
       email:            form.email            || null,
       phone:            form.phone            || null,
       cv_url:           form.cvUrl            || null,
+      linkedin_url:     form.linkedin         || null,
       role_id:          roleId,
       location_id:      locationId,
       status_id:        statusId,
@@ -154,11 +155,65 @@ export async function createCandidate(form) {
 
   // Notes
   const notes = []
-  if (form.skillset?.trim()) notes.push({ candidate_id, note_type: 'skillset',  note_text: form.skillset })
-  if (form.linkedin?.trim()) notes.push({ candidate_id, note_type: 'linkedin',  note_text: form.linkedin })
+  if (form.skillset?.trim()) notes.push({ candidate_id, note_type: 'skillset', note_text: form.skillset })
   if (notes.length) await supabase.from('candidate_note').insert(notes)
 
+  // Assignment to requirement + stage
+  if (form.requirementId) {
+    const now = new Date().toISOString()
+    const { data: rc, error: rcError } = await supabase
+      .from('requirement_candidate')
+      .insert({
+        requirement_id:   form.requirementId,
+        candidate_id,
+        submitted_at:     now,
+        submittal_status: form.stageName || null,
+        stage_updated_at: form.stageName ? now : null,
+      })
+      .select('id')
+      .single()
+    if (rcError) throw rcError
+
+    if (form.stageName && rc) {
+      await supabase.from('requirement_candidate_stage_history').insert({
+        rc_id:          rc.id,
+        candidate_id,
+        requirement_id: form.requirementId,
+        stage_name:     form.stageName,
+        entered_at:     now,
+      })
+    }
+  }
+
   return candidate
+}
+
+// ─── Assignment helpers for Add Talent form ───────────────────────
+export async function fetchClientsSimple() {
+  const { data, error } = await supabase
+    .from('client').select('id, name').order('name')
+  if (error) throw error
+  return data ?? []
+}
+
+export async function fetchRequirementsByClient(clientId) {
+  const { data, error } = await supabase
+    .from('requirement')
+    .select('id, req_number, job_title, status:status_id(name)')
+    .eq('client_id', clientId)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return (data ?? []).filter(r => !String(r.status?.name ?? '').toLowerCase().startsWith('closed'))
+}
+
+export async function fetchStagesByClient(clientId) {
+  const { data, error } = await supabase
+    .from('catalog_pipeline_stage')
+    .select('stage_id, name, position')
+    .eq('client_id', clientId)
+    .order('position')
+  if (error) throw error
+  return data ?? []
 }
 
 // ─── Update an existing candidate ────────────────────────────────

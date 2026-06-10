@@ -213,18 +213,9 @@ export default function NewRequirement() {
                     <input className="form-field font-mono opacity-70 cursor-not-allowed" value={reqLabel} type="text" readOnly />
                     <p className="text-xs text-on-surface-variant mt-1">Auto-generated.</p>
                   </div>
-                  <div>
-                    <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Application Date <span className="text-error">*</span></label>
+                  <div className="col-span-2">
+                    <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Requisition Open Date <span className="text-error">*</span></label>
                     <input className="form-field" type="date" value={form.application_date} onChange={e => set('application_date', e.target.value)} required />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Status <span className="text-error">*</span></label>
-                    <div className="relative">
-                      <select className="form-field appearance-none cursor-pointer pr-9" value={form.status_id} onChange={e => set('status_id', e.target.value)}>
-                        {catalogs.statuses.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                      </select>
-                      <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[18px]">arrow_drop_down</span>
-                    </div>
                   </div>
                   <div>
                     <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Priority <span className="text-error">*</span></label>
@@ -237,11 +228,6 @@ export default function NewRequirement() {
                         >{l}</button>
                       ))}
                     </div>
-                  </div>
-                  <div className="col-span-2">
-                    <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">First Resource Sent</label>
-                    <input className="form-field" type="date" value={form.first_resource_sent} onChange={e => set('first_resource_sent', e.target.value)} />
-                    <p className="text-xs text-on-surface-variant mt-1">Date the first candidate was submitted.</p>
                   </div>
                 </div>
               </div>

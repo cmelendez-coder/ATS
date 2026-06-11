@@ -27,7 +27,7 @@ export async function searchCandidates({ q = '', tech = '', englishMin = '', eng
       candidate_stack(technology:catalog_technology!technology_id(ct_name_tech))
     `)
     .order('created_at', { ascending: false })
-    .limit(1000)
+    .limit(5000)
 
   if (q.trim()) {
     query = query.or(`full_name.ilike.%${q.trim()}%,email.ilike.%${q.trim()}%`)

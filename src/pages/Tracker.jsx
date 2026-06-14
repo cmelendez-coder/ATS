@@ -38,7 +38,7 @@ function getISOWeek(date = new Date()) {
 }
 
 function weekLabel(week, year) {
-  return `W${String(week).padStart(2, '0')} · ${year}`
+  return `Week ${String(week).padStart(2, '0')} · ${year}`
 }
 
 function emptyRow(weekNumber, weekYear, recruiter) {

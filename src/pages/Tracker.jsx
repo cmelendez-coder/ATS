@@ -138,17 +138,22 @@ function CandidateSearch({ value, candidateId, onSelect, disabled }) {
   )
 }
 
-// Requirement searchable dropdown
+// Requirement searchable dropdown (combobox — single stable input, no DOM swap)
 function RequirementSearch({ value, requirements, onSelect, disabled }) {
-  const [query, setQuery]   = useState('')
-  const [open, setOpen]     = useState(false)
-  const wrapRef             = useRef(null)
+  const [query, setQuery] = useState('')
+  const [open, setOpen]   = useState(false)
+  const wrapRef           = useRef(null)
+  const inputRef          = useRef(null)
 
-  // Display label for the currently selected requirement
   const selected = requirements.find(r => r.id === value)
-  const displayLabel = selected
-    ? `${selected.job_title} — ${selected.client?.name}`
-    : ''
+
+  const filtered = query.trim()
+    ? requirements.filter(r =>
+        r.job_title?.toLowerCase().includes(query.toLowerCase()) ||
+        r.client?.name?.toLowerCase().includes(query.toLowerCase()) ||
+        r.req_number?.toLowerCase().includes(query.toLowerCase())
+      )
+    : requirements
 
   useEffect(() => {
     function handleClick(e) {
@@ -161,46 +166,38 @@ function RequirementSearch({ value, requirements, onSelect, disabled }) {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  const filtered = query.trim()
-    ? requirements.filter(r =>
-        r.job_title?.toLowerCase().includes(query.toLowerCase()) ||
-        r.client?.name?.toLowerCase().includes(query.toLowerCase()) ||
-        r.req_number?.toLowerCase().includes(query.toLowerCase())
-      )
-    : requirements
-
   function pick(req) {
     onSelect(req.id)
     setOpen(false)
     setQuery('')
+    inputRef.current?.blur()
   }
+
+  // When focused and searching: show query. When closed: show selected label.
+  const displayValue = open
+    ? query
+    : (selected ? `${selected.job_title} — ${selected.client?.name ?? ''}` : '')
 
   return (
     <div ref={wrapRef} className="relative w-full">
-      {/* Show search input when open, label when closed */}
-      {open ? (
-        <input
-          autoFocus
-          className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-primary/30 placeholder:text-on-surface-variant/40"
-          placeholder="Buscar posición…"
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-        />
-      ) : (
-        <button
-          type="button"
-          disabled={disabled}
-          onClick={() => setOpen(true)}
-          className="w-full text-left bg-surface-container text-xs px-2 py-1.5 rounded hover:bg-surface-container-high transition-colors truncate"
-        >
-          {displayLabel
-            ? <span className="text-on-surface">{displayLabel}</span>
-            : <span className="text-on-surface-variant/50">Seleccionar posición…</span>}
-        </button>
-      )}
-
+      <input
+        ref={inputRef}
+        type="text"
+        autoComplete="off"
+        spellCheck={false}
+        disabled={disabled}
+        className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none placeholder:text-on-surface-variant/40 cursor-pointer"
+        placeholder="Seleccionar posición…"
+        value={displayValue}
+        onFocus={() => { setOpen(true); setQuery('') }}
+        onChange={e => { setQuery(e.target.value); setOpen(true) }}
+        onBlur={() => setTimeout(() => { setOpen(false); setQuery('') }, 150)}
+        onKeyDown={e => {
+          if (e.key === 'Escape') { setOpen(false); setQuery(''); inputRef.current?.blur() }
+        }}
+      />
       {open && (
-        <div className="absolute left-0 top-full mt-1 z-50 bg-surface-container-high border border-outline-variant/30 rounded-lg shadow-xl w-72 max-h-56 overflow-y-auto">
+        <div className="absolute left-0 top-full mt-1 z-[60] bg-surface-container-high border border-outline-variant/30 rounded-lg shadow-xl w-72 max-h-56 overflow-y-auto">
           {filtered.length === 0
             ? <p className="text-xs text-on-surface-variant p-3">Sin resultados.</p>
             : filtered.map(r => (

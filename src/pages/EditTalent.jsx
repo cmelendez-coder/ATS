@@ -391,7 +391,7 @@ export default function EditTalent() {
                       <input className="input-field w-full bg-transparent border-none focus:ring-0 px-0 pt-5 pb-1 text-primary font-medium placeholder-transparent text-sm" id="location" name="location" defaultValue={talent.location?.name ?? ''} placeholder="location" type="text" />
                     </Field>
                     <Field id="linkedin" label="LinkedIn URL">
-                      <input className="input-field w-full bg-transparent border-none focus:ring-0 px-0 pt-5 pb-1 text-primary font-medium placeholder-transparent text-sm" id="linkedin" name="linkedin" defaultValue={noteByType('linkedin')} placeholder="linkedin" type="url" />
+                      <input className="input-field w-full bg-transparent border-none focus:ring-0 px-0 pt-5 pb-1 text-primary font-medium placeholder-transparent text-sm" id="linkedin" name="linkedin" defaultValue={talent.linkedin_url ?? ''} placeholder="linkedin" type="url" />
                     </Field>
                     <Field id="cvUrl" label="CV URL">
                       <input className="input-field w-full bg-transparent border-none focus:ring-0 px-0 pt-5 pb-1 text-primary font-medium placeholder-transparent text-sm" id="cvUrl" name="cvUrl" defaultValue={talent.cv_url ?? ''} placeholder="cv" type="url" />

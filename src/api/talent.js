@@ -30,7 +30,7 @@ export async function searchCandidates({ q = '', tech = '', englishMin = '', eng
     .limit(5000)
 
   if (q.trim()) {
-    query = query.or(`full_name.ilike.%${q.trim()}%,email.ilike.%${q.trim()}%`)
+    query = query.or(`full_name.ilike.%${q.trim()}%,email.ilike.%${q.trim()}%,candidate_code.ilike.%${q.trim()}%`)
   }
 
   if (englishMin !== '') query = query.gte('english_score', Number(englishMin))
@@ -236,6 +236,7 @@ export async function updateCandidate(code, form) {
   if (form.email         != null) patch.email            = form.email
   if (form.phone         != null) patch.phone            = form.phone
   if (form.cvUrl         != null) patch.cv_url           = form.cvUrl
+  if (form.linkedin      != null) patch.linkedin_url     = form.linkedin || null
   if (form.englishScore  != null) patch.english_score    = form.englishScore !== '' ? Number(form.englishScore) : null
   if (form.yearsExp      != null) patch.years_experience = form.yearsExp !== '' ? Number(form.yearsExp) : null
   if (roleId)                     patch.role_id          = roleId
@@ -276,7 +277,7 @@ export async function updateCandidate(code, form) {
   }
 
   // Upsert notes
-  for (const noteType of ['skillset', 'linkedin', 'recruiter_notes']) {
+  for (const noteType of ['skillset', 'recruiter_notes']) {
     if (form[noteType] === undefined) continue
     const { data: existingNote } = await supabase
       .from('candidate_note').select('note_id')

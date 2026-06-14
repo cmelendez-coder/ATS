@@ -1,12 +1,19 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 import {
   fetchTrackerEntries,
   fetchActiveRequirements,
   searchCandidatesSimple,
   saveTrackerEntry,
   deleteTrackerEntry,
+  recruiterFromEmail,
 } from '../api/tracker'
+
+const TABS = [
+  { key: 'enrique', label: 'Enrique' },
+  { key: 'cesar',   label: 'César'   },
+]
 
 const STATUS_OPTIONS  = ['Pending', 'Sent', 'Rejected', 'HSE', 'On Hold', 'Backed Out']
 const ENGLISH_OPTIONS = [90, 85, 80, 75, 70, 60, 50, 40, 30]
@@ -34,11 +41,12 @@ function weekLabel(week, year) {
   return `W${String(week).padStart(2, '0')} · ${year}`
 }
 
-function emptyRow(weekNumber, weekYear) {
+function emptyRow(weekNumber, weekYear, recruiter) {
   return {
     id: null,
     week_number: weekNumber,
     week_year: weekYear,
+    recruiter,
     candidate_id: null,
     candidate_name: '',
     cv_url: '',
@@ -131,11 +139,11 @@ function CandidateSearch({ value, candidateId, onSelect, disabled }) {
 }
 
 // Single editable row
-function TrackerRow({ row, requirements, onSave, onDelete }) {
+function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
   const [data, setData]       = useState({ ...row })
   const [saving, setSaving]   = useState(false)
   const [error, setError]     = useState(null)
-  const [editing, setEditing] = useState(row._editing ?? false)
+  const [editing, setEditing] = useState(!readOnly && (row._editing ?? false))
 
   function set(field, value) {
     setData(prev => ({ ...prev, [field]: value }))
@@ -193,14 +201,19 @@ function TrackerRow({ row, requirements, onSave, onDelete }) {
         </td>
         <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[220px] truncate">{data.notes || '—'}</td>
         <td className="px-3 py-2">
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button type="button" onClick={() => setEditing(true)} className="p-1 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary transition-colors">
-              <span className="material-symbols-outlined text-[14px]">edit</span>
-            </button>
-            <button type="button" onClick={handleDelete} className="p-1 rounded hover:bg-red-500/10 text-on-surface-variant hover:text-red-400 transition-colors">
-              <span className="material-symbols-outlined text-[14px]">delete</span>
-            </button>
-          </div>
+          {!readOnly && (
+            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button type="button" onClick={() => setEditing(true)} className="p-1 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary transition-colors">
+                <span className="material-symbols-outlined text-[14px]">edit</span>
+              </button>
+              <button type="button" onClick={handleDelete} className="p-1 rounded hover:bg-red-500/10 text-on-surface-variant hover:text-red-400 transition-colors">
+                <span className="material-symbols-outlined text-[14px]">delete</span>
+              </button>
+            </div>
+          )}
+          {readOnly && (
+            <span className="material-symbols-outlined text-[14px] text-on-surface-variant/30" title="Solo lectura">lock</span>
+          )}
         </td>
       </tr>
     )
@@ -328,13 +341,20 @@ function TrackerRow({ row, requirements, onSave, onDelete }) {
 }
 
 export default function Tracker() {
+  const { session }                   = useAuth()
+  const myRecruiter                   = recruiterFromEmail(session?.user?.email ?? '')
   const { week: currentWeek, year: currentYear } = getISOWeek()
+
+  const [activeTab, setActiveTab]     = useState('enrique')
   const [week, setWeek]               = useState(currentWeek)
   const [year, setYear]               = useState(currentYear)
   const [entries, setEntries]         = useState([])
   const [requirements, setRequirements] = useState([])
   const [loading, setLoading]         = useState(true)
   const [refreshKey, setRefreshKey]   = useState(0)
+
+  // Can the logged-in user edit the active tab?
+  const canEdit = myRecruiter === activeTab
 
   useEffect(() => {
     fetchActiveRequirements()
@@ -344,16 +364,17 @@ export default function Tracker() {
 
   useEffect(() => {
     setLoading(true)
-    fetchTrackerEntries(week, year)
+    fetchTrackerEntries(week, year, activeTab)
       .then(rows => {
         setEntries(rows.map(r => ({ ...r, _editing: false, _key: r.id })))
       })
       .catch(() => {})
       .finally(() => setLoading(false))
-  }, [week, year, refreshKey])
+  }, [week, year, activeTab, refreshKey])
 
   function addRow() {
-    setEntries(prev => [...prev, emptyRow(week, year)])
+    if (!canEdit) return
+    setEntries(prev => [...prev, emptyRow(week, year, activeTab)])
   }
 
   function refresh() {
@@ -406,6 +427,32 @@ export default function Tracker() {
                 <span className="text-primary font-medium">Tracker</span>
               </div>
               <h1 className="text-[2rem] leading-none tracking-[-0.02em] font-extrabold text-primary">Tracker</h1>
+              {/* Recruiter tabs */}
+              <div className="flex gap-1 pt-2">
+                {TABS.map(tab => (
+                  <button
+                    key={tab.key}
+                    type="button"
+                    onClick={() => setActiveTab(tab.key)}
+                    className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${
+                      activeTab === tab.key
+                        ? 'bg-primary text-on-primary'
+                        : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+                    }`}
+                  >
+                    {tab.label}
+                    {tab.key === myRecruiter && (
+                      <span className="ml-1.5 text-[10px] opacity-70">(yo)</span>
+                    )}
+                  </button>
+                ))}
+                {!canEdit && (
+                  <span className="flex items-center gap-1 text-xs text-on-surface-variant/50 ml-2">
+                    <span className="material-symbols-outlined text-[14px]">visibility</span>
+                    Solo lectura
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Week selector */}
@@ -469,6 +516,7 @@ export default function Tracker() {
                           requirements={requirements}
                           onSave={refresh}
                           onDelete={() => removeRow(key)}
+                          readOnly={!canEdit}
                         />
                       )
                     })}
@@ -477,17 +525,19 @@ export default function Tracker() {
               </div>
             )}
 
-            {/* Add row button */}
-            <div className="px-4 py-3 border-t border-outline-variant/10">
-              <button
-                type="button"
-                onClick={addRow}
-                className="flex items-center gap-2 text-sm font-semibold text-primary hover:text-secondary transition-colors"
-              >
-                <span className="material-symbols-outlined text-[18px]">add_circle</span>
-                Agregar candidato
-              </button>
-            </div>
+            {/* Add row button — only visible if can edit */}
+            {canEdit && (
+              <div className="px-4 py-3 border-t border-outline-variant/10">
+                <button
+                  type="button"
+                  onClick={addRow}
+                  className="flex items-center gap-2 text-sm font-semibold text-primary hover:text-secondary transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[18px]">add_circle</span>
+                  Agregar candidato
+                </button>
+              </div>
+            )}
           </div>
 
         </div>

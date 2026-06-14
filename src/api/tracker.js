@@ -1,6 +1,16 @@
 import { supabase } from '../lib/supabase'
 
-export async function fetchTrackerEntries(weekNumber, weekYear) {
+// Map email → recruiter key
+export const EMAIL_TO_RECRUITER = {
+  'cmelendez@everscalegroup.com': 'cesar',
+  'egalvan@everscalegroup.com':   'enrique',
+}
+
+export function recruiterFromEmail(email) {
+  return EMAIL_TO_RECRUITER[email] ?? 'cesar'
+}
+
+export async function fetchTrackerEntries(weekNumber, weekYear, recruiter) {
   const { data, error } = await supabase
     .from('tracker_entry')
     .select(`
@@ -9,6 +19,7 @@ export async function fetchTrackerEntries(weekNumber, weekYear) {
     `)
     .eq('week_number', weekNumber)
     .eq('week_year', weekYear)
+    .eq('recruiter', recruiter)
     .order('created_at', { ascending: true })
   if (error) throw error
   return data ?? []
@@ -77,6 +88,7 @@ export async function saveTrackerEntry(entry) {
     amount_type:    entry.amount_type || null,
     notes:          entry.notes || null,
     synced_to_req:  alreadySynced || willSync,
+    recruiter:      entry.recruiter,
     updated_at:     new Date().toISOString(),
   }
 

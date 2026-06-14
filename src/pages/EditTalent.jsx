@@ -1,9 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { getCandidate, updateCandidate, fetchCatalog } from '../api/talent'
-
-const SENIORITY_OPTIONS = ['Junior', 'Mid-Level', 'Senior', 'Lead', 'Principal']
-const SCHEME_OPTIONS    = ['W2', 'C2C', '1099', 'Contract', 'Full-Time']
+import { getCandidate, updateCandidate } from '../api/talent'
 
 function getInitials(name = '') {
   return name.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase() || '?'
@@ -18,7 +15,6 @@ function englishLabel(score) {
   return 'A2'
 }
 
-// Input with floating label (underline style)
 function Field({ id, label, children }) {
   return (
     <div className="relative input-underline border-b border-outline pb-1">
@@ -34,41 +30,29 @@ export default function EditTalent() {
   const formRef    = useRef(null)
   const draftKey   = code ? `edit-talent-draft:${code}` : null
 
-  // ── Data state ─────────────────────────────────────────────────
   const [talent, setTalent]         = useState(null)
   const [loading, setLoading]       = useState(true)
   const [loadError, setLoadError]   = useState(null)
 
-  // ── Form state ─────────────────────────────────────────────────
   const [stack, setStack]           = useState([])
   const [stackModified, setStackModified] = useState(false)
   const [newTech, setNewTech]       = useState('')
   const [addingTech, setAddingTech] = useState(false)
-  const [hiringPrefs, setHiringPrefs] = useState([])
 
-  // ── Submit state ───────────────────────────────────────────────
   const [saving, setSaving]         = useState(false)
   const [saveError, setSaveError]   = useState(null)
-  const [available, setAvailable]   = useState(true)
 
-  // ── Load candidate + hiring prefs ──────────────────────────────
   useEffect(() => {
     if (!code) return
-
     async function load() {
       try {
-        const [data, prefs] = await Promise.all([
-          getCandidate(code),
-          fetchCatalog('catalog_hiring_preference', 'name', 'hiring_preference_id'),
-        ])
+        const data = await getCandidate(code)
         setTalent(data)
-        setHiringPrefs(prefs)
         setStack(
           (data.candidate_stack ?? [])
             .map(s => s.technology?.ct_name_tech)
             .filter(Boolean)
         )
-        setAvailable(data.status?.name === 'Available')
       } catch {
         setLoadError('No se encontró el candidato o hubo un error de conexión.')
       } finally {
@@ -78,7 +62,6 @@ export default function EditTalent() {
     load()
   }, [code])
 
-  // ── Stack helpers ──────────────────────────────────────────────
   function removeTech(t) {
     setStack(prev => prev.filter(x => x !== t))
     setStackModified(true)
@@ -94,26 +77,20 @@ export default function EditTalent() {
     setAddingTech(false)
   }
 
-  // ── Submit ─────────────────────────────────────────────────────
   useEffect(() => {
     if (!talent || !draftKey || !formRef.current) return
-
     const rawDraft = sessionStorage.getItem(draftKey)
     if (!rawDraft) return
-
     try {
       const draft = JSON.parse(rawDraft)
       const form = formRef.current
-
       Object.entries(draft.fields ?? {}).forEach(([name, value]) => {
         const field = form.elements.namedItem(name)
         if (!field || typeof value !== 'string') return
         if ('value' in field) field.value = value
       })
-
       if (Array.isArray(draft.stack)) setStack(draft.stack)
       if (typeof draft.stackModified === 'boolean') setStackModified(draft.stackModified)
-      if (typeof draft.available === 'boolean') setAvailable(draft.available)
     } catch {
       sessionStorage.removeItem(draftKey)
     }
@@ -121,65 +98,44 @@ export default function EditTalent() {
 
   useEffect(() => {
     if (!talent || !draftKey || !formRef.current) return
-
     function saveDraft() {
       const form = formRef.current
       if (!form) return
-
       const fields = {}
       for (const [name, value] of new FormData(form).entries()) {
         fields[name] = String(value)
       }
-
-      sessionStorage.setItem(draftKey, JSON.stringify({
-        fields,
-        stack,
-        stackModified,
-        available,
-      }))
+      sessionStorage.setItem(draftKey, JSON.stringify({ fields, stack, stackModified }))
     }
-
     const form = formRef.current
     form.addEventListener('input', saveDraft)
     form.addEventListener('change', saveDraft)
     saveDraft()
-
     return () => {
       form.removeEventListener('input', saveDraft)
       form.removeEventListener('change', saveDraft)
     }
-  }, [talent, draftKey, stack, stackModified, available])
+  }, [talent, draftKey, stack, stackModified])
 
   async function handleSubmit(e) {
     e.preventDefault()
     setSaving(true)
     setSaveError(null)
-
     const fd = new FormData(e.currentTarget)
-
     try {
       await updateCandidate(code, {
-        fullName:         fd.get('fullName'),
-        email:            fd.get('email'),
-        phone:            fd.get('phone'),
-        location:         fd.get('location'),
-        cvUrl:            fd.get('cvUrl'),
-        role:             fd.get('role'),
-        seniority:        fd.get('seniority'),
-        yearsExp:         fd.get('yearsExp'),
-        englishScore:     fd.get('englishScore'),
-        hiringPref:       fd.get('hiringPref'),
-        scheme:           fd.get('scheme'),
-        salaryExpectation: fd.get('salaryExpectation'),
-        lastContactDate:  fd.get('lastContactDate'),
-        availabilityNotes: fd.get('availabilityNotes'),
-        skillset:         fd.get('skillset'),
-        linkedin:         fd.get('linkedin'),
-        recruiter_notes:  fd.get('recruiterNotes'),
-        ...(stackModified && {
-          technologies: stack,
-          replaceStack: true,
-        }),
+        fullName:     fd.get('fullName'),
+        email:        fd.get('email'),
+        phone:        fd.get('phone'),
+        location:     fd.get('location'),
+        cvUrl:        fd.get('cvUrl'),
+        linkedin:     fd.get('linkedin'),
+        role:         fd.get('role'),
+        yearsExp:     fd.get('yearsExp'),
+        englishScore: fd.get('englishScore'),
+        skillset:     fd.get('skillset'),
+        recruiter_notes: fd.get('recruiterNotes'),
+        ...(stackModified && { technologies: stack, replaceStack: true }),
       })
       if (draftKey) sessionStorage.removeItem(draftKey)
       navigate('/talent')
@@ -190,21 +146,13 @@ export default function EditTalent() {
     }
   }
 
-  // ── Derived display values ─────────────────────────────────────
   const noteByType = (type) =>
     talent?.candidate_note?.find(n => n.note_type === type)?.note_text ?? ''
-
-  const lastComp = talent?.candidate_compensation
-    ?.sort((a, b) => new Date(b.recorded_at) - new Date(a.recorded_at))[0]
-
-  const lastAvailability = talent?.candidate_availability
-    ?.sort((a, b) => b.availability_id - a.availability_id)[0]
 
   const lastUpdate = talent?.updated_at
     ? new Date(talent.updated_at).toLocaleDateString('es-MX', { month: 'short', day: 'numeric', year: 'numeric' })
     : null
 
-  // ── Loading ────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="flex items-center justify-center flex-1 py-20 gap-3 text-on-surface-variant">
@@ -279,7 +227,6 @@ export default function EditTalent() {
             </div>
           </div>
 
-          {/* Save error */}
           {saveError && (
             <div className="flex items-center gap-3 p-4 rounded-xl bg-red-900/20 border border-red-800 text-red-400">
               <span className="material-symbols-outlined text-[20px]">error</span>
@@ -312,7 +259,6 @@ export default function EditTalent() {
                         </span>
                       )}
                     </div>
-                    {/* Profile completeness */}
                     <div className="w-full">
                       <div className="flex justify-between items-center mb-1.5">
                         <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Completeness</span>
@@ -325,47 +271,6 @@ export default function EditTalent() {
                   </div>
                 </section>
 
-                {/* Availability toggle */}
-                <section className="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/10 shadow-[0_2px_16px_rgba(24,28,30,0.05)]">
-                  <h4 className="text-base font-semibold text-primary mb-5">Account Status</h4>
-                  <div className="flex items-center justify-between p-4 bg-surface-container rounded-xl">
-                    <div>
-                      <p className="font-semibold text-on-surface text-sm">Available for Hire</p>
-                      <p className="text-xs text-on-surface-variant mt-0.5">Currently looking for roles.</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-xs font-bold ${available ? 'text-secondary' : 'text-on-surface-variant'}`}>{available ? 'ON' : 'OFF'}</span>
-                      <button
-                        type="button"
-                        onClick={() => setAvailable(v => !v)}
-                        className={`w-11 h-6 rounded-full relative transition-colors shrink-0 ${available ? 'bg-secondary' : 'bg-surface-container-high border border-outline-variant/50'}`}
-                      >
-                        <div className={`w-4 h-4 bg-surface-container-lowest rounded-full absolute top-1 shadow-sm transition-all ${available ? 'right-1' : 'left-1'}`} />
-                      </button>
-                    </div>
-                  </div>
-                </section>
-
-                {/* Metadata */}
-                <section className="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/10 shadow-[0_2px_16px_rgba(24,28,30,0.05)]">
-                  <h4 className="text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-4">Metadata</h4>
-                  <ul className="space-y-3 text-sm">
-                    <li className="flex justify-between">
-                      <span className="text-on-surface-variant">Candidate Code</span>
-                      <span className="font-mono text-xs font-medium text-primary">{talent.candidate_code}</span>
-                    </li>
-                    {lastUpdate && (
-                      <li className="flex justify-between">
-                        <span className="text-on-surface-variant">Last Updated</span>
-                        <span className="font-medium text-primary">{lastUpdate}</span>
-                      </li>
-                    )}
-                    <li className="flex justify-between">
-                      <span className="text-on-surface-variant">Source</span>
-                      <span className="font-medium text-primary">{talent.contract_type?.name ?? '—'}</span>
-                    </li>
-                  </ul>
-                </section>
               </div>
 
               {/* ── Right form columns ────────────────────────── */}
@@ -409,17 +314,6 @@ export default function EditTalent() {
                     <Field id="role" label="Rol principal">
                       <input className="input-field w-full bg-transparent border-none focus:ring-0 px-0 pt-5 pb-1 text-primary font-medium placeholder-transparent text-sm" id="role" name="role" defaultValue={talent.role?.name ?? ''} placeholder="role" type="text" />
                     </Field>
-                    <div className="relative border-b border-outline pb-1">
-                      <select
-                        className="input-field w-full bg-transparent border-none focus:ring-0 px-0 pt-5 pb-1 text-primary font-medium text-sm appearance-none cursor-pointer"
-                        id="seniority" name="seniority"
-                        defaultValue={talent.seniority?.name ?? ''}
-                      >
-                        <option value=""></option>
-                        {SENIORITY_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
-                      </select>
-                      <label className="floating-label absolute left-0 top-4 text-on-surface-variant pointer-events-none text-sm" htmlFor="seniority">Seniority</label>
-                    </div>
                     <Field id="yearsExp" label="Años de experiencia">
                       <input className="input-field w-full bg-transparent border-none focus:ring-0 px-0 pt-5 pb-1 text-primary font-medium placeholder-transparent text-sm" id="yearsExp" name="yearsExp" defaultValue={talent.years_experience ?? ''} placeholder="years" type="number" min="0" />
                     </Field>
@@ -483,39 +377,6 @@ export default function EditTalent() {
                         <button type="button" onClick={() => setAddingTech(false)} className="px-2 py-1.5 text-on-surface-variant text-xs hover:text-primary">✕</button>
                       </span>
                     )}
-                  </div>
-                </section>
-
-                {/* Expectations */}
-                <section className="bg-surface-container-lowest rounded-2xl p-8 shadow-[0_2px_16px_rgba(24,28,30,0.05)] border border-outline-variant/10">
-                  <h3 className="text-xl font-bold text-primary mb-6 pb-4 border-b border-outline-variant/15 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[18px]">payments</span>
-                    Expectativas y Logística
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-8">
-                    <div className="relative border-b border-outline pb-1">
-                      <select className="input-field w-full bg-transparent border-none focus:ring-0 px-0 pt-5 pb-1 text-primary font-medium text-sm appearance-none cursor-pointer" id="hiringPref" name="hiringPref" defaultValue={talent.hiring_pref?.name ?? ''}>
-                        <option value=""></option>
-                        {hiringPrefs.map(h => <option key={h.hiring_preference_id} value={h.name}>{h.name}</option>)}
-                      </select>
-                      <label className="floating-label absolute left-0 top-4 text-on-surface-variant pointer-events-none text-sm" htmlFor="hiringPref">Hiring Preference</label>
-                    </div>
-                    <div className="relative border-b border-outline pb-1">
-                      <select className="input-field w-full bg-transparent border-none focus:ring-0 px-0 pt-5 pb-1 text-primary font-medium text-sm appearance-none cursor-pointer" id="scheme" name="scheme" defaultValue={talent.contract_type?.name ?? ''}>
-                        <option value=""></option>
-                        {SCHEME_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
-                      </select>
-                      <label className="floating-label absolute left-0 top-4 text-on-surface-variant pointer-events-none text-sm" htmlFor="scheme">Contract Type</label>
-                    </div>
-                    <Field id="salaryExpectation" label="Salary Expectation (USD/mo)">
-                      <input className="input-field w-full bg-transparent border-none focus:ring-0 px-0 pt-5 pb-1 text-primary font-medium placeholder-transparent text-sm" id="salaryExpectation" name="salaryExpectation" defaultValue={lastComp?.cost_text ?? ''} placeholder="5000" type="text" />
-                    </Field>
-                    <Field id="lastContactDate" label="Último Contacto">
-                      <input className="input-field w-full bg-transparent border-none focus:ring-0 px-0 pt-5 pb-1 text-primary font-medium placeholder-transparent text-sm" id="lastContactDate" name="lastContactDate" defaultValue={lastAvailability?.last_contact_date ?? ''} type="date" />
-                    </Field>
-                    <Field id="availabilityNotes" label="Nota de disponibilidad">
-                      <input className="input-field w-full bg-transparent border-none focus:ring-0 px-0 pt-5 pb-1 text-primary font-medium placeholder-transparent text-sm" id="availabilityNotes" name="availabilityNotes" defaultValue={lastAvailability?.notes ?? ''} placeholder="Ej. Hybrid, Solo remoto…" type="text" />
-                    </Field>
                   </div>
                 </section>
 

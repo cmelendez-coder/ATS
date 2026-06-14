@@ -138,6 +138,89 @@ function CandidateSearch({ value, candidateId, onSelect, disabled }) {
   )
 }
 
+// Requirement searchable dropdown
+function RequirementSearch({ value, requirements, onSelect, disabled }) {
+  const [query, setQuery]   = useState('')
+  const [open, setOpen]     = useState(false)
+  const wrapRef             = useRef(null)
+
+  // Display label for the currently selected requirement
+  const selected = requirements.find(r => r.id === value)
+  const displayLabel = selected
+    ? `${selected.job_title} — ${selected.client?.name}`
+    : ''
+
+  useEffect(() => {
+    function handleClick(e) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) {
+        setOpen(false)
+        setQuery('')
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  const filtered = query.trim()
+    ? requirements.filter(r =>
+        r.job_title?.toLowerCase().includes(query.toLowerCase()) ||
+        r.client?.name?.toLowerCase().includes(query.toLowerCase()) ||
+        r.req_number?.toLowerCase().includes(query.toLowerCase())
+      )
+    : requirements
+
+  function pick(req) {
+    onSelect(req.id)
+    setOpen(false)
+    setQuery('')
+  }
+
+  return (
+    <div ref={wrapRef} className="relative w-full">
+      {/* Show search input when open, label when closed */}
+      {open ? (
+        <input
+          autoFocus
+          className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-primary/30 placeholder:text-on-surface-variant/40"
+          placeholder="Buscar posición…"
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+        />
+      ) : (
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => setOpen(true)}
+          className="w-full text-left bg-surface-container text-xs px-2 py-1.5 rounded hover:bg-surface-container-high transition-colors truncate"
+        >
+          {displayLabel
+            ? <span className="text-on-surface">{displayLabel}</span>
+            : <span className="text-on-surface-variant/50">Seleccionar posición…</span>}
+        </button>
+      )}
+
+      {open && (
+        <div className="absolute left-0 top-full mt-1 z-50 bg-surface-container-high border border-outline-variant/30 rounded-lg shadow-xl w-72 max-h-56 overflow-y-auto">
+          {filtered.length === 0
+            ? <p className="text-xs text-on-surface-variant p-3">Sin resultados.</p>
+            : filtered.map(r => (
+              <button
+                key={r.id}
+                type="button"
+                className="w-full text-left px-3 py-2 hover:bg-surface-container text-xs border-b border-outline-variant/10 last:border-0"
+                onMouseDown={() => pick(r)}
+              >
+                <span className="text-primary font-medium block">{r.job_title}</span>
+                <span className="text-on-surface-variant/60">{r.client?.name} · {r.req_number}</span>
+              </button>
+            ))
+          }
+        </div>
+      )}
+    </div>
+  )
+}
+
 // Single editable row
 function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
   const [data, setData]       = useState({ ...row })
@@ -249,18 +332,11 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
 
       {/* Posición / Requerimiento */}
       <td className="px-2 py-1.5 min-w-[200px]">
-        <select
-          className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-primary/30"
-          value={data.requirement_id || ''}
-          onChange={e => set('requirement_id', e.target.value ? Number(e.target.value) : null)}
-        >
-          <option value="">Seleccionar posición…</option>
-          {requirements.map(r => (
-            <option key={r.id} value={r.id}>
-              {r.job_title} — {r.client?.name} ({r.req_number})
-            </option>
-          ))}
-        </select>
+        <RequirementSearch
+          value={data.requirement_id}
+          requirements={requirements}
+          onSelect={id => set('requirement_id', id)}
+        />
       </td>
 
       {/* Status */}

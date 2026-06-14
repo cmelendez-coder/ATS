@@ -148,11 +148,12 @@ function RequirementSearch({ value, requirements, onSelect, disabled }) {
   const selected = requirements.find(r => r.id === value)
 
   const filtered = query.trim()
-    ? requirements.filter(r =>
-        r.job_title?.toLowerCase().includes(query.toLowerCase()) ||
-        r.client?.name?.toLowerCase().includes(query.toLowerCase()) ||
-        r.req_number?.toLowerCase().includes(query.toLowerCase())
-      )
+    ? requirements.filter(r => {
+        const q = query.toLowerCase()
+        return String(r.job_title  ?? '').toLowerCase().includes(q) ||
+               String(r.client?.name ?? '').toLowerCase().includes(q) ||
+               String(r.req_number ?? '').toLowerCase().includes(q)
+      })
     : requirements
 
   useEffect(() => {

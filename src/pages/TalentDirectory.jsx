@@ -70,39 +70,72 @@ const LI_SVG  = `<svg viewBox="0 0 24 24" fill="currentColor" width="18" height=
 const CV_SVG  = `<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 2L2 21l10-8z" fill="#00AC47"/><path d="M12 2l10 19-10-8z" fill="#FBBC04"/><path d="M2 21h20l-10-8z" fill="#4285F4"/></svg>`
 
 function exportToExcel(candidates, searchQuery) {
-  const esc = v => {
-    const s = String(v ?? '').replace(/"/g, '""')
-    return s.includes(',') || s.includes('\n') || s.includes('"') ? `"${s}"` : s
-  }
+  const date    = new Date().toISOString().slice(0, 10)
+  const title   = `PRT — Talent Directory${searchQuery ? ` · "${searchQuery}"` : ''}`
+  const cols    = ['Name','Email','Phone','Role','English %','YoE','Location','Status','Technologies','LinkedIn','CV']
+  const colWidths = [200,200,130,160,90,60,140,100,300,180,180]
 
-  const headers = ['Name', 'Email', 'Phone', 'Role', 'English %', 'YoE', 'Location', 'Status', 'Technologies', 'LinkedIn', 'CV URL', 'WhatsApp']
+  const headerCells = cols.map((h, i) =>
+    `<td style="width:${colWidths[i]}px;background:#071D47;color:#ffffff;font-weight:700;font-size:11px;
+      text-transform:uppercase;letter-spacing:1px;padding:10px 12px;border:1px solid #0f2d6b;
+      white-space:nowrap">${h}</td>`
+  ).join('')
 
-  const rows = candidates.map(c => {
-    const techs = [...new Set((c.candidate_stack ?? []).map(s => s.technology?.ct_name_tech).filter(Boolean))].join(' | ')
-    const wa    = c.phone ? `https://wa.me/${c.phone.replace(/\D/g, '')}` : ''
-    return [
-      c.full_name,
-      c.email ?? '',
-      c.phone ?? '',
-      c.role?.name ?? '',
-      c.english_score ?? '',
-      c.years_experience ?? '',
-      c.location?.name ?? '',
-      c.status?.name ?? '',
-      techs,
-      c.linkedin_url ?? '',
-      c.cv_url ?? '',
-      wa,
-    ].map(esc).join(',')
-  })
+  const dataRows = candidates.map((c, i) => {
+    const techs = [...new Set((c.candidate_stack ?? []).map(s => s.technology?.ct_name_tech).filter(Boolean))].join(', ')
+    const bg    = i % 2 === 0 ? '#ffffff' : '#f0f4ff'
+    const cell  = (val, opts = '') =>
+      `<td style="padding:8px 12px;border:1px solid #d1d9f0;font-size:12px;color:#1e293b;vertical-align:middle;${opts}">${val ?? ''}</td>`
 
-  const csv  = [headers.map(esc).join(','), ...rows].join('\r\n')
-  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+    const engColor = c.english_score >= 80 ? '#15803d' : c.english_score >= 60 ? '#b45309' : '#1e293b'
+
+    return `<tr style="background:${bg}">
+      ${cell(`<b style="color:#071D47">${c.full_name}</b>${c.email ? `<br><span style="color:#64748b;font-size:10px">${c.email}</span>` : ''}`)}
+      ${cell(c.email ?? '')}
+      ${cell(c.phone ?? '')}
+      ${cell(c.role?.name ?? '—')}
+      ${cell(c.english_score != null ? `${c.english_score}%` : '—', `text-align:center;font-weight:700;color:${engColor}`)}
+      ${cell(c.years_experience != null ? `${c.years_experience} yrs` : '—', 'text-align:center')}
+      ${cell(c.location?.name ?? '—')}
+      ${cell(c.status?.name ?? '—')}
+      ${cell(techs || '—', 'color:#374151;font-size:11px')}
+      ${c.linkedin_url
+        ? `<td style="padding:8px 12px;border:1px solid #d1d9f0;font-size:12px;text-align:center;vertical-align:middle"><a href="${c.linkedin_url}" style="color:#0A66C2;font-weight:600;text-decoration:none">LinkedIn ↗</a></td>`
+        : cell('—', 'text-align:center;color:#94a3b8')}
+      ${c.cv_url
+        ? `<td style="padding:8px 12px;border:1px solid #d1d9f0;font-size:12px;text-align:center;vertical-align:middle"><a href="${c.cv_url}" style="color:#0ea5e9;font-weight:600;text-decoration:none">Ver CV ↗</a></td>`
+        : cell('—', 'text-align:center;color:#94a3b8')}
+    </tr>`
+  }).join('')
+
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+    xmlns:x="urn:schemas-microsoft-com:office:excel"
+    xmlns="http://www.w3.org/TR/REC-html40">
+  <head><meta charset="UTF-8">
+  <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets>
+    <x:ExcelWorksheet><x:Name>Talent</x:Name>
+    <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
+    </x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+  <style>
+    body { font-family: Calibri, Arial, sans-serif; }
+    table { border-collapse: collapse; }
+  </style>
+  </head><body>
+  <p style="font-family:Calibri;font-size:18px;font-weight:800;color:#071D47;margin-bottom:4px">${title}</p>
+  <p style="font-family:Calibri;font-size:11px;color:#64748b;margin-bottom:14px">
+    ${candidates.length} candidate${candidates.length !== 1 ? 's' : ''} · Exported ${date} · Everscale Group PRT Suite
+  </p>
+  <table>
+    <thead><tr>${headerCells}</tr></thead>
+    <tbody>${dataRows}</tbody>
+  </table>
+  </body></html>`
+
+  const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' })
   const url  = URL.createObjectURL(blob)
   const a    = document.createElement('a')
-  const date = new Date().toISOString().slice(0, 10)
   a.href     = url
-  a.download = `talent${searchQuery ? '-' + searchQuery.replace(/\s+/g, '_') : ''}-${date}.csv`
+  a.download = `talent${searchQuery ? '-' + searchQuery.replace(/\s+/g, '_') : ''}-${date}.xls`
   a.click()
   URL.revokeObjectURL(url)
 }

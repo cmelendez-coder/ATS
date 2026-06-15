@@ -150,3 +150,17 @@ export async function deleteTrackerEntry(id) {
   const { error } = await supabase.from('tracker_entry').delete().eq('id', id)
   if (error) throw error
 }
+
+export async function uploadCVFile(file, candidateName) {
+  const ext  = file.name.split('.').pop()
+  const safe = (candidateName || 'candidato').replace(/[^a-zA-Z0-9]/g, '_').slice(0, 40)
+  const path = `${safe}_${Date.now()}.${ext}`
+  const { data, error } = await supabase.storage
+    .from('candidate-cvs')
+    .upload(path, file, { upsert: false })
+  if (error) throw error
+  const { data: { publicUrl } } = supabase.storage
+    .from('candidate-cvs')
+    .getPublicUrl(data.path)
+  return publicUrl
+}

@@ -10,7 +10,10 @@ export default function Layout({ children }) {
         collapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(prev => !prev)}
       />
-      <main className={`flex-1 flex flex-col relative h-full overflow-hidden transition-[margin] duration-200 ${sidebarCollapsed ? 'md:ml-20' : 'md:ml-64'}`}>
+      <main
+        className={`flex-1 flex flex-col relative h-full overflow-hidden transition-[margin] duration-200 ${sidebarCollapsed ? 'md:ml-20' : 'md:ml-64'}`}
+        onClick={() => { if (!sidebarCollapsed) setSidebarCollapsed(true) }}
+      >
         {children}
       </main>
     </div>

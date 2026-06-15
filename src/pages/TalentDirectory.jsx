@@ -69,88 +69,42 @@ const WA_SVG = `<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="
 const LI_SVG  = `<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>`
 const CV_SVG  = `<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 2L2 21l10-8z" fill="#00AC47"/><path d="M12 2l10 19-10-8z" fill="#FBBC04"/><path d="M2 21h20l-10-8z" fill="#4285F4"/></svg>`
 
-function exportToPDF(candidates, searchQuery) {
-  const win = window.open('', '_blank', 'width=1200,height=800')
-  if (!win) { alert('Activa las ventanas emergentes para exportar el PDF.'); return }
+function exportToExcel(candidates, searchQuery) {
+  const esc = v => {
+    const s = String(v ?? '').replace(/"/g, '""')
+    return s.includes(',') || s.includes('\n') || s.includes('"') ? `"${s}"` : s
+  }
 
-  const dateStr = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })
+  const headers = ['Name', 'Email', 'Phone', 'Role', 'English %', 'YoE', 'Location', 'Status', 'Technologies', 'LinkedIn', 'CV URL', 'WhatsApp']
 
-  const rows = candidates.map((c, i) => {
-    const techs = [...new Set((c.candidate_stack ?? []).map(s => s.technology?.ct_name_tech).filter(Boolean))]
-    const waLink = c.phone ? `https://wa.me/${c.phone.replace(/\D/g, '')}` : null
+  const rows = candidates.map(c => {
+    const techs = [...new Set((c.candidate_stack ?? []).map(s => s.technology?.ct_name_tech).filter(Boolean))].join(' | ')
+    const wa    = c.phone ? `https://wa.me/${c.phone.replace(/\D/g, '')}` : ''
+    return [
+      c.full_name,
+      c.email ?? '',
+      c.phone ?? '',
+      c.role?.name ?? '',
+      c.english_score ?? '',
+      c.years_experience ?? '',
+      c.location?.name ?? '',
+      c.status?.name ?? '',
+      techs,
+      c.linkedin_url ?? '',
+      c.cv_url ?? '',
+      wa,
+    ].map(esc).join(',')
+  })
 
-    const badges = techs.map(t => {
-      const [bg, fg] = pdfTechColor(t)
-      return `<span style="display:inline-block;background:${bg};color:${fg};padding:2px 8px;border-radius:9999px;font-size:11px;font-weight:600;margin:1px 2px;white-space:nowrap">${t}</span>`
-    }).join('')
-
-    const icons = [
-      c.linkedin_url ? `<a href="${c.linkedin_url}" style="color:#0077B5;text-decoration:none" title="LinkedIn">${LI_SVG}</a>` : '',
-      c.cv_url       ? `<a href="${c.cv_url}"       style="text-decoration:none"              title="Ver CV">${CV_SVG}</a>`  : '',
-      waLink         ? `<a href="${waLink}"          style="color:#25D366;text-decoration:none" title="WhatsApp">${WA_SVG}</a>` : '',
-    ].filter(Boolean).join('')
-
-    return `<tr style="background:${i % 2 === 0 ? '#ffffff' : '#f8fafc'}">
-      <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;vertical-align:top">
-        <div style="font-weight:700;color:#071D47;font-size:13px">${c.full_name}</div>
-        <div style="color:#64748b;font-size:11px;margin-top:2px">${c.role?.name ?? ''}</div>
-        ${c.email ? `<div style="color:#94a3b8;font-size:10px;margin-top:1px">${c.email}</div>` : ''}
-      </td>
-      <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;vertical-align:top">${badges || '<span style="color:#94a3b8">—</span>'}</td>
-      <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;text-align:center;font-weight:700;color:#071D47;vertical-align:middle">${c.english_score != null ? c.english_score + '%' : '—'}</td>
-      <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;text-align:center;color:#071D47;vertical-align:middle">${c.years_experience != null ? c.years_experience + 'y' : '—'}</td>
-      <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;color:#64748b;vertical-align:middle;white-space:nowrap">${c.location?.name ?? '—'}</td>
-      <td style="padding:10px 12px;border-bottom:1px solid #e2e8f0;vertical-align:middle">
-        <div style="display:flex;gap:10px;align-items:center">${icons}</div>
-      </td>
-    </tr>`
-  }).join('')
-
-  win.document.write(`<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="utf-8">
-  <title>Talent Directory${searchQuery ? ' — ' + searchQuery : ''}</title>
-  <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Segoe UI',Arial,sans-serif;background:#fff;color:#1e293b;padding:28px 36px}
-    .hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:14px;border-bottom:3px solid #071D47}
-    .hdr h1{font-size:22px;font-weight:800;color:#071D47}
-    .hdr .meta{font-size:12px;color:#64748b;margin-top:4px}
-    .brand{text-align:right;font-size:11px;color:#94a3b8;line-height:1.5}
-    table{width:100%;border-collapse:collapse;font-size:13px}
-    thead tr{background:#071D47}
-    th{padding:10px 12px;color:#fff;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;text-align:left}
-    svg{display:inline-block;vertical-align:middle}
-    @media print{body{padding:10px 14px}@page{margin:.8cm;size:A4 landscape}}
-  </style>
-</head>
-<body>
-  <div class="hdr">
-    <div>
-      <h1>PRT — Talent Directory</h1>
-      <div class="meta">${candidates.length} candidato${candidates.length !== 1 ? 's' : ''}${searchQuery ? ` · Búsqueda: "<strong>${searchQuery}</strong>"` : ' · Todos los perfiles'}</div>
-      <div class="meta" style="margin-top:2px">${dateStr}</div>
-    </div>
-    <div class="brand">Everscale Group<br>PRT Suite</div>
-  </div>
-  <table>
-    <thead>
-      <tr>
-        <th>Nombre / E-mail</th>
-        <th>Skills / Tecnologías</th>
-        <th style="text-align:center">English</th>
-        <th style="text-align:center">YoE</th>
-        <th>Ubicación</th>
-        <th>Contacto</th>
-      </tr>
-    </thead>
-    <tbody>${rows}</tbody>
-  </table>
-  <script>window.onload=()=>setTimeout(()=>window.print(),300)</script>
-</body>
-</html>`)
-  win.document.close()
+  const csv  = [headers.map(esc).join(','), ...rows].join('\r\n')
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+  const url  = URL.createObjectURL(blob)
+  const a    = document.createElement('a')
+  const date = new Date().toISOString().slice(0, 10)
+  a.href     = url
+  a.download = `talent${searchQuery ? '-' + searchQuery.replace(/\s+/g, '_') : ''}-${date}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
 }
 
 export default function TalentDirectory() {
@@ -242,12 +196,12 @@ export default function TalentDirectory() {
               {candidates.length > 0 && !loading && (
                 <button
                   type="button"
-                  onClick={() => exportToPDF(candidates, query)}
+                  onClick={() => exportToExcel(candidates, query)}
                   className="flex items-center gap-2 bg-surface-container border border-outline-variant/30 text-on-surface px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-surface-container-high transition-colors"
-                  title="Exportar resultados a PDF"
+                  title="Exportar resultados a Excel"
                 >
-                  <span className="material-symbols-outlined text-[18px] text-red-400">picture_as_pdf</span>
-                  Exportar PDF
+                  <span className="material-symbols-outlined text-[18px] text-green-400">table_view</span>
+                  Exportar Excel
                 </button>
               )}
               {can('talent.create') && (

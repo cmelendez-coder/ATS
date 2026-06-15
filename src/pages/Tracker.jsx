@@ -61,6 +61,7 @@ function emptyRow(weekNumber, weekYear, recruiter) {
     cv_url: '',
     linkedin_url: '',
     state: '',
+    screening_note: '',
     requirement_id: null,
     status: 'Screening',
     english_score: null,
@@ -235,14 +236,56 @@ function SentConfirmModal({ onConfirm, onCancel }) {
   )
 }
 
+function ScreeningNoteModal({ onConfirm, onCancel }) {
+  const [note, setNote] = useState('')
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div className="bg-surface-container-high rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="material-symbols-outlined text-blue-400 text-[20px]">schedule</span>
+          <h3 className="text-base font-bold text-on-surface">Nota de Screening</h3>
+        </div>
+        <p className="text-xs text-on-surface-variant mb-4 leading-relaxed">
+          Agrega una nota de seguimiento para este candidato (ej. <em>"Hoy 2:00p.m."</em>).
+        </p>
+        <input
+          autoFocus
+          className="w-full bg-surface text-on-surface text-sm px-3 py-2 rounded-lg border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-primary/30 mb-4 placeholder:text-on-surface-variant/40"
+          placeholder='Ej. "Hoy 2:00p.m."'
+          value={note}
+          onChange={e => setNote(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter') onConfirm(note) }}
+        />
+        <div className="flex gap-3 justify-end">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-5 py-2 rounded-lg text-sm font-semibold bg-surface-container text-on-surface-variant hover:bg-surface-container-highest transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={() => onConfirm(note)}
+            className="px-5 py-2 rounded-lg text-sm font-semibold bg-blue-600 text-white hover:opacity-90 transition-opacity"
+          >
+            Guardar
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // Single editable row
 function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
   const [data, setData]           = useState({ ...row })
   const [saving, setSaving]       = useState(false)
   const [error, setError]         = useState(null)
   const [editing, setEditing]     = useState(!readOnly && (row._editing ?? false))
-  const [showSentModal, setShowSentModal] = useState(false)
-  const [cvUploading, setCvUploading]     = useState(false)
+  const [showSentModal, setShowSentModal]           = useState(false)
+  const [showScreeningModal, setShowScreeningModal] = useState(false)
+  const [cvUploading, setCvUploading]               = useState(false)
   const stateListId = useId()
 
   function set(field, value) {
@@ -297,6 +340,9 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
           {data.candidate_name}
           {data.candidate_id && <span className="ml-1 text-secondary" title="En Talent Directory"><span className="material-symbols-outlined text-[11px] align-middle">check_circle</span></span>}
         </td>
+        <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
+          {req ? <span>{req.job_title} <span className="text-on-surface-variant/50">· {req.client?.name}</span></span> : '—'}
+        </td>
         <td className="px-3 py-2 text-xs">
           {data.cv_url
             ? <a href={data.cv_url} target="_blank" rel="noreferrer" className="text-primary hover:underline flex items-center gap-1"><span className="material-symbols-outlined text-[13px]">open_in_new</span>CV</a>
@@ -312,13 +358,13 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
         <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
           {data.state || <span className="text-on-surface-variant/40">—</span>}
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
-          {req ? <span>{req.job_title} <span className="text-on-surface-variant/50">· {req.client?.name}</span></span> : '—'}
-        </td>
         <td className="px-3 py-2">
           <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap ${STATUS_STYLE[data.status] ?? STATUS_STYLE['Pending']}`}>
             {data.status}
           </span>
+          {data.status === 'Screening' && data.screening_note && (
+            <p className="text-[10px] text-blue-300/70 mt-0.5 whitespace-nowrap">{data.screening_note}</p>
+          )}
         </td>
         <td className="px-3 py-2 text-xs text-on-surface-variant text-center">{data.english_score != null ? `${data.english_score}%` : '—'}</td>
         <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
@@ -359,6 +405,15 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
               cv_url: cv_url !== undefined ? cv_url : prev.cv_url,
             }))
           }}
+        />
+      </td>
+
+      {/* Requerimiento/Cliente */}
+      <td className="px-2 py-1.5 min-w-[200px]">
+        <RequirementSearch
+          value={data.requirement_id}
+          requirements={requirements}
+          onSelect={id => set('requirement_id', id)}
         />
       </td>
 
@@ -448,15 +503,6 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
         </datalist>
       </td>
 
-      {/* Posición / Requerimiento */}
-      <td className="px-2 py-1.5 min-w-[200px]">
-        <RequirementSearch
-          value={data.requirement_id}
-          requirements={requirements}
-          onSelect={id => set('requirement_id', id)}
-        />
-      </td>
-
       {/* Status */}
       <td className="px-2 py-1.5 min-w-[120px]">
         <select
@@ -465,6 +511,8 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
           onChange={e => {
             if (e.target.value === 'Sent') {
               setShowSentModal(true)
+            } else if (e.target.value === 'Screening') {
+              setShowScreeningModal(true)
             } else {
               set('status', e.target.value)
             }
@@ -472,10 +520,19 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
         >
           {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
+        {data.status === 'Screening' && data.screening_note && (
+          <p className="text-[10px] text-blue-300/70 mt-0.5 px-1">{data.screening_note}</p>
+        )}
         {showSentModal && (
           <SentConfirmModal
             onConfirm={() => { set('status', 'Sent'); setShowSentModal(false) }}
             onCancel={() => setShowSentModal(false)}
+          />
+        )}
+        {showScreeningModal && (
+          <ScreeningNoteModal
+            onConfirm={note => { set('status', 'Screening'); set('screening_note', note); setShowScreeningModal(false) }}
+            onCancel={() => setShowScreeningModal(false)}
           />
         )}
       </td>
@@ -700,7 +757,7 @@ export default function Tracker() {
                 <table className="w-full text-left border-collapse min-w-[900px]">
                   <thead>
                     <tr className="bg-surface-container-low border-b border-outline-variant/10">
-                      {['Candidato', 'CV', 'LinkedIn', 'Estado', 'Posición / Requerimiento', 'Status', 'English', 'Salario', 'Notas', ''].map(h => (
+                      {['Candidato', 'Requerimiento/Cliente', 'CV', 'LinkedIn', 'Estado', 'Status', 'English', 'Salario', 'Notas', ''].map(h => (
                         <th key={h} className="px-3 py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">{h}</th>
                       ))}
                     </tr>

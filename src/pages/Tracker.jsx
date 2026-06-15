@@ -370,7 +370,9 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
         </td>
         <td className="px-3 py-2 text-xs text-on-surface-variant text-center">{data.english_score != null ? `${data.english_score}%` : '—'}</td>
         <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
-          {data.salary ? `${data.salary}${data.amount_type ? ` (${data.amount_type})` : ''}` : '—'}
+          {data.salary
+            ? `$${Number(String(data.salary).replace(/[^0-9.]/g,'')).toLocaleString('en-US').replace(/,/g,"'")}${data.amount_type ? ` (${data.amount_type})` : ''}`
+            : '—'}
         </td>
         <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[220px] truncate">{data.notes || '—'}</td>
         <td className="px-3 py-2">

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { searchCandidates, fetchCatalog } from '../api/talent'
+import { searchCandidates } from '../api/talent'
 import { usePermissions } from '../hooks/usePermissions'
 
 // Deterministic color per tech name
@@ -54,17 +54,15 @@ export default function TalentDirectory() {
   const [candidates, setCandidates] = useState([])
   const [loading, setLoading]       = useState(true)
   const [error, setError]           = useState(null)
-  const [query, setQuery]               = useState('')
-  const [techFilter, setTechFilter]     = useState('')
-  const [englishMin, setEnglishMin]     = useState('')
-  const [englishMax, setEnglishMax]     = useState('')
-  const [searching, setSearching]       = useState(false)
-  const [technologies, setTechnologies] = useState([])
+  const [query, setQuery]           = useState('')
+  const [englishMin, setEnglishMin] = useState('')
+  const [englishMax, setEnglishMax] = useState('')
+  const [searching, setSearching]   = useState(false)
 
-  const load = useCallback(async (q = '', tech = '', eMin = '', eMax = '') => {
+  const load = useCallback(async (q = '', eMin = '', eMax = '') => {
     try {
       setSearching(true)
-      const data = await searchCandidates({ q, tech, englishMin: eMin, englishMax: eMax })
+      const data = await searchCandidates({ q, englishMin: eMin, englishMax: eMax })
       setCandidates(data)
       setError(null)
     } catch {
@@ -77,23 +75,16 @@ export default function TalentDirectory() {
 
   useEffect(() => { load() }, [load])
 
-  useEffect(() => {
-    fetchCatalog('catalog_technology', 'ct_name_tech', 'technology_id')
-      .then(rows => setTechnologies(rows.map(r => r.ct_name_tech)))
-      .catch(() => {})
-  }, [])
-
   function handleSearch(e) {
     e.preventDefault()
-    load(query, techFilter, englishMin, englishMax)
+    load(query, englishMin, englishMax)
   }
 
   function clearFilters() {
     setQuery('')
-    setTechFilter('')
     setEnglishMin('')
     setEnglishMax('')
-    load('', '', '', '')
+    load('', '', '')
   }
 
   const total = candidates.length
@@ -108,7 +99,7 @@ export default function TalentDirectory() {
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-[18px]">search</span>
             <input
               className="bg-surface-container-high border-none outline-none ring-0 h-9 pl-10 pr-4 rounded-full text-sm w-60 focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:text-on-surface-variant"
-              placeholder="Search talent..."
+              placeholder="Buscar talent…"
               value={query}
               onChange={e => setQuery(e.target.value)}
             />
@@ -158,29 +149,12 @@ export default function TalentDirectory() {
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
               <input
                 className="w-full pl-10 pr-4 py-2.5 bg-surface-container-high border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 transition-shadow placeholder:text-on-surface-variant text-on-surface"
-                placeholder="Search by name or email..."
+                placeholder="Buscar por nombre, skill o rol…"
                 value={query}
                 onChange={e => setQuery(e.target.value)}
               />
             </div>
             <div className="flex gap-3 flex-wrap items-center justify-start">
-              <div className="relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[16px] pointer-events-none">code</span>
-                <select
-                  className="bg-surface-container-high border-none text-sm text-on-surface rounded-lg py-2.5 pl-9 pr-8 focus:ring-2 focus:ring-primary/20 min-w-[220px] appearance-none"
-                  value={techFilter}
-                  onChange={e => {
-                    const val = e.target.value
-                    setTechFilter(val)
-                    load(query, val, englishMin, englishMax)
-                  }}
-                >
-                  <option value="">All technologies</option>
-                  {technologies.map(t => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
-                </select>
-              </div>
               <div className="flex items-center gap-1.5">
                 <span className="text-[11px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">English</span>
                 <input
@@ -211,7 +185,7 @@ export default function TalentDirectory() {
                 </span>
                 {searching ? 'Buscando…' : 'Buscar'}
               </button>
-              {(query || techFilter || englishMin || englishMax) && (
+              {(query || englishMin || englishMax) && (
                 <button
                   type="button"
                   onClick={clearFilters}

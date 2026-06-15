@@ -13,8 +13,9 @@ async function upsertCatalog(table, nameCol, idCol, value) {
 }
 
 // ─── Search / list candidates ─────────────────────────────────────
-export async function searchCandidates({ q = '', tech = '', englishMin = '', englishMax = '' } = {}) {
-  let query = supabase
+// Searches across: full_name, email, role name, technology names, and skillset notes (all OR'd)
+export async function searchCandidates({ q = '', englishMin = '', englishMax = '' } = {}) {
+  let baseQuery = supabase
     .from('candidate')
     .select(`
       candidate_id, candidate_code, full_name, email, phone,
@@ -29,35 +30,53 @@ export async function searchCandidates({ q = '', tech = '', englishMin = '', eng
     .order('created_at', { ascending: false })
     .limit(5000)
 
-  if (q.trim()) {
-    query = query.or(`full_name.ilike.%${q.trim()}%,email.ilike.%${q.trim()}%,candidate_code.ilike.%${q.trim()}%`)
+  if (englishMin !== '') baseQuery = baseQuery.gte('english_score', Number(englishMin))
+  if (englishMax !== '') baseQuery = baseQuery.lte('english_score', Number(englishMax))
+
+  if (!q.trim()) {
+    const { data, error } = await baseQuery
+    if (error) throw error
+    return data ?? []
   }
 
-  if (englishMin !== '') query = query.gte('english_score', Number(englishMin))
-  if (englishMax !== '') query = query.lte('english_score', Number(englishMax))
+  const term = q.trim()
 
-  if (tech.trim()) {
-    // Resolve matching technology IDs from catalog
-    const { data: techRows } = await supabase
-      .from('catalog_technology')
-      .select('technology_id')
-      .ilike('ct_name_tech', `%${tech.trim()}%`)
+  // Parallel lookups in related tables
+  const [techData, roleData, noteData] = await Promise.all([
+    supabase.from('catalog_technology').select('technology_id').ilike('ct_name_tech', `%${term}%`),
+    supabase.from('catalog_role').select('role_id').ilike('name', `%${term}%`),
+    supabase.from('candidate_note').select('candidate_id').ilike('note_text', `%${term}%`).eq('note_type', 'skillset'),
+  ])
 
-    if (!techRows?.length) return []
-
-    // Get all candidate IDs that have any of those technologies
+  // Resolve tech IDs → candidate IDs via candidate_stack
+  let techCandIds = []
+  if (techData.data?.length) {
     const { data: stackRows } = await supabase
       .from('candidate_stack')
       .select('candidate_id')
-      .in('technology_id', techRows.map(r => r.technology_id))
-
-    if (!stackRows?.length) return []
-
-    const ids = [...new Set(stackRows.map(r => r.candidate_id))]
-    query = query.in('candidate_id', ids)
+      .in('technology_id', techData.data.map(r => r.technology_id))
+    techCandIds = (stackRows ?? []).map(r => r.candidate_id)
   }
 
-  const { data, error } = await query
+  // Merge all indirect candidate IDs (tech + skillset notes)
+  const extraIds = [...new Set([
+    ...techCandIds,
+    ...(noteData.data ?? []).map(r => r.candidate_id),
+  ])]
+
+  // Build OR: name, email, role, and all indirect matches
+  const conditions = [
+    `full_name.ilike.%${term}%`,
+    `email.ilike.%${term}%`,
+  ]
+  if (roleData.data?.length) {
+    conditions.push(`role_id.in.(${roleData.data.map(r => r.role_id).join(',')})`)
+  }
+  if (extraIds.length) {
+    conditions.push(`candidate_id.in.(${extraIds.join(',')})`)
+  }
+
+  const { data, error } = await baseQuery.or(conditions.join(','))
   if (error) throw error
   return data ?? []
 }

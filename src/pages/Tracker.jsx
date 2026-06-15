@@ -15,12 +15,12 @@ const TABS = [
   { key: 'cesar',   label: 'César'   },
 ]
 
-const STATUS_OPTIONS  = ['Pending', 'Sent', 'Rejected', 'HSE', 'On Hold', 'Backed Out']
+const STATUS_OPTIONS  = ['Screening', 'Sent', 'Rejected', 'HSE', 'On Hold', 'Backed Out']
 const ENGLISH_OPTIONS = [90, 85, 80, 75, 70, 60, 50, 40, 30]
 const AMOUNT_TYPES    = ['Gross', 'Net']
 
 const STATUS_STYLE = {
-  'Pending':    'bg-surface-container text-on-surface-variant',
+  'Screening':  'bg-blue-600/20 text-blue-300 border border-blue-500/40',
   'Sent':       'bg-pink-600/20 text-pink-300 border border-pink-500/40',
   'Rejected':   'bg-red-600/20 text-red-300 border border-red-500/40',
   'HSE':        'bg-yellow-500/20 text-yellow-300 border border-yellow-400/40',
@@ -51,7 +51,7 @@ function emptyRow(weekNumber, weekYear, recruiter) {
     candidate_name: '',
     cv_url: '',
     requirement_id: null,
-    status: 'Pending',
+    status: 'Screening',
     english_score: null,
     salary: '',
     amount_type: '',
@@ -219,12 +219,80 @@ function RequirementSearch({ value, requirements, onSelect, disabled }) {
   )
 }
 
+// Two-step confirmation modal for "Sent" status
+function SentConfirmModal({ onConfirm, onCancel }) {
+  const [step, setStep] = useState(1)
+
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div className="bg-surface-container-high rounded-2xl shadow-2xl border border-outline-variant/20 p-6 w-full max-w-sm mx-4">
+        {step === 1 ? (
+          <>
+            <div className="flex items-start gap-3 mb-4">
+              <span className="material-symbols-outlined text-pink-400 text-[28px] shrink-0">send</span>
+              <div>
+                <h3 className="text-base font-bold text-on-surface leading-snug">¿Este candidato se envió a cliente el día de hoy?</h3>
+                <p className="text-xs text-on-surface-variant mt-2 leading-relaxed">
+                  Al dar click en <strong className="text-primary">"Sí"</strong>, este candidato contaría para el promedio de <strong className="text-primary">Weekly Submittals</strong>.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3 justify-end mt-6">
+              <button
+                type="button"
+                onClick={onCancel}
+                className="px-5 py-2 rounded-lg text-sm font-semibold bg-surface-container text-on-surface-variant hover:bg-surface-container-highest transition-colors"
+              >
+                No
+              </button>
+              <button
+                type="button"
+                onClick={() => setStep(2)}
+                className="px-5 py-2 rounded-lg text-sm font-semibold bg-primary text-on-primary hover:opacity-90 transition-opacity"
+              >
+                Sí
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center gap-3 mb-4">
+              <span className="material-symbols-outlined text-yellow-400 text-[28px] shrink-0">help</span>
+              <h3 className="text-base font-bold text-on-surface">¿Seguro?</h3>
+            </div>
+            <p className="text-xs text-on-surface-variant leading-relaxed mb-6">
+              Esta acción marcará al candidato como <strong className="text-pink-300">Sent</strong> y lo vinculará al requerimiento seleccionado.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                type="button"
+                onClick={onCancel}
+                className="px-5 py-2 rounded-lg text-sm font-semibold bg-surface-container text-on-surface-variant hover:bg-surface-container-highest transition-colors"
+              >
+                No
+              </button>
+              <button
+                type="button"
+                onClick={onConfirm}
+                className="px-5 py-2 rounded-lg text-sm font-semibold bg-pink-600 text-white hover:opacity-90 transition-opacity"
+              >
+                Sí
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // Single editable row
 function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
-  const [data, setData]       = useState({ ...row })
-  const [saving, setSaving]   = useState(false)
-  const [error, setError]     = useState(null)
-  const [editing, setEditing] = useState(!readOnly && (row._editing ?? false))
+  const [data, setData]           = useState({ ...row })
+  const [saving, setSaving]       = useState(false)
+  const [error, setError]         = useState(null)
+  const [editing, setEditing]     = useState(!readOnly && (row._editing ?? false))
+  const [showSentModal, setShowSentModal] = useState(false)
 
   function set(field, value) {
     setData(prev => ({ ...prev, [field]: value }))
@@ -342,10 +410,22 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
         <select
           className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-primary/30"
           value={data.status}
-          onChange={e => set('status', e.target.value)}
+          onChange={e => {
+            if (e.target.value === 'Sent') {
+              setShowSentModal(true)
+            } else {
+              set('status', e.target.value)
+            }
+          }}
         >
           {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
+        {showSentModal && (
+          <SentConfirmModal
+            onConfirm={() => { set('status', 'Sent'); setShowSentModal(false) }}
+            onCancel={() => setShowSentModal(false)}
+          />
+        )}
       </td>
 
       {/* English */}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useId } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import {
@@ -14,6 +14,14 @@ import {
 const TABS = [
   { key: 'enrique', label: 'Enrique' },
   { key: 'cesar',   label: 'César'   },
+]
+
+const MX_STATES = [
+  'Aguascalientes','Baja California','Baja California Sur','Campeche','Chiapas','Chihuahua',
+  'Ciudad de México','Coahuila','Colima','Durango','Estado de México','Guanajuato','Guerrero',
+  'Hidalgo','Jalisco','Michoacán','Morelos','Nayarit','Nuevo León','Oaxaca','Puebla',
+  'Querétaro','Quintana Roo','San Luis Potosí','Sinaloa','Sonora','Tabasco','Tamaulipas',
+  'Tlaxcala','Veracruz','Yucatán','Zacatecas',
 ]
 
 const STATUS_OPTIONS  = ['Screening', 'Sent', 'Rejected', 'HSE', 'On Hold', 'Backed Out']
@@ -52,6 +60,7 @@ function emptyRow(weekNumber, weekYear, recruiter) {
     candidate_name: '',
     cv_url: '',
     linkedin_url: '',
+    state: '',
     requirement_id: null,
     status: 'Screening',
     english_score: null,
@@ -234,6 +243,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
   const [editing, setEditing]     = useState(!readOnly && (row._editing ?? false))
   const [showSentModal, setShowSentModal] = useState(false)
   const [cvUploading, setCvUploading]     = useState(false)
+  const stateListId = useId()
 
   function set(field, value) {
     setData(prev => ({ ...prev, [field]: value }))
@@ -298,6 +308,9 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
               </a>
             : <span className="text-on-surface-variant/40">—</span>}
+        </td>
+        <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
+          {data.state || <span className="text-on-surface-variant/40">—</span>}
         </td>
         <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
           {req ? <span>{req.job_title} <span className="text-on-surface-variant/50">· {req.client?.name}</span></span> : '—'}
@@ -419,6 +432,20 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
             onChange={e => set('linkedin_url', e.target.value)}
           />
         )}
+      </td>
+
+      {/* Estado (entidad federativa) */}
+      <td className="px-2 py-1.5 min-w-[150px]">
+        <input
+          list={stateListId}
+          className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none"
+          placeholder="Estado…"
+          value={data.state || ''}
+          onChange={e => set('state', e.target.value)}
+        />
+        <datalist id={stateListId}>
+          {MX_STATES.map(s => <option key={s} value={s} />)}
+        </datalist>
       </td>
 
       {/* Posición / Requerimiento */}
@@ -673,7 +700,7 @@ export default function Tracker() {
                 <table className="w-full text-left border-collapse min-w-[900px]">
                   <thead>
                     <tr className="bg-surface-container-low border-b border-outline-variant/10">
-                      {['Candidato', 'CV', 'LinkedIn', 'Posición / Requerimiento', 'Status', 'English', 'Salario', 'Notas', ''].map(h => (
+                      {['Candidato', 'CV', 'LinkedIn', 'Estado', 'Posición / Requerimiento', 'Status', 'English', 'Salario', 'Notas', ''].map(h => (
                         <th key={h} className="px-3 py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">{h}</th>
                       ))}
                     </tr>

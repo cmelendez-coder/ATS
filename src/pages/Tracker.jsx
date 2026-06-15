@@ -372,21 +372,6 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
         <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
           {data.state || <span className="text-on-surface-variant/40">—</span>}
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant text-center">
-          {data.yoe != null && data.yoe !== '' ? `${data.yoe} yrs` : <span className="text-on-surface-variant/40">—</span>}
-        </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
-          {data.target_role || <span className="text-on-surface-variant/40">—</span>}
-        </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[200px] truncate" title={data.technologies}>
-          {data.technologies || <span className="text-on-surface-variant/40">—</span>}
-        </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[200px] truncate" title={data.skills}>
-          {data.skills || <span className="text-on-surface-variant/40">—</span>}
-        </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
-          {data.modules || <span className="text-on-surface-variant/40">—</span>}
-        </td>
         <td className="px-3 py-2">
           <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap ${STATUS_STYLE[data.status] ?? STATUS_STYLE['Pending']}`}>
             {data.status}
@@ -402,6 +387,21 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
             : '—'}
         </td>
         <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[220px] truncate">{data.notes || '—'}</td>
+        <td className="px-3 py-2 text-xs text-on-surface-variant text-center">
+          {data.yoe != null && data.yoe !== '' ? `${data.yoe} yrs` : <span className="text-on-surface-variant/40">—</span>}
+        </td>
+        <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
+          {data.target_role || <span className="text-on-surface-variant/40">—</span>}
+        </td>
+        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[200px] truncate" title={data.technologies}>
+          {data.technologies || <span className="text-on-surface-variant/40">—</span>}
+        </td>
+        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[200px] truncate" title={data.skills}>
+          {data.skills || <span className="text-on-surface-variant/40">—</span>}
+        </td>
+        <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
+          {data.modules || <span className="text-on-surface-variant/40">—</span>}
+        </td>
         <td className="px-3 py-2">
           {!readOnly && (
             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -534,58 +534,6 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
         </datalist>
       </td>
 
-      {/* YoE */}
-      <td className="px-2 py-1.5 min-w-[60px]">
-        <input
-          type="number"
-          min="0" max="50"
-          className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none text-center"
-          placeholder="0"
-          value={data.yoe ?? ''}
-          onChange={e => set('yoe', e.target.value === '' ? null : Number(e.target.value))}
-        />
-      </td>
-
-      {/* Target Role */}
-      <td className="px-2 py-1.5 min-w-[140px]">
-        <input
-          className="w-full bg-transparent text-on-surface text-xs px-2 py-1.5 focus:outline-none placeholder:text-on-surface-variant/40"
-          placeholder="Target Role…"
-          value={data.target_role || ''}
-          onChange={e => set('target_role', e.target.value)}
-        />
-      </td>
-
-      {/* Technologies */}
-      <td className="px-2 py-1.5 min-w-[180px]">
-        <input
-          className="w-full bg-transparent text-on-surface text-xs px-2 py-1.5 focus:outline-none placeholder:text-on-surface-variant/40"
-          placeholder="Technologies…"
-          value={data.technologies || ''}
-          onChange={e => set('technologies', e.target.value)}
-        />
-      </td>
-
-      {/* Skills */}
-      <td className="px-2 py-1.5 min-w-[180px]">
-        <input
-          className="w-full bg-transparent text-on-surface text-xs px-2 py-1.5 focus:outline-none placeholder:text-on-surface-variant/40"
-          placeholder="Skills…"
-          value={data.skills || ''}
-          onChange={e => set('skills', e.target.value)}
-        />
-      </td>
-
-      {/* Modules (SAP) */}
-      <td className="px-2 py-1.5 min-w-[120px]">
-        <input
-          className="w-full bg-transparent text-on-surface text-xs px-2 py-1.5 focus:outline-none placeholder:text-on-surface-variant/40"
-          placeholder="Modules…"
-          value={data.modules || ''}
-          onChange={e => set('modules', e.target.value)}
-        />
-      </td>
-
       {/* Status */}
       <td className="px-2 py-1.5 min-w-[120px]">
         <select
@@ -659,6 +607,58 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
           placeholder="Notas…"
           value={data.notes || ''}
           onChange={e => set('notes', e.target.value)}
+        />
+      </td>
+
+      {/* YoE */}
+      <td className="px-2 py-1.5 min-w-[60px]">
+        <input
+          type="number"
+          min="0" max="50"
+          className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none text-center"
+          placeholder="0"
+          value={data.yoe ?? ''}
+          onChange={e => set('yoe', e.target.value === '' ? null : Number(e.target.value))}
+        />
+      </td>
+
+      {/* Target Role */}
+      <td className="px-2 py-1.5 min-w-[140px]">
+        <input
+          className="w-full bg-transparent text-on-surface text-xs px-2 py-1.5 focus:outline-none placeholder:text-on-surface-variant/40"
+          placeholder="Target Role…"
+          value={data.target_role || ''}
+          onChange={e => set('target_role', e.target.value)}
+        />
+      </td>
+
+      {/* Technologies */}
+      <td className="px-2 py-1.5 min-w-[180px]">
+        <input
+          className="w-full bg-transparent text-on-surface text-xs px-2 py-1.5 focus:outline-none placeholder:text-on-surface-variant/40"
+          placeholder="Technologies…"
+          value={data.technologies || ''}
+          onChange={e => set('technologies', e.target.value)}
+        />
+      </td>
+
+      {/* Skills */}
+      <td className="px-2 py-1.5 min-w-[180px]">
+        <input
+          className="w-full bg-transparent text-on-surface text-xs px-2 py-1.5 focus:outline-none placeholder:text-on-surface-variant/40"
+          placeholder="Skills…"
+          value={data.skills || ''}
+          onChange={e => set('skills', e.target.value)}
+        />
+      </td>
+
+      {/* Modules (SAP) */}
+      <td className="px-2 py-1.5 min-w-[120px]">
+        <input
+          className="w-full bg-transparent text-on-surface text-xs px-2 py-1.5 focus:outline-none placeholder:text-on-surface-variant/40"
+          placeholder="Modules…"
+          value={data.modules || ''}
+          onChange={e => set('modules', e.target.value)}
         />
       </td>
 
@@ -840,7 +840,7 @@ export default function Tracker() {
                 <table className="w-full text-left border-collapse min-w-[900px]">
                   <thead>
                     <tr className="bg-surface-container-low border-b border-outline-variant/10">
-                      {['Candidato', 'Requerimiento/Cliente', 'CV', 'LinkedIn', 'Estado', 'YoE', 'Target Role', 'Technologies', 'Skills', 'Modules', 'Status', 'English', 'Salario', 'Notas', ''].map(h => (
+                      {['Candidato', 'Requerimiento/Cliente', 'CV', 'LinkedIn', 'Estado', 'Status', 'English', 'Salario', 'Notas', 'YoE', 'Target Role', 'Technologies', 'Skills', 'Modules', ''].map(h => (
                         <th key={h} className="px-3 py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">{h}</th>
                       ))}
                     </tr>

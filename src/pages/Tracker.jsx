@@ -138,84 +138,22 @@ function CandidateSearch({ value, candidateId, onSelect, disabled }) {
   )
 }
 
-// Requirement searchable dropdown (combobox — single stable input, no DOM swap)
+// Requirement dropdown — native select (renders outside overflow:hidden containers)
 function RequirementSearch({ value, requirements, onSelect, disabled }) {
-  const [query, setQuery] = useState('')
-  const [open, setOpen]   = useState(false)
-  const wrapRef           = useRef(null)
-  const inputRef          = useRef(null)
-
-  const selected = requirements.find(r => r.id === value)
-
-  const filtered = query.trim()
-    ? requirements.filter(r => {
-        const q = query.toLowerCase()
-        return String(r.job_title  ?? '').toLowerCase().includes(q) ||
-               String(r.client?.name ?? '').toLowerCase().includes(q) ||
-               String(r.req_number ?? '').toLowerCase().includes(q)
-      })
-    : requirements
-
-  useEffect(() => {
-    function handleClick(e) {
-      if (wrapRef.current && !wrapRef.current.contains(e.target)) {
-        setOpen(false)
-        setQuery('')
-      }
-    }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [])
-
-  function pick(req) {
-    onSelect(req.id)
-    setOpen(false)
-    setQuery('')
-    inputRef.current?.blur()
-  }
-
-  // When focused and searching: show query. When closed: show selected label.
-  const displayValue = open
-    ? query
-    : (selected ? `${selected.job_title} — ${selected.client?.name ?? ''}` : '')
-
   return (
-    <div ref={wrapRef} className="relative w-full">
-      <input
-        ref={inputRef}
-        type="text"
-        autoComplete="off"
-        spellCheck={false}
-        disabled={disabled}
-        className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none placeholder:text-on-surface-variant/40 cursor-pointer"
-        placeholder="Seleccionar posición…"
-        value={displayValue}
-        onFocus={() => { setOpen(true); setQuery('') }}
-        onChange={e => { setQuery(e.target.value); setOpen(true) }}
-        onBlur={() => setTimeout(() => { setOpen(false); setQuery('') }, 150)}
-        onKeyDown={e => {
-          if (e.key === 'Escape') { setOpen(false); setQuery(''); inputRef.current?.blur() }
-        }}
-      />
-      {open && (
-        <div className="absolute left-0 top-full mt-1 z-[60] bg-surface-container-high border border-outline-variant/30 rounded-lg shadow-xl w-72 max-h-56 overflow-y-auto">
-          {filtered.length === 0
-            ? <p className="text-xs text-on-surface-variant p-3">Sin resultados.</p>
-            : filtered.map(r => (
-              <button
-                key={r.id}
-                type="button"
-                className="w-full text-left px-3 py-2 hover:bg-surface-container text-xs border-b border-outline-variant/10 last:border-0"
-                onMouseDown={() => pick(r)}
-              >
-                <span className="text-primary font-medium block">{r.job_title}</span>
-                <span className="text-on-surface-variant/60">{r.client?.name} · {r.req_number}</span>
-              </button>
-            ))
-          }
-        </div>
-      )}
-    </div>
+    <select
+      className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none cursor-pointer"
+      value={value ?? ''}
+      disabled={disabled}
+      onChange={e => onSelect(e.target.value ? Number(e.target.value) : null)}
+    >
+      <option value="">Seleccionar posición…</option>
+      {requirements.map(r => (
+        <option key={r.id} value={r.id}>
+          {r.job_title}{r.client?.name ? ` — ${r.client.name}` : ''}
+        </option>
+      ))}
+    </select>
   )
 }
 

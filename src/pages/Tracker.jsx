@@ -7,6 +7,7 @@ import {
   searchCandidatesSimple,
   saveTrackerEntry,
   deleteTrackerEntry,
+  uploadCVFile,
   recruiterFromEmail,
 } from '../api/tracker'
 
@@ -231,9 +232,25 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
   const [error, setError]         = useState(null)
   const [editing, setEditing]     = useState(!readOnly && (row._editing ?? false))
   const [showSentModal, setShowSentModal] = useState(false)
+  const [cvUploading, setCvUploading]     = useState(false)
 
   function set(field, value) {
     setData(prev => ({ ...prev, [field]: value }))
+  }
+
+  async function handleCVUpload(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setCvUploading(true)
+    try {
+      const url = await uploadCVFile(file, data.candidate_name)
+      set('cv_url', url)
+    } catch (err) {
+      setError('Error al subir el CV: ' + (err.message ?? 'intenta de nuevo'))
+    } finally {
+      setCvUploading(false)
+      e.target.value = ''
+    }
   }
 
   async function handleSave() {
@@ -324,14 +341,44 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
         />
       </td>
 
-      {/* CV URL */}
-      <td className="px-2 py-1.5 min-w-[120px]">
-        <input
-          className="w-full bg-transparent text-on-surface text-xs px-2 py-1.5 focus:outline-none placeholder:text-on-surface-variant/40"
-          placeholder="https://…"
-          value={data.cv_url || ''}
-          onChange={e => set('cv_url', e.target.value)}
-        />
+      {/* CV — file upload */}
+      <td className="px-2 py-1.5 min-w-[110px]">
+        <div className="flex items-center gap-1.5">
+          {data.cv_url && (
+            <a
+              href={data.cv_url}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-1 text-xs text-primary hover:underline font-semibold shrink-0"
+              title="Ver CV"
+            >
+              <span className="material-symbols-outlined text-[14px]">description</span>
+              CV
+            </a>
+          )}
+          <label
+            className={`flex items-center gap-1 text-xs cursor-pointer rounded px-1.5 py-1 transition-colors shrink-0 ${
+              cvUploading
+                ? 'text-on-surface-variant/50 pointer-events-none'
+                : data.cv_url
+                  ? 'text-on-surface-variant hover:text-primary hover:bg-surface-container'
+                  : 'text-on-surface-variant hover:text-primary hover:bg-surface-container border border-dashed border-outline-variant/40'
+            }`}
+            title={data.cv_url ? 'Reemplazar CV' : 'Adjuntar CV'}
+          >
+            {cvUploading
+              ? <span className="material-symbols-outlined text-[14px] animate-spin">progress_activity</span>
+              : <span className="material-symbols-outlined text-[14px]">{data.cv_url ? 'swap_horiz' : 'attach_file'}</span>}
+            {!data.cv_url && !cvUploading && <span>Adjuntar</span>}
+            <input
+              type="file"
+              className="hidden"
+              accept=".pdf,.doc,.docx"
+              onChange={handleCVUpload}
+              disabled={cvUploading}
+            />
+          </label>
+        </div>
       </td>
 
       {/* Posición / Requerimiento */}

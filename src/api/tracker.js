@@ -86,6 +86,7 @@ export async function saveTrackerEntry(entry) {
     candidate_id:   candidateId,
     candidate_name: entry.candidate_name,
     cv_url:         entry.cv_url || null,
+    linkedin_url:   entry.linkedin_url || null,
     requirement_id: entry.requirement_id || null,
     status:         entry.status,
     english_score:  entry.english_score ?? null,

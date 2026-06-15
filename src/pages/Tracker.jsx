@@ -344,8 +344,15 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
     return (
       <tr className="hover:bg-surface-container/30 transition-colors group border-b border-outline-variant/10">
         <td className="px-3 py-2 text-xs text-primary font-medium whitespace-nowrap">
-          {data.candidate_name}
-          {data.candidate_id && <span className="ml-1 text-secondary" title="En Talent Directory"><span className="material-symbols-outlined text-[11px] align-middle">check_circle</span></span>}
+          <div className="flex items-center gap-1.5">
+            <span>{data.candidate_name}</span>
+            {data.candidate_id && <span className="text-secondary" title="En Talent Directory"><span className="material-symbols-outlined text-[11px] align-middle">check_circle</span></span>}
+            {!readOnly && (
+              <button type="button" onClick={() => setEditing(true)} className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary">
+                <span className="material-symbols-outlined text-[13px]">edit</span>
+              </button>
+            )}
+          </div>
         </td>
         <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
           {req ? <span>{req.job_title} <span className="text-on-surface-variant/50">· {req.client?.name}</span></span> : '—'}

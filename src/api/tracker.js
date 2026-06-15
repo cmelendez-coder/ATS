@@ -42,9 +42,14 @@ export async function fetchActiveRequirements() {
     .select('id, req_number, job_title, client:client_id(name), status:status_id(name)')
     .order('created_at', { ascending: false })
   if (error) throw error
-  return (data ?? []).filter(r =>
-    !String(r.status?.name ?? '').toLowerCase().startsWith('closed')
-  )
+  return (data ?? [])
+    .filter(r => !String(r.status?.name ?? '').toLowerCase().startsWith('closed'))
+    .sort((a, b) => {
+      const ca = String(a.client?.name ?? '').toLowerCase()
+      const cb = String(b.client?.name ?? '').toLowerCase()
+      if (ca !== cb) return ca.localeCompare(cb)
+      return String(a.job_title ?? '').toLowerCase().localeCompare(String(b.job_title ?? '').toLowerCase())
+    })
 }
 
 export async function saveTrackerEntry(entry) {

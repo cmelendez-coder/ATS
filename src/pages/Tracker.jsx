@@ -24,11 +24,12 @@ const MX_STATES = [
   'Tlaxcala','Veracruz','Yucatán','Zacatecas',
 ]
 
-const STATUS_OPTIONS  = ['CV', 'Screening', 'Sent', 'Rejected', 'Backed Out', 'HSE', 'On Hold']
+const STATUS_OPTIONS  = ['WA', 'Screening', 'CV', 'Sent', 'Rejected', 'Backed Out', 'HSE', 'On Hold']
 const ENGLISH_OPTIONS = [90, 85, 80, 75, 70, 60, 50, 40, 30]
 const AMOUNT_TYPES    = ['Gross', 'Net']
 
 const STATUS_STYLE = {
+  'WA':         'bg-green-600/20 text-green-300 border border-green-500/40',
   'CV':         'bg-purple-600/20 text-purple-300 border border-purple-500/40',
   'Screening':  'bg-blue-600/20 text-blue-300 border border-blue-500/40',
   'Sent':       'bg-pink-600/20 text-pink-300 border border-pink-500/40',

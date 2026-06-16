@@ -571,7 +571,15 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
   }
 
   return (
-    <tr className="bg-surface-container/40 border-b border-primary/20">
+    <tr
+      className="bg-surface-container/40 border-b border-primary/20"
+      onKeyDown={e => {
+        if (e.key === 'Enter' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'TEXTAREA') {
+          e.preventDefault()
+          handleSave()
+        }
+      }}
+    >
       {/* Candidato + Guardar */}
       <td className="px-2 py-1.5 min-w-[160px]">
         <CandidateSearch

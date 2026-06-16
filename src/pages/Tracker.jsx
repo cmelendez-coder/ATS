@@ -358,6 +358,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
   const [showSentModal, setShowSentModal]           = useState(false)
   const [showScreeningModal, setShowScreeningModal] = useState(false)
   const [cvUploading, setCvUploading]               = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm]   = useState(false)
   const [showStatusMenu, setShowStatusMenu]         = useState(false)
   const statusMenuRef = useRef(null)
   const stateListId = useId()
@@ -586,11 +587,30 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
               : <span className="material-symbols-outlined text-[12px]">save</span>}
             {saving ? 'Guardando…' : 'Guardar'}
           </button>
-          <button type="button" onClick={handleDelete} className="p-1 rounded hover:bg-red-500/10 text-on-surface-variant hover:text-red-400 transition-colors" title="Eliminar">
+          <button type="button" onClick={() => setShowDeleteConfirm(true)} className="p-1 rounded hover:bg-red-500/10 text-on-surface-variant hover:text-red-400 transition-colors" title="Eliminar">
             <span className="material-symbols-outlined text-[14px]">delete</span>
           </button>
         </div>
         {error && <p className="text-red-400 text-[10px] mt-1 px-2">{error}</p>}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+            <div className="bg-surface-container-high rounded-2xl shadow-2xl border border-outline-variant/20 p-6 w-full max-w-xs mx-4">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="material-symbols-outlined text-red-400 text-[26px]">delete</span>
+                <h3 className="text-base font-bold text-on-surface">¿Eliminar candidato?</h3>
+              </div>
+              <p className="text-xs text-on-surface-variant mb-6 leading-relaxed">Esta acción no se puede deshacer.</p>
+              <div className="flex gap-3 justify-end">
+                <button type="button" onClick={() => setShowDeleteConfirm(false)} className="px-4 py-2 rounded-lg text-sm font-semibold bg-surface-container text-on-surface-variant hover:bg-surface-container-highest transition-colors">
+                  No
+                </button>
+                <button type="button" onClick={() => { setShowDeleteConfirm(false); handleDelete() }} className="px-4 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white hover:opacity-90 transition-opacity">
+                  Sí, eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </td>
 
       {/* Requerimiento/Cliente */}

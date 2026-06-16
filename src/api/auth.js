@@ -26,7 +26,7 @@ export async function login({ EMAIL, PASS_CLP }) {
 
   const user = await fetchUserByAuthId(data.user.id)
   if (!user) throw new Error('Usuario no encontrado en el sistema')
-  return user
+  return { ...user, email: data.user.email }
 }
 
 export async function logout() {
@@ -36,5 +36,7 @@ export async function logout() {
 export async function getSessionUser() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
-  return fetchUserByAuthId(user.id)
+  const profile = await fetchUserByAuthId(user.id)
+  if (!profile) return null
+  return { ...profile, email: user.email }
 }

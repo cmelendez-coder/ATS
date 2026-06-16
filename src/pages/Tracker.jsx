@@ -30,6 +30,17 @@ const STATUS_ORDER    = { 'Screening': 0, 'WA': 1, 'CV': 2, 'Sent': 3, 'On Hold'
 const ENGLISH_OPTIONS = [90, 85, 80, 75, 70, 60, 50, 40, 30]
 const AMOUNT_TYPES    = ['Gross', 'Net']
 
+const STATUS_DOT = {
+  'WA':         'bg-green-400',
+  'CV':         'bg-purple-400',
+  'Screening':  'bg-blue-400',
+  'Sent':       'bg-pink-400',
+  'Rejected':   'bg-red-400',
+  'HSE':        'bg-yellow-400',
+  'On Hold':    'bg-slate-400',
+  'Backed Out': 'bg-neutral-400',
+}
+
 const STATUS_STYLE = {
   'WA':         'bg-green-600/20 text-green-300 border border-green-500/40',
   'CV':         'bg-purple-600/20 text-purple-300 border border-purple-500/40',
@@ -294,10 +305,10 @@ function ScreeningNoteModal({ onConfirm, onCancel }) {
 }
 
 // Expandable cell for long text — shows preview, click to open modal
-function CellPopover({ text }) {
+function CellPopover({ text, limit = 55 }) {
   const [open, setOpen] = useState(false)
   if (!text) return <span className="text-on-surface-variant/40">—</span>
-  if (text.length <= 55) return <span>{text}</span>
+  if (text.length <= limit) return <span>{text}</span>
   return (
     <>
       <button
@@ -306,7 +317,7 @@ function CellPopover({ text }) {
         className="text-left text-xs text-on-surface-variant hover:text-primary transition-colors"
         title="Click para ver completo"
       >
-        {text.slice(0, 55)}<span className="text-primary/60">…</span>
+        {text.slice(0, limit)}<span className="text-primary/60">…</span>
       </button>
       {open && (
         <div
@@ -342,7 +353,18 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
   const [showScreeningModal, setShowScreeningModal] = useState(false)
   const [cvUploading, setCvUploading]               = useState(false)
   const [analyzing, setAnalyzing]                   = useState(false)
+  const [showStatusMenu, setShowStatusMenu]         = useState(false)
+  const statusMenuRef = useRef(null)
   const stateListId = useId()
+
+  useEffect(() => {
+    if (!showStatusMenu) return
+    function handleClick(e) {
+      if (statusMenuRef.current && !statusMenuRef.current.contains(e.target)) setShowStatusMenu(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [showStatusMenu])
 
   function set(field, value) {
     setData(prev => ({ ...prev, [field]: value }))
@@ -377,6 +399,19 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
     } finally {
       setCvUploading(false)
       e.target.value = ''
+    }
+  }
+
+  async function quickUpdateStatus(newStatus, extraFields = {}) {
+    if (!data.id) return
+    const updatedData = { ...data, status: newStatus, ...extraFields }
+    setData(updatedData)
+    try {
+      await saveTrackerEntry(updatedData)
+      onSave()
+    } catch (e) {
+      setData(prev => ({ ...prev, status: data.status }))
+      setError(e.message ?? 'Error al guardar status')
     }
   }
 
@@ -439,9 +474,36 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
           {data.state || <span className="text-on-surface-variant/40">—</span>}
         </td>
         <td className="px-3 py-2">
-          <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap ${STATUS_STYLE[data.status] ?? STATUS_STYLE['Pending']}`}>
-            {data.status}
-          </span>
+          <div className="relative" ref={statusMenuRef}>
+            <button
+              type="button"
+              onClick={() => { if (!readOnly && data.id) setShowStatusMenu(s => !s) }}
+              className={`px-2 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap ${STATUS_STYLE[data.status] ?? ''} ${!readOnly && data.id ? 'cursor-pointer hover:opacity-80 transition-opacity' : 'cursor-default'}`}
+            >
+              {data.status}
+            </button>
+            {showStatusMenu && !readOnly && (
+              <div className="absolute left-0 top-full mt-1 z-50 bg-surface-container-high border border-outline-variant/30 rounded-lg shadow-xl min-w-[130px] py-1">
+                {STATUS_OPTIONS.map(s => (
+                  <button
+                    key={s}
+                    type="button"
+                    className={`w-full text-left px-3 py-1.5 text-xs hover:bg-surface-container transition-colors flex items-center gap-2 ${s === data.status ? 'text-primary font-bold' : 'text-on-surface'}`}
+                    onClick={() => {
+                      setShowStatusMenu(false)
+                      if (s === data.status) return
+                      if (s === 'Sent') setShowSentModal(true)
+                      else if (s === 'Screening') setShowScreeningModal(true)
+                      else quickUpdateStatus(s)
+                    }}
+                  >
+                    <span className={`w-2 h-2 rounded-full shrink-0 ${STATUS_DOT[s] ?? 'bg-gray-400'}`}></span>
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           {data.status === 'Screening' && data.screening_note && (
             <p className="text-[10px] text-blue-300/70 mt-0.5 whitespace-nowrap">{data.screening_note}</p>
           )}
@@ -459,11 +521,11 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
         <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[160px]">
           <CellPopover text={data.target_role} />
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[200px]">
-          <CellPopover text={data.technologies} />
+        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[120px]">
+          <CellPopover text={data.technologies} limit={10} />
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[200px]">
-          <CellPopover text={data.skills} />
+        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[120px]">
+          <CellPopover text={data.skills} limit={10} />
         </td>
         <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[140px]">
           <CellPopover text={data.modules} />
@@ -481,6 +543,18 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
           )}
           {readOnly && (
             <span className="material-symbols-outlined text-[14px] text-on-surface-variant/30" title="Solo lectura">lock</span>
+          )}
+          {showSentModal && !editing && (
+            <SentConfirmModal
+              onConfirm={() => { quickUpdateStatus('Sent'); setShowSentModal(false) }}
+              onCancel={() => setShowSentModal(false)}
+            />
+          )}
+          {showScreeningModal && !editing && (
+            <ScreeningNoteModal
+              onConfirm={note => { quickUpdateStatus('Screening', { screening_note: note }); setShowScreeningModal(false) }}
+              onCancel={() => setShowScreeningModal(false)}
+            />
           )}
         </td>
       </tr>
@@ -893,15 +967,29 @@ export default function Tracker() {
             </div>
           </div>
 
-          {/* Summary chips */}
-          {entries.length > 0 && (
+          {/* Summary chips + Add button */}
+          <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex gap-3 flex-wrap">
-              <span className="px-3 py-1 rounded-full bg-surface-container text-on-surface-variant text-xs font-bold">{entries.length} candidatos</span>
-              {sent > 0 && <span className="px-3 py-1 rounded-full bg-pink-600/20 text-pink-300 text-xs font-bold border border-pink-500/30">{sent} Sent</span>}
-              {rejected > 0 && <span className="px-3 py-1 rounded-full bg-red-600/20 text-red-300 text-xs font-bold border border-red-500/30">{rejected} Rejected/HSE/Backed Out</span>}
-              {onHold > 0 && <span className="px-3 py-1 rounded-full bg-slate-600/20 text-slate-300 text-xs font-bold border border-slate-500/30">{onHold} On Hold</span>}
+              {entries.length > 0 && (
+                <>
+                  <span className="px-3 py-1 rounded-full bg-surface-container text-on-surface-variant text-xs font-bold">{entries.length} candidatos</span>
+                  {sent > 0 && <span className="px-3 py-1 rounded-full bg-pink-600/20 text-pink-300 text-xs font-bold border border-pink-500/30">{sent} Sent</span>}
+                  {rejected > 0 && <span className="px-3 py-1 rounded-full bg-red-600/20 text-red-300 text-xs font-bold border border-red-500/30">{rejected} Rejected/HSE/Backed Out</span>}
+                  {onHold > 0 && <span className="px-3 py-1 rounded-full bg-slate-600/20 text-slate-300 text-xs font-bold border border-slate-500/30">{onHold} On Hold</span>}
+                </>
+              )}
             </div>
-          )}
+            {canEdit && (
+              <button
+                type="button"
+                onClick={addRow}
+                className="flex items-center gap-2 text-sm font-semibold text-primary hover:text-secondary transition-colors"
+              >
+                <span className="material-symbols-outlined text-[18px]">add_circle</span>
+                Agregar candidato
+              </button>
+            )}
+          </div>
 
           {/* Table */}
           <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-[0_2px_16px_rgba(24,28,30,0.04)] overflow-hidden">
@@ -924,7 +1012,7 @@ export default function Tracker() {
                     {entries.length === 0 && (
                       <tr>
                         <td colSpan={8} className="py-16 text-center text-on-surface-variant/50 text-sm">
-                          Sin candidatos esta semana. Agrega uno con el botón de abajo.
+                          Sin candidatos esta semana. Agrega uno con el botón de arriba.
                         </td>
                       </tr>
                     )}
@@ -952,19 +1040,6 @@ export default function Tracker() {
               </div>
             )}
 
-            {/* Add row button — only visible if can edit */}
-            {canEdit && (
-              <div className="px-4 py-3 border-t border-outline-variant/10">
-                <button
-                  type="button"
-                  onClick={addRow}
-                  className="flex items-center gap-2 text-sm font-semibold text-primary hover:text-secondary transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[18px]">add_circle</span>
-                  Agregar candidato
-                </button>
-              </div>
-            )}
           </div>
 
         </div>

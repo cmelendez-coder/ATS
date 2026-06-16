@@ -367,8 +367,8 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
           skills:       result.skills       ?? prev.skills,
           modules:      result.modules      ?? prev.modules,
         }))
-      } catch {
-        // AI fill failed silently — user can fill manually
+      } catch (aiErr) {
+        setError('AI: ' + (aiErr?.message ?? String(aiErr)))
       } finally {
         setAnalyzing(false)
       }

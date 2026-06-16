@@ -780,9 +780,9 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
         <input
           type="tel"
           className="w-full bg-transparent text-on-surface text-xs px-2 py-1.5 focus:outline-none placeholder:text-on-surface-variant/40"
-          placeholder="+52 55 0000 0000"
+          placeholder="5512345678"
           value={data.phone || ''}
-          onChange={e => set('phone', e.target.value)}
+          onChange={e => set('phone', e.target.value.replace(/\D/g, ''))}
         />
       </td>
 

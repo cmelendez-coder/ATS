@@ -663,9 +663,15 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
       </td>
 
       {/* LinkedIn URL */}
-      <td className="px-2 py-1.5 min-w-[110px]">
-        {data.linkedin_url ? (
-          <div className="flex items-center gap-1.5">
+      <td className="px-2 py-1.5 min-w-[160px]">
+        <div className="flex items-center gap-1">
+          <input
+            className="w-full bg-transparent text-on-surface text-xs px-2 py-1 focus:outline-none placeholder:text-on-surface-variant/30 border border-dashed border-outline-variant/30 rounded"
+            placeholder="linkedin.com/in/…"
+            value={data.linkedin_url || ''}
+            onChange={e => set('linkedin_url', e.target.value)}
+          />
+          {data.linkedin_url && (
             <a
               href={data.linkedin_url}
               target="_blank"
@@ -673,25 +679,10 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
               className="text-[#0A66C2] hover:opacity-75 transition-opacity shrink-0"
               title="Ver LinkedIn"
             >
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
             </a>
-            <button
-              type="button"
-              onClick={() => set('linkedin_url', '')}
-              className="text-on-surface-variant/40 hover:text-red-400 transition-colors"
-              title="Quitar URL"
-            >
-              <span className="material-symbols-outlined text-[12px]">close</span>
-            </button>
-          </div>
-        ) : (
-          <input
-            className="w-full bg-transparent text-on-surface text-xs px-2 py-1 focus:outline-none placeholder:text-on-surface-variant/30 border border-dashed border-outline-variant/30 rounded"
-            placeholder="linkedin.com/in/…"
-            value={data.linkedin_url || ''}
-            onChange={e => set('linkedin_url', e.target.value)}
-          />
-        )}
+          )}
+        </div>
       </td>
 
       {/* Estado (entidad federativa) */}

@@ -156,19 +156,12 @@ export async function deleteTrackerEntry(id) {
   if (error) throw error
 }
 
-export async function analyzeCV(cvUrl) {
+export async function extractCVInfo(cvUrl) {
   const { data, error } = await supabase.functions.invoke('auto-fill-cv', {
     body: { cvUrl },
   })
-  if (error) {
-    let msg = error.message
-    try {
-      const body = await error.context?.json?.()
-      if (body?.error) msg = body.error
-    } catch {}
-    throw new Error(msg)
-  }
-  return data
+  if (error) return { linkedin_url: null, state: null }
+  return data ?? { linkedin_url: null, state: null }
 }
 
 export async function uploadCVFile(file, candidateName) {

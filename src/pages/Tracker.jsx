@@ -8,6 +8,7 @@ import {
   saveTrackerEntry,
   deleteTrackerEntry,
   uploadCVFile,
+  extractCVInfo,
   recruiterFromEmail,
 } from '../api/tracker'
 
@@ -377,6 +378,14 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
     try {
       const url = await uploadCVFile(file, data.candidate_name)
       set('cv_url', url)
+      // Extract LinkedIn and state from CV text (no AI, free)
+      const info = await extractCVInfo(url)
+      setData(prev => ({
+        ...prev,
+        cv_url:       url,
+        linkedin_url: info.linkedin_url || prev.linkedin_url,
+        state:        info.state        || prev.state,
+      }))
     } catch (err) {
       setError('Error al subir el CV: ' + (err.message ?? 'intenta de nuevo'))
     } finally {

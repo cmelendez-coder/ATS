@@ -967,29 +967,15 @@ export default function Tracker() {
             </div>
           </div>
 
-          {/* Summary chips + Add button */}
-          <div className="flex items-center justify-between flex-wrap gap-3">
+          {/* Summary chips */}
+          {entries.length > 0 && (
             <div className="flex gap-3 flex-wrap">
-              {entries.length > 0 && (
-                <>
-                  <span className="px-3 py-1 rounded-full bg-surface-container text-on-surface-variant text-xs font-bold">{entries.length} candidatos</span>
-                  {sent > 0 && <span className="px-3 py-1 rounded-full bg-pink-600/20 text-pink-300 text-xs font-bold border border-pink-500/30">{sent} Sent</span>}
-                  {rejected > 0 && <span className="px-3 py-1 rounded-full bg-red-600/20 text-red-300 text-xs font-bold border border-red-500/30">{rejected} Rejected/HSE/Backed Out</span>}
-                  {onHold > 0 && <span className="px-3 py-1 rounded-full bg-slate-600/20 text-slate-300 text-xs font-bold border border-slate-500/30">{onHold} On Hold</span>}
-                </>
-              )}
+              <span className="px-3 py-1 rounded-full bg-surface-container text-on-surface-variant text-xs font-bold">{entries.length} candidatos</span>
+              {sent > 0 && <span className="px-3 py-1 rounded-full bg-pink-600/20 text-pink-300 text-xs font-bold border border-pink-500/30">{sent} Sent</span>}
+              {rejected > 0 && <span className="px-3 py-1 rounded-full bg-red-600/20 text-red-300 text-xs font-bold border border-red-500/30">{rejected} Rejected/HSE/Backed Out</span>}
+              {onHold > 0 && <span className="px-3 py-1 rounded-full bg-slate-600/20 text-slate-300 text-xs font-bold border border-slate-500/30">{onHold} On Hold</span>}
             </div>
-            {canEdit && (
-              <button
-                type="button"
-                onClick={addRow}
-                className="flex items-center gap-2 text-sm font-semibold text-primary hover:text-secondary transition-colors"
-              >
-                <span className="material-symbols-outlined text-[18px]">add_circle</span>
-                Agregar candidato
-              </button>
-            )}
-          </div>
+          )}
 
           {/* Table */}
           <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-[0_2px_16px_rgba(24,28,30,0.04)] overflow-hidden">
@@ -1003,7 +989,22 @@ export default function Tracker() {
                 <table className="w-full text-left border-collapse min-w-[900px]">
                   <thead>
                     <tr className="bg-surface-container-low border-b border-outline-variant/10">
-                      {['Candidato', 'Requerimiento/Cliente', 'CV', 'LinkedIn', 'Estado', 'Status', 'English', 'Salario', 'Notas', 'YoE', 'Target Role', 'Technologies', 'Skills', 'Modules', ''].map(h => (
+                      <th className="px-3 py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <span>Candidato</span>
+                          {canEdit && (
+                            <button
+                              type="button"
+                              onClick={addRow}
+                              className="flex items-center gap-1.5 bg-primary text-on-primary text-[11px] font-bold px-3 py-1 rounded-full shadow-[0_0_12px_rgba(34,197,94,0.35)] hover:shadow-[0_0_18px_rgba(34,197,94,0.55)] hover:scale-105 transition-all duration-150 normal-case tracking-normal"
+                            >
+                              <span className="material-symbols-outlined text-[14px]">add_circle</span>
+                              Agregar candidato
+                            </button>
+                          )}
+                        </div>
+                      </th>
+                      {['Requerimiento/Cliente', 'CV', 'LinkedIn', 'Estado', 'Status', 'English', 'Salario', 'Notas', 'YoE', 'Target Role', 'Technologies', 'Skills', 'Modules', ''].map(h => (
                         <th key={h} className="px-3 py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">{h}</th>
                       ))}
                     </tr>

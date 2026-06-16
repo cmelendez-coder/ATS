@@ -159,6 +159,14 @@ export async function deleteTrackerEntry(id) {
   if (error) throw error
 }
 
+export async function analyzeCV(cvUrl) {
+  const { data, error } = await supabase.functions.invoke('auto-fill-cv', {
+    body: { cvUrl },
+  })
+  if (error) throw error
+  return data
+}
+
 export async function uploadCVFile(file, candidateName) {
   const ext  = file.name.split('.').pop()
   const safe = (candidateName || 'candidato').replace(/[^a-zA-Z0-9]/g, '_').slice(0, 40)

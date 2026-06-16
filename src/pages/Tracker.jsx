@@ -8,6 +8,7 @@ import {
   saveTrackerEntry,
   deleteTrackerEntry,
   uploadCVFile,
+  analyzeCV,
   recruiterFromEmail,
 } from '../api/tracker'
 
@@ -285,6 +286,45 @@ function ScreeningNoteModal({ onConfirm, onCancel }) {
   )
 }
 
+// Expandable cell for long text — shows preview, click to open modal
+function CellPopover({ text }) {
+  const [open, setOpen] = useState(false)
+  if (!text) return <span className="text-on-surface-variant/40">—</span>
+  if (text.length <= 55) return <span>{text}</span>
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="text-left text-xs text-on-surface-variant hover:text-primary transition-colors"
+        title="Click para ver completo"
+      >
+        {text.slice(0, 55)}<span className="text-primary/60">…</span>
+      </button>
+      {open && (
+        <div
+          className="fixed inset-0 z-[300] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          onClick={() => setOpen(false)}
+        >
+          <div
+            className="bg-surface-container-high rounded-2xl border border-outline-variant/20 shadow-2xl p-5 max-w-sm w-full mx-4 max-h-[60vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()}
+          >
+            <p className="text-xs text-on-surface leading-relaxed whitespace-pre-wrap">{text}</p>
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="mt-4 text-xs text-primary hover:underline"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
 // Single editable row
 function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
   const [data, setData]           = useState({ ...row })
@@ -294,6 +334,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
   const [showSentModal, setShowSentModal]           = useState(false)
   const [showScreeningModal, setShowScreeningModal] = useState(false)
   const [cvUploading, setCvUploading]               = useState(false)
+  const [analyzing, setAnalyzing]                   = useState(false)
   const stateListId = useId()
 
   function set(field, value) {
@@ -307,6 +348,23 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
     try {
       const url = await uploadCVFile(file, data.candidate_name)
       set('cv_url', url)
+      // Auto-fill fields with AI after upload
+      setAnalyzing(true)
+      try {
+        const result = await analyzeCV(url)
+        setData(prev => ({
+          ...prev,
+          yoe:          result.yoe         ?? prev.yoe,
+          target_role:  result.target_role  ?? prev.target_role,
+          technologies: result.technologies ?? prev.technologies,
+          skills:       result.skills       ?? prev.skills,
+          modules:      result.modules      ?? prev.modules,
+        }))
+      } catch {
+        // AI fill failed silently — user can fill manually
+      } finally {
+        setAnalyzing(false)
+      }
     } catch (err) {
       setError('Error al subir el CV: ' + (err.message ?? 'intenta de nuevo'))
     } finally {
@@ -391,17 +449,17 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
         <td className="px-3 py-2 text-xs text-on-surface-variant text-center">
           {data.yoe != null && data.yoe !== '' ? `${data.yoe} yrs` : <span className="text-on-surface-variant/40">—</span>}
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
-          {data.target_role || <span className="text-on-surface-variant/40">—</span>}
+        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[160px]">
+          <CellPopover text={data.target_role} />
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[200px] truncate" title={data.technologies}>
-          {data.technologies || <span className="text-on-surface-variant/40">—</span>}
+        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[200px]">
+          <CellPopover text={data.technologies} />
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[200px] truncate" title={data.skills}>
-          {data.skills || <span className="text-on-surface-variant/40">—</span>}
+        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[200px]">
+          <CellPopover text={data.skills} />
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
-          {data.modules || <span className="text-on-surface-variant/40">—</span>}
+        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[140px]">
+          <CellPopover text={data.modules} />
         </td>
         <td className="px-3 py-2">
           {!readOnly && (
@@ -451,6 +509,12 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
 
       {/* CV — file upload */}
       <td className="px-2 py-1.5 min-w-[110px]">
+        {analyzing && (
+          <div className="flex items-center gap-1 text-[10px] text-blue-300/80 mb-1">
+            <span className="material-symbols-outlined text-[11px] animate-spin">progress_activity</span>
+            Analizando…
+          </div>
+        )}
         <div className="flex items-center gap-1.5">
           {data.cv_url && (
             <a

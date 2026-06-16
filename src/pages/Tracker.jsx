@@ -25,6 +25,7 @@ const MX_STATES = [
 ]
 
 const STATUS_OPTIONS  = ['WA', 'Screening', 'CV', 'Sent', 'Rejected', 'Backed Out', 'HSE', 'On Hold']
+const STATUS_ORDER    = { 'Screening': 0, 'WA': 1, 'CV': 2, 'Sent': 3, 'On Hold': 4, 'HSE': 5, 'Backed Out': 6, 'Rejected': 7 }
 const ENGLISH_OPTIONS = [90, 85, 80, 75, 70, 60, 50, 40, 30]
 const AMOUNT_TYPES    = ['Gross', 'Net']
 
@@ -853,7 +854,13 @@ export default function Tracker() {
                         </td>
                       </tr>
                     )}
-                    {entries.map((row) => {
+                    {[...entries]
+                      .sort((a, b) => {
+                        if (a._editing && !b._editing) return 1
+                        if (!a._editing && b._editing) return -1
+                        return (STATUS_ORDER[a.status] ?? 99) - (STATUS_ORDER[b.status] ?? 99)
+                      })
+                      .map((row) => {
                       const key = row._key ?? row.id
                       return (
                         <TrackerRow

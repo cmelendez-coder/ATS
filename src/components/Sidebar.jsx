@@ -43,7 +43,7 @@ export default function Sidebar({ collapsed = false, onToggle }) {
           {!collapsed && (
             <div>
               <h1 className="text-[1.2rem] font-bold text-primary tracking-tight leading-tight">EverTrack</h1>
-              <p className="text-[14px] text-on-surface-variant leading-tight italic">Talent aligned. Requirements met. Clients served.</p>
+              <p className="text-[10px] text-on-surface-variant leading-snug italic">Talent aligned.<br />Requirements met.<br />Clients served.</p>
             </div>
           )}
         </div>

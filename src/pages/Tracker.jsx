@@ -412,9 +412,15 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
     }
   }
 
+  function isValidLinkedIn(url) {
+    const u = (url || '').trim().toLowerCase()
+    return u.startsWith('linkedin.com/') || u.startsWith('www.linkedin.com/') || u.startsWith('https://linkedin.com/') || u.startsWith('https://www.linkedin.com/')
+  }
+
   async function handleSave() {
     if (!data.candidate_name?.trim()) { setError('Ingresa el nombre del candidato.'); return }
     if (!data.requirement_id)         { setError('Selecciona una posición/requerimiento.'); return }
+    if (!isValidLinkedIn(data.linkedin_url)) { setError('LinkedIn requerido (debe comenzar con linkedin.com/in/…).'); return }
     setSaving(true)
     setError(null)
     try {
@@ -666,7 +672,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
       <td className="px-2 py-1.5 min-w-[160px]">
         <div className="flex items-center gap-1">
           <input
-            className="w-full bg-transparent text-on-surface text-xs px-2 py-1 focus:outline-none placeholder:text-on-surface-variant/30 border border-dashed border-outline-variant/30 rounded"
+            className={`w-full bg-transparent text-on-surface text-xs px-2 py-1 focus:outline-none placeholder:text-on-surface-variant/30 rounded border ${isValidLinkedIn(data.linkedin_url) ? 'border-dashed border-outline-variant/30' : 'border-red-500/60 bg-red-500/5'}`}
             placeholder="linkedin.com/in/…"
             value={data.linkedin_url || ''}
             onChange={e => set('linkedin_url', e.target.value)}

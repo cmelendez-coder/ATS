@@ -81,6 +81,8 @@ function emptyRow(weekNumber, weekYear, recruiter) {
     linkedin_url: '',
     state: '',
     screening_note: '',
+    email: '',
+    phone: '',
     yoe: '',
     target_role: '',
     technologies: '',
@@ -508,6 +510,8 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
             : '—'}
         </td>
         <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[220px] truncate">{data.notes || '—'}</td>
+        <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">{data.email || <span className="text-on-surface-variant/40">—</span>}</td>
+        <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">{data.phone || <span className="text-on-surface-variant/40">—</span>}</td>
         <td className="px-3 py-2 text-xs text-on-surface-variant text-center">
           {data.yoe != null && data.yoe !== '' ? `${data.yoe} yrs` : <span className="text-on-surface-variant/40">—</span>}
         </td>
@@ -760,6 +764,28 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
         />
       </td>
 
+      {/* Email */}
+      <td className="px-2 py-1.5 min-w-[160px]">
+        <input
+          type="email"
+          className="w-full bg-transparent text-on-surface text-xs px-2 py-1.5 focus:outline-none placeholder:text-on-surface-variant/40"
+          placeholder="email@ejemplo.com"
+          value={data.email || ''}
+          onChange={e => set('email', e.target.value)}
+        />
+      </td>
+
+      {/* Phone */}
+      <td className="px-2 py-1.5 min-w-[130px]">
+        <input
+          type="tel"
+          className="w-full bg-transparent text-on-surface text-xs px-2 py-1.5 focus:outline-none placeholder:text-on-surface-variant/40"
+          placeholder="+52 55 0000 0000"
+          value={data.phone || ''}
+          onChange={e => set('phone', e.target.value)}
+        />
+      </td>
+
       {/* YoE */}
       <td className="px-2 py-1.5 min-w-[60px]">
         <input
@@ -987,7 +1013,7 @@ export default function Tracker() {
                           )}
                         </div>
                       </th>
-                      {['Requerimiento/Cliente', 'CV', 'LinkedIn', 'Estado', 'Status', 'English', 'Salario', 'Notas', 'YoE', 'Target Role', 'Technologies', 'Skills', 'Modules', ''].map(h => (
+                      {['Requerimiento/Cliente', 'CV', 'LinkedIn', 'Estado', 'Status', 'English', 'Salario', 'Notas', 'Email', 'Phone', 'YoE', 'Target Role', 'Technologies', 'Skills', 'Modules', ''].map(h => (
                         <th key={h} className="px-3 py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">{h}</th>
                       ))}
                     </tr>

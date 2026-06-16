@@ -86,6 +86,8 @@ export async function saveTrackerEntry(entry) {
     linkedin_url:   entry.linkedin_url || null,
     state:          entry.state || null,
     screening_note: entry.screening_note || null,
+    email:          entry.email || null,
+    phone:          entry.phone || null,
     yoe:            entry.yoe != null && entry.yoe !== '' ? Number(entry.yoe) : null,
     target_role:    entry.target_role || null,
     technologies:   entry.technologies || null,

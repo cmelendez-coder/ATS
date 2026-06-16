@@ -123,9 +123,10 @@ function CandidateSearch({ value, candidateId, onSelect, disabled }) {
     onSelect({
       candidate_name:  row.full_name,
       candidate_id:    row.candidate_id,
-      cv_url:          row.cv_url       || '',
-      linkedin_url:    row.linkedin_url || '',
+      cv_url:          row.cv_url        || '',
+      linkedin_url:    row.linkedin_url  || '',
       english_score:   row.english_score ?? null,
+      state:           row.state         || '',
     })
   }
 
@@ -493,7 +494,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
         <CandidateSearch
           value={data.candidate_name}
           candidateId={data.candidate_id}
-          onSelect={({ candidate_name, candidate_id, cv_url, linkedin_url, english_score }) => {
+          onSelect={({ candidate_name, candidate_id, cv_url, linkedin_url, english_score, state }) => {
             setData(prev => ({
               ...prev,
               candidate_name,
@@ -501,6 +502,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
               cv_url:        cv_url        !== undefined ? cv_url        : prev.cv_url,
               linkedin_url:  linkedin_url  !== undefined ? linkedin_url  : prev.linkedin_url,
               english_score: english_score !== undefined ? english_score : prev.english_score,
+              state:         state         !== undefined ? state         : prev.state,
             }))
           }}
         />

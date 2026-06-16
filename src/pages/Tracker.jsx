@@ -864,6 +864,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
 export default function Tracker() {
   const { session }                   = useAuth()
   const myRecruiter                   = recruiterFromEmail(session?.user?.email ?? '')
+  const userRole                      = String(session?.user?.role ?? '').toLowerCase()
   const { week: currentWeek, year: currentYear } = getISOWeek()
 
   const [activeTab, setActiveTab]     = useState('enrique')
@@ -875,8 +876,10 @@ export default function Tracker() {
   const [refreshKey, setRefreshKey]   = useState(0)
   const [editingKey, setEditingKey]   = useState(null)
 
-  // Can the logged-in user edit the active tab?
-  const canEdit = myRecruiter != null && myRecruiter === activeTab
+  // Admins can edit any tab; recruiters can only edit their own
+  const canEdit = userRole === 'administrador'
+    ? myRecruiter != null
+    : myRecruiter != null && myRecruiter === activeTab
 
   useEffect(() => {
     fetchActiveRequirements()

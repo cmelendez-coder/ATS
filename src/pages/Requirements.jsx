@@ -924,7 +924,7 @@ export default function Requirements() {
       {/* TOP HEADER */}
       <header className="flex justify-between items-center h-16 px-8 w-full sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10 shrink-0">
         <div className="flex items-center gap-4">
-          <span className="md:hidden text-lg font-bold tracking-tight text-primary">PRT Ledger</span>
+          <span className="md:hidden text-lg font-bold tracking-tight text-primary">EverTrack</span>
           <div className="relative hidden md:block group">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-[18px]">search</span>
             <input

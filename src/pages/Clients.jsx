@@ -306,7 +306,7 @@ export default function Clients() {
       {/* TOP HEADER */}
       <header className="flex justify-between items-center h-16 px-8 w-full sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10 shrink-0">
         <div className="flex items-center gap-4">
-          <span className="md:hidden text-lg font-bold tracking-tight text-primary">PRT Suite</span>
+          <span className="md:hidden text-lg font-bold tracking-tight text-primary">EverTrack</span>
         </div>
         <div className="flex items-center gap-2">
           <Link to="/" className="hidden sm:inline-flex items-center justify-center h-9 px-5 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary font-medium text-sm hover:opacity-90 transition-opacity">

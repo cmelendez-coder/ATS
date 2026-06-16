@@ -140,7 +140,7 @@ export default function EditRequirement() {
     <>
       <header className="flex justify-between items-center h-16 px-8 w-full sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10 shrink-0">
         <div className="flex items-center gap-4">
-          <span className="md:hidden text-lg font-bold tracking-tight text-primary">PRT Ledger</span>
+          <span className="md:hidden text-lg font-bold tracking-tight text-primary">EverTrack</span>
         </div>
         <div className="flex items-center gap-2">
           <button className="p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors w-9 h-9 flex items-center justify-center">

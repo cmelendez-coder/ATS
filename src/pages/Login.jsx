@@ -179,7 +179,7 @@ export default function Login() {
         </main>
 
         <footer className="w-full py-6 text-center text-xs text-slate-600">
-          <p>© {new Date().getFullYear()} PRT Suite — Everscale Group. Todos los derechos reservados.</p>
+          <p>© {new Date().getFullYear()} EverTrack — Everscale Group. Todos los derechos reservados.</p>
         </footer>
       </div>
     </div>

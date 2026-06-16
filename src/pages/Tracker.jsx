@@ -882,7 +882,7 @@ export default function Tracker() {
       {/* TOP HEADER */}
       <header className="flex justify-between items-center h-16 px-8 w-full sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10 shrink-0">
         <div className="flex items-center gap-4">
-          <span className="md:hidden text-lg font-bold tracking-tight text-primary">PRT Suite</span>
+          <span className="md:hidden text-lg font-bold tracking-tight text-primary">EverTrack</span>
           <h2 className="hidden md:block text-sm font-semibold text-on-surface-variant">Tracker de Candidatos</h2>
         </div>
         <div className="flex items-center gap-2">

@@ -123,7 +123,7 @@ function exportToExcel(candidates, searchQuery) {
   </head><body>
   <p style="font-family:Calibri;font-size:18px;font-weight:800;color:#071D47;margin-bottom:4px">${title}</p>
   <p style="font-family:Calibri;font-size:11px;color:#64748b;margin-bottom:14px">
-    ${candidates.length} candidate${candidates.length !== 1 ? 's' : ''} · Exported ${date} · Everscale Group PRT Suite
+    ${candidates.length} candidate${candidates.length !== 1 ? 's' : ''} · Exported ${date} · Everscale Group EverTrack
   </p>
   <table>
     <thead><tr>${headerCells}</tr></thead>
@@ -185,7 +185,7 @@ export default function TalentDirectory() {
       {/* TOP HEADER */}
       <header className="flex justify-between items-center h-16 px-8 w-full sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10 shrink-0">
         <div className="flex items-center gap-4">
-          <span className="md:hidden text-lg font-bold tracking-tight text-primary">PRT Suite</span>
+          <span className="md:hidden text-lg font-bold tracking-tight text-primary">EverTrack</span>
           <form onSubmit={handleSearch} className="relative hidden md:block group">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-[18px]">search</span>
             <input

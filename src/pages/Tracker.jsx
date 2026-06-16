@@ -455,7 +455,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
   if (!editing) {
     return (
       <tr
-        className={`hover:bg-surface-container/30 transition-colors group border-b border-outline-variant/10 ${!readOnly ? 'cursor-pointer' : ''}`}
+        className={`odd:bg-transparent even:bg-white/[0.04] hover:bg-surface-container/40 transition-colors group border-b border-outline-variant/10 ${!readOnly ? 'cursor-pointer' : ''}`}
         onDoubleClick={() => { if (!readOnly) onStartEdit() }}
         title={!readOnly ? 'Doble clic para editar' : undefined}
       >

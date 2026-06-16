@@ -8,7 +8,6 @@ import {
   saveTrackerEntry,
   deleteTrackerEntry,
   uploadCVFile,
-  analyzeCV,
   recruiterFromEmail,
 } from '../api/tracker'
 
@@ -352,7 +351,6 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
   const [showSentModal, setShowSentModal]           = useState(false)
   const [showScreeningModal, setShowScreeningModal] = useState(false)
   const [cvUploading, setCvUploading]               = useState(false)
-  const [analyzing, setAnalyzing]                   = useState(false)
   const [showStatusMenu, setShowStatusMenu]         = useState(false)
   const statusMenuRef = useRef(null)
   const stateListId = useId()
@@ -377,23 +375,6 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
     try {
       const url = await uploadCVFile(file, data.candidate_name)
       set('cv_url', url)
-      // Auto-fill fields with AI after upload
-      setAnalyzing(true)
-      try {
-        const result = await analyzeCV(url)
-        setData(prev => ({
-          ...prev,
-          yoe:          result.yoe         ?? prev.yoe,
-          target_role:  result.target_role  ?? prev.target_role,
-          technologies: result.technologies ?? prev.technologies,
-          skills:       result.skills       ?? prev.skills,
-          modules:      result.modules      ?? prev.modules,
-        }))
-      } catch (aiErr) {
-        setError('AI: ' + (aiErr?.message ?? String(aiErr)))
-      } finally {
-        setAnalyzing(false)
-      }
     } catch (err) {
       setError('Error al subir el CV: ' + (err.message ?? 'intenta de nuevo'))
     } finally {
@@ -593,12 +574,6 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
 
       {/* CV — file upload */}
       <td className="px-2 py-1.5 min-w-[110px]">
-        {analyzing && (
-          <div className="flex items-center gap-1 text-[10px] text-blue-300/80 mb-1">
-            <span className="material-symbols-outlined text-[11px] animate-spin">progress_activity</span>
-            Analizando…
-          </div>
-        )}
         <div className="flex items-center gap-1.5">
           {data.cv_url && (
             <a

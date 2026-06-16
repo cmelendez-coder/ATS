@@ -350,11 +350,11 @@ function CellPopover({ text, limit = 55 }) {
 }
 
 // Single editable row
-function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
+function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, onStartEdit, onEndEdit }) {
   const [data, setData]           = useState({ ...row })
   const [saving, setSaving]       = useState(false)
   const [error, setError]         = useState(null)
-  const [editing, setEditing]     = useState(!readOnly && (row._editing ?? false))
+  const editing = isEditing
   const [showSentModal, setShowSentModal]           = useState(false)
   const [showScreeningModal, setShowScreeningModal] = useState(false)
   const [cvUploading, setCvUploading]               = useState(false)
@@ -419,7 +419,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
     try {
       const { entryId, candidateId } = await saveTrackerEntry(data)
       setData(prev => ({ ...prev, id: entryId, candidate_id: candidateId, synced_to_req: data.status === 'Sent' ? true : prev.synced_to_req }))
-      setEditing(false)
+      onEndEdit()
       onSave()
     } catch (e) {
       setError(e.message ?? 'Error al guardar.')
@@ -441,7 +441,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
     return (
       <tr
         className={`hover:bg-surface-container/30 transition-colors group border-b border-outline-variant/10 ${!readOnly ? 'cursor-pointer' : ''}`}
-        onDoubleClick={() => { if (!readOnly) setEditing(true) }}
+        onDoubleClick={() => { if (!readOnly) onStartEdit() }}
         title={!readOnly ? 'Doble clic para editar' : undefined}
       >
         <td className="px-3 py-2 text-xs text-primary font-medium whitespace-nowrap">
@@ -856,6 +856,7 @@ export default function Tracker() {
   const [requirements, setRequirements] = useState([])
   const [loading, setLoading]         = useState(true)
   const [refreshKey, setRefreshKey]   = useState(0)
+  const [editingKey, setEditingKey]   = useState(null)
 
   // Can the logged-in user edit the active tab?
   const canEdit = myRecruiter != null && myRecruiter === activeTab
@@ -868,6 +869,7 @@ export default function Tracker() {
 
   useEffect(() => {
     setLoading(true)
+    setEditingKey(null)
     fetchTrackerEntries(week, year, activeTab)
       .then(rows => {
         setEntries(rows.map(r => ({ ...r, _editing: false, _key: r.id })))
@@ -878,7 +880,9 @@ export default function Tracker() {
 
   function addRow() {
     if (!canEdit) return
-    setEntries(prev => [...prev, emptyRow(week, year, activeTab)])
+    const newRow = emptyRow(week, year, activeTab)
+    setEntries(prev => [...prev, newRow])
+    setEditingKey(newRow._key)
   }
 
   function refresh() {
@@ -1042,6 +1046,9 @@ export default function Tracker() {
                           onSave={refresh}
                           onDelete={() => removeRow(key)}
                           readOnly={!canEdit}
+                          isEditing={editingKey === key}
+                          onStartEdit={() => setEditingKey(key)}
+                          onEndEdit={() => setEditingKey(null)}
                         />
                       )
                     })}

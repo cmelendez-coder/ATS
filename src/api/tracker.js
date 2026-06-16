@@ -28,11 +28,7 @@ export async function fetchTrackerEntries(weekNumber, weekYear, recruiter) {
 
 export async function searchCandidatesSimple(q) {
   if (!q.trim()) return []
-  const { data, error } = await supabase
-    .from('candidate')
-    .select('candidate_id, full_name, email, cv_url')
-    .or(`full_name.ilike.%${q.trim()}%,email.ilike.%${q.trim()}%`)
-    .limit(8)
+  const { data, error } = await supabase.rpc('search_candidates', { query: q.trim() })
   if (error) throw error
   return data ?? []
 }

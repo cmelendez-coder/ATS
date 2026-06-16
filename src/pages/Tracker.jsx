@@ -435,16 +435,15 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
 
   if (!editing) {
     return (
-      <tr className="hover:bg-surface-container/30 transition-colors group border-b border-outline-variant/10">
+      <tr
+        className={`hover:bg-surface-container/30 transition-colors group border-b border-outline-variant/10 ${!readOnly ? 'cursor-pointer' : ''}`}
+        onDoubleClick={() => { if (!readOnly) setEditing(true) }}
+        title={!readOnly ? 'Doble clic para editar' : undefined}
+      >
         <td className="px-3 py-2 text-xs text-primary font-medium whitespace-nowrap">
           <div className="flex items-center gap-1.5">
             <span>{data.candidate_name}</span>
             {data.candidate_id && <span className="text-secondary" title="En Talent Directory"><span className="material-symbols-outlined text-[11px] align-middle">check_circle</span></span>}
-            {!readOnly && (
-              <button type="button" onClick={() => setEditing(true)} className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary">
-                <span className="material-symbols-outlined text-[13px]">edit</span>
-              </button>
-            )}
           </div>
         </td>
         <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
@@ -525,10 +524,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
         <td className="px-3 py-2">
           {!readOnly && (
             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button type="button" onClick={() => setEditing(true)} className="p-1 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-primary transition-colors">
-                <span className="material-symbols-outlined text-[14px]">edit</span>
-              </button>
-              <button type="button" onClick={handleDelete} className="p-1 rounded hover:bg-red-500/10 text-on-surface-variant hover:text-red-400 transition-colors">
+              <button type="button" onClick={handleDelete} className="p-1 rounded hover:bg-red-500/10 text-on-surface-variant hover:text-red-400 transition-colors" title="Eliminar">
                 <span className="material-symbols-outlined text-[14px]">delete</span>
               </button>
             </div>
@@ -555,7 +551,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
 
   return (
     <tr className="bg-surface-container/40 border-b border-primary/20">
-      {/* Candidato */}
+      {/* Candidato + Guardar */}
       <td className="px-2 py-1.5 min-w-[160px]">
         <CandidateSearch
           value={data.candidate_name}
@@ -572,6 +568,23 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
             }))
           }}
         />
+        <div className="flex items-center gap-1.5 mt-1 px-2">
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="flex items-center gap-1 px-3 py-1 bg-primary text-on-primary text-xs font-semibold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 shadow-[0_0_8px_rgba(34,197,94,0.3)]"
+          >
+            {saving
+              ? <span className="material-symbols-outlined text-[12px] animate-spin">progress_activity</span>
+              : <span className="material-symbols-outlined text-[12px]">save</span>}
+            {saving ? 'Guardando…' : 'Guardar'}
+          </button>
+          <button type="button" onClick={handleDelete} className="p-1 rounded hover:bg-red-500/10 text-on-surface-variant hover:text-red-400 transition-colors" title="Eliminar">
+            <span className="material-symbols-outlined text-[14px]">delete</span>
+          </button>
+        </div>
+        {error && <p className="text-red-400 text-[10px] mt-1 px-2">{error}</p>}
       </td>
 
       {/* Requerimiento/Cliente */}
@@ -797,26 +810,8 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly }) {
         />
       </td>
 
-      {/* Acciones */}
-      <td className="px-2 py-1.5 whitespace-nowrap">
-        <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
-            className="px-3 py-1 bg-primary text-on-primary text-xs font-semibold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-1"
-          >
-            {saving
-              ? <span className="material-symbols-outlined text-[12px] animate-spin">progress_activity</span>
-              : <span className="material-symbols-outlined text-[12px]">save</span>}
-            {saving ? 'Guardando…' : 'Guardar'}
-          </button>
-          <button type="button" onClick={handleDelete} className="p-1 rounded hover:bg-red-500/10 text-on-surface-variant hover:text-red-400 transition-colors">
-            <span className="material-symbols-outlined text-[14px]">delete</span>
-          </button>
-        </div>
-        {error && <p className="text-red-400 text-[10px] mt-1">{error}</p>}
-      </td>
+      {/* Acciones (solo modales) */}
+      <td className="px-2 py-1.5"></td>
     </tr>
   )
 }

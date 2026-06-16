@@ -2,12 +2,13 @@ import { supabase } from '../lib/supabase'
 
 // Map email → recruiter key
 export const EMAIL_TO_RECRUITER = {
-  'cmelendez@everscalegroup.com': 'cesar',
-  'egalvan@everscalegroup.com':   'enrique',
+  'cmelendez@everscalegroup.com':  'cesar',
+  'egalvan@everscalegroup.com':    'enrique',
+  'enrique@everscalegroup.com':    'enrique',
 }
 
 export function recruiterFromEmail(email) {
-  return EMAIL_TO_RECRUITER[email] ?? 'cesar'
+  return EMAIL_TO_RECRUITER[email?.toLowerCase()] ?? null
 }
 
 export async function fetchTrackerEntries(weekNumber, weekYear, recruiter) {

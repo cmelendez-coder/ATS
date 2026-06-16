@@ -765,7 +765,7 @@ export default function Tracker() {
   const [refreshKey, setRefreshKey]   = useState(0)
 
   // Can the logged-in user edit the active tab?
-  const canEdit = myRecruiter === activeTab
+  const canEdit = myRecruiter != null && myRecruiter === activeTab
 
   useEffect(() => {
     fetchActiveRequirements()

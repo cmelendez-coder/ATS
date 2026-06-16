@@ -160,7 +160,14 @@ export async function analyzeCV(cvUrl) {
   const { data, error } = await supabase.functions.invoke('auto-fill-cv', {
     body: { cvUrl },
   })
-  if (error) throw error
+  if (error) {
+    let msg = error.message
+    try {
+      const body = await error.context?.json?.()
+      if (body?.error) msg = body.error
+    } catch {}
+    throw new Error(msg)
+  }
   return data
 }
 

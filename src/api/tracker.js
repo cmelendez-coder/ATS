@@ -171,8 +171,8 @@ export async function extractCVInfo(cvUrl) {
   const { data, error } = await supabase.functions.invoke('auto-fill-cv', {
     body: { cvUrl },
   })
-  if (error) return { linkedin_url: null, state: null }
-  return data ?? { linkedin_url: null, state: null }
+  if (error) return { linkedin_url: null, state: null, email: null, phone: null }
+  return data ?? { linkedin_url: null, state: null, email: null, phone: null }
 }
 
 export async function uploadCVFile(file, candidateName) {

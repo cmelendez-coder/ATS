@@ -433,13 +433,15 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
     try {
       const url = await uploadCVFile(file, data.candidate_name)
       set('cv_url', url)
-      // Extract LinkedIn and state from CV text (no AI, free)
+      // Extract LinkedIn, state, email and phone from CV text (no AI, free)
       const info = await extractCVInfo(url)
       setData(prev => ({
         ...prev,
         cv_url:       url,
         linkedin_url: info.linkedin_url || prev.linkedin_url,
         state:        info.state        || prev.state,
+        email:        info.email        || prev.email,
+        phone:        info.phone        || prev.phone,
       }))
     } catch (err) {
       setError('Error al subir el CV: ' + (err.message ?? 'intenta de nuevo'))

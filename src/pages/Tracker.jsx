@@ -459,7 +459,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
         onDoubleClick={() => { if (!readOnly) onStartEdit() }}
         title={!readOnly ? 'Doble clic para editar' : undefined}
       >
-        <td className="px-3 py-2 text-xs text-primary font-medium whitespace-nowrap">
+        <td className="sticky left-0 z-10 bg-[#0f1724] px-3 py-2 text-xs text-primary font-medium whitespace-nowrap">
           <div className="flex items-center gap-1.5">
             <span>{data.candidate_name}</span>
             {data.candidate_id && <span className="text-secondary" title="En Talent Directory"><span className="material-symbols-outlined text-[11px] align-middle">check_circle</span></span>}
@@ -581,7 +581,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
       }}
     >
       {/* Candidato + Guardar */}
-      <td className="px-2 py-1.5 min-w-[160px]">
+      <td className="sticky left-0 z-10 bg-surface-container/80 backdrop-blur-sm px-2 py-1.5 min-w-[160px]">
         <CandidateSearch
           value={data.candidate_name}
           candidateId={data.candidate_id}
@@ -1050,7 +1050,7 @@ export default function Tracker() {
                 <table className="w-full text-left border-collapse min-w-[900px]">
                   <thead>
                     <tr className="bg-surface-container-low border-b border-outline-variant/10">
-                      <th className="px-3 py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">
+                      <th className="sticky left-0 z-20 bg-surface-container-low px-3 py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">
                         <div className="flex items-center gap-3">
                           <span>Candidato</span>
                           {canEdit && (

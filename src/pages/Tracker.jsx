@@ -1049,7 +1049,7 @@ export default function Tracker() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[900px]">
                   <thead>
-                    <tr className="bg-surface-container-low border-b border-outline-variant/10">
+                    <tr className="sticky top-0 z-30 bg-surface-container-low border-b border-outline-variant/10">
                       <th className="sticky left-0 z-20 bg-surface-container-low px-3 py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">
                         <div className="flex items-center gap-3">
                           <span>Candidato</span>

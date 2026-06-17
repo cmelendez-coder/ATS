@@ -9,6 +9,7 @@ import {
   deleteTrackerEntry,
   uploadCVFile,
   extractCVInfo,
+  createScreeningEvent,
   recruiterFromEmail,
 } from '../api/tracker'
 
@@ -454,6 +455,15 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
     setData(updatedData)
     try {
       await saveTrackerEntry(updatedData)
+      if (newStatus === 'Screening' && extraFields.screening_datetime) {
+        const req = requirements.find(r => r.id === updatedData.requirement_id)
+        createScreeningEvent({
+          candidateName:     updatedData.candidate_name,
+          requirementTitle:  req ? `${req.job_title} · ${req.client?.name}` : undefined,
+          screeningDatetime: extraFields.screening_datetime,
+          screeningNote:     extraFields.screening_note || undefined,
+        }).catch(() => {})
+      }
       onSave()
     } catch (e) {
       setData(prev => ({ ...prev, status: data.status }))
@@ -475,6 +485,15 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
     try {
       const { entryId, candidateId } = await saveTrackerEntry(data)
       setData(prev => ({ ...prev, id: entryId, candidate_id: candidateId, synced_to_req: data.status === 'Sent' ? true : prev.synced_to_req }))
+      if (data.status === 'Screening' && data.screening_datetime) {
+        const req = requirements.find(r => r.id === data.requirement_id)
+        createScreeningEvent({
+          candidateName:     data.candidate_name,
+          requirementTitle:  req ? `${req.job_title} · ${req.client?.name}` : undefined,
+          screeningDatetime: data.screening_datetime,
+          screeningNote:     data.screening_note || undefined,
+        }).catch(() => {})
+      }
       onEndEdit()
       onSave()
     } catch (e) {

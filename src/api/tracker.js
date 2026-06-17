@@ -159,6 +159,14 @@ export async function deleteTrackerEntry(id) {
   if (error) throw error
 }
 
+export async function createScreeningEvent({ candidateName, requirementTitle, screeningDatetime, screeningNote }) {
+  const { data, error } = await supabase.functions.invoke('create-screening-event', {
+    body: { candidateName, requirementTitle, screeningDatetime, screeningNote },
+  })
+  if (error) throw new Error(error.message ?? 'Error al crear evento en Google Calendar')
+  return data
+}
+
 export async function extractCVInfo(cvUrl) {
   const { data, error } = await supabase.functions.invoke('auto-fill-cv', {
     body: { cvUrl },

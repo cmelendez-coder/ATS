@@ -459,7 +459,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
         onDoubleClick={() => { if (!readOnly) onStartEdit() }}
         title={!readOnly ? 'Doble clic para editar' : undefined}
       >
-        <td className="sticky left-0 z-10 bg-[#0f1724] px-3 py-2 text-xs text-primary font-medium whitespace-nowrap">
+        <td className="sticky left-0 z-10 group-odd:bg-surface-container-lowest group-even:bg-[#152d5f] px-3 py-2 text-xs text-white font-bold whitespace-nowrap">
           <div className="flex items-center gap-1.5">
             <span>{data.candidate_name}</span>
             {data.candidate_id && <span className="text-secondary" title="En Talent Directory"><span className="material-symbols-outlined text-[11px] align-middle">check_circle</span></span>}

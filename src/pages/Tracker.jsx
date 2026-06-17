@@ -87,7 +87,8 @@ function emptyRow(weekNumber, weekYear, recruiter) {
     cv_url: '',
     linkedin_url: '',
     state: '',
-    screening_note: '',
+    screening_note:     '',
+    screening_datetime: null,
     email: '',
     phone: '',
     yoe: '',
@@ -276,38 +277,78 @@ function SentConfirmModal({ onConfirm, onCancel }) {
   )
 }
 
+function formatScreeningDatetime(iso) {
+  if (!iso) return ''
+  const d = new Date(iso)
+  const days   = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb']
+  const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+  const h = d.getHours(); const m = String(d.getMinutes()).padStart(2,'0')
+  const ampm = h >= 12 ? 'p.m.' : 'a.m.'
+  return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]} · ${h % 12 || 12}:${m} ${ampm}`
+}
+
 function ScreeningNoteModal({ onConfirm, onCancel }) {
+  const todayStr = new Date().toISOString().slice(0, 10)
+  const [date, setDate] = useState(todayStr)
+  const [time, setTime] = useState('')
   const [note, setNote] = useState('')
+
+  function handleConfirm() {
+    const datetime = date && time ? new Date(`${date}T${time}`).toISOString() : null
+    onConfirm({ note, datetime })
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
       <div className="bg-surface-container-high rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="material-symbols-outlined text-blue-400 text-[20px]">schedule</span>
-          <h3 className="text-base font-bold text-on-surface">Nota de Screening</h3>
+        <div className="flex items-center gap-2 mb-4">
+          <span className="material-symbols-outlined text-blue-400 text-[20px]">event</span>
+          <h3 className="text-base font-bold text-on-surface">Agendar Screening</h3>
         </div>
-        <p className="text-xs text-on-surface-variant mb-4 leading-relaxed">
-          Agrega una nota de seguimiento para este candidato (ej. <em>"Hoy 2:00p.m."</em>).
-        </p>
-        <input
-          autoFocus
-          className="w-full bg-surface text-on-surface text-sm px-3 py-2 rounded-lg border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-primary/30 mb-4 placeholder:text-on-surface-variant/40"
-          placeholder='Ej. "Hoy 2:00p.m."'
-          value={note}
-          onChange={e => setNote(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter') onConfirm(note) }}
-        />
+
+        <div className="space-y-3 mb-4">
+          <div>
+            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Fecha <span className="text-error">*</span></label>
+            <input
+              type="date"
+              autoFocus
+              className="w-full bg-surface text-on-surface text-sm px-3 py-2 rounded-lg border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-primary/30"
+              value={date}
+              onChange={e => setDate(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Hora <span className="text-error">*</span></label>
+            <input
+              type="time"
+              className="w-full bg-surface text-on-surface text-sm px-3 py-2 rounded-lg border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-primary/30"
+              value={time}
+              onChange={e => setTime(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter' && date && time) handleConfirm() }}
+            />
+          </div>
+          <div>
+            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Nota <span className="text-on-surface-variant/40 font-normal normal-case">(opcional)</span></label>
+            <input
+              type="text"
+              className="w-full bg-surface text-on-surface text-sm px-3 py-2 rounded-lg border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-primary/30 placeholder:text-on-surface-variant/40"
+              placeholder='Ej. "Google Meet · con Enrique"'
+              value={note}
+              onChange={e => setNote(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter' && date && time) handleConfirm() }}
+            />
+          </div>
+        </div>
+
         <div className="flex gap-3 justify-end">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-5 py-2 rounded-lg text-sm font-semibold bg-surface-container text-on-surface-variant hover:bg-surface-container-highest transition-colors"
-          >
+          <button type="button" onClick={onCancel} className="px-5 py-2 rounded-lg text-sm font-semibold bg-surface-container text-on-surface-variant hover:bg-surface-container-highest transition-colors">
             Cancelar
           </button>
           <button
             type="button"
-            onClick={() => onConfirm(note)}
-            className="px-5 py-2 rounded-lg text-sm font-semibold bg-blue-600 text-white hover:opacity-90 transition-opacity"
+            onClick={handleConfirm}
+            disabled={!date || !time}
+            className="px-5 py-2 rounded-lg text-sm font-semibold bg-blue-600 text-white hover:opacity-90 transition-opacity disabled:opacity-40"
           >
             Guardar
           </button>
@@ -514,7 +555,10 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
               </div>
             )}
           </div>
-          {data.status === 'Screening' && data.screening_note && (
+          {data.status === 'Screening' && data.screening_datetime && (
+            <p className="text-[10px] text-blue-300/70 mt-0.5 whitespace-nowrap">{formatScreeningDatetime(data.screening_datetime)}{data.screening_note ? ` · ${data.screening_note}` : ''}</p>
+          )}
+          {data.status === 'Screening' && !data.screening_datetime && data.screening_note && (
             <p className="text-[10px] text-blue-300/70 mt-0.5 whitespace-nowrap">{data.screening_note}</p>
           )}
         </td>
@@ -561,7 +605,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
           )}
           {showScreeningModal && !editing && (
             <ScreeningNoteModal
-              onConfirm={note => { quickUpdateStatus('Screening', { screening_note: note }); setShowScreeningModal(false) }}
+              onConfirm={({ note, datetime }) => { quickUpdateStatus('Screening', { screening_note: note, screening_datetime: datetime }); setShowScreeningModal(false) }}
               onCancel={() => setShowScreeningModal(false)}
             />
           )}
@@ -731,7 +775,10 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
         >
           {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
-        {data.status === 'Screening' && data.screening_note && (
+        {data.status === 'Screening' && data.screening_datetime && (
+          <p className="text-[10px] text-blue-300/70 mt-0.5 px-1">{formatScreeningDatetime(data.screening_datetime)}{data.screening_note ? ` · ${data.screening_note}` : ''}</p>
+        )}
+        {data.status === 'Screening' && !data.screening_datetime && data.screening_note && (
           <p className="text-[10px] text-blue-300/70 mt-0.5 px-1">{data.screening_note}</p>
         )}
         {showSentModal && (
@@ -742,7 +789,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
         )}
         {showScreeningModal && (
           <ScreeningNoteModal
-            onConfirm={note => { set('status', 'Screening'); set('screening_note', note); setShowScreeningModal(false) }}
+            onConfirm={({ note, datetime }) => { set('status', 'Screening'); set('screening_note', note); set('screening_datetime', datetime); setShowScreeningModal(false) }}
             onCancel={() => setShowScreeningModal(false)}
           />
         )}

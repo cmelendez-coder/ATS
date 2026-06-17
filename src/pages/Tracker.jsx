@@ -614,25 +614,6 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
           </button>
         </div>
         {error && <p className="text-red-400 text-[10px] mt-1 px-2">{error}</p>}
-        {showDeleteConfirm && (
-          <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-            <div className="bg-surface-container-high rounded-2xl shadow-2xl border border-outline-variant/20 p-6 w-full max-w-xs mx-4">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="material-symbols-outlined text-red-400 text-[26px]">delete</span>
-                <h3 className="text-base font-bold text-on-surface">¿Eliminar candidato?</h3>
-              </div>
-              <p className="text-xs text-on-surface-variant mb-6 leading-relaxed">Esta acción no se puede deshacer.</p>
-              <div className="flex gap-3 justify-end">
-                <button type="button" onClick={() => setShowDeleteConfirm(false)} className="px-4 py-2 rounded-lg text-sm font-semibold bg-surface-container text-on-surface-variant hover:bg-surface-container-highest transition-colors">
-                  No
-                </button>
-                <button type="button" onClick={() => { setShowDeleteConfirm(false); handleDelete() }} className="px-4 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white hover:opacity-90 transition-opacity">
-                  Sí, eliminar
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </td>
 
       {/* Requerimiento/Cliente */}
@@ -883,8 +864,28 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
         />
       </td>
 
-      {/* Acciones (solo modales) */}
-      <td className="px-2 py-1.5"></td>
+      {/* Acciones (modales fuera del td sticky) */}
+      <td className="px-2 py-1.5">
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+            <div className="bg-surface-container-high rounded-2xl shadow-2xl border border-outline-variant/20 p-6 w-full max-w-xs mx-4">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="material-symbols-outlined text-red-400 text-[26px]">delete</span>
+                <h3 className="text-base font-bold text-on-surface">¿Eliminar candidato?</h3>
+              </div>
+              <p className="text-xs text-on-surface-variant mb-6 leading-relaxed">Esta acción no se puede deshacer.</p>
+              <div className="flex gap-3 justify-end">
+                <button type="button" onClick={() => setShowDeleteConfirm(false)} className="px-4 py-2 rounded-lg text-sm font-semibold bg-surface-container text-on-surface-variant hover:bg-surface-container-highest transition-colors">
+                  No
+                </button>
+                <button type="button" onClick={() => { setShowDeleteConfirm(false); handleDelete() }} className="px-4 py-2 rounded-lg text-sm font-semibold bg-red-600 text-white hover:opacity-90 transition-opacity">
+                  Sí, eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </td>
     </tr>
   )
 }

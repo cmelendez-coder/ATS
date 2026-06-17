@@ -66,7 +66,6 @@ export default function Sidebar({ collapsed = false, onToggle }) {
             <NavItem to="/reports" icon="analytics" label="Reports" collapsed={collapsed} />
             <NavItem to="/tracker" icon="table_view" label="Tracker" collapsed={collapsed} />
             <NavItem to="/requirements" icon="list_alt" label="Requirements" collapsed={collapsed} />
-            {can('requirements.create') && <NavItem to="/requirements/new" icon="add_circle" label="New Requirement" collapsed={collapsed} />}
           </div>
         </div>
         <div>

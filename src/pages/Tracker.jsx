@@ -903,6 +903,7 @@ export default function Tracker() {
   const [loading, setLoading]         = useState(true)
   const [refreshKey, setRefreshKey]   = useState(0)
   const [editingKey, setEditingKey]   = useState(null)
+  const tableScrollRef                = useRef(null)
 
   // Admins can edit any tab; recruiters can only edit their own
   const canEdit = userRole === 'administrador'
@@ -931,6 +932,7 @@ export default function Tracker() {
     const newRow = emptyRow(week, year, activeTab)
     setEntries(prev => [...prev, newRow])
     setEditingKey(newRow._key)
+    setTimeout(() => tableScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' }), 30)
   }
 
   function refresh() {
@@ -1046,7 +1048,7 @@ export default function Tracker() {
                 <span className="text-sm">Cargando…</span>
               </div>
             ) : (
-              <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-260px)]">
+              <div ref={tableScrollRef} className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-260px)]">
                 <table className="w-full text-left border-collapse min-w-[900px]">
                   <thead>
                     <tr className="sticky top-0 z-30 bg-surface-container-low border-b border-outline-variant/10">
@@ -1080,8 +1082,8 @@ export default function Tracker() {
                     )}
                     {[...entries]
                       .sort((a, b) => {
-                        if (a._editing && !b._editing) return 1
-                        if (!a._editing && b._editing) return -1
+                        if (a._editing && !b._editing) return -1
+                        if (!a._editing && b._editing) return 1
                         return (STATUS_ORDER[a.status] ?? 99) - (STATUS_ORDER[b.status] ?? 99)
                       })
                       .map((row) => {

@@ -1,23 +1,51 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { fetchEmployees, saveEmployee, deleteEmployee, fetchClients } from '../api/employees'
 
 const CLIENT_ORDER = ['LogicMonitor', 'BlueConic', 'PacVue']
 
-// Days since start_date
+const CLIENT_THEME = {
+  'LogicMonitor': {
+    borderL:    'border-l-4 border-l-blue-500',
+    text:       'text-blue-300',
+    badge:      'bg-blue-600/20 text-blue-300 border border-blue-500/30',
+    cardBorder: 'border-blue-500/40',
+    cardBg:     'bg-blue-600/10',
+    accent:     'bg-blue-500',
+    countBg:    'bg-blue-600/20 text-blue-300',
+  },
+  'BlueConic': {
+    borderL:    'border-l-4 border-l-green-500',
+    text:       'text-green-300',
+    badge:      'bg-green-600/20 text-green-300 border border-green-500/30',
+    cardBorder: 'border-green-500/40',
+    cardBg:     'bg-green-600/10',
+    accent:     'bg-green-500',
+    countBg:    'bg-green-600/20 text-green-300',
+  },
+  'PacVue': {
+    borderL:    'border-l-4 border-l-orange-500',
+    text:       'text-orange-300',
+    badge:      'bg-orange-600/20 text-orange-300 border border-orange-500/30',
+    cardBorder: 'border-orange-500/40',
+    cardBg:     'bg-orange-600/10',
+    accent:     'bg-orange-500',
+    countBg:    'bg-orange-600/20 text-orange-300',
+  },
+}
+
 function daysSince(dateStr) {
   if (!dateStr) return null
   const diff = Date.now() - new Date(dateStr).getTime()
   return Math.floor(diff / 86400000)
 }
 
-// Badge: null = no badge, 'green' = <60d, 'red' = >=60d (within 90d window is "alert zone")
 function probationBadge(emp) {
   if (emp.status !== 'active' || !emp.start_date) return null
   const d = daysSince(emp.start_date)
-  if (d < 0) return null          // hasn't started yet
+  if (d < 0) return null
   if (d < 60) return 'green'
-  if (d <= 120) return 'red'      // still within a reasonable window to show alert
-  return null                     // past probation, no badge
+  if (d <= 120) return 'red'
+  return null
 }
 
 function ProbationBadge({ emp }) {
@@ -53,46 +81,30 @@ function formatSalary(n) {
 }
 
 const EMPTY_EMP = {
-  id: null,
-  client_id: 2,
-  full_name: '',
-  position: '',
-  phone: '',
-  email: '',
-  start_date: '',
-  job_offer_date: '',
-  monthly_salary: '',
-  variable: '',
-  variable_note: '',
-  parking: null,
-  status: 'active',
-  exit_date: '',
-  exit_reason: '',
+  id: null, client_id: 2, full_name: '', position: '', phone: '', email: '',
+  start_date: '', job_offer_date: '', monthly_salary: '', variable: '',
+  variable_note: '', parking: null, status: 'active', exit_date: '', exit_reason: '',
 }
 
 function EmployeeModal({ emp, clients, onSave, onClose }) {
   const [form, setForm] = useState({ ...EMPTY_EMP, ...emp })
   const [saving, setSaving] = useState(false)
-
   function set(k, v) { setForm(p => ({ ...p, [k]: v })) }
 
   async function handleSave() {
     if (!form.full_name.trim()) return
     setSaving(true)
     try {
-      const payload = {
+      await onSave({
         ...form,
         monthly_salary: form.monthly_salary === '' ? null : Number(form.monthly_salary),
-        variable: form.variable === '' ? null : Number(form.variable),
-        start_date: form.start_date || null,
+        variable:       form.variable === ''       ? null : Number(form.variable),
+        start_date:     form.start_date     || null,
         job_offer_date: form.job_offer_date || null,
-        exit_date: form.exit_date || null,
-      }
-      await onSave(payload)
+        exit_date:      form.exit_date      || null,
+      })
       onClose()
-    } finally {
-      setSaving(false)
-    }
+    } finally { setSaving(false) }
   }
 
   const field = 'w-full bg-surface-container text-on-surface text-xs px-3 py-2 rounded focus:outline-none focus:ring-1 focus:ring-primary/40 placeholder:text-on-surface-variant/40'
@@ -171,9 +183,7 @@ function EmployeeModal({ emp, clients, onSave, onClose }) {
           )}
         </div>
         <div className="flex justify-end gap-2 px-6 py-4 border-t border-outline-variant/20">
-          <button onClick={onClose} className="text-xs px-4 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors">
-            Cancelar
-          </button>
+          <button onClick={onClose} className="text-xs px-4 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors">Cancelar</button>
           <button onClick={handleSave} disabled={saving} className="text-xs px-4 py-2 rounded-lg bg-primary text-on-primary font-bold hover:opacity-90 transition-opacity disabled:opacity-50">
             {saving ? 'Guardando…' : 'Guardar'}
           </button>
@@ -183,97 +193,125 @@ function EmployeeModal({ emp, clients, onSave, onClose }) {
   )
 }
 
-function EmployeeTable({ title, employees, onEdit, onMoveToExit, onDelete, isExits }) {
+function ClientCard({ name, active, exits, theme }) {
   return (
-    <div className="mb-8">
-      <div className="flex items-center gap-2 mb-2 px-1">
-        <h3 className="text-xs font-bold text-on-surface-variant/70 uppercase tracking-widest">{title}</h3>
-        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant/60">
-          {employees.length}
-        </span>
+    <div className={`rounded-xl border ${theme.cardBorder} ${theme.cardBg} p-4 flex flex-col gap-3`}>
+      <div className="flex items-center gap-2">
+        <span className={`w-2 h-2 rounded-full ${theme.accent}`} />
+        <h3 className={`text-sm font-bold ${theme.text}`}>{name}</h3>
       </div>
-      <div className="rounded-xl border border-outline-variant/20 overflow-x-auto">
-        <table className="w-full text-xs min-w-[900px]">
-          <thead>
-            <tr className="bg-surface-container-high text-on-surface-variant text-[10px] uppercase tracking-wider">
-              <th className="px-3 py-2.5 text-left font-semibold">Nombre</th>
-              <th className="px-3 py-2.5 text-left font-semibold">Posición</th>
-              <th className="px-3 py-2.5 text-left font-semibold">Teléfono</th>
-              <th className="px-3 py-2.5 text-left font-semibold">Email</th>
-              <th className="px-3 py-2.5 text-left font-semibold">Inicio</th>
-              {!isExits && <th className="px-3 py-2.5 text-left font-semibold">Contrato</th>}
-              {isExits  && <th className="px-3 py-2.5 text-left font-semibold">Salida</th>}
-              {isExits  && <th className="px-3 py-2.5 text-left font-semibold">Motivo</th>}
-              <th className="px-3 py-2.5 text-left font-semibold">Salario</th>
-              <th className="px-3 py-2.5 text-right font-semibold"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-outline-variant/10">
-            {employees.length === 0 ? (
-              <tr>
-                <td colSpan={isExits ? 8 : 7} className="px-3 py-6 text-center text-on-surface-variant/40 text-[11px]">
-                  Sin registros
-                </td>
-              </tr>
-            ) : employees.map(emp => (
-              <tr key={emp.id} className="group hover:bg-surface-container/40 transition-colors">
-                <td className="px-3 py-2.5 font-semibold text-on-surface whitespace-nowrap">{emp.full_name}</td>
-                <td className="px-3 py-2.5 text-on-surface-variant max-w-[180px] truncate">{emp.position || '—'}</td>
-                <td className="px-3 py-2.5 text-on-surface-variant whitespace-nowrap">{emp.phone || '—'}</td>
-                <td className="px-3 py-2.5 text-on-surface-variant">{emp.email || '—'}</td>
-                <td className="px-3 py-2.5 text-on-surface-variant whitespace-nowrap">{formatDate(emp.start_date)}</td>
-                {!isExits && (
-                  <td className="px-3 py-2.5">
-                    <ProbationBadge emp={emp} />
-                  </td>
-                )}
-                {isExits && <td className="px-3 py-2.5 text-on-surface-variant whitespace-nowrap">{formatDate(emp.exit_date)}</td>}
-                {isExits && <td className="px-3 py-2.5 text-on-surface-variant max-w-[160px] truncate">{emp.exit_reason || '—'}</td>}
-                <td className="px-3 py-2.5 text-on-surface-variant whitespace-nowrap">{formatSalary(emp.monthly_salary)}</td>
-                <td className="px-3 py-2.5 text-right">
-                  <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => onEdit(emp)}
-                      className="p-1 rounded text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors"
-                      title="Editar"
-                    >
-                      <span className="material-symbols-outlined text-[15px]">edit</span>
-                    </button>
-                    {!isExits && (
-                      <button
-                        onClick={() => onMoveToExit(emp)}
-                        className="p-1 rounded text-on-surface-variant hover:text-orange-400 hover:bg-surface-container transition-colors"
-                        title="Mover a Exits"
-                      >
-                        <span className="material-symbols-outlined text-[15px]">exit_to_app</span>
-                      </button>
-                    )}
-                    <button
-                      onClick={() => onDelete(emp)}
-                      className="p-1 rounded text-on-surface-variant hover:text-red-400 hover:bg-surface-container transition-colors"
-                      title="Eliminar"
-                    >
-                      <span className="material-symbols-outlined text-[15px]">delete</span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="bg-surface-container-low/60 rounded-lg px-3 py-2">
+          <p className="text-[10px] text-on-surface-variant/60 uppercase tracking-wider mb-0.5">Activos</p>
+          <p className="text-xl font-bold text-on-surface">{active}</p>
+        </div>
+        <div className="bg-surface-container-low/60 rounded-lg px-3 py-2">
+          <p className="text-[10px] text-on-surface-variant/60 uppercase tracking-wider mb-0.5">Exits</p>
+          <p className="text-xl font-bold text-on-surface/70">{exits}</p>
+        </div>
       </div>
     </div>
   )
 }
 
+function EmployeeTable({ name, employees, onEdit, onMoveToExit, onDelete, isExits, collapsed, onToggle }) {
+  const theme = CLIENT_THEME[name] ?? CLIENT_THEME['LogicMonitor']
+  const colCount = isExits ? 9 : 8
+
+  return (
+    <div className="mb-6">
+      {/* Section header — clickable to collapse */}
+      <button
+        type="button"
+        onClick={onToggle}
+        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl ${theme.cardBg} border ${theme.cardBorder} ${theme.borderL} mb-2 hover:brightness-110 transition-all`}
+      >
+        <div className="flex items-center gap-3">
+          <span className={`text-sm font-bold uppercase tracking-wider ${theme.text}`}>{name}</span>
+          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${theme.countBg}`}>
+            {employees.length}
+          </span>
+        </div>
+        <span className="material-symbols-outlined text-[18px] text-on-surface-variant transition-transform duration-200"
+          style={{ transform: collapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
+          expand_more
+        </span>
+      </button>
+
+      {/* Table */}
+      {!collapsed && (
+        <div className="rounded-xl border border-outline-variant/20 overflow-x-auto">
+          <table className="w-full text-xs min-w-[900px]">
+            <thead>
+              <tr className="bg-surface-container-high text-on-surface-variant text-[10px] uppercase tracking-wider">
+                <th className="px-3 py-2.5 text-left font-semibold">Nombre</th>
+                <th className="px-3 py-2.5 text-left font-semibold">Posición</th>
+                <th className="px-3 py-2.5 text-left font-semibold">Teléfono</th>
+                <th className="px-3 py-2.5 text-left font-semibold">Email</th>
+                <th className="px-3 py-2.5 text-left font-semibold">Inicio</th>
+                {!isExits && <th className="px-3 py-2.5 text-left font-semibold">Contrato</th>}
+                {isExits  && <th className="px-3 py-2.5 text-left font-semibold">Salida</th>}
+                {isExits  && <th className="px-3 py-2.5 text-left font-semibold">Motivo</th>}
+                <th className="px-3 py-2.5 text-left font-semibold">Salario</th>
+                <th className="px-3 py-2.5 text-right font-semibold" />
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-outline-variant/10">
+              {employees.length === 0 ? (
+                <tr>
+                  <td colSpan={colCount} className="px-3 py-6 text-center text-on-surface-variant/40 text-[11px]">
+                    Sin registros
+                  </td>
+                </tr>
+              ) : employees.map(emp => (
+                <tr key={emp.id} className="group hover:bg-surface-container/40 transition-colors">
+                  <td className="px-3 py-2.5 font-semibold text-on-surface whitespace-nowrap">{emp.full_name}</td>
+                  <td className="px-3 py-2.5 text-on-surface-variant max-w-[180px] truncate">{emp.position || '—'}</td>
+                  <td className="px-3 py-2.5 text-on-surface-variant whitespace-nowrap">{emp.phone || '—'}</td>
+                  <td className="px-3 py-2.5 text-on-surface-variant">{emp.email || '—'}</td>
+                  <td className="px-3 py-2.5 text-on-surface-variant whitespace-nowrap">{formatDate(emp.start_date)}</td>
+                  {!isExits && <td className="px-3 py-2.5"><ProbationBadge emp={emp} /></td>}
+                  {isExits  && <td className="px-3 py-2.5 text-on-surface-variant whitespace-nowrap">{formatDate(emp.exit_date)}</td>}
+                  {isExits  && <td className="px-3 py-2.5 text-on-surface-variant max-w-[160px] truncate">{emp.exit_reason || '—'}</td>}
+                  <td className="px-3 py-2.5 text-on-surface-variant whitespace-nowrap">{formatSalary(emp.monthly_salary)}</td>
+                  <td className="px-3 py-2.5 text-right">
+                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => onEdit(emp)} title="Editar"
+                        className="p-1 rounded text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors">
+                        <span className="material-symbols-outlined text-[15px]">edit</span>
+                      </button>
+                      {!isExits && (
+                        <button onClick={() => onMoveToExit(emp)} title="Mover a Exits"
+                          className="p-1 rounded text-on-surface-variant hover:text-orange-400 hover:bg-surface-container transition-colors">
+                          <span className="material-symbols-outlined text-[15px]">exit_to_app</span>
+                        </button>
+                      )}
+                      <button onClick={() => onDelete(emp)} title="Eliminar"
+                        className="p-1 rounded text-on-surface-variant hover:text-red-400 hover:bg-surface-container transition-colors">
+                        <span className="material-symbols-outlined text-[15px]">delete</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function Employees() {
-  const [employees, setEmployees] = useState([])
-  const [clients, setClients] = useState([])
-  const [tab, setTab] = useState('active')
-  const [modal, setModal] = useState(null)   // null | emp object
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [employees,     setEmployees]     = useState([])
+  const [clients,       setClients]       = useState([])
+  const [tab,           setTab]           = useState('active')
+  const [modal,         setModal]         = useState(null)
+  const [loading,       setLoading]       = useState(true)
+  const [error,         setError]         = useState(null)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
+  // collapsed state: { LogicMonitor: false, BlueConic: false, PacVue: false }
+  const [collapsed, setCollapsed] = useState({})
 
   useEffect(() => {
     Promise.all([fetchEmployees(), fetchClients()])
@@ -301,12 +339,15 @@ export default function Employees() {
     setModal({ ...emp, status: 'exited', exit_date: '', exit_reason: '' })
   }
 
-  // Derived
+  function toggleCollapse(name) {
+    setCollapsed(prev => ({ ...prev, [name]: !prev[name] }))
+  }
+
   const activeEmps = employees.filter(e => e.status === 'active')
   const exitedEmps = employees.filter(e => e.status === 'exited')
 
-  // Expiring soon (red badge)
-  const expiring = activeEmps.filter(e => probationBadge(e) === 'red')
+  const expiring = activeEmps
+    .filter(e => probationBadge(e) === 'red')
     .sort((a, b) => daysSince(b.start_date) - daysSince(a.start_date))
 
   function groupByClient(list) {
@@ -314,11 +355,7 @@ export default function Employees() {
     CLIENT_ORDER.forEach(name => { grouped[name] = [] })
     list.forEach(e => {
       const name = e.client?.name
-      if (grouped[name]) grouped[name].push(e)
-      else {
-        grouped[name] = grouped[name] || []
-        grouped[name].push(e)
-      }
+      if (name && grouped[name] !== undefined) grouped[name].push(e)
     })
     return grouped
   }
@@ -348,6 +385,19 @@ export default function Employees() {
           <span className="material-symbols-outlined text-[14px]">person_add</span>
           Agregar empleado
         </button>
+      </div>
+
+      {/* Client summary cards */}
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        {CLIENT_ORDER.map(name => (
+          <ClientCard
+            key={name}
+            name={name}
+            active={activeByClient[name]?.length ?? 0}
+            exits={exitsByClient[name]?.length  ?? 0}
+            theme={CLIENT_THEME[name]}
+          />
+        ))}
       </div>
 
       {/* Expiring alert panel */}
@@ -400,37 +450,35 @@ export default function Employees() {
         <p className="text-red-400 text-sm">{error}</p>
       ) : tab === 'active' ? (
         <div>
-          {CLIENT_ORDER.map(clientName => (
+          {CLIENT_ORDER.map(name => (
             <EmployeeTable
-              key={clientName}
-              title={clientName}
-              employees={activeByClient[clientName] ?? []}
+              key={name}
+              name={name}
+              employees={activeByClient[name] ?? []}
               onEdit={setModal}
               onMoveToExit={handleMoveToExit}
               onDelete={setDeleteConfirm}
               isExits={false}
+              collapsed={!!collapsed[name]}
+              onToggle={() => toggleCollapse(name)}
             />
           ))}
-          {activeEmps.length === 0 && (
-            <p className="text-on-surface-variant text-sm text-center py-12">No hay empleados activos.</p>
-          )}
         </div>
       ) : (
         <div>
-          {CLIENT_ORDER.map(clientName => (
+          {CLIENT_ORDER.map(name => (
             <EmployeeTable
-              key={clientName}
-              title={clientName}
-              employees={exitsByClient[clientName] ?? []}
+              key={name}
+              name={name}
+              employees={exitsByClient[name] ?? []}
               onEdit={setModal}
               onMoveToExit={() => {}}
               onDelete={setDeleteConfirm}
               isExits={true}
+              collapsed={!!collapsed[name + '_exits']}
+              onToggle={() => toggleCollapse(name + '_exits')}
             />
           ))}
-          {exitedEmps.length === 0 && (
-            <p className="text-on-surface-variant text-sm text-center py-12">No hay exits registrados.</p>
-          )}
         </div>
       )}
 

@@ -98,7 +98,7 @@ function emptyRow(weekNumber, weekYear, recruiter) {
     skills: '',
     modules: '',
     requirement_id: null,
-    status: 'Screening',
+    status: 'Review',
     english_score: null,
     salary: '',
     amount_type: '',
@@ -1124,7 +1124,7 @@ export default function Tracker() {
                       <th className="sticky left-0 z-20 bg-surface-container-low px-3 py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">
                         <div className="flex items-center gap-3">
                           <span>Candidato</span>
-                          {canEdit && (
+                          {canEdit && (year > currentYear || (year === currentYear && week >= currentWeek)) && (
                             <button
                               type="button"
                               onClick={addRow}

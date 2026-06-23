@@ -184,34 +184,43 @@ function EmployeeModal({ emp, clients, onSave, onClose }) {
 }
 
 function EmployeeTable({ title, employees, onEdit, onMoveToExit, onDelete, isExits }) {
-  if (employees.length === 0) return null
-
   return (
-    <div className="mb-6">
-      <h3 className="text-xs font-bold text-on-surface-variant/60 uppercase tracking-widest mb-2 px-1">{title}</h3>
-      <div className="rounded-xl border border-outline-variant/20 overflow-hidden">
-        <table className="w-full text-xs">
+    <div className="mb-8">
+      <div className="flex items-center gap-2 mb-2 px-1">
+        <h3 className="text-xs font-bold text-on-surface-variant/70 uppercase tracking-widest">{title}</h3>
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant/60">
+          {employees.length}
+        </span>
+      </div>
+      <div className="rounded-xl border border-outline-variant/20 overflow-x-auto">
+        <table className="w-full text-xs min-w-[900px]">
           <thead>
             <tr className="bg-surface-container-high text-on-surface-variant text-[10px] uppercase tracking-wider">
               <th className="px-3 py-2.5 text-left font-semibold">Nombre</th>
               <th className="px-3 py-2.5 text-left font-semibold">Posición</th>
+              <th className="px-3 py-2.5 text-left font-semibold">Teléfono</th>
+              <th className="px-3 py-2.5 text-left font-semibold">Email</th>
               <th className="px-3 py-2.5 text-left font-semibold">Inicio</th>
               {!isExits && <th className="px-3 py-2.5 text-left font-semibold">Contrato</th>}
-              {isExits && <th className="px-3 py-2.5 text-left font-semibold">Salida</th>}
-              {isExits && <th className="px-3 py-2.5 text-left font-semibold">Motivo</th>}
+              {isExits  && <th className="px-3 py-2.5 text-left font-semibold">Salida</th>}
+              {isExits  && <th className="px-3 py-2.5 text-left font-semibold">Motivo</th>}
               <th className="px-3 py-2.5 text-left font-semibold">Salario</th>
               <th className="px-3 py-2.5 text-right font-semibold"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-outline-variant/10">
-            {employees.map(emp => (
-              <tr key={emp.id} className="hover:bg-surface-container/40 transition-colors">
-                <td className="px-3 py-2.5 font-medium text-on-surface">
-                  <div className="flex items-center gap-2">
-                    {emp.full_name}
-                  </div>
+            {employees.length === 0 ? (
+              <tr>
+                <td colSpan={isExits ? 8 : 7} className="px-3 py-6 text-center text-on-surface-variant/40 text-[11px]">
+                  Sin registros
                 </td>
-                <td className="px-3 py-2.5 text-on-surface-variant max-w-[200px] truncate">{emp.position || '—'}</td>
+              </tr>
+            ) : employees.map(emp => (
+              <tr key={emp.id} className="group hover:bg-surface-container/40 transition-colors">
+                <td className="px-3 py-2.5 font-semibold text-on-surface whitespace-nowrap">{emp.full_name}</td>
+                <td className="px-3 py-2.5 text-on-surface-variant max-w-[180px] truncate">{emp.position || '—'}</td>
+                <td className="px-3 py-2.5 text-on-surface-variant whitespace-nowrap">{emp.phone || '—'}</td>
+                <td className="px-3 py-2.5 text-on-surface-variant">{emp.email || '—'}</td>
                 <td className="px-3 py-2.5 text-on-surface-variant whitespace-nowrap">{formatDate(emp.start_date)}</td>
                 {!isExits && (
                   <td className="px-3 py-2.5">
@@ -219,7 +228,7 @@ function EmployeeTable({ title, employees, onEdit, onMoveToExit, onDelete, isExi
                   </td>
                 )}
                 {isExits && <td className="px-3 py-2.5 text-on-surface-variant whitespace-nowrap">{formatDate(emp.exit_date)}</td>}
-                {isExits && <td className="px-3 py-2.5 text-on-surface-variant">{emp.exit_reason || '—'}</td>}
+                {isExits && <td className="px-3 py-2.5 text-on-surface-variant max-w-[160px] truncate">{emp.exit_reason || '—'}</td>}
                 <td className="px-3 py-2.5 text-on-surface-variant whitespace-nowrap">{formatSalary(emp.monthly_salary)}</td>
                 <td className="px-3 py-2.5 text-right">
                   <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

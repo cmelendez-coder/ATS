@@ -372,11 +372,24 @@ export default function Employees() {
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <div>
+        <div className="flex items-center gap-4">
           <h1 className="text-xl font-bold text-on-surface">Employees</h1>
-          <p className="text-xs text-on-surface-variant mt-0.5">
-            {activeEmps.length} activos · {exitedEmps.length} exits
-          </p>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 bg-surface-container border border-outline-variant/20 rounded-xl px-4 py-2.5">
+              <span className="material-symbols-outlined text-primary text-[18px]">group</span>
+              <div>
+                <p className="text-[10px] text-on-surface-variant/60 uppercase tracking-wider leading-none mb-0.5">Activos</p>
+                <p className="text-lg font-bold text-on-surface leading-none">{activeEmps.length}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 bg-surface-container border border-outline-variant/20 rounded-xl px-4 py-2.5">
+              <span className="material-symbols-outlined text-on-surface-variant/50 text-[18px]">exit_to_app</span>
+              <div>
+                <p className="text-[10px] text-on-surface-variant/60 uppercase tracking-wider leading-none mb-0.5">Exits</p>
+                <p className="text-lg font-bold text-on-surface/70 leading-none">{exitedEmps.length}</p>
+              </div>
+            </div>
+          </div>
         </div>
         <button
           onClick={() => setModal({ ...EMPTY_EMP })}

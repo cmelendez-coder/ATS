@@ -264,7 +264,7 @@ function EmployeeTable({ name, employees, onEdit, onMoveToExit, onDelete, isExit
                   </td>
                 </tr>
               ) : employees.map(emp => (
-                <tr key={emp.id} className="group hover:bg-surface-container/40 transition-colors">
+                <tr key={emp.id} className="group odd:bg-surface-container/30 even:bg-transparent hover:bg-surface-container-high/60 transition-colors">
                   <td className="px-3 py-2.5 font-semibold text-on-surface whitespace-nowrap">{emp.full_name}</td>
                   <td className="px-3 py-2.5 text-on-surface-variant max-w-[180px] truncate">{emp.position || '—'}</td>
                   <td className="px-3 py-2.5 text-on-surface-variant whitespace-nowrap">{emp.phone || '—'}</td>

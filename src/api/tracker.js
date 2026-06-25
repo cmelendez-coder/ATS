@@ -99,6 +99,7 @@ export async function saveTrackerEntry(entry) {
     english_score:  entry.english_score ?? null,
     salary:         entry.salary || null,
     amount_type:    entry.amount_type || null,
+    ote:            entry.ote != null && entry.ote !== '' ? Number(entry.ote) : null,
     notes:          entry.notes || null,
     synced_to_req:  alreadySynced || willSync,
     recruiter:      entry.recruiter,

@@ -102,6 +102,7 @@ function emptyRow(weekNumber, weekYear, recruiter) {
     english_score: null,
     salary: '',
     amount_type: '',
+    ote: '',
     notes: '',
     synced_to_req: false,
     _editing: true,
@@ -589,6 +590,9 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
             ? `$${Number(String(data.salary).replace(/[^0-9.]/g,'')).toLocaleString('en-US').replace(/,/g,"'")}${data.amount_type ? ` (${data.amount_type})` : ''}`
             : '—'}
         </td>
+        <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
+          {data.ote ? `$${Number(String(data.ote).replace(/[^0-9.]/g,'')).toLocaleString('en-US').replace(/,/g,"'")}` : '—'}
+        </td>
         <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[220px] truncate">{data.notes || '—'}</td>
         <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">{data.email || <span className="text-on-surface-variant/40">—</span>}</td>
         <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">{data.phone || <span className="text-on-surface-variant/40">—</span>}</td>
@@ -846,6 +850,16 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
             {AMOUNT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
+      </td>
+
+      {/* OTE */}
+      <td className="px-2 py-1.5 min-w-[100px]">
+        <input
+          className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-primary/30 placeholder:text-on-surface-variant/40"
+          placeholder="$"
+          value={data.ote || ''}
+          onChange={e => set('ote', e.target.value)}
+        />
       </td>
 
       {/* Notas */}
@@ -1136,7 +1150,7 @@ export default function Tracker() {
                           )}
                         </div>
                       </th>
-                      {['Requerimiento/Cliente', 'CV', 'LinkedIn', 'Estado', 'Status', 'English', 'Salario', 'Notas', 'Email', 'Phone', 'YoE', 'Target Role', 'Technologies', 'Skills', 'Modules', ''].map(h => (
+                      {['Requerimiento/Cliente', 'CV', 'LinkedIn', 'Estado', 'Status', 'English', 'Salario', 'OTE', 'Notas', 'Email', 'Phone', 'YoE', 'Target Role', 'Technologies', 'Skills', 'Modules', ''].map(h => (
                         <th key={h} className="px-3 py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">{h}</th>
                       ))}
                     </tr>

@@ -9,7 +9,7 @@ import {
   updateCandidateStage, updateRequirementCandidateNotes, removeCandidateFromRequirement,
   getCatalogs, getClientStages, searchCandidatesForReq,
   listPendingApprovals, approveRequirement, rejectRequirement,
-  updateRequirementStatus,
+  updateRequirementStatus, updateRequirementPriority,
 } from '../api/requirements'
 
 /* ── helpers ── */
@@ -887,6 +887,8 @@ export default function Requirements() {
   const [activeTab, setActiveTab] = useState('open')
   const [statusPickerId, setStatusPickerId] = useState(null)
   const [statusPickerPos, setStatusPickerPos] = useState(null)
+  const [priorityPickerId, setPriorityPickerId] = useState(null)
+  const [priorityPickerPos, setPriorityPickerPos] = useState(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -931,6 +933,18 @@ export default function Requirements() {
     }
   }
 
+  async function handlePriorityChange(reqId, priority) {
+    try {
+      await updateRequirementPriority(reqId, priority)
+      setRequirements(prev => prev.map(r => r.id === reqId ? { ...r, priority } : r))
+    } catch (err) {
+      alert(err.message)
+    } finally {
+      setPriorityPickerId(null)
+      setPriorityPickerPos(null)
+    }
+  }
+
   function clearFilters() {
     setSearch('')
     setFilterStatus('')
@@ -939,6 +953,29 @@ export default function Requirements() {
 
   return (
     <>
+      {priorityPickerId !== null && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => { setPriorityPickerId(null); setPriorityPickerPos(null) }} />
+          {priorityPickerPos && (
+            <div
+              className="fixed bg-surface-container-low border border-outline-variant/20 rounded-xl shadow-xl z-50 overflow-hidden min-w-[130px]"
+              style={{ top: priorityPickerPos.top, left: priorityPickerPos.left }}
+            >
+              {Object.entries(PRIORITY).map(([v, p]) => (
+                <button
+                  key={v}
+                  className="w-full text-left px-3 py-2 text-[11px] hover:bg-surface-container transition-colors flex items-center gap-2"
+                  onClick={() => handlePriorityChange(priorityPickerId, Number(v))}
+                >
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${p.bg} ${p.text} ${p.border}`}>
+                    {p.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </>
+      )}
       {statusPickerId !== null && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => { setStatusPickerId(null); setStatusPickerPos(null) }} />
@@ -1193,9 +1230,24 @@ export default function Requirements() {
                             >
                               {/* Priority pill */}
                               <div className="lg:col-span-1 flex items-center">
-                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wide whitespace-nowrap ${pri.bg} ${pri.text} ${pri.border}`}>
+                                <button
+                                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wide whitespace-nowrap hover:opacity-75 transition-opacity ${pri.bg} ${pri.text} ${pri.border}`}
+                                  title="Cambiar prioridad"
+                                  onClick={e => {
+                                    e.stopPropagation()
+                                    if (priorityPickerId === req.id) {
+                                      setPriorityPickerId(null)
+                                      setPriorityPickerPos(null)
+                                    } else {
+                                      const rect = e.currentTarget.getBoundingClientRect()
+                                      setPriorityPickerPos({ top: rect.bottom + 4, left: rect.left })
+                                      setPriorityPickerId(req.id)
+                                    }
+                                  }}
+                                >
                                   Prioridad: {pri.label}
-                                </span>
+                                  <span className="material-symbols-outlined text-[11px] leading-none">arrow_drop_down</span>
+                                </button>
                               </div>
 
                               {/* REQ ID + Title */}

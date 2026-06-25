@@ -202,6 +202,11 @@ export async function removeCandidateFromRequirement(rcId) {
   if (error) throw error
 }
 
+export async function updateRequirementStatus(id, statusId) {
+  const { error } = await supabase.from('requirement').update({ status_id: statusId }).eq('id', id)
+  if (error) throw error
+}
+
 export async function getCatalogs() {
   const [
     { data: statuses },

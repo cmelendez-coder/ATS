@@ -194,7 +194,10 @@ function CandidateSearch({ value, candidateId, onSelect, disabled }) {
 }
 
 // Requirement dropdown — native select (renders outside overflow:hidden containers)
-function RequirementSearch({ value, requirements, onSelect, disabled }) {
+function RequirementSearch({ value, requirements, currentReq, onSelect, disabled }) {
+  const opts = currentReq && !requirements.find(r => r.id === currentReq.id)
+    ? [currentReq, ...requirements]
+    : requirements
   return (
     <select
       className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none cursor-pointer"
@@ -203,7 +206,7 @@ function RequirementSearch({ value, requirements, onSelect, disabled }) {
       onChange={e => onSelect(e.target.value ? Number(e.target.value) : null)}
     >
       <option value="">Seleccionar posición…</option>
-      {requirements.map(r => (
+      {opts.map(r => (
         <option key={r.id} value={r.id}>
           {r.job_title}{r.client?.name ? ` — ${r.client.name}` : ''}
         </option>
@@ -513,7 +516,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
     onDelete()
   }
 
-  const req = requirements.find(r => r.id === data.requirement_id)
+  const req = requirements.find(r => r.id === data.requirement_id) ?? data.requirement
 
   if (!editing) {
     return (
@@ -690,6 +693,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
         <RequirementSearch
           value={data.requirement_id}
           requirements={requirements}
+          currentReq={data.requirement}
           onSelect={id => set('requirement_id', id)}
         />
       </td>

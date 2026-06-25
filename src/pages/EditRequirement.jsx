@@ -30,7 +30,9 @@ export default function EditRequirement() {
     desired_location: '',
     salary_cap: '',
     variable: '',
+    periodicidad: '',
     work_arrangement_id: '',
+    office_hours: '',
     visa_us_required: false,
     tech_reqs: '',
     special_request: '',
@@ -66,7 +68,9 @@ export default function EditRequirement() {
           desired_location: requirement.desired_location ?? '',
           salary_cap: requirement.salary_cap ?? '',
           variable: String(requirement.variable ?? '').replace('%', ''),
+          periodicidad: requirement.periodicidad ?? '',
           work_arrangement_id: requirement.work_arrangement_id ? String(requirement.work_arrangement_id) : '',
+          office_hours: requirement.office_hours ?? '',
           visa_us_required: Boolean(requirement.visa_us_required),
           tech_reqs: requirement.tech_reqs ?? '',
           special_request: requirement.special_request ?? '',
@@ -108,7 +112,9 @@ export default function EditRequirement() {
         desired_location: form.desired_location || null,
         salary_cap: form.salary_cap ? Number(form.salary_cap) : null,
         variable: form.variable ? `${String(form.variable)}%` : null,
+        periodicidad: form.periodicidad || null,
         work_arrangement_id: form.work_arrangement_id ? Number(form.work_arrangement_id) : null,
+        office_hours: form.office_hours || null,
         visa_us_required: form.visa_us_required,
         tech_reqs: form.tech_reqs || null,
         special_request: form.special_request || null,
@@ -152,7 +158,7 @@ export default function EditRequirement() {
             disabled={loading}
             className="hidden sm:flex items-center justify-center h-9 px-5 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary font-medium text-sm hover:opacity-90 disabled:opacity-60"
           >
-            {loading ? 'Guardando...' : 'Guardar Cambios'}
+            {loading ? 'Guardando…' : 'Guardar Cambios'}
           </button>
         </div>
       </header>
@@ -192,38 +198,14 @@ export default function EditRequirement() {
                     <input className="form-field font-mono opacity-70 cursor-not-allowed" value={reqLabel} type="text" readOnly />
                     <p className="text-xs text-on-surface-variant mt-1">Auto-generated.</p>
                   </div>
-                  <div>
-                    <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Application Date <span className="text-error">*</span></label>
+                  <div className="col-span-2">
+                    <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Requisition Open Date <span className="text-error">*</span></label>
                     <input className="form-field" type="date" value={form.application_date} onChange={e => set('application_date', e.target.value)} required />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Stage</label>
-                    <div className="relative">
-                      <select className="form-field appearance-none cursor-pointer pr-9" value={form.stage} onChange={e => set('stage', e.target.value)}>
-                        <option value="New">New</option>
-                        <option value="Sourcing">Sourcing</option>
-                        <option value="Screening">Screening</option>
-                        <option value="Submission">Submission</option>
-                        <option value="Interview">Interview</option>
-                        <option value="Offer">Offer</option>
-                        <option value="Closed">Closed</option>
-                      </select>
-                      <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[18px]">arrow_drop_down</span>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Status <span className="text-error">*</span></label>
-                    <div className="relative">
-                      <select className="form-field appearance-none cursor-pointer pr-9" value={form.status_id} onChange={e => set('status_id', e.target.value)}>
-                        {catalogs.statuses.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                      </select>
-                      <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[18px]">arrow_drop_down</span>
-                    </div>
                   </div>
                   <div>
                     <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Priority <span className="text-error">*</span></label>
                     <div className="flex bg-surface-container p-1 rounded-xl">
-                      {[{ v: 0, l: 'Alta' }, { v: 1, l: 'Media' }, { v: 2, l: 'Baja' }, { v: 3, l: 'Pausa' }].map(({ v, l }) => (
+                      {[{ v: 0, l: '0' }, { v: 1, l: '1' }, { v: 2, l: '2' }, { v: 3, l: 'On hold' }].map(({ v, l }) => (
                         <button
                           key={v}
                           type="button"
@@ -232,11 +214,6 @@ export default function EditRequirement() {
                         >{l}</button>
                       ))}
                     </div>
-                  </div>
-                  <div className="col-span-2">
-                    <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">First Resource Sent</label>
-                    <input className="form-field" type="date" value={form.first_resource_sent} onChange={e => set('first_resource_sent', e.target.value)} />
-                    <p className="text-xs text-on-surface-variant mt-1">Date the first candidate was submitted.</p>
                   </div>
                 </div>
               </div>
@@ -313,6 +290,15 @@ export default function EditRequirement() {
                     </div>
                     <p className="text-xs text-on-surface-variant mt-1">Performance bonus percentage.</p>
                   </div>
+                  <div className="col-span-2">
+                    <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Periodicidad</label>
+                    <select className="form-field appearance-none cursor-pointer" value={form.periodicidad} onChange={e => set('periodicidad', e.target.value)}>
+                      <option value="">Seleccionar…</option>
+                      <option value="Mensual">Mensual</option>
+                      <option value="Trimestral">Trimestral</option>
+                      <option value="Anual">Anual</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
@@ -325,11 +311,15 @@ export default function EditRequirement() {
                     <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Work Arrangement <span className="text-error">*</span></label>
                     <div className="relative">
                       <select className="form-field appearance-none cursor-pointer pr-9" value={form.work_arrangement_id} onChange={e => set('work_arrangement_id', e.target.value)}>
-                        <option value="">Select...</option>
+                        <option value="">Select…</option>
                         {catalogs.arrangements.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                       </select>
                       <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[18px]">arrow_drop_down</span>
                     </div>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Office Hours</label>
+                    <input className="form-field" placeholder="e.g. Mon–Fri 9am–6pm CST" type="text" value={form.office_hours} onChange={e => set('office_hours', e.target.value)} />
                   </div>
                   <div className="col-span-2">
                     <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-3">VISA US Required</label>

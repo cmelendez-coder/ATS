@@ -1106,17 +1106,14 @@ export default function Requirements() {
 
           {/* Summary cards */}
           {!loading && (() => {
-            const openCount    = requirements.filter(r => r.status?.name === 'Open').length
-            const highPriCount = requirements.filter(r => r.priority === 3).length
-            const noCandsCount = requirements.filter(r => (r.rc_count?.length ?? 0) === 0).length
-            const clientCount  = new Set(requirements.map(r => r.client?.id).filter(Boolean)).size
+            const openReqs    = requirements.filter(r => r.status?.name === 'Open')
+            const openCount   = openReqs.length
+            const clientCount = new Set(openReqs.map(r => r.client?.id).filter(Boolean)).size
             return (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 gap-3 max-w-sm">
                 {[
-                  { label: 'Open Requirements', value: openCount,    icon: 'folder_open',  color: 'text-primary',   bg: 'bg-primary/5' },
-                  { label: 'High Priority',     value: highPriCount, icon: 'priority_high', color: 'text-red-400',  bg: 'bg-red-500/5' },
-                  { label: 'No Candidates',     value: noCandsCount, icon: 'person_off',   color: 'text-amber-400', bg: 'bg-amber-500/5' },
-                  { label: 'Clients',           value: clientCount,  icon: 'business',     color: 'text-secondary', bg: 'bg-secondary/5' },
+                  { label: 'Open Requirements', value: openCount,   icon: 'folder_open', color: 'text-primary',   bg: 'bg-primary/5' },
+                  { label: 'Clients',           value: clientCount, icon: 'business',    color: 'text-secondary', bg: 'bg-secondary/5' },
                 ].map(m => (
                   <div key={m.label} className={`${m.bg} rounded-xl px-4 py-3.5 border border-outline-variant/10 shadow-[0_1px_8px_rgba(24,28,30,0.04)] flex items-center gap-3`}>
                     <span className={`material-symbols-outlined text-[22px] ${m.color} opacity-80`}>{m.icon}</span>

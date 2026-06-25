@@ -885,6 +885,7 @@ export default function Requirements() {
   const [filterStatus, setFilterStatus] = useState('')
   const [filterClient, setFilterClient] = useState('')
   const [statusPickerId, setStatusPickerId] = useState(null)
+  const [statusPickerPos, setStatusPickerPos] = useState(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -925,6 +926,7 @@ export default function Requirements() {
       alert(err.message)
     } finally {
       setStatusPickerId(null)
+      setStatusPickerPos(null)
     }
   }
 
@@ -937,7 +939,31 @@ export default function Requirements() {
   return (
     <>
       {statusPickerId !== null && (
-        <div className="fixed inset-0 z-40" onClick={() => setStatusPickerId(null)} />
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => { setStatusPickerId(null); setStatusPickerPos(null) }} />
+          {statusPickerPos && (() => {
+            const openSt  = catalogs.statuses.find(s => s.name === 'Open')
+            const closedSt = catalogs.statuses.find(s => s.name.startsWith('Closed'))
+            const opts = [openSt, closedSt].filter(Boolean)
+            return (
+              <div
+                className="fixed bg-surface-container-low border border-outline-variant/20 rounded-xl shadow-xl z-50 overflow-hidden min-w-[140px]"
+                style={{ top: statusPickerPos.top, right: statusPickerPos.right }}
+              >
+                {opts.map(s => (
+                  <button
+                    key={s.id}
+                    className="w-full text-left px-3 py-2 text-[11px] hover:bg-surface-container transition-colors text-on-surface flex items-center gap-2"
+                    onClick={() => handleStatusChange(statusPickerId, s.id, s.name)}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${(STATUS_STYLE[s.name] ?? DEFAULT_STATUS).dot}`}></span>
+                    {s.name.startsWith('Closed') ? 'Closed' : s.name}
+                  </button>
+                ))}
+              </div>
+            )
+          })()}
+        </>
       )}
       {/* TOP HEADER */}
       <header className="flex justify-between items-center h-16 px-8 w-full sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10 shrink-0">
@@ -1179,31 +1205,25 @@ export default function Requirements() {
 
                               {/* Status + actions */}
                               <div className="lg:col-span-2 flex items-center justify-end gap-1.5">
-                                <div className="relative" onClick={e => e.stopPropagation()}>
-                                  <button
-                                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap ${st.bg} ${st.text} tracking-wide hover:opacity-80 transition-opacity`}
-                                    onClick={() => setStatusPickerId(statusPickerId === req.id ? null : req.id)}
-                                    title="Cambiar estatus"
-                                  >
-                                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${st.dot}`}></span>
-                                    {req.status?.name ?? '—'}
-                                    <span className="material-symbols-outlined text-[11px] leading-none">arrow_drop_down</span>
-                                  </button>
-                                  {statusPickerId === req.id && (
-                                    <div className="absolute right-0 top-full mt-1 bg-surface-container-low border border-outline-variant/20 rounded-xl shadow-xl z-50 overflow-hidden min-w-[180px]">
-                                      {catalogs.statuses.map(s => (
-                                        <button
-                                          key={s.id}
-                                          className="w-full text-left px-3 py-2 text-[11px] hover:bg-surface-container transition-colors text-on-surface flex items-center gap-2"
-                                          onClick={() => handleStatusChange(req.id, s.id, s.name)}
-                                        >
-                                          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${(STATUS_STYLE[s.name] ?? DEFAULT_STATUS).dot}`}></span>
-                                          {s.name}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
+                                <button
+                                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap ${st.bg} ${st.text} tracking-wide hover:opacity-80 transition-opacity`}
+                                  title="Cambiar estatus"
+                                  onClick={e => {
+                                    e.stopPropagation()
+                                    if (statusPickerId === req.id) {
+                                      setStatusPickerId(null)
+                                      setStatusPickerPos(null)
+                                    } else {
+                                      const rect = e.currentTarget.getBoundingClientRect()
+                                      setStatusPickerPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
+                                      setStatusPickerId(req.id)
+                                    }
+                                  }}
+                                >
+                                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${st.dot}`}></span>
+                                  {req.status?.name?.startsWith('Closed') ? 'Closed' : (req.status?.name ?? '—')}
+                                  <span className="material-symbols-outlined text-[11px] leading-none">arrow_drop_down</span>
+                                </button>
                                 <div className="flex gap-0.5 shrink-0">
                                   {can('requirements.edit') && (
                                     <Link

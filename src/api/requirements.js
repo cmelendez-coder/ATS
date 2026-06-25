@@ -52,25 +52,13 @@ export async function rejectRequirement(id) {
 }
 
 export async function getPendingRequirementAlertCount() {
-  const { data, error } = await supabase
+  const { count, error } = await supabase
     .from('requirement')
-    .select(`
-      id,
-      stage,
-      status:status_id(name),
-      rc_count:requirement_candidate(id)
-    `)
-    .order('created_at', { ascending: false })
+    .select('id', { count: 'exact', head: true })
+    .eq('status_id', 1)
 
   if (error) throw error
-
-  return (data ?? []).filter(req => {
-    const statusName = String(req.status?.name ?? '').toLowerCase()
-    const stageName = String(req.stage ?? '').toLowerCase()
-    const hasCandidates = (req.rc_count?.length ?? 0) > 0
-    const isClosed = statusName.startsWith('closed') || stageName === 'closed'
-    return !hasCandidates && !isClosed
-  }).length
+  return count ?? 0
 }
 
 export async function createRequirement(payload) {

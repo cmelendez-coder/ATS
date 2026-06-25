@@ -2,17 +2,29 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { usePermissions } from '../hooks/usePermissions'
 
-const linkClass = ({ isActive }) =>
-  isActive
-    ? 'nav-active flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150'
-    : 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200'
-
 function NavItem({ to, end, icon, label, collapsed = false }) {
   return (
-    <NavLink to={to} end={end} className={linkClass} title={collapsed ? label : undefined}>
+    <NavLink
+      to={to}
+      end={end}
+      title={collapsed ? label : undefined}
+      className={({ isActive }) =>
+        collapsed
+          ? 'flex justify-center py-1 rounded-lg transition-all duration-150'
+          : isActive
+            ? 'nav-active flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150'
+            : 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-200'
+      }
+    >
       {({ isActive }) => (
         <>
-          <span className={`material-symbols-outlined text-[20px] shrink-0${isActive ? ' filled' : ''}`}>{icon}</span>
+          {collapsed ? (
+            <span className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${isActive ? 'bg-primary/20 text-primary' : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'}`}>
+              <span className={`material-symbols-outlined text-[20px]${isActive ? ' filled' : ''}`}>{icon}</span>
+            </span>
+          ) : (
+            <span className={`material-symbols-outlined text-[20px] shrink-0${isActive ? ' filled' : ''}`}>{icon}</span>
+          )}
           {!collapsed && <span className="font-medium text-sm">{label}</span>}
         </>
       )}

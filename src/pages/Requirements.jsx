@@ -884,6 +884,7 @@ export default function Requirements() {
   const [search, setSearch]             = useState('')
   const [filterStatus, setFilterStatus] = useState('')
   const [filterClient, setFilterClient] = useState('')
+  const [activeTab, setActiveTab] = useState('open')
   const [statusPickerId, setStatusPickerId] = useState(null)
   const [statusPickerPos, setStatusPickerPos] = useState(null)
 
@@ -1097,9 +1098,44 @@ export default function Requirements() {
             <PendingApprovalsSection onApproved={load} />
           )}
 
+          {/* Open / Closed tabs */}
+          {!loading && (() => {
+            const openCount   = requirements.filter(r => r.status?.name === 'Open').length
+            const closedCount = requirements.filter(r => r.status?.name?.startsWith('Closed')).length
+            return (
+              <div className="flex items-center gap-1 p-1 bg-surface-container rounded-xl w-fit">
+                {[
+                  { key: 'open',   label: 'Open',   count: openCount,   dot: 'bg-secondary' },
+                  { key: 'closed', label: 'Closed', count: closedCount, dot: 'bg-error' },
+                ].map(tab => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                      activeTab === tab.key
+                        ? 'bg-surface-container-lowest text-on-surface shadow-sm'
+                        : 'text-on-surface-variant hover:text-on-surface'
+                    }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${tab.dot}`}></span>
+                    {tab.label}
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                      activeTab === tab.key ? 'bg-primary/10 text-primary' : 'bg-surface-container text-on-surface-variant'
+                    }`}>{tab.count}</span>
+                  </button>
+                ))}
+              </div>
+            )
+          })()}
+
           {/* Requirements grouped by client */}
           {(() => {
-            const grouped = requirements.reduce((acc, req) => {
+            const tabFiltered = requirements.filter(r => {
+              if (activeTab === 'open')   return r.status?.name === 'Open'
+              if (activeTab === 'closed') return r.status?.name?.startsWith('Closed')
+              return true
+            })
+            const grouped = tabFiltered.reduce((acc, req) => {
               const key = req.client?.name ?? 'Unknown'
               if (!acc[key]) acc[key] = { client: req.client, reqs: [] }
               acc[key].reqs.push(req)
@@ -1116,12 +1152,12 @@ export default function Requirements() {
                   </div>
                 )}
 
-                {!loading && requirements.length === 0 && (
+                {!loading && tabFiltered.length === 0 && (
                   <div className="flex flex-col items-center justify-center py-16 text-center">
                     <span className="material-symbols-outlined text-[48px] text-on-surface-variant/30 mb-3">assignment</span>
-                    <p className="text-on-surface-variant font-medium">No requirements found</p>
+                    <p className="text-on-surface-variant font-medium">No {activeTab} requirements found</p>
                     <p className="text-sm text-on-surface-variant/60 mt-1">
-                      {can('requirements.create') ? 'Create your first requirement to get started.' : 'No hay requerimientos activos.'}
+                      {activeTab === 'open' && can('requirements.create') ? 'Create your first requirement to get started.' : `No hay requerimientos ${activeTab === 'open' ? 'abiertos' : 'cerrados'}.`}
                     </p>
                   </div>
                 )}

@@ -64,10 +64,14 @@ export async function searchCandidates({ q = '', englishMin = '', englishMax = '
     ...(noteData.data ?? []).map(r => r.candidate_id),
   ])]
 
-  // Build OR: name, email, role, and all indirect matches
+  // Build OR: name, email, role, bdd legacy columns, and all indirect matches
   const conditions = [
     `full_name.ilike.%${term}%`,
     `email.ilike.%${term}%`,
+    `bdd_role.ilike.%${term}%`,
+    `bdd_technology.ilike.%${term}%`,
+    `bdd_module.ilike.%${term}%`,
+    `bdd_skills.ilike.%${term}%`,
   ]
   if (roleData.data?.length) {
     conditions.push(`role_id.in.(${roleData.data.map(r => r.role_id).join(',')})`)

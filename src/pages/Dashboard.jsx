@@ -101,7 +101,7 @@ export default function Dashboard() {
                 label: 'Requirements',
                 value: loading ? '…' : stats?.totalRequirements ?? 0,
                 icon: 'assignment',
-                sub: loading ? '' : `${highPriority} high priority`,
+                sub: '',
                 gradient: 'from-primary/[0.04] to-transparent',
               },
               {
@@ -109,7 +109,7 @@ export default function Dashboard() {
                 label: 'Clients',
                 value: loading ? '…' : stats?.totalClients ?? 0,
                 icon: 'business',
-                sub: 'Active portfolios',
+                sub: '',
                 gradient: 'from-secondary/[0.06] to-transparent',
               },
               {

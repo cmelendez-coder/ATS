@@ -117,7 +117,7 @@ export default function Dashboard() {
                 label: 'Talent Pool',
                 value: loading ? '…' : (stats?.totalCandidates ?? 0).toLocaleString(),
                 icon: 'people',
-                sub: loading ? '' : `${activeCount.toLocaleString()} activos`,
+                sub: '',
                 gradient: 'from-tertiary/[0.05] to-transparent',
               },
             ].map(card => (

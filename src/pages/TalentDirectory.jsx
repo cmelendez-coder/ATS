@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { searchCandidates } from '../api/talent'
 import { usePermissions } from '../hooks/usePermissions'
 
@@ -142,12 +142,15 @@ function exportToExcel(candidates, searchQuery) {
 
 export default function TalentDirectory() {
   const { can } = usePermissions()
+  const location = useLocation()
+  const restored = location.state?.restoreSearch
+
   const [candidates, setCandidates] = useState([])
   const [loading, setLoading]       = useState(true)
   const [error, setError]           = useState(null)
-  const [query, setQuery]           = useState('')
-  const [englishMin, setEnglishMin] = useState('')
-  const [englishMax, setEnglishMax] = useState('')
+  const [query, setQuery]           = useState(restored?.q ?? '')
+  const [englishMin, setEnglishMin] = useState(restored?.englishMin ?? '')
+  const [englishMax, setEnglishMax] = useState(restored?.englishMax ?? '')
   const [searching, setSearching]   = useState(false)
 
   const load = useCallback(async (q = '', eMin = '', eMax = '') => {
@@ -164,7 +167,7 @@ export default function TalentDirectory() {
     }
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => { load(restored?.q ?? '', restored?.englishMin ?? '', restored?.englishMax ?? '') }, [load])
 
   function handleSearch(e) {
     e.preventDefault()
@@ -448,6 +451,7 @@ export default function TalentDirectory() {
                               {can('talent.edit') && (
                                 <Link
                                   to={`/talent/edit/${c.candidate_code}`}
+                                  state={{ backSearch: { q: query, englishMin, englishMax } }}
                                   className="p-1.5 rounded-lg hover:bg-surface-container-high transition-colors text-on-surface-variant hover:text-surface-tint"
                                   title="Editar"
                                 >
@@ -456,6 +460,7 @@ export default function TalentDirectory() {
                               )}
                               <Link
                                 to={`/talent/edit/${c.candidate_code}`}
+                                state={{ backSearch: { q: query, englishMin, englishMax } }}
                                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-on-primary text-xs font-semibold hover:opacity-90 transition-opacity whitespace-nowrap"
                               >
                                 Ver <span className="material-symbols-outlined text-[13px]">arrow_forward</span>

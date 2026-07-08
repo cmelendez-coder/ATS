@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useLocation } from 'react-router-dom'
 import { getCandidate, updateCandidate } from '../api/talent'
 
 function getInitials(name = '') {
@@ -27,6 +27,7 @@ function Field({ id, label, children }) {
 export default function EditTalent() {
   const { code }   = useParams()
   const navigate   = useNavigate()
+  const backSearch = useLocation().state?.backSearch ?? null
   const formRef    = useRef(null)
   const draftKey   = code ? `edit-talent-draft:${code}` : null
 
@@ -218,13 +219,27 @@ export default function EditTalent() {
               <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
                 <Link to="/" className="hover:text-primary transition-colors">Dashboard</Link>
                 <span className="material-symbols-outlined text-[14px]">chevron_right</span>
-                <Link to="/talent" className="hover:text-primary transition-colors">Talent Directory</Link>
+                <Link
+                  to="/talent"
+                  state={backSearch ? { restoreSearch: backSearch } : undefined}
+                  className="hover:text-primary transition-colors"
+                >Talent Directory</Link>
                 <span className="material-symbols-outlined text-[14px]">chevron_right</span>
                 <span className="text-primary font-medium">Editar Perfil</span>
               </div>
               <h1 className="text-[2rem] leading-none tracking-[-0.02em] font-extrabold text-primary">{talent.full_name}</h1>
               <p className="text-on-surface-variant text-sm">{talent.role?.name ?? 'Sin rol asignado'} · {talent.candidate_code}</p>
             </div>
+            {backSearch && (
+              <Link
+                to="/talent"
+                state={{ restoreSearch: backSearch }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-outline-variant text-sm text-on-surface-variant hover:text-primary hover:border-primary transition-colors shrink-0"
+              >
+                <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+                Volver{backSearch.q ? ` a "${backSearch.q}"` : ' al directorio'}
+              </Link>
+            )}
           </div>
 
           {saveError && (

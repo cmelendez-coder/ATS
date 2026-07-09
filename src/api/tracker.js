@@ -124,15 +124,97 @@ export async function saveTrackerEntry(entry) {
   // 3. Keep candidate table in sync with tracker fields
   if (candidateId) {
     const candPatch = {}
-    if (entry.email)       candPatch.email            = entry.email
-    if (entry.phone)       candPatch.phone            = entry.phone
-    if (entry.linkedin_url) candPatch.linkedin_url    = entry.linkedin_url
-    if (entry.cv_url)      candPatch.cv_url           = entry.cv_url
+    if (entry.email)        candPatch.email            = entry.email
+    if (entry.phone)        candPatch.phone            = entry.phone
+    if (entry.linkedin_url) candPatch.linkedin_url     = entry.linkedin_url
+    if (entry.cv_url)       candPatch.cv_url           = entry.cv_url
     if (entry.english_score != null) candPatch.english_score = entry.english_score
     if (entry.yoe != null && entry.yoe !== '') candPatch.years_experience = Number(entry.yoe)
+
+    // Role
+    if (entry.target_role?.trim()) {
+      const { data: roleRow } = await supabase
+        .from('catalog_role')
+        .upsert({ name: entry.target_role.trim() }, { onConflict: 'name' })
+        .select('role_id').single()
+      if (roleRow) candPatch.role_id = roleRow.role_id
+    }
+
+    // Location (state field)
+    if (entry.state?.trim()) {
+      const { data: locRow } = await supabase
+        .from('catalog_location')
+        .upsert({ name: entry.state.trim() }, { onConflict: 'name' })
+        .select('location_id').single()
+      if (locRow) candPatch.location_id = locRow.location_id
+    }
+
     if (Object.keys(candPatch).length > 0) {
       candPatch.updated_at = new Date().toISOString()
       await supabase.from('candidate').update(candPatch).eq('candidate_id', candidateId)
+    }
+
+    // Skills + Modules → candidate_note skillset
+    const skillText = [entry.skills, entry.modules].filter(Boolean).join('\n').trim()
+    if (skillText) {
+      const { data: existNote } = await supabase
+        .from('candidate_note').select('note_id')
+        .eq('candidate_id', candidateId).eq('note_type', 'skillset').limit(1)
+      if (existNote?.length) {
+        await supabase.from('candidate_note')
+          .update({ note_text: skillText }).eq('note_id', existNote[0].note_id)
+      } else {
+        await supabase.from('candidate_note')
+          .insert({ candidate_id: candidateId, note_type: 'skillset', note_text: skillText })
+      }
+    }
+
+    // Notes + Screening note → candidate_note recruiter_notes
+    const recruiterNote = [entry.notes, entry.screening_note].filter(Boolean).join('\n\n').trim()
+    if (recruiterNote) {
+      const { data: existRN } = await supabase
+        .from('candidate_note').select('note_id')
+        .eq('candidate_id', candidateId).eq('note_type', 'recruiter_notes').limit(1)
+      if (existRN?.length) {
+        await supabase.from('candidate_note')
+          .update({ note_text: recruiterNote }).eq('note_id', existRN[0].note_id)
+      } else {
+        await supabase.from('candidate_note')
+          .insert({ candidate_id: candidateId, note_type: 'recruiter_notes', note_text: recruiterNote })
+      }
+    }
+
+    // Salary → candidate_compensation
+    const costText = [entry.salary, entry.amount_type].filter(Boolean).join(' ').trim()
+    if (costText) {
+      const { data: existComp } = await supabase
+        .from('candidate_compensation').select('comp_id')
+        .eq('candidate_id', candidateId).order('recorded_at', { ascending: false }).limit(1)
+      if (existComp?.length) {
+        await supabase.from('candidate_compensation')
+          .update({ cost_text: costText }).eq('comp_id', existComp[0].comp_id)
+      } else {
+        await supabase.from('candidate_compensation')
+          .insert({ candidate_id: candidateId, cost_text: costText })
+      }
+    }
+
+    // Technologies → catalog_technology + candidate_stack
+    if (entry.technologies?.trim()) {
+      const techs = entry.technologies.split(',').map(t => t.trim()).filter(Boolean)
+      for (const techName of techs) {
+        const { data: techRow } = await supabase
+          .from('catalog_technology')
+          .upsert({ ct_name_tech: techName }, { onConflict: 'ct_name_tech' })
+          .select('technology_id').single()
+        if (techRow) {
+          await supabase.from('candidate_stack')
+            .upsert(
+              { candidate_id: candidateId, technology_id: techRow.technology_id },
+              { onConflict: 'candidate_id,technology_id', ignoreDuplicates: true }
+            )
+        }
+      }
     }
   }
 

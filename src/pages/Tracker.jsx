@@ -439,14 +439,19 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
       set('cv_url', url)
       // Extract LinkedIn, state, email and phone from CV text (no AI, free)
       const info = await extractCVInfo(url)
-      setData(prev => ({
-        ...prev,
-        cv_url:       url,
-        linkedin_url: info.linkedin_url || prev.linkedin_url,
-        state:        info.state        || prev.state,
-        email:        info.email        || prev.email,
-        phone:        info.phone        || prev.phone,
-      }))
+      setData(prev => {
+        const updated = {
+          ...prev,
+          cv_url:       url,
+          linkedin_url: info.linkedin_url || prev.linkedin_url,
+          state:        info.state        || prev.state,
+          email:        info.email        || prev.email,
+          phone:        info.phone        || prev.phone,
+        }
+        // Auto-save so extracted fields reach the candidate table immediately
+        if (updated.id || updated.candidate_name?.trim()) saveTrackerEntry(updated).catch(() => {})
+        return updated
+      })
     } catch (err) {
       setError('Error al subir el CV: ' + (err.message ?? 'intenta de nuevo'))
     } finally {

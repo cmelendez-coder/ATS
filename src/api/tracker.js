@@ -61,11 +61,15 @@ export async function saveTrackerEntry(entry) {
     const { data: newCand, error: candError } = await supabase
       .from('candidate')
       .insert({
-        candidate_code: code,
-        full_name: entry.candidate_name.trim(),
-        cv_url: entry.cv_url || null,
-        status_id: statusRow?.status_id ?? null,
-        english_score: entry.english_score ?? null,
+        candidate_code:   code,
+        full_name:        entry.candidate_name.trim(),
+        cv_url:           entry.cv_url || null,
+        linkedin_url:     entry.linkedin_url || null,
+        email:            entry.email || null,
+        phone:            entry.phone || null,
+        english_score:    entry.english_score ?? null,
+        years_experience: entry.yoe != null && entry.yoe !== '' ? Number(entry.yoe) : null,
+        status_id:        statusRow?.status_id ?? null,
       })
       .select('candidate_id')
       .single()
@@ -117,7 +121,22 @@ export async function saveTrackerEntry(entry) {
     entryId = data.id
   }
 
-  // 3. Sync to Requirements if status = Sent (only once)
+  // 3. Keep candidate table in sync with tracker fields
+  if (candidateId) {
+    const candPatch = {}
+    if (entry.email)       candPatch.email            = entry.email
+    if (entry.phone)       candPatch.phone            = entry.phone
+    if (entry.linkedin_url) candPatch.linkedin_url    = entry.linkedin_url
+    if (entry.cv_url)      candPatch.cv_url           = entry.cv_url
+    if (entry.english_score != null) candPatch.english_score = entry.english_score
+    if (entry.yoe != null && entry.yoe !== '') candPatch.years_experience = Number(entry.yoe)
+    if (Object.keys(candPatch).length > 0) {
+      candPatch.updated_at = new Date().toISOString()
+      await supabase.from('candidate').update(candPatch).eq('candidate_id', candidateId)
+    }
+  }
+
+  // 4. Sync to Requirements if status = Sent (only once)
   if (willSync) {
     const now = new Date().toISOString()
 

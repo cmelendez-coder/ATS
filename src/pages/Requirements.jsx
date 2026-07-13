@@ -1269,13 +1269,20 @@ function ReqBoardTable() {
                 </td>
 
                 {/* Prioridad */}
-                <td className="px-2 py-2" style={{ borderBottom: `1px solid ${rowBorder}` }}>
-                  <div
-                    className="mx-auto w-9 h-7 rounded-lg flex items-center justify-center text-sm font-bold"
-                    style={{ backgroundColor: pri.bg, color: pri.text }}
+                <td className="px-2 py-2 text-center" style={{ borderBottom: `1px solid ${rowBorder}` }}>
+                  <select
+                    value={row.prioridad ?? ''}
+                    onChange={e => handleUpdate(row.id, { prioridad: e.target.value === '' ? null : Number(e.target.value) })}
+                    className="rounded-lg text-sm font-bold text-center cursor-pointer outline-none border-none appearance-none px-2 py-1"
+                    style={{ backgroundColor: pri.bg, color: pri.text, width: 52 }}
                   >
-                    {row.prioridad ?? '—'}
-                  </div>
+                    <option value="" disabled>—</option>
+                    {[0, 1, 2, 3].map(v => (
+                      <option key={v} value={v}
+                        style={{ backgroundColor: PRI_TABLE[v].bg, color: PRI_TABLE[v].text }}
+                      >{v}</option>
+                    ))}
+                  </select>
                 </td>
 
                 {/* Cliente */}

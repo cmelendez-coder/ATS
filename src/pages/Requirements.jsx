@@ -1168,7 +1168,7 @@ function ReqBoardTable() {
               <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">calendar_today</span>
               <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Semana</span>
             </div>
-            <p className="text-5xl font-light tracking-tighter text-primary">{week}</p>
+            <p className="text-5xl font-light tracking-tighter text-primary">{selWeek.week}</p>
             <p className="text-[10px] text-on-surface-variant">semana ISO actual</p>
           </div>
 

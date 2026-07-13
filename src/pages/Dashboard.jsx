@@ -80,12 +80,21 @@ function HBar({ label, count, max, color }) {
   )
 }
 
+function getISOWeek(date = new Date()) {
+  const d = new Date(date)
+  d.setHours(0, 0, 0, 0)
+  d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7))
+  const w1 = new Date(d.getFullYear(), 0, 4)
+  return 1 + Math.round(((d - w1) / 86400000 - 3 + ((w1.getDay() + 6) % 7)) / 7)
+}
+
 export default function Dashboard() {
   const { can } = usePermissions()
   const { pendingCount, loading: alertsLoading, showAlerts } = useRequirementAlerts()
   const [currentDate, setCurrentDate] = useState('')
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [divisor, setDivisor] = useState('')
 
   useEffect(() => {
     setCurrentDate(new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }))
@@ -349,33 +358,69 @@ export default function Dashboard() {
               <div className="flex items-center justify-center py-6 gap-2 text-on-surface-variant">
                 <span className="material-symbols-outlined animate-spin text-[22px]">progress_activity</span>
               </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-3">
-                {/* Sent this week */}
-                <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
-                  <div className="flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-[16px]" style={{ color: '#50B152' }}>send</span>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Sent</span>
+            ) : (() => {
+              const sent = stats?.weeklySent ?? 0
+              const div = parseFloat(divisor)
+              const ratio = divisor !== '' && div > 0 ? (sent / div).toFixed(1) : null
+              const isoWeek = getISOWeek()
+              return (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {/* Current week */}
+                  <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">calendar_today</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Semana</span>
+                    </div>
+                    <p className="text-5xl font-light tracking-tighter text-primary">{isoWeek}</p>
+                    <p className="text-[10px] text-on-surface-variant">semana ISO actual</p>
                   </div>
-                  <p className="text-5xl font-light tracking-tighter" style={{ color: '#50B152' }}>
-                    {stats?.weeklySent ?? 0}
-                  </p>
-                  <p className="text-[10px] text-on-surface-variant">candidatos enviados al cliente</p>
-                </div>
 
-                {/* Rejected this week */}
-                <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
-                  <div className="flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-[16px]" style={{ color: '#ba1a1a' }}>cancel</span>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Rejected</span>
+                  {/* Sent this week */}
+                  <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-[16px]" style={{ color: '#50B152' }}>send</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Sent</span>
+                    </div>
+                    <p className="text-5xl font-light tracking-tighter" style={{ color: '#50B152' }}>{sent}</p>
+                    <p className="text-[10px] text-on-surface-variant">enviados al cliente</p>
                   </div>
-                  <p className="text-5xl font-light tracking-tighter" style={{ color: '#ba1a1a' }}>
-                    {stats?.weeklyRejected ?? 0}
-                  </p>
-                  <p className="text-[10px] text-on-surface-variant">candidatos rechazados</p>
+
+                  {/* Rejected this week */}
+                  <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-[16px]" style={{ color: '#ba1a1a' }}>cancel</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Rejected</span>
+                    </div>
+                    <p className="text-5xl font-light tracking-tighter" style={{ color: '#ba1a1a' }}>
+                      {stats?.weeklyRejected ?? 0}
+                    </p>
+                    <p className="text-[10px] text-on-surface-variant">candidatos rechazados</p>
+                  </div>
+
+                  {/* Ratio calculator */}
+                  <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">calculate</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Ratio</span>
+                    </div>
+                    <p className="text-5xl font-light tracking-tighter text-primary">
+                      {ratio !== null ? ratio : <span className="text-on-surface-variant/30">—</span>}
+                    </p>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <span className="text-[10px] text-on-surface-variant">÷</span>
+                      <input
+                        type="number"
+                        min="1"
+                        placeholder="meta"
+                        value={divisor}
+                        onChange={e => setDivisor(e.target.value)}
+                        className="w-full bg-surface-container rounded-lg px-2 py-1 text-[11px] text-primary placeholder:text-on-surface-variant/30 border border-outline-variant/20 focus:outline-none focus:border-primary/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
+              )
+            })()}
           </div>
 
           {/* ── ACTIVE REQUIREMENTS LIST ── */}

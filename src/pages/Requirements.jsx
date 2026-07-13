@@ -1160,7 +1160,7 @@ function ReqBoardTable() {
             Agregar requerimiento
           </button>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
 
           {/* Semana */}
           <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
@@ -1204,6 +1204,16 @@ function ReqBoardTable() {
             <p className="text-[10px] text-on-surface-variant">
               {kpi?.sent ?? 0} enviados ÷ {kpi?.activePositions ?? 0} posiciones activas
             </p>
+          </div>
+
+          {/* Requerimientos Abiertos */}
+          <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+            <div className="flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">toggle_on</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Req. Abiertos</span>
+            </div>
+            <p className="text-5xl font-light tracking-tighter text-primary">{kpi?.activePositions ?? 0}</p>
+            <p className="text-[10px] text-on-surface-variant">posiciones con búsqueda activa</p>
           </div>
 
         </div>
@@ -1595,28 +1605,6 @@ return (
             </div>
           </div>
 
-          {/* Summary cards */}
-          {!loading && (() => {
-            const openReqs    = requirements.filter(r => r.status?.name === 'Open')
-            const openCount   = openReqs.length
-            const clientCount = new Set(openReqs.map(r => r.client?.id).filter(Boolean)).size
-            return (
-              <div className="grid grid-cols-2 gap-3 max-w-sm">
-                {[
-                  { label: 'Open Requirements', value: openCount,   icon: 'folder_open', color: 'text-primary',   bg: 'bg-primary/5' },
-                  { label: 'Clients',           value: clientCount, icon: 'business',    color: 'text-secondary', bg: 'bg-secondary/5' },
-                ].map(m => (
-                  <div key={m.label} className={`${m.bg} rounded-xl px-4 py-3.5 border border-outline-variant/10 shadow-[0_1px_8px_rgba(24,28,30,0.04)] flex items-center gap-3`}>
-                    <span className={`material-symbols-outlined text-[22px] ${m.color} opacity-80`}>{m.icon}</span>
-                    <div>
-                      <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest leading-tight">{m.label}</p>
-                      <p className={`text-2xl font-bold leading-tight ${m.color}`}>{m.value}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )
-          })()}
 
           {/* ── TABLA VIEW ── */}
           {viewMode === 'tabla' && <ReqBoardTable />}

@@ -221,6 +221,18 @@ export async function updateReqBoardRow(id, patch) {
   if (error) throw error
 }
 
+export async function addReqBoardRow(data) {
+  const { data: maxRow } = await supabase
+    .from('req_board').select('sort_order')
+    .order('sort_order', { ascending: false }).limit(1).maybeSingle()
+  const { data: row, error } = await supabase
+    .from('req_board')
+    .insert({ ...data, sort_order: (maxRow?.sort_order ?? 0) + 1, activo: false })
+    .select('*').single()
+  if (error) throw error
+  return row
+}
+
 export async function getWeeklyBoardStats(weekNumber, weekYear) {
   const [
     { count: sent },

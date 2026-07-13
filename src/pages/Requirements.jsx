@@ -10,7 +10,7 @@ import {
   getCatalogs, getClientStages, searchCandidatesForReq,
   listPendingApprovals, approveRequirement, rejectRequirement,
   updateRequirementStatus, updateRequirementPriority,
-  getReqBoard, updateReqBoardRow, getWeeklyBoardStats,
+  getReqBoard, updateReqBoardRow, getWeeklyBoardStats, addReqBoardRow,
 } from '../api/requirements'
 
 /* ── helpers ── */
@@ -922,6 +922,118 @@ function Toggle({ on, onChange }) {
   )
 }
 
+/* ── Add-from-requirement modal ── */
+function AddReqModal({ onAdd, onClose }) {
+  const [reqs, setReqs]       = useState([])
+  const [loadingReqs, setLoadingReqs] = useState(true)
+  const [search, setSearch]   = useState('')
+  const [adding, setAdding]   = useState(null)
+
+  useEffect(() => {
+    listRequirements({ excludePending: true })
+      .then(data => setReqs(data.filter(r => r.status?.name === 'Open')))
+      .finally(() => setLoadingReqs(false))
+  }, [])
+
+  const filtered = reqs.filter(r =>
+    !search.trim() ||
+    r.job_title?.toLowerCase().includes(search.toLowerCase()) ||
+    r.client?.name?.toLowerCase().includes(search.toLowerCase())
+  )
+
+  async function handleSelect(req) {
+    if (adding) return
+    setAdding(req.id)
+    try {
+      await onAdd({
+        position:  req.job_title,
+        cliente:   req.client?.name ?? null,
+        ftes:      req.fte_count    ?? null,
+        prioridad: req.priority     ?? null,
+        recruiter: null,
+        everscale: null,
+        interno:   null,
+        enviados:  null,
+      })
+    } finally {
+      setAdding(null)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
+      <div
+        className="bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden border border-outline-variant/10"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant/10">
+          <div>
+            <h2 className="font-bold text-primary text-base">Agregar Requerimiento</h2>
+            <p className="text-xs text-on-surface-variant mt-0.5">Selecciona un requerimiento activo</p>
+          </div>
+          <button onClick={onClose} className="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors">
+            <span className="material-symbols-outlined text-[20px]">close</span>
+          </button>
+        </div>
+
+        {/* Search */}
+        <div className="px-5 pt-4 pb-2">
+          <div className="relative">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+            <input
+              autoFocus
+              className="w-full pl-10 pr-4 py-2.5 bg-surface-container-high rounded-xl text-sm border-none outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface-variant"
+              placeholder="Buscar por posición o cliente…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* List */}
+        <div className="px-3 pb-4 max-h-80 overflow-y-auto space-y-1">
+          {loadingReqs && (
+            <div className="flex items-center justify-center py-8 gap-2 text-on-surface-variant">
+              <span className="material-symbols-outlined animate-spin text-[20px]">progress_activity</span>
+            </div>
+          )}
+          {!loadingReqs && filtered.length === 0 && (
+            <div className="text-center py-8 text-sm text-on-surface-variant/60">No se encontraron requerimientos</div>
+          )}
+          {!loadingReqs && filtered.map(req => {
+            const pri = PRI_TABLE[req.priority] ?? PRI_TABLE[2]
+            const isAdding = adding === req.id
+            return (
+              <button
+                key={req.id}
+                disabled={!!adding}
+                onClick={() => handleSelect(req)}
+                className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-surface-container transition-colors text-left disabled:opacity-50"
+              >
+                <div
+                  className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0"
+                  style={{ backgroundColor: pri.bg, color: pri.text }}
+                >
+                  {req.priority ?? '—'}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-primary truncate">{req.job_title}</p>
+                  <p className="text-xs text-on-surface-variant">{req.client?.name ?? '—'} · {req.fte_count ?? 1} FTE</p>
+                </div>
+                {isAdding
+                  ? <span className="material-symbols-outlined animate-spin text-primary text-[18px]">progress_activity</span>
+                  : <span className="material-symbols-outlined text-primary/40 text-[18px]">add_circle</span>
+                }
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function getISOWeekReq(date = new Date()) {
   const d = new Date(date)
   d.setHours(0, 0, 0, 0)
@@ -932,9 +1044,10 @@ function getISOWeekReq(date = new Date()) {
 
 /* ── Standalone Board Table (reads/writes only req_board) ── */
 function ReqBoardTable() {
-  const [rows, setRows]       = useState([])
-  const [loading, setLoading] = useState(true)
-  const [kpi, setKpi]         = useState(null)
+  const [rows, setRows]         = useState([])
+  const [loading, setLoading]   = useState(true)
+  const [kpi, setKpi]           = useState(null)
+  const [showAddModal, setShowAddModal] = useState(false)
 
   const { week, year } = getISOWeekReq()
 
@@ -957,6 +1070,12 @@ function ReqBoardTable() {
         getWeeklyBoardStats(week, year).then(setKpi)
       }
     } catch { /* optimistic fallback */ }
+  }
+
+  async function handleAddRow(data) {
+    const newRow = await addReqBoardRow(data)
+    setRows(prev => [...prev, newRow])
+    setShowAddModal(false)
   }
 
   const ratio = kpi && kpi.activePositions > 0
@@ -992,7 +1111,13 @@ function ReqBoardTable() {
             <h2 className="text-sm font-bold text-primary">Prioridades Semanales</h2>
             <p className="text-[11px] text-on-surface-variant mt-0.5">Actividad de esta semana</p>
           </div>
-          <span className="material-symbols-outlined text-[20px] text-on-surface-variant/30">bar_chart_4_bars</span>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors"
+          >
+            <span className="material-symbols-outlined text-[15px]">add</span>
+            Agregar requerimiento
+          </button>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
 
@@ -1165,7 +1290,14 @@ function ReqBoardTable() {
         </tbody>
       </table>
     </div>
-    </div> // end space-y-5
+
+      {showAddModal && (
+        <AddReqModal
+          onAdd={handleAddRow}
+          onClose={() => setShowAddModal(false)}
+        />
+      )}
+    </div>
   )
 }
 

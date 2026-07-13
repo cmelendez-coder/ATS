@@ -336,101 +336,6 @@ function CardDetailModal({ rc, stages, canManage, onClose, onStageChange, onNote
 }
 
 /* ── Pipeline Panel ── */
-function CandidateNotes({ rc, canManage, onSave }) {
-  const [showModal, setShowModal] = useState(false)
-  const [draft, setDraft] = useState(rc.notes ?? '')
-  const [saving, setSaving] = useState(false)
-  const hasNotes = Boolean(rc.notes?.trim())
-
-  useEffect(() => { setDraft(rc.notes ?? '') }, [rc.id, rc.notes])
-
-  async function handleSave() {
-    if (saving) return
-    setSaving(true)
-    try {
-      await onSave(draft)
-      setShowModal(false)
-    } catch (err) {
-      alert(err.message ?? 'No se pudieron guardar las notas')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  if (!canManage && !hasNotes) return null
-
-  return (
-    <>
-      <button
-        type="button"
-        onClick={e => { e.stopPropagation(); setShowModal(true) }}
-        title={hasNotes ? 'Ver nota' : 'Agregar nota'}
-        className={`shrink-0 p-1 rounded-lg transition-colors ${
-          hasNotes ? 'text-primary hover:bg-primary/10' : 'text-slate-300 hover:text-slate-500 hover:bg-slate-100'
-        }`}
-      >
-        <span className="material-symbols-outlined text-[16px]">
-          {hasNotes ? 'sticky_note_2' : 'note_add'}
-        </span>
-      </button>
-
-      {showModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[#071D47]/55 p-4 backdrop-blur-sm"
-          onClick={() => !saving && setShowModal(false)}
-        >
-          <div
-            className="w-full max-w-lg rounded-2xl border border-outline-variant/20 bg-surface-container-lowest shadow-[0_20px_60px_rgba(7,29,71,0.32)]"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant/10">
-              <div>
-                <p className="text-sm font-bold text-primary">Notas · {rc.candidate?.full_name ?? 'Candidato'}</p>
-                <p className="text-xs text-on-surface-variant mt-0.5">{hasNotes ? 'Edita o visualiza la nota' : 'Sin notas aún'}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => !saving && setShowModal(false)}
-                className="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors"
-              >
-                <span className="material-symbols-outlined text-[20px]">close</span>
-              </button>
-            </div>
-
-            <div className="px-5 py-4 space-y-3">
-              <textarea
-                autoFocus
-                rows={7}
-                value={draft}
-                onChange={e => setDraft(e.target.value)}
-                placeholder="Escribe aquí las notas de seguimiento…"
-                className="w-full resize-none rounded-xl border border-outline-variant/20 bg-surface-container px-4 py-3 text-sm leading-6 text-on-surface outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface-variant/40"
-              />
-              <div className="flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => { setDraft(rc.notes ?? ''); setShowModal(false) }}
-                  className="px-4 py-2 rounded-xl border border-outline-variant/25 text-sm font-medium text-on-surface-variant hover:bg-surface-container transition-colors"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  disabled={saving}
-                  onClick={handleSave}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
-                >
-                  {saving && <span className="material-symbols-outlined animate-spin text-[14px]">progress_activity</span>}
-                  Guardar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
-  )
-}
 
 function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
   const [rcList, setRcList]     = useState([])
@@ -634,15 +539,10 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
                       >drag_indicator</span>
                     )}
 
-                    <div className="px-3 py-2 flex items-center justify-between gap-1">
-                      <p className="text-sm font-bold text-slate-800 leading-snug flex-1 min-w-0 truncate">
+                    <div className="px-3 py-2">
+                      <p className="text-sm font-bold text-slate-800 leading-snug truncate">
                         {rc.candidate?.full_name ?? '—'}
                       </p>
-                      <CandidateNotes
-                        rc={rc}
-                        canManage={canManage}
-                        onSave={(notes) => saveNotes(rc.id, notes)}
-                      />
                     </div>
                   </div>
                 ))}

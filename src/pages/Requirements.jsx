@@ -899,6 +899,29 @@ function EditableCell({ value, onChange, type = 'text', placeholder = '' }) {
   )
 }
 
+/* ── Toggle switch ── */
+function Toggle({ on, onChange }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!on)}
+      className="relative inline-flex items-center shrink-0 cursor-pointer transition-all duration-300 focus:outline-none"
+      style={{ width: 40, height: 22 }}
+      aria-checked={on}
+      role="switch"
+    >
+      <span
+        className="absolute inset-0 rounded-full transition-colors duration-300"
+        style={{ backgroundColor: on ? '#50B152' : '#ea580c' }}
+      />
+      <span
+        className="absolute top-[3px] left-[3px] w-4 h-4 bg-white rounded-full shadow transition-transform duration-300"
+        style={{ transform: on ? 'translateX(18px)' : 'translateX(0)' }}
+      />
+    </button>
+  )
+}
+
 /* ── Standalone Board Table (reads/writes only req_board) ── */
 function ReqBoardTable() {
   const [rows, setRows]       = useState([])
@@ -911,17 +934,19 @@ function ReqBoardTable() {
   async function handleUpdate(id, patch) {
     setRows(prev => prev.map(r => r.id === id ? { ...r, ...patch } : r))
     try { await updateReqBoardRow(id, patch) }
-    catch { /* optimistic rollback would go here if needed */ }
+    catch { /* optimistic fallback */ }
   }
 
   const COLS = [
-    { label: 'Recruiter',       width: '140px' },
-    { label: 'Prioridad',       width: '90px'  },
-    { label: 'Cliente',         width: '140px' },
-    { label: 'Position',        width: '220px' },
-    { label: "#",               width: '60px'  },
-    { label: 'Everscale Group', width: '120px' },
-    { label: 'Interno',         width: '90px'  },
+    { label: 'Búsqueda',       width: '80px'  },
+    { label: 'Recruiter',      width: '130px' },
+    { label: 'Prioridad',      width: '80px'  },
+    { label: 'Cliente',        width: '130px' },
+    { label: 'Position',       width: '210px' },
+    { label: '#',              width: '55px'  },
+    { label: 'Everscale Group',width: '115px' },
+    { label: 'Interno',        width: '85px'  },
+    { label: 'Enviados',       width: '85px'  },
   ]
 
   if (loading) return (
@@ -933,7 +958,7 @@ function ReqBoardTable() {
 
   return (
     <div className="overflow-x-auto rounded-2xl border border-outline-variant/10 shadow-[0_2px_16px_rgba(24,28,30,0.05)]">
-      <table className="w-full border-collapse" style={{ minWidth: 860 }}>
+      <table className="w-full border-collapse" style={{ minWidth: 960 }}>
         <thead>
           <tr>
             {COLS.map(col => (
@@ -948,17 +973,31 @@ function ReqBoardTable() {
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, idx) => {
-            const pri = PRI_TABLE[row.prioridad] ?? PRI_TABLE[2]
-            const isEven = idx % 2 === 0
+          {rows.map(row => {
+            const pri    = PRI_TABLE[row.prioridad] ?? PRI_TABLE[2]
+            const activo = row.activo ?? false
+            const rowBg  = activo
+              ? 'rgba(80,177,82,0.10)'
+              : 'rgba(234,88,12,0.08)'
+            const rowBorder = activo
+              ? 'rgba(80,177,82,0.20)'
+              : 'rgba(234,88,12,0.15)'
+
             return (
               <tr
                 key={row.id}
-                className="group transition-colors hover:bg-surface-container/40"
-                style={{ backgroundColor: isEven ? 'transparent' : 'rgba(18,48,111,0.15)' }}
+                className="transition-colors duration-300"
+                style={{ backgroundColor: rowBg, borderBottom: `1px solid ${rowBorder}` }}
               >
+                {/* Toggle búsqueda */}
+                <td className="px-3 py-3 text-center" style={{ borderBottom: `1px solid ${rowBorder}` }}>
+                  <div className="flex justify-center">
+                    <Toggle on={activo} onChange={val => handleUpdate(row.id, { activo: val })} />
+                  </div>
+                </td>
+
                 {/* Recruiter */}
-                <td className="px-2 py-2 border-b border-outline-variant/10">
+                <td className="px-2 py-2" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   <EditableCell
                     value={row.recruiter}
                     placeholder="—"
@@ -967,22 +1006,17 @@ function ReqBoardTable() {
                 </td>
 
                 {/* Prioridad */}
-                <td className="px-2 py-2 border-b border-outline-variant/10">
-                  <EditableCell
-                    type="number"
-                    value={row.prioridad != null ? String(row.prioridad) : ''}
-                    placeholder="—"
-                    onChange={val => handleUpdate(row.id, { prioridad: val === '' ? null : Number(val) })}
-                  />
-                  {/* color badge overlay */}
+                <td className="px-2 py-2" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   <div
-                    className="mx-auto mt-1 w-8 h-1.5 rounded-full"
-                    style={{ backgroundColor: pri.bg }}
-                  />
+                    className="mx-auto w-9 h-7 rounded-lg flex items-center justify-center text-sm font-bold"
+                    style={{ backgroundColor: pri.bg, color: pri.text }}
+                  >
+                    {row.prioridad ?? '—'}
+                  </div>
                 </td>
 
                 {/* Cliente */}
-                <td className="px-2 py-2 border-b border-outline-variant/10">
+                <td className="px-2 py-2" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   <EditableCell
                     value={row.cliente}
                     placeholder="—"
@@ -991,7 +1025,7 @@ function ReqBoardTable() {
                 </td>
 
                 {/* Position */}
-                <td className="px-2 py-2 border-b border-outline-variant/10">
+                <td className="px-2 py-2" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   <EditableCell
                     value={row.position}
                     placeholder="—"
@@ -1000,7 +1034,7 @@ function ReqBoardTable() {
                 </td>
 
                 {/* FTEs */}
-                <td className="px-2 py-2 border-b border-outline-variant/10">
+                <td className="px-2 py-2" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   <EditableCell
                     type="number"
                     value={row.ftes != null ? String(row.ftes) : ''}
@@ -1010,7 +1044,7 @@ function ReqBoardTable() {
                 </td>
 
                 {/* Everscale */}
-                <td className="px-2 py-2 border-b border-outline-variant/10">
+                <td className="px-2 py-2" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   <EditableCell
                     type="number"
                     value={row.everscale != null ? String(row.everscale) : ''}
@@ -1020,12 +1054,22 @@ function ReqBoardTable() {
                 </td>
 
                 {/* Interno */}
-                <td className="px-2 py-2 border-b border-outline-variant/10">
+                <td className="px-2 py-2" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   <EditableCell
                     type="number"
                     value={row.interno != null ? String(row.interno) : ''}
                     placeholder="—"
                     onChange={val => handleUpdate(row.id, { interno: val === '' ? null : Number(val) })}
+                  />
+                </td>
+
+                {/* Enviados */}
+                <td className="px-2 py-2" style={{ borderBottom: `1px solid ${rowBorder}` }}>
+                  <EditableCell
+                    type="number"
+                    value={row.enviados != null ? String(row.enviados) : ''}
+                    placeholder="—"
+                    onChange={val => handleUpdate(row.id, { enviados: val === '' ? null : Number(val) })}
                   />
                 </td>
               </tr>

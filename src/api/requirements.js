@@ -5,6 +5,7 @@ const REQ_SELECT = `
   application_date, target_fill_date, first_resource_sent, salary_cap, variable,
   desired_location, fte_count, duration, visa_us_required,
   tech_reqs, special_request, notes, created_at,
+  recruiter, everscale_count, interno_count,
   work_arrangement_id, office_hours_id, status_id,
   client:client_id(id, name),
   status:status_id(id, name),
@@ -197,6 +198,11 @@ export async function removeCandidateFromRequirement(rcId) {
 
 export async function updateRequirementStatus(id, statusId) {
   const { error } = await supabase.from('requirement').update({ status_id: statusId }).eq('id', id)
+  if (error) throw error
+}
+
+export async function updateRequirementSummary(id, patch) {
+  const { error } = await supabase.from('requirement').update(patch).eq('id', id)
   if (error) throw error
 }
 

@@ -9,7 +9,7 @@ import {
   updateCandidateStage, updateRequirementCandidateNotes, removeCandidateFromRequirement,
   getCatalogs, getClientStages, searchCandidatesForReq,
   listPendingApprovals, approveRequirement, rejectRequirement,
-  updateRequirementStatus, updateRequirementPriority,
+  updateRequirementStatus, updateRequirementPriority, updateRequirementSummary,
 } from '../api/requirements'
 
 /* ── helpers ── */
@@ -873,6 +873,145 @@ function PendingApprovalsSection({ onApproved }) {
   )
 }
 
+/* ── Priority color for summary table ── */
+const PRI_TABLE = {
+  0: { bg: '#f9a8b8', text: '#7f1534' },
+  1: { bg: '#86efac', text: '#14532d' },
+  2: { bg: '#93c5fd', text: '#1e3a5f' },
+  3: { bg: '#d1d5db', text: '#374151' },
+}
+
+/* ── Inline editable cell ── */
+function EditableCell({ value, onChange, type = 'text', placeholder = '' }) {
+  const [draft, setDraft] = useState(value ?? '')
+  useEffect(() => { setDraft(value ?? '') }, [value])
+  return (
+    <input
+      type={type}
+      value={draft}
+      placeholder={placeholder}
+      onChange={e => setDraft(e.target.value)}
+      onBlur={() => { if (draft !== (value ?? '')) onChange(draft) }}
+      onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur() }}
+      className="w-full bg-transparent text-center text-sm text-on-surface placeholder:text-on-surface-variant/30 outline-none focus:bg-surface-container rounded px-1 py-0.5 transition-colors [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+    />
+  )
+}
+
+/* ── Summary Table Component ── */
+function SummaryTable({ requirements, onUpdate }) {
+  const openReqs = requirements.filter(r => r.status?.name !== 'Closed - Not Covered')
+
+  if (!openReqs.length) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <span className="material-symbols-outlined text-[48px] text-on-surface-variant/30 mb-3">table_view</span>
+        <p className="text-on-surface-variant font-medium">No hay requerimientos para mostrar</p>
+      </div>
+    )
+  }
+
+  const COLS = [
+    { label: 'Recruiter',       width: '140px' },
+    { label: 'Prioridad',       width: '90px'  },
+    { label: 'Cliente',         width: '140px' },
+    { label: 'Position',        width: '200px' },
+    { label: "FTE's",           width: '70px'  },
+    { label: 'Everscale Group', width: '120px' },
+    { label: 'Interno',         width: '90px'  },
+  ]
+
+  return (
+    <div className="overflow-x-auto rounded-2xl border border-outline-variant/10 shadow-[0_2px_16px_rgba(24,28,30,0.05)]">
+      <table className="w-full border-collapse" style={{ minWidth: 860 }}>
+        <thead>
+          <tr>
+            {COLS.map(col => (
+              <th
+                key={col.label}
+                style={{ width: col.width }}
+                className="bg-surface-container-low text-[10px] font-bold uppercase tracking-[0.1em] text-on-surface-variant text-center px-3 py-3 border-b border-outline-variant/15 whitespace-nowrap"
+              >
+                {col.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {openReqs.map((req, idx) => {
+            const pri = PRI_TABLE[req.priority] ?? PRI_TABLE[2]
+            const isEven = idx % 2 === 0
+            return (
+              <tr
+                key={req.id}
+                className="group transition-colors hover:bg-surface-container/40"
+                style={{ backgroundColor: isEven ? 'transparent' : 'rgba(18,48,111,0.15)' }}
+              >
+                {/* Recruiter */}
+                <td className="px-2 py-2 border-b border-outline-variant/10">
+                  <EditableCell
+                    value={req.recruiter}
+                    placeholder="—"
+                    onChange={val => onUpdate(req.id, { recruiter: val || null })}
+                  />
+                </td>
+
+                {/* Prioridad */}
+                <td className="px-2 py-2 border-b border-outline-variant/10">
+                  <div
+                    className="mx-auto w-10 h-7 rounded-lg flex items-center justify-center text-sm font-bold select-none"
+                    style={{ backgroundColor: pri.bg, color: pri.text }}
+                  >
+                    {req.priority ?? '—'}
+                  </div>
+                </td>
+
+                {/* Cliente */}
+                <td className="px-3 py-2 border-b border-outline-variant/10 text-sm text-on-surface text-center font-medium">
+                  {req.client?.name ?? '—'}
+                </td>
+
+                {/* Position */}
+                <td
+                  className="px-3 py-2 border-b border-outline-variant/10 text-sm font-semibold text-center"
+                  style={{ color: '#f9a8b8' }}
+                >
+                  {req.job_title}
+                </td>
+
+                {/* FTEs */}
+                <td className="px-2 py-2 border-b border-outline-variant/10 text-sm text-on-surface text-center font-medium">
+                  {req.fte_count ?? 1}
+                </td>
+
+                {/* Everscale Group */}
+                <td className="px-2 py-2 border-b border-outline-variant/10">
+                  <EditableCell
+                    type="number"
+                    value={req.everscale_count != null ? String(req.everscale_count) : ''}
+                    placeholder="0"
+                    onChange={val => onUpdate(req.id, { everscale_count: val === '' ? null : Number(val) })}
+                  />
+                </td>
+
+                {/* Interno */}
+                <td className="px-2 py-2 border-b border-outline-variant/10">
+                  <EditableCell
+                    type="number"
+                    value={req.interno_count != null ? String(req.interno_count) : ''}
+                    placeholder="0"
+                    onChange={val => onUpdate(req.id, { interno_count: val === '' ? null : Number(val) })}
+                  />
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
 /* ── Main Page ── */
 export default function Requirements() {
   const { can } = usePermissions()
@@ -885,6 +1024,7 @@ export default function Requirements() {
   const [filterStatus, setFilterStatus] = useState('')
   const [filterClient, setFilterClient] = useState('')
   const [activeTab, setActiveTab] = useState('open')
+  const [viewMode, setViewMode]   = useState('pipeline') // 'pipeline' | 'tabla'
   const [statusPickerId, setStatusPickerId] = useState(null)
   const [statusPickerPos, setStatusPickerPos] = useState(null)
   const [priorityPickerId, setPriorityPickerId] = useState(null)
@@ -949,6 +1089,12 @@ export default function Requirements() {
     setSearch('')
     setFilterStatus('')
     setFilterClient('')
+  }
+
+  async function handleSummaryUpdate(reqId, patch) {
+    setRequirements(prev => prev.map(r => r.id === reqId ? { ...r, ...patch } : r))
+    try { await updateRequirementSummary(reqId, patch) }
+    catch { /* revert on error */ setRequirements(prev => [...prev]) }
   }
 
   return (
@@ -1049,6 +1195,27 @@ export default function Requirements() {
               <p className="text-on-surface-variant text-base">Manage and track active client requisitions across all portfolios.</p>
             </div>
             <div className="flex gap-2 shrink-0">
+              {/* View mode toggle */}
+              <div className="flex items-center gap-1 p-1 bg-surface-container rounded-xl">
+                <button
+                  onClick={() => setViewMode('pipeline')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    viewMode === 'pipeline' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[14px]">view_kanban</span>
+                  Pipeline
+                </button>
+                <button
+                  onClick={() => setViewMode('tabla')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    viewMode === 'tabla' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[14px]">table_view</span>
+                  Tabla
+                </button>
+              </div>
               {can('requirements.create') && (
                 <Link to="/requirements/new">
                   <button className="flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity">
@@ -1126,6 +1293,20 @@ export default function Requirements() {
               </div>
             )
           })()}
+
+          {/* ── TABLA VIEW ── */}
+          {viewMode === 'tabla' && !loading && (
+            <SummaryTable requirements={requirements} onUpdate={handleSummaryUpdate} />
+          )}
+          {viewMode === 'tabla' && loading && (
+            <div className="flex items-center justify-center py-16 gap-2 text-on-surface-variant">
+              <span className="material-symbols-outlined animate-spin text-[24px]">progress_activity</span>
+              <span className="text-sm">Cargando…</span>
+            </div>
+          )}
+
+          {/* ── PIPELINE VIEW ── */}
+          {viewMode === 'pipeline' && <>
 
           {/* Pending Approvals (admin only) */}
           {can('requirements.approve') && (
@@ -1363,6 +1544,8 @@ export default function Requirements() {
               </div>
             )
           })()}
+
+          </> /* end pipeline view */}
 
         </div>
       </div>

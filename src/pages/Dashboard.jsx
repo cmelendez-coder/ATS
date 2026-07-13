@@ -20,13 +20,6 @@ const STATUS_COLORS = {
   'Pending Approval':     '#c1cbe4',
 }
 
-const PIPELINE_CONFIG = [
-  { key: 'Submitted to Client',  label: 'Sent',             icon: 'send',          color: '#50B152' },
-  { key: 'Rejected',             label: 'Rejected',         icon: 'cancel',        color: '#ba1a1a' },
-  { key: 'Pending for Feedback', label: 'Pending Feedback', icon: 'pending',       color: '#c1cbe4' },
-  { key: 'Review',               label: 'Review',           icon: 'preview',       color: '#7ad27d' },
-  { key: 'Presentation',         label: 'Presentation',     icon: 'present_to_all',color: '#7ad27d' },
-]
 
 function fmt(dateStr) {
   if (!dateStr) return '—'
@@ -342,12 +335,12 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* ── PIPELINE ACTIVITY ── */}
+          {/* ── PIPELINE ACTIVITY (esta semana) ── */}
           <div className="bg-surface-container-low rounded-2xl p-6">
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h2 className="text-sm font-bold text-primary">Pipeline de Candidatos</h2>
-                <p className="text-[11px] text-on-surface-variant mt-0.5">Estado actual de todos los submittals</p>
+                <p className="text-[11px] text-on-surface-variant mt-0.5">Actividad de esta semana</p>
               </div>
               <span className="material-symbols-outlined text-[20px] text-on-surface-variant/30">hub</span>
             </div>
@@ -357,32 +350,30 @@ export default function Dashboard() {
                 <span className="material-symbols-outlined animate-spin text-[22px]">progress_activity</span>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                {PIPELINE_CONFIG.map(cfg => {
-                  const count = stats?.pipelineMap?.[cfg.key] ?? 0
-                  if (count === 0) return null
-                  return (
-                    <div
-                      key={cfg.key}
-                      className="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/10 flex flex-col gap-2"
-                    >
-                      <div className="flex items-center gap-1.5">
-                        <span
-                          className="material-symbols-outlined text-[16px]"
-                          style={{ color: cfg.color }}
-                        >
-                          {cfg.icon}
-                        </span>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant truncate">
-                          {cfg.label}
-                        </span>
-                      </div>
-                      <p className="text-3xl font-light tracking-tighter" style={{ color: cfg.color }}>
-                        {count}
-                      </p>
-                    </div>
-                  )
-                })}
+              <div className="grid grid-cols-2 gap-3">
+                {/* Sent this week */}
+                <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[16px]" style={{ color: '#50B152' }}>send</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Sent</span>
+                  </div>
+                  <p className="text-5xl font-light tracking-tighter" style={{ color: '#50B152' }}>
+                    {stats?.weeklySent ?? 0}
+                  </p>
+                  <p className="text-[10px] text-on-surface-variant">candidatos enviados al cliente</p>
+                </div>
+
+                {/* Rejected this week */}
+                <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[16px]" style={{ color: '#ba1a1a' }}>cancel</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Rejected</span>
+                  </div>
+                  <p className="text-5xl font-light tracking-tighter" style={{ color: '#ba1a1a' }}>
+                    {stats?.weeklyRejected ?? 0}
+                  </p>
+                  <p className="text-[10px] text-on-surface-variant">candidatos rechazados</p>
+                </div>
               </div>
             )}
           </div>

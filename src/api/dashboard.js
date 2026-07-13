@@ -14,7 +14,7 @@ export async function getDashboardStats() {
     { count: totalClients },
     { count: totalCandidates },
     { data: allRequirements },
-    { data: submittals },
+    { data: weeklyStages },
     { count: newCandidatesThisWeek },
   ] = await Promise.all([
     supabase.from('client').select('*', { count: 'exact', head: true }),
@@ -24,7 +24,11 @@ export async function getDashboardStats() {
       status:status_id(name),
       client:client_id(name)
     `).order('created_at', { ascending: false }),
-    supabase.from('requirement_candidate').select('submittal_status'),
+    supabase
+      .from('requirement_candidate_stage_history')
+      .select('stage_name')
+      .in('stage_name', ['Submitted to Client', 'Rejected'])
+      .gte('entered_at', weekStart.toISOString()),
     supabase
       .from('candidate')
       .select('candidate_id', { count: 'exact', head: true })
@@ -62,12 +66,9 @@ export async function getDashboardStats() {
     .slice(0, 6)
     .map(([name, count]) => ({ name, count }))
 
-  // Pipeline counts from requirement_candidate
-  const pipelineMap = {}
-  for (const row of submittals ?? []) {
-    const s = row.submittal_status
-    if (s) pipelineMap[s] = (pipelineMap[s] || 0) + 1
-  }
+  // Weekly pipeline counts from stage history
+  const weeklySent     = (weeklyStages ?? []).filter(r => r.stage_name === 'Submitted to Client').length
+  const weeklyRejected = (weeklyStages ?? []).filter(r => r.stage_name === 'Rejected').length
 
   return {
     totalRequirements:    reqs.length,
@@ -79,7 +80,8 @@ export async function getDashboardStats() {
     reqStatusMap:         statusMap,
     reqByPriority:        byPriority,
     topClients,
-    pipelineMap,
+    weeklySent,
+    weeklyRejected,
     newCandidatesThisWeek: newCandidatesThisWeek ?? 0,
     recentRequirements:   reqs.slice(0, 5),
   }

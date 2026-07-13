@@ -9,7 +9,8 @@ import {
   updateCandidateStage, updateRequirementCandidateNotes, removeCandidateFromRequirement,
   getCatalogs, getClientStages, searchCandidatesForReq,
   listPendingApprovals, approveRequirement, rejectRequirement,
-  updateRequirementStatus, updateRequirementPriority, updateRequirementSummary,
+  updateRequirementStatus, updateRequirementPriority,
+  getReqBoard, updateReqBoardRow,
 } from '../api/requirements'
 
 /* ── helpers ── */
@@ -873,7 +874,7 @@ function PendingApprovalsSection({ onApproved }) {
   )
 }
 
-/* ── Priority color for summary table ── */
+/* ── Priority colors for standalone board ── */
 const PRI_TABLE = {
   0: { bg: '#f9a8b8', text: '#7f1534' },
   1: { bg: '#86efac', text: '#14532d' },
@@ -898,28 +899,37 @@ function EditableCell({ value, onChange, type = 'text', placeholder = '' }) {
   )
 }
 
-/* ── Summary Table Component ── */
-function SummaryTable({ requirements, onUpdate }) {
-  const openReqs = requirements.filter(r => r.status?.name !== 'Closed - Not Covered')
+/* ── Standalone Board Table (reads/writes only req_board) ── */
+function ReqBoardTable() {
+  const [rows, setRows]       = useState([])
+  const [loading, setLoading] = useState(true)
 
-  if (!openReqs.length) {
-    return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <span className="material-symbols-outlined text-[48px] text-on-surface-variant/30 mb-3">table_view</span>
-        <p className="text-on-surface-variant font-medium">No hay requerimientos para mostrar</p>
-      </div>
-    )
+  useEffect(() => {
+    getReqBoard().then(setRows).finally(() => setLoading(false))
+  }, [])
+
+  async function handleUpdate(id, patch) {
+    setRows(prev => prev.map(r => r.id === id ? { ...r, ...patch } : r))
+    try { await updateReqBoardRow(id, patch) }
+    catch { /* optimistic rollback would go here if needed */ }
   }
 
   const COLS = [
     { label: 'Recruiter',       width: '140px' },
     { label: 'Prioridad',       width: '90px'  },
     { label: 'Cliente',         width: '140px' },
-    { label: 'Position',        width: '200px' },
-    { label: "FTE's",           width: '70px'  },
+    { label: 'Position',        width: '220px' },
+    { label: "#",               width: '60px'  },
     { label: 'Everscale Group', width: '120px' },
     { label: 'Interno',         width: '90px'  },
   ]
+
+  if (loading) return (
+    <div className="flex items-center justify-center py-16 gap-2 text-on-surface-variant">
+      <span className="material-symbols-outlined animate-spin text-[24px]">progress_activity</span>
+      <span className="text-sm">Cargando…</span>
+    </div>
+  )
 
   return (
     <div className="overflow-x-auto rounded-2xl border border-outline-variant/10 shadow-[0_2px_16px_rgba(24,28,30,0.05)]">
@@ -938,59 +948,74 @@ function SummaryTable({ requirements, onUpdate }) {
           </tr>
         </thead>
         <tbody>
-          {openReqs.map((req, idx) => {
-            const pri = PRI_TABLE[req.priority] ?? PRI_TABLE[2]
+          {rows.map((row, idx) => {
+            const pri = PRI_TABLE[row.prioridad] ?? PRI_TABLE[2]
             const isEven = idx % 2 === 0
             return (
               <tr
-                key={req.id}
+                key={row.id}
                 className="group transition-colors hover:bg-surface-container/40"
                 style={{ backgroundColor: isEven ? 'transparent' : 'rgba(18,48,111,0.15)' }}
               >
                 {/* Recruiter */}
                 <td className="px-2 py-2 border-b border-outline-variant/10">
                   <EditableCell
-                    value={req.recruiter}
+                    value={row.recruiter}
                     placeholder="—"
-                    onChange={val => onUpdate(req.id, { recruiter: val || null })}
+                    onChange={val => handleUpdate(row.id, { recruiter: val || null })}
                   />
                 </td>
 
                 {/* Prioridad */}
                 <td className="px-2 py-2 border-b border-outline-variant/10">
+                  <EditableCell
+                    type="number"
+                    value={row.prioridad != null ? String(row.prioridad) : ''}
+                    placeholder="—"
+                    onChange={val => handleUpdate(row.id, { prioridad: val === '' ? null : Number(val) })}
+                  />
+                  {/* color badge overlay */}
                   <div
-                    className="mx-auto w-10 h-7 rounded-lg flex items-center justify-center text-sm font-bold select-none"
-                    style={{ backgroundColor: pri.bg, color: pri.text }}
-                  >
-                    {req.priority ?? '—'}
-                  </div>
+                    className="mx-auto mt-1 w-8 h-1.5 rounded-full"
+                    style={{ backgroundColor: pri.bg }}
+                  />
                 </td>
 
                 {/* Cliente */}
-                <td className="px-3 py-2 border-b border-outline-variant/10 text-sm text-on-surface text-center font-medium">
-                  {req.client?.name ?? '—'}
+                <td className="px-2 py-2 border-b border-outline-variant/10">
+                  <EditableCell
+                    value={row.cliente}
+                    placeholder="—"
+                    onChange={val => handleUpdate(row.id, { cliente: val || null })}
+                  />
                 </td>
 
                 {/* Position */}
-                <td
-                  className="px-3 py-2 border-b border-outline-variant/10 text-sm font-semibold text-center"
-                  style={{ color: '#f9a8b8' }}
-                >
-                  {req.job_title}
+                <td className="px-2 py-2 border-b border-outline-variant/10">
+                  <EditableCell
+                    value={row.position}
+                    placeholder="—"
+                    onChange={val => handleUpdate(row.id, { position: val || null })}
+                  />
                 </td>
 
                 {/* FTEs */}
-                <td className="px-2 py-2 border-b border-outline-variant/10 text-sm text-on-surface text-center font-medium">
-                  {req.fte_count ?? 1}
-                </td>
-
-                {/* Everscale Group */}
                 <td className="px-2 py-2 border-b border-outline-variant/10">
                   <EditableCell
                     type="number"
-                    value={req.everscale_count != null ? String(req.everscale_count) : ''}
-                    placeholder="0"
-                    onChange={val => onUpdate(req.id, { everscale_count: val === '' ? null : Number(val) })}
+                    value={row.ftes != null ? String(row.ftes) : ''}
+                    placeholder="—"
+                    onChange={val => handleUpdate(row.id, { ftes: val === '' ? null : Number(val) })}
+                  />
+                </td>
+
+                {/* Everscale */}
+                <td className="px-2 py-2 border-b border-outline-variant/10">
+                  <EditableCell
+                    type="number"
+                    value={row.everscale != null ? String(row.everscale) : ''}
+                    placeholder="—"
+                    onChange={val => handleUpdate(row.id, { everscale: val === '' ? null : Number(val) })}
                   />
                 </td>
 
@@ -998,9 +1023,9 @@ function SummaryTable({ requirements, onUpdate }) {
                 <td className="px-2 py-2 border-b border-outline-variant/10">
                   <EditableCell
                     type="number"
-                    value={req.interno_count != null ? String(req.interno_count) : ''}
-                    placeholder="0"
-                    onChange={val => onUpdate(req.id, { interno_count: val === '' ? null : Number(val) })}
+                    value={row.interno != null ? String(row.interno) : ''}
+                    placeholder="—"
+                    onChange={val => handleUpdate(row.id, { interno: val === '' ? null : Number(val) })}
                   />
                 </td>
               </tr>
@@ -1091,13 +1116,7 @@ export default function Requirements() {
     setFilterClient('')
   }
 
-  async function handleSummaryUpdate(reqId, patch) {
-    setRequirements(prev => prev.map(r => r.id === reqId ? { ...r, ...patch } : r))
-    try { await updateRequirementSummary(reqId, patch) }
-    catch { /* revert on error */ setRequirements(prev => [...prev]) }
-  }
-
-  return (
+return (
     <>
       {priorityPickerId !== null && (
         <>
@@ -1295,15 +1314,7 @@ export default function Requirements() {
           })()}
 
           {/* ── TABLA VIEW ── */}
-          {viewMode === 'tabla' && !loading && (
-            <SummaryTable requirements={requirements} onUpdate={handleSummaryUpdate} />
-          )}
-          {viewMode === 'tabla' && loading && (
-            <div className="flex items-center justify-center py-16 gap-2 text-on-surface-variant">
-              <span className="material-symbols-outlined animate-spin text-[24px]">progress_activity</span>
-              <span className="text-sm">Cargando…</span>
-            </div>
-          )}
+          {viewMode === 'tabla' && <ReqBoardTable />}
 
           {/* ── PIPELINE VIEW ── */}
           {viewMode === 'pipeline' && <>

@@ -206,6 +206,21 @@ export async function updateRequirementSummary(id, patch) {
   if (error) throw error
 }
 
+// ─── Standalone req board (completely independent table) ─────────────────────
+export async function getReqBoard() {
+  const { data, error } = await supabase
+    .from('req_board')
+    .select('*')
+    .order('sort_order')
+  if (error) throw error
+  return data ?? []
+}
+
+export async function updateReqBoardRow(id, patch) {
+  const { error } = await supabase.from('req_board').update(patch).eq('id', id)
+  if (error) throw error
+}
+
 export async function getCatalogs() {
   const [
     { data: statuses },

@@ -221,6 +221,26 @@ export async function updateReqBoardRow(id, patch) {
   if (error) throw error
 }
 
+export async function getWeeklyBoardStats(weekNumber, weekYear) {
+  const [
+    { count: sent },
+    { count: rejected },
+    { count: activePositions },
+  ] = await Promise.all([
+    supabase.from('tracker_entry').select('id', { count: 'exact', head: true })
+      .eq('status', 'Sent').eq('week_number', weekNumber).eq('week_year', weekYear),
+    supabase.from('tracker_entry').select('id', { count: 'exact', head: true })
+      .eq('status', 'Rejected').eq('week_number', weekNumber).eq('week_year', weekYear),
+    supabase.from('req_board').select('id', { count: 'exact', head: true })
+      .eq('activo', true),
+  ])
+  return {
+    sent:            sent            ?? 0,
+    rejected:        rejected        ?? 0,
+    activePositions: activePositions ?? 0,
+  }
+}
+
 export async function getCatalogs() {
   const [
     { data: statuses },

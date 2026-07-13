@@ -10,7 +10,7 @@ import {
   getCatalogs, getClientStages, searchCandidatesForReq,
   listPendingApprovals, approveRequirement, rejectRequirement,
   updateRequirementStatus, updateRequirementPriority,
-  getReqBoard, updateReqBoardRow,
+  getReqBoard, updateReqBoardRow, getWeeklyBoardStats,
 } from '../api/requirements'
 
 /* ── helpers ── */
@@ -922,20 +922,46 @@ function Toggle({ on, onChange }) {
   )
 }
 
+function getISOWeekReq(date = new Date()) {
+  const d = new Date(date)
+  d.setHours(0, 0, 0, 0)
+  d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7))
+  const w1 = new Date(d.getFullYear(), 0, 4)
+  return { week: 1 + Math.round(((d - w1) / 86400000 - 3 + ((w1.getDay() + 6) % 7)) / 7), year: d.getFullYear() }
+}
+
 /* ── Standalone Board Table (reads/writes only req_board) ── */
 function ReqBoardTable() {
   const [rows, setRows]       = useState([])
   const [loading, setLoading] = useState(true)
+  const [kpi, setKpi]         = useState(null)
+
+  const { week, year } = getISOWeekReq()
 
   useEffect(() => {
-    getReqBoard().then(setRows).finally(() => setLoading(false))
-  }, [])
+    Promise.all([
+      getReqBoard(),
+      getWeeklyBoardStats(week, year),
+    ]).then(([boardRows, stats]) => {
+      setRows(boardRows)
+      setKpi(stats)
+    }).finally(() => setLoading(false))
+  }, [week, year])
 
   async function handleUpdate(id, patch) {
     setRows(prev => prev.map(r => r.id === id ? { ...r, ...patch } : r))
-    try { await updateReqBoardRow(id, patch) }
-    catch { /* optimistic fallback */ }
+    try {
+      await updateReqBoardRow(id, patch)
+      // refresh active count when toggle changes
+      if ('activo' in patch) {
+        getWeeklyBoardStats(week, year).then(setKpi)
+      }
+    } catch { /* optimistic fallback */ }
   }
+
+  const ratio = kpi && kpi.activePositions > 0
+    ? (kpi.sent / kpi.activePositions).toFixed(1)
+    : null
 
   const COLS = [
     { label: 'Búsqueda',       width: '80px'  },
@@ -957,6 +983,67 @@ function ReqBoardTable() {
   )
 
   return (
+    <div className="space-y-5">
+
+      {/* ── KPI bar ── */}
+      <div className="bg-surface-container-low rounded-2xl p-6">
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h2 className="text-sm font-bold text-primary">Prioridades Semanales</h2>
+            <p className="text-[11px] text-on-surface-variant mt-0.5">Actividad de esta semana</p>
+          </div>
+          <span className="material-symbols-outlined text-[20px] text-on-surface-variant/30">bar_chart_4_bars</span>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+
+          {/* Semana */}
+          <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+            <div className="flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">calendar_today</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Semana</span>
+            </div>
+            <p className="text-5xl font-light tracking-tighter text-primary">{week}</p>
+            <p className="text-[10px] text-on-surface-variant">semana ISO actual</p>
+          </div>
+
+          {/* Sent */}
+          <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+            <div className="flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[16px]" style={{ color: '#50B152' }}>send</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Enviados</span>
+            </div>
+            <p className="text-5xl font-light tracking-tighter" style={{ color: '#50B152' }}>{kpi?.sent ?? 0}</p>
+            <p className="text-[10px] text-on-surface-variant">del tracker esta semana</p>
+          </div>
+
+          {/* Rejected */}
+          <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+            <div className="flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[16px]" style={{ color: '#ba1a1a' }}>cancel</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Rechazados</span>
+            </div>
+            <p className="text-5xl font-light tracking-tighter" style={{ color: '#ba1a1a' }}>{kpi?.rejected ?? 0}</p>
+            <p className="text-[10px] text-on-surface-variant">del tracker esta semana</p>
+          </div>
+
+          {/* Ratio */}
+          <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+            <div className="flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">calculate</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Ratio</span>
+            </div>
+            <p className="text-5xl font-light tracking-tighter text-primary">
+              {ratio !== null ? ratio : <span className="text-on-surface-variant/30 text-3xl">—</span>}
+            </p>
+            <p className="text-[10px] text-on-surface-variant">
+              {kpi?.sent ?? 0} enviados ÷ {kpi?.activePositions ?? 0} posiciones activas
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+      {/* ── Table ── */}
     <div className="overflow-x-auto rounded-2xl border border-outline-variant/10 shadow-[0_2px_16px_rgba(24,28,30,0.05)]">
       <table className="w-full border-collapse" style={{ minWidth: 960 }}>
         <thead>
@@ -1078,6 +1165,7 @@ function ReqBoardTable() {
         </tbody>
       </table>
     </div>
+    </div> // end space-y-5
   )
 }
 
@@ -1276,7 +1364,7 @@ return (
                   }`}
                 >
                   <span className="material-symbols-outlined text-[14px]">table_view</span>
-                  Tabla
+                  Prioridades
                 </button>
               </div>
               {can('requirements.create') && (

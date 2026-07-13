@@ -1169,41 +1169,6 @@ function ReqBoardTable() {
               <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Semana</span>
             </div>
             <p className="text-5xl font-light tracking-tighter text-primary">{selWeek.week}</p>
-            <p className="text-[10px] text-on-surface-variant">semana ISO actual</p>
-          </div>
-
-          {/* Sent */}
-          <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
-            <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px]" style={{ color: '#50B152' }}>send</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Enviados</span>
-            </div>
-            <p className="text-5xl font-light tracking-tighter" style={{ color: '#50B152' }}>{kpi?.sent ?? 0}</p>
-            <p className="text-[10px] text-on-surface-variant">del tracker esta semana</p>
-          </div>
-
-          {/* Rejected */}
-          <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
-            <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px]" style={{ color: '#ba1a1a' }}>cancel</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Rechazados</span>
-            </div>
-            <p className="text-5xl font-light tracking-tighter" style={{ color: '#ba1a1a' }}>{kpi?.rejected ?? 0}</p>
-            <p className="text-[10px] text-on-surface-variant">del tracker esta semana</p>
-          </div>
-
-          {/* Ratio */}
-          <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
-            <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">calculate</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Ratio</span>
-            </div>
-            <p className="text-5xl font-light tracking-tighter text-primary">
-              {ratio !== null ? ratio : <span className="text-on-surface-variant/30 text-3xl">—</span>}
-            </p>
-            <p className="text-[10px] text-on-surface-variant">
-              {kpi?.sent ?? 0} enviados ÷ {kpi?.activePositions ?? 0} posiciones activas
-            </p>
           </div>
 
           {/* Requerimientos Abiertos */}
@@ -1213,7 +1178,35 @@ function ReqBoardTable() {
               <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Req. Abiertos</span>
             </div>
             <p className="text-5xl font-light tracking-tighter text-primary">{kpi?.activePositions ?? 0}</p>
-            <p className="text-[10px] text-on-surface-variant">posiciones con búsqueda activa</p>
+          </div>
+
+          {/* Enviados */}
+          <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+            <div className="flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[16px]" style={{ color: '#50B152' }}>send</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Enviados</span>
+            </div>
+            <p className="text-5xl font-light tracking-tighter" style={{ color: '#50B152' }}>{kpi?.sent ?? 0}</p>
+          </div>
+
+          {/* Rechazados */}
+          <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+            <div className="flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[16px]" style={{ color: '#ba1a1a' }}>cancel</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Rechazados</span>
+            </div>
+            <p className="text-5xl font-light tracking-tighter" style={{ color: '#ba1a1a' }}>{kpi?.rejected ?? 0}</p>
+          </div>
+
+          {/* Promedio Semanal */}
+          <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+            <div className="flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">calculate</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Promedio Semanal</span>
+            </div>
+            <p className="text-5xl font-light tracking-tighter text-primary">
+              {ratio !== null ? ratio : <span className="text-on-surface-variant/30 text-3xl">—</span>}
+            </p>
           </div>
 
         </div>

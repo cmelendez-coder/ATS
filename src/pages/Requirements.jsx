@@ -178,11 +178,11 @@ function AddCandidateModal({ reqId, existingIds, firstStageName, onAdd, onClose 
 }
 
 /* ── Card Detail Modal (Trello-style) ── */
-function CardDetailModal({ rc, stages, canManage, onClose, onStageChange, onNotesUpdate, onRemove }) {
-  const [notes, setNotes]   = useState(rc.notes ?? '')
-  const [saving, setSaving] = useState(false)
-  const [savedOk, setSavedOk] = useState(false)
-  const [removing, setRemoving] = useState(false)
+function CardDetailModal({ rc, stages, canManage, onClose, onStageChange, onNotesUpdate }) {
+  const [notes, setNotes]           = useState(rc.notes ?? '')
+  const [saving, setSaving]         = useState(false)
+  const [savedOk, setSavedOk]       = useState(false)
+  const [rejectStep, setRejectStep] = useState(0) // 0=idle 1=first confirm 2=second confirm
 
   const isDirty = notes !== (rc.notes ?? '')
   const stage   = stages.find(s => s.name === rc.submittal_status)
@@ -206,11 +206,9 @@ function CardDetailModal({ rc, stages, canManage, onClose, onStageChange, onNote
     }
   }
 
-  async function handleRemove() {
-    if (!confirm('¿Quitar candidato del pipeline?')) return
-    setRemoving(true)
-    try { await onRemove(rc.id); onClose() }
-    finally { setRemoving(false) }
+  function handleReject() {
+    onStageChange(rc.id, 'Rejected')
+    onClose()
   }
 
   return (
@@ -263,7 +261,7 @@ function CardDetailModal({ rc, stages, canManage, onClose, onStageChange, onNote
           <div>
             <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2.5">Etapa</p>
             <div className="flex flex-wrap gap-1.5">
-              {stages.map(s => {
+              {stages.filter(s => s.name !== 'Rejected').map(s => {
                 const active = s.name === rc.submittal_status
                 return (
                   <button
@@ -316,17 +314,48 @@ function CardDetailModal({ rc, stages, canManage, onClose, onStageChange, onNote
             />
           </div>
 
-          {/* Remove */}
+          {/* Reject flow */}
           {canManage && (
-            <div className="pt-1 border-t border-slate-100">
-              <button
-                onClick={handleRemove}
-                disabled={removing}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-500 hover:bg-red-50 transition-colors"
-              >
-                <span className="material-symbols-outlined text-[14px]">person_remove</span>
-                Quitar del pipeline
-              </button>
+            <div className="pt-2 border-t border-slate-100">
+              {rejectStep === 0 && (
+                <button
+                  onClick={() => setRejectStep(1)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-500 hover:bg-red-50 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[14px]">person_remove</span>
+                  Candidato ha sido rechazado
+                </button>
+              )}
+              {rejectStep === 1 && (
+                <div className="rounded-xl bg-red-50 border border-red-100 p-3 space-y-2.5">
+                  <p className="text-sm font-semibold text-red-700">¿El candidato fue rechazado?</p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setRejectStep(0)}
+                      className="flex-1 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+                    >No</button>
+                    <button
+                      onClick={() => setRejectStep(2)}
+                      className="flex-1 px-3 py-1.5 rounded-lg bg-red-500 text-white text-xs font-semibold hover:bg-red-600 transition-colors"
+                    >Sí</button>
+                  </div>
+                </div>
+              )}
+              {rejectStep === 2 && (
+                <div className="rounded-xl bg-red-100 border border-red-200 p-3 space-y-2.5">
+                  <p className="text-sm font-bold text-red-800">¿Seguro?!</p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setRejectStep(0)}
+                      className="flex-1 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+                    >No</button>
+                    <button
+                      onClick={handleReject}
+                      className="flex-1 px-3 py-1.5 rounded-lg bg-red-600 text-white text-xs font-bold hover:bg-red-700 transition-colors"
+                    >Sí, rechazar</button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -345,8 +374,9 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
   const [showAdd, setShowAdd]   = useState(false)
   const [dragging, setDragging] = useState(null)
   const [dragOver, setDragOver] = useState(null)
-  const [openCard, setOpenCard] = useState(null)
-  const dragStartedRef          = useRef(false)
+  const [openCard, setOpenCard]     = useState(null)
+  const [activeView, setActiveView] = useState('activos')
+  const dragStartedRef              = useRef(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -367,8 +397,12 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
 
   useEffect(() => { load() }, [load])
 
-  const byStage = stages.reduce((acc, s) => {
-    acc[s.name] = rcList.filter(r => r.submittal_status === s.name)
+  const activeStages  = stages.filter(s => s.name !== 'Rejected')
+  const activeRcs     = rcList.filter(r => r.submittal_status !== 'Rejected')
+  const rejectedRcs   = rcList.filter(r => r.submittal_status === 'Rejected')
+
+  const byStage = activeStages.reduce((acc, s) => {
+    acc[s.name] = activeRcs.filter(r => r.submittal_status === s.name)
     return acc
   }, {})
 
@@ -437,22 +471,48 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
   return (
     <div className="space-y-3">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
           <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
             Interview Pipeline
           </p>
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant">
-            {rcList.length} candidato{rcList.length !== 1 ? 's' : ''}
-          </span>
-          {canDrag && rcList.length > 0 && (
+          {/* Tabs */}
+          <div className="flex items-center gap-0.5 p-0.5 bg-surface-container rounded-lg">
+            <button
+              onClick={() => setActiveView('activos')}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all ${
+                activeView === 'activos'
+                  ? 'bg-surface-container-lowest text-primary shadow-sm'
+                  : 'text-on-surface-variant hover:text-on-surface'
+              }`}
+            >
+              Activos
+              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+                activeView === 'activos' ? 'bg-primary/10 text-primary' : 'bg-surface-container-high text-on-surface-variant'
+              }`}>{activeRcs.length}</span>
+            </button>
+            <button
+              onClick={() => setActiveView('rechazados')}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all ${
+                activeView === 'rechazados'
+                  ? 'bg-surface-container-lowest text-red-500 shadow-sm'
+                  : 'text-on-surface-variant hover:text-on-surface'
+              }`}
+            >
+              Rechazados
+              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+                activeView === 'rechazados' ? 'bg-red-500/10 text-red-500' : 'bg-surface-container-high text-on-surface-variant'
+              }`}>{rejectedRcs.length}</span>
+            </button>
+          </div>
+          {canDrag && activeRcs.length > 0 && activeView === 'activos' && (
             <span className="text-[10px] text-on-surface-variant/50 flex items-center gap-1">
               <span className="material-symbols-outlined text-[11px]">drag_indicator</span>
               Arrastra para mover
             </span>
           )}
         </div>
-        {canManage && (
+        {canManage && activeView === 'activos' && (
           <button
             onClick={() => setShowAdd(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors"
@@ -463,9 +523,38 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
         )}
       </div>
 
+      {/* Rechazados list */}
+      {activeView === 'rechazados' && (
+        <div className="space-y-1.5 py-1">
+          {rejectedRcs.length === 0 ? (
+            <div className="flex flex-col items-center py-10 gap-2 text-on-surface-variant/40">
+              <span className="material-symbols-outlined text-[36px]">person_off</span>
+              <p className="text-sm">Sin candidatos rechazados</p>
+            </div>
+          ) : rejectedRcs.map(rc => (
+            <div
+              key={rc.id}
+              onClick={() => setOpenCard(rc)}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-red-500/5 border border-red-200/30 cursor-pointer hover:bg-red-500/10 transition-colors"
+            >
+              <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-sm font-bold text-red-500 shrink-0">
+                {rc.candidate?.full_name?.charAt(0)?.toUpperCase() ?? '?'}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-on-surface truncate">{rc.candidate?.full_name ?? '—'}</p>
+                {rc.candidate?.role?.name && (
+                  <p className="text-xs text-on-surface-variant">{rc.candidate.role.name}</p>
+                )}
+              </div>
+              <span className="material-symbols-outlined text-[16px] text-on-surface-variant/30">chevron_right</span>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Kanban board */}
-      <div className="flex gap-2 overflow-x-auto pb-3" style={{ minHeight: 160 }}>
-        {stages.map((stage, idx) => {
+      {activeView === 'activos' && <div className="flex gap-2 overflow-x-auto pb-3" style={{ minHeight: 160 }}>
+        {activeStages.map((stage, idx) => {
           const cards  = byStage[stage.name] ?? []
           const isOver = dragOver === stage.name
           const isFirst = idx === 0
@@ -581,13 +670,13 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
             </div>
           )
         })}
-      </div>
+      </div>}
 
       {showAdd && (
         <AddCandidateModal
           reqId={reqId}
           existingIds={existingIds}
-          firstStageName={stages[0]?.name ?? 'Submitted'}
+          firstStageName={activeStages[0]?.name ?? 'Submitted'}
           onAdd={() => { load(); setShowAdd(false) }}
           onClose={() => setShowAdd(false)}
         />
@@ -599,9 +688,11 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
           stages={stages}
           canManage={canManage}
           onClose={() => setOpenCard(null)}
-          onStageChange={handleModalStageChange}
+          onStageChange={(rcId, stageName) => {
+            handleModalStageChange(rcId, stageName)
+            if (stageName === 'Rejected') setActiveView('rechazados')
+          }}
           onNotesUpdate={handleModalNotesUpdate}
-          onRemove={removeCard}
         />
       )}
     </div>

@@ -146,14 +146,16 @@ export default function TalentDirectory() {
   const restored = location.state?.restoreSearch
 
   const [candidates, setCandidates] = useState([])
-  const [loading, setLoading]       = useState(true)
+  const [loading, setLoading]       = useState(false)
   const [error, setError]           = useState(null)
   const [query, setQuery]           = useState(restored?.q ?? '')
   const [englishMin, setEnglishMin] = useState(restored?.englishMin ?? '')
   const [englishMax, setEnglishMax] = useState(restored?.englishMax ?? '')
   const [searching, setSearching]   = useState(false)
+  const [hasSearched, setHasSearched] = useState(!!restored)
 
-  const load = useCallback(async (q = '', eMin = '', eMax = '') => {
+  const load = useCallback(async (q = '', eMin = '', eMax = '', forceSearch = false) => {
+    if (!forceSearch && !q.trim() && eMin === '' && eMax === '') return
     try {
       setSearching(true)
       const data = await searchCandidates({ q, englishMin: eMin, englishMax: eMax })
@@ -167,18 +169,25 @@ export default function TalentDirectory() {
     }
   }, [])
 
-  useEffect(() => { load(restored?.q ?? '', restored?.englishMin ?? '', restored?.englishMax ?? '') }, [load])
+  useEffect(() => {
+    if (restored) {
+      setHasSearched(true)
+      load(restored.q ?? '', restored.englishMin ?? '', restored.englishMax ?? '', true)
+    }
+  }, [load])
 
   function handleSearch(e) {
     e.preventDefault()
-    load(query, englishMin, englishMax)
+    setHasSearched(true)
+    load(query, englishMin, englishMax, true)
   }
 
   function clearFilters() {
     setQuery('')
     setEnglishMin('')
     setEnglishMax('')
-    load('', '', '')
+    setHasSearched(false)
+    setCandidates([])
   }
 
   const total = candidates.length
@@ -193,7 +202,7 @@ export default function TalentDirectory() {
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-[18px]">search</span>
             <input
               className="bg-surface-container-high border-none outline-none ring-0 h-9 pl-10 pr-4 rounded-full text-sm w-60 focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:text-on-surface-variant"
-              placeholder="Buscar talent…"
+              placeholder="Buscar por nombre o tecnologías…"
               value={query}
               onChange={e => setQuery(e.target.value)}
             />
@@ -225,7 +234,9 @@ export default function TalentDirectory() {
               </div>
               <div className="flex items-center gap-3">
                 <h1 className="text-[2.25rem] leading-none tracking-[-0.02em] font-extrabold text-primary">Talent Directory</h1>
-                <span className="px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant text-xs font-bold">{total}</span>
+                {hasSearched && (
+                  <span className="px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant text-xs font-bold">{total}</span>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -256,7 +267,7 @@ export default function TalentDirectory() {
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
               <input
                 className="w-full pl-10 pr-4 py-2.5 bg-surface-container-high border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 transition-shadow placeholder:text-on-surface-variant text-on-surface"
-                placeholder="Buscar por nombre, skill o rol…"
+                placeholder="Buscar por nombre o tecnologías…"
                 value={query}
                 onChange={e => setQuery(e.target.value)}
               />
@@ -314,7 +325,13 @@ export default function TalentDirectory() {
 
           {/* Table */}
           <div className="bg-surface-container-lowest rounded-2xl shadow-[0_2px_16px_rgba(24,28,30,0.04)] overflow-hidden border border-outline-variant/10">
-            {loading ? (
+            {!hasSearched ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <span className="material-symbols-outlined text-on-surface-variant/20 mb-4" style={{ fontSize: 56 }}>manage_search</span>
+                <p className="text-base font-semibold text-on-surface-variant">Busca un candidato para comenzar</p>
+                <p className="text-sm text-on-surface-variant/50 mt-1">Ingresa un nombre, skill o rol y presiona Buscar.</p>
+              </div>
+            ) : loading ? (
               <div className="flex items-center justify-center py-20 gap-3 text-on-surface-variant">
                 <span className="material-symbols-outlined animate-spin text-[24px]">progress_activity</span>
                 <span className="text-sm">Cargando candidatos…</span>
@@ -323,19 +340,14 @@ export default function TalentDirectory() {
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <span className="material-symbols-outlined text-on-surface-variant/30 mb-3" style={{ fontSize: 48 }}>group_off</span>
                 <p className="text-base font-semibold text-on-surface-variant">No se encontraron candidatos</p>
-                <p className="text-sm text-on-surface-variant/60 mt-1">Agrega un perfil o ajusta los filtros.</p>
-                {can('talent.create') && (
-                  <Link to="/talent/new" className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity">
-                    <span className="material-symbols-outlined text-[16px]">add</span>Agregar candidato
-                  </Link>
-                )}
+                <p className="text-sm text-on-surface-variant/60 mt-1">Prueba con otro nombre, skill o rol.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="min-w-[1140px] w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-surface-container-low">
-                      {['Name / E-mail', 'Technology', 'English', 'YoE', 'Location'].map(h => (
+                      {['Name', 'Technology', 'English', 'YoE', 'Location'].map(h => (
                         <th
                           key={h}
                           className="py-3.5 px-5 text-[11px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap"
@@ -363,12 +375,6 @@ export default function TalentDirectory() {
                           <td className="py-4 px-5">
                             <p className="font-semibold text-primary text-sm group-hover:text-surface-tint transition-colors whitespace-nowrap">{c.full_name}</p>
                             <p className="text-xs text-on-surface-variant">{c.role?.name ?? '—'}</p>
-                            {c.email && (
-                              <p className="text-[11px] text-on-surface-variant/60 mt-0.5 flex items-center gap-1">
-                                <span className="material-symbols-outlined text-[11px]">mail</span>
-                                {c.email}
-                              </p>
-                            )}
                           </td>
 
                           {/* Technologies */}

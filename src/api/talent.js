@@ -67,7 +67,6 @@ export async function searchCandidates({ q = '', englishMin = '', englishMax = '
   // Build OR: name, email, role, bdd legacy columns, and all indirect matches
   const conditions = [
     `full_name.ilike.%${term}%`,
-    `email.ilike.%${term}%`,
     `bdd_role.ilike.%${term}%`,
     `bdd_technology.ilike.%${term}%`,
     `bdd_module.ilike.%${term}%`,

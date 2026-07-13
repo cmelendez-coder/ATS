@@ -1099,7 +1099,7 @@ function ReqBoardTable() {
     { label: 'Prioridad',      width: '80px'  },
     { label: 'Cliente',        width: '130px' },
     { label: 'Position',       width: '210px' },
-    { label: '#',              width: '55px'  },
+    { label: "FTE's",          width: '55px'  },
     { label: 'Everscale Group',width: '115px' },
     { label: 'Interno',        width: '85px'  },
     { label: 'Enviados',       width: '85px'  },
@@ -1285,22 +1285,14 @@ function ReqBoardTable() {
                   </select>
                 </td>
 
-                {/* Cliente */}
-                <td className="px-2 py-2" style={{ borderBottom: `1px solid ${rowBorder}` }}>
-                  <EditableCell
-                    value={row.cliente}
-                    placeholder="—"
-                    onChange={val => handleUpdate(row.id, { cliente: val || null })}
-                  />
+                {/* Cliente (read-only) */}
+                <td className="px-3 py-2 text-center text-sm text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
+                  {row.cliente ?? '—'}
                 </td>
 
-                {/* Position */}
-                <td className="px-2 py-2" style={{ borderBottom: `1px solid ${rowBorder}` }}>
-                  <EditableCell
-                    value={row.position}
-                    placeholder="—"
-                    onChange={val => handleUpdate(row.id, { position: val || null })}
-                  />
+                {/* Position (read-only) */}
+                <td className="px-3 py-2 text-center text-sm text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
+                  {row.position ?? '—'}
                 </td>
 
                 {/* FTEs */}
@@ -1333,14 +1325,9 @@ function ReqBoardTable() {
                   />
                 </td>
 
-                {/* Enviados */}
-                <td className="px-2 py-2" style={{ borderBottom: `1px solid ${rowBorder}` }}>
-                  <EditableCell
-                    type="number"
-                    value={row.enviados != null ? String(row.enviados) : ''}
-                    placeholder="—"
-                    onChange={val => handleUpdate(row.id, { enviados: val === '' ? null : Number(val) })}
-                  />
+                {/* Enviados (read-only) */}
+                <td className="px-3 py-2 text-center text-sm text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
+                  {row.enviados ?? '—'}
                 </td>
               </tr>
             )

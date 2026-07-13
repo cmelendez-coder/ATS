@@ -6,11 +6,27 @@ import { getDashboardStats } from '../api/dashboard'
 import RequirementAlertBell from '../components/RequirementAlertBell'
 
 const PRIORITY = {
-  0: { label: 'Alta',  bg: 'bg-error-container',        text: 'text-on-error-container',        dot: 'bg-error' },
-  1: { label: 'Media', bg: 'bg-secondary-container',    text: 'text-on-secondary-container',    dot: 'bg-secondary' },
-  2: { label: 'Baja',  bg: 'bg-surface-variant',        text: 'text-on-surface-variant',         dot: 'bg-outline' },
-  3: { label: 'Pausa', bg: 'bg-surface-container',      text: 'text-on-surface-variant/60',      dot: 'bg-outline-variant' },
+  0: { label: 'Alta',  color: '#ba1a1a', bg: 'bg-error-container',        text: 'text-on-error-container' },
+  1: { label: 'Media', color: '#50B152', bg: 'bg-secondary-container',    text: 'text-on-secondary-container' },
+  2: { label: 'Baja',  color: '#c1cbe4', bg: 'bg-surface-variant',        text: 'text-on-surface-variant' },
+  3: { label: 'Pausa', color: '#25457f', bg: 'bg-surface-container',      text: 'text-on-surface-variant/60' },
 }
+
+const STATUS_COLORS = {
+  'Open':                 '#50B152',
+  'Closed - Covered':     '#7ad27d',
+  'Closed - Not Covered': '#25457f',
+  'Paused':               '#1b3a78',
+  'Pending Approval':     '#c1cbe4',
+}
+
+const PIPELINE_CONFIG = [
+  { key: 'Submitted to Client',  label: 'Sent',             icon: 'send',          color: '#50B152' },
+  { key: 'Rejected',             label: 'Rejected',         icon: 'cancel',        color: '#ba1a1a' },
+  { key: 'Pending for Feedback', label: 'Pending Feedback', icon: 'pending',       color: '#c1cbe4' },
+  { key: 'Review',               label: 'Review',           icon: 'preview',       color: '#7ad27d' },
+  { key: 'Presentation',         label: 'Presentation',     icon: 'present_to_all',color: '#7ad27d' },
+]
 
 function fmt(dateStr) {
   if (!dateStr) return '—'
@@ -20,6 +36,55 @@ function fmt(dateStr) {
 function reqLabel(num, date) {
   const yr = date ? new Date(date).getFullYear() : new Date().getFullYear()
   return `REQ-${yr}-${String(num ?? 0).padStart(3, '0')}`
+}
+
+// ─── Donut chart via conic-gradient ──────────────────────────────────────────
+function DonutChart({ segments, total }) {
+  const parts = []
+  let cumPct = 0
+  for (const seg of segments) {
+    const pct = total > 0 ? (seg.count / total) * 100 : 0
+    if (pct > 0) {
+      parts.push(`${seg.color} ${cumPct.toFixed(1)}% ${(cumPct + pct).toFixed(1)}%`)
+    }
+    cumPct += pct
+  }
+  if (cumPct < 100) parts.push(`#1b3a78 ${cumPct.toFixed(1)}% 100%`)
+
+  return (
+    <div className="relative mx-auto shrink-0" style={{ width: 104, height: 104 }}>
+      <div
+        className="w-full h-full rounded-full"
+        style={{
+          background: `conic-gradient(from -90deg, ${parts.join(', ')})`,
+        }}
+      />
+      <div
+        className="absolute rounded-full bg-surface-container-low flex flex-col items-center justify-center"
+        style={{ inset: 20 }}
+      >
+        <span className="text-lg font-bold text-primary leading-none">{total}</span>
+        <span className="text-[8px] text-on-surface-variant mt-0.5">total</span>
+      </div>
+    </div>
+  )
+}
+
+// ─── Horizontal bar chart row ─────────────────────────────────────────────────
+function HBar({ label, count, max, color }) {
+  const pct = max > 0 ? Math.max((count / max) * 100, 4) : 0
+  return (
+    <div className="flex items-center gap-2.5">
+      <span className="text-[11px] text-on-surface-variant w-24 truncate shrink-0">{label}</span>
+      <div className="flex-1 h-1.5 bg-surface-container rounded-full overflow-hidden">
+        <div
+          className="h-full rounded-full transition-all duration-500"
+          style={{ width: `${pct}%`, backgroundColor: color }}
+        />
+      </div>
+      <span className="text-[11px] font-semibold text-primary w-5 text-right shrink-0">{count}</span>
+    </div>
+  )
 }
 
 export default function Dashboard() {
@@ -36,8 +101,21 @@ export default function Dashboard() {
       .finally(() => setLoading(false))
   }, [])
 
-  const activeCount   = stats?.candidateStatusMap?.['Activo'] ?? 0
-  const highPriority  = stats?.recentRequirements?.filter(r => r.priority === 3).length ?? 0
+  // ─── Derived chart data ───────────────────────────────────────────
+  const statusSegments = stats
+    ? Object.entries(stats.reqStatusMap)
+        .filter(([, c]) => c > 0)
+        .map(([name, count]) => ({ name, count, color: STATUS_COLORS[name] ?? '#25457f' }))
+    : []
+
+  const priorityBars = stats
+    ? Object.entries(stats.reqByPriority)
+        .filter(([, c]) => c > 0)
+        .map(([p, count]) => ({ label: PRIORITY[p]?.label ?? 'Otro', count, color: PRIORITY[p]?.color ?? '#c1cbe4' }))
+    : []
+
+  const maxClientCount = stats?.topClients?.[0]?.count ?? 1
+  const maxPriorityCount = Math.max(...(priorityBars.map(b => b.count)), 1)
 
   return (
     <>
@@ -48,7 +126,7 @@ export default function Dashboard() {
         </div>
         <div className="flex items-center gap-2">
           <RequirementAlertBell count={pendingCount} loading={alertsLoading} show={showAlerts} />
-          <div className="w-px h-5 bg-outline-variant/40 mx-1"></div>
+          <div className="w-px h-5 bg-outline-variant/40 mx-1" />
           {can('requirements.create') && (
             <Link to="/requirements/new">
               <button className="hidden sm:flex items-center justify-center h-9 px-5 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary font-medium text-sm hover:opacity-90 transition-opacity">
@@ -61,13 +139,11 @@ export default function Dashboard() {
 
       {/* CONTENT */}
       <div className="flex-1 overflow-y-auto bg-surface p-6 md:p-10 pb-24">
-        <div className="max-w-7xl mx-auto space-y-10">
+        <div className="max-w-7xl mx-auto space-y-8">
 
           {/* Page Header */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-            <div>
-              <h1 className="text-[2.25rem] leading-none tracking-[-0.02em] font-extrabold text-primary">Overview</h1>
-            </div>
+            <h1 className="text-[2.25rem] leading-none tracking-[-0.02em] font-extrabold text-primary">Overview</h1>
             <p className="text-sm font-medium text-on-surface-variant shrink-0 pb-1">{currentDate}</p>
           </div>
 
@@ -93,51 +169,225 @@ export default function Dashboard() {
             </Link>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[
-              {
-                to: '/requirements',
-                label: 'Requirements',
-                value: loading ? '…' : stats?.totalRequirements ?? 0,
-                icon: 'assignment',
-                sub: '',
-                gradient: 'from-primary/[0.04] to-transparent',
-              },
-              {
-                to: '/clients',
-                label: 'Clients',
-                value: loading ? '…' : stats?.totalClients ?? 0,
-                icon: 'business',
-                sub: '',
-                gradient: 'from-secondary/[0.06] to-transparent',
-              },
-              {
-                to: '/talent',
-                label: 'Talent Pool',
-                value: loading ? '…' : (stats?.totalCandidates ?? 0).toLocaleString(),
-                icon: 'people',
-                sub: '',
-                gradient: 'from-tertiary/[0.05] to-transparent',
-              },
-            ].map(card => (
-              <Link
-                key={card.label}
-                to={card.to}
-                className="stat-card block bg-surface-container-lowest rounded-2xl p-6 shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden border border-outline-variant/10 hover:shadow-[0_4px_24px_rgba(24,28,30,0.08)] transition-shadow"
+          {/* ── STAT TILES ── */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {/* Requirements */}
+            <Link
+              to="/requirements"
+              className="col-span-1 block bg-surface-container-lowest rounded-2xl p-5 shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden border border-outline-variant/10 hover:shadow-[0_4px_24px_rgba(24,28,30,0.08)] transition-shadow"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.04] to-transparent pointer-events-none" />
+              <div className="flex items-start justify-between mb-2">
+                <h3 className="text-xs uppercase tracking-[0.08em] font-bold text-on-surface-variant">Requirements</h3>
+                <span className="material-symbols-outlined text-[18px] text-on-surface-variant/40">assignment</span>
+              </div>
+              <p className="text-5xl tracking-tighter font-light text-primary">
+                {loading ? '…' : stats?.totalRequirements ?? 0}
+              </p>
+              {!loading && (
+                <p className="text-[11px] text-on-surface-variant mt-2">
+                  <span className="text-primary font-semibold">{stats?.openCount ?? 0} Open</span>
+                  <span className="mx-1 opacity-40">·</span>
+                  <span>{stats?.closedCount ?? 0} Closed</span>
+                </p>
+              )}
+            </Link>
+
+            {/* Clients */}
+            <Link
+              to="/clients"
+              className="block bg-surface-container-lowest rounded-2xl p-5 shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden border border-outline-variant/10 hover:shadow-[0_4px_24px_rgba(24,28,30,0.08)] transition-shadow"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-secondary/[0.06] to-transparent pointer-events-none" />
+              <div className="flex items-start justify-between mb-2">
+                <h3 className="text-xs uppercase tracking-[0.08em] font-bold text-on-surface-variant">Clients</h3>
+                <span className="material-symbols-outlined text-[18px] text-on-surface-variant/40">business</span>
+              </div>
+              <p className="text-5xl tracking-tighter font-light text-primary">
+                {loading ? '…' : stats?.totalClients ?? 0}
+              </p>
+            </Link>
+
+            {/* Talent Pool */}
+            <Link
+              to="/talent"
+              className="block bg-surface-container-lowest rounded-2xl p-5 shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden border border-outline-variant/10 hover:shadow-[0_4px_24px_rgba(24,28,30,0.08)] transition-shadow"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent pointer-events-none" />
+              <div className="flex items-start justify-between mb-2">
+                <h3 className="text-xs uppercase tracking-[0.08em] font-bold text-on-surface-variant">Talent Pool</h3>
+                <span className="material-symbols-outlined text-[18px] text-on-surface-variant/40">people</span>
+              </div>
+              <p className="text-5xl tracking-tighter font-light text-primary">
+                {loading ? '…' : (stats?.totalCandidates ?? 0).toLocaleString()}
+              </p>
+              {!loading && (
+                <p className="text-[11px] text-on-surface-variant mt-2">
+                  <span className="text-primary font-semibold">+{stats?.newCandidatesThisWeek ?? 0}</span> esta semana
+                </p>
+              )}
+            </Link>
+
+            {/* Overdue */}
+            <Link
+              to="/requirements"
+              className="block rounded-2xl p-5 shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden border transition-shadow hover:shadow-[0_4px_24px_rgba(24,28,30,0.08)]"
+              style={{
+                backgroundColor: !loading && (stats?.overdueCount ?? 0) > 0 ? 'rgba(186,26,26,0.08)' : undefined,
+              }}
+              // falls back to normal tile if no overdue
+            >
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: !loading && (stats?.overdueCount ?? 0) > 0
+                    ? 'linear-gradient(135deg, rgba(186,26,26,0.10) 0%, transparent 60%)'
+                    : 'linear-gradient(135deg, rgba(80,177,82,0.03) 0%, transparent 60%)',
+                  borderColor: !loading && (stats?.overdueCount ?? 0) > 0 ? '#ba1a1a33' : undefined,
+                }}
+              />
+              <div
+                className="absolute inset-0 rounded-2xl border"
+                style={{
+                  borderColor: !loading && (stats?.overdueCount ?? 0) > 0 ? '#ba1a1a44' : '#25457f44',
+                }}
+              />
+              <div className="flex items-start justify-between mb-2">
+                <h3 className="text-xs uppercase tracking-[0.08em] font-bold text-on-surface-variant">Overdue</h3>
+                <span
+                  className="material-symbols-outlined text-[18px]"
+                  style={{ color: !loading && (stats?.overdueCount ?? 0) > 0 ? '#ba1a1a' : '#c1cbe466' }}
+                >
+                  schedule
+                </span>
+              </div>
+              <p
+                className="text-5xl tracking-tighter font-light"
+                style={{ color: !loading && (stats?.overdueCount ?? 0) > 0 ? '#ba1a1a' : '#50B152' }}
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} pointer-events-none`} />
-                <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-xs uppercase tracking-[0.08em] font-bold text-on-surface-variant">{card.label}</h3>
-                  <span className="material-symbols-outlined text-[18px] text-on-surface-variant/40">{card.icon}</span>
-                </div>
-                <p className="text-5xl tracking-tighter font-light text-primary">{card.value}</p>
-                {card.sub && <p className="text-xs text-on-surface-variant mt-2">{card.sub}</p>}
-              </Link>
-            ))}
+                {loading ? '…' : stats?.overdueCount ?? 0}
+              </p>
+              {!loading && (
+                <p className="text-[11px] text-on-surface-variant mt-2">
+                  {(stats?.overdueCount ?? 0) > 0 ? 'reqs past target date' : 'all on track'}
+                </p>
+              )}
+            </Link>
           </div>
 
-          {/* Requirements Table */}
+          {/* ── CHARTS SECTION ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+            {/* Donut: Requirements by Status */}
+            <div className="bg-surface-container-low rounded-2xl p-6">
+              <h2 className="text-sm font-bold text-primary mb-1">Status</h2>
+              <p className="text-[11px] text-on-surface-variant mb-5">Requirements by stage</p>
+
+              {loading ? (
+                <div className="flex items-center justify-center h-28">
+                  <span className="material-symbols-outlined animate-spin text-[22px] text-on-surface-variant/40">progress_activity</span>
+                </div>
+              ) : (
+                <>
+                  <DonutChart segments={statusSegments} total={stats?.totalRequirements ?? 0} />
+                  <div className="mt-5 space-y-2">
+                    {statusSegments.map(seg => (
+                      <div key={seg.name} className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: seg.color }} />
+                        <span className="text-[11px] text-on-surface-variant flex-1 truncate">{seg.name}</span>
+                        <span className="text-[11px] font-semibold text-primary">{seg.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Bar chart: Open reqs by client */}
+            <div className="bg-surface-container-low rounded-2xl p-6">
+              <h2 className="text-sm font-bold text-primary mb-1">Por Cliente</h2>
+              <p className="text-[11px] text-on-surface-variant mb-5">Open requirements</p>
+
+              {loading ? (
+                <div className="flex items-center justify-center h-28">
+                  <span className="material-symbols-outlined animate-spin text-[22px] text-on-surface-variant/40">progress_activity</span>
+                </div>
+              ) : !stats?.topClients?.length ? (
+                <p className="text-[11px] text-on-surface-variant/50 text-center py-8">No open requirements</p>
+              ) : (
+                <div className="space-y-3 mt-2">
+                  {stats.topClients.map(c => (
+                    <HBar key={c.name} label={c.name} count={c.count} max={maxClientCount} color="#50B152" />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Bar chart: Reqs by priority */}
+            <div className="bg-surface-container-low rounded-2xl p-6">
+              <h2 className="text-sm font-bold text-primary mb-1">Por Urgencia</h2>
+              <p className="text-[11px] text-on-surface-variant mb-5">All requirements</p>
+
+              {loading ? (
+                <div className="flex items-center justify-center h-28">
+                  <span className="material-symbols-outlined animate-spin text-[22px] text-on-surface-variant/40">progress_activity</span>
+                </div>
+              ) : (
+                <div className="space-y-3 mt-2">
+                  {priorityBars.map(b => (
+                    <HBar key={b.label} label={b.label} count={b.count} max={maxPriorityCount} color={b.color} />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ── PIPELINE ACTIVITY ── */}
+          <div className="bg-surface-container-low rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h2 className="text-sm font-bold text-primary">Pipeline de Candidatos</h2>
+                <p className="text-[11px] text-on-surface-variant mt-0.5">Estado actual de todos los submittals</p>
+              </div>
+              <span className="material-symbols-outlined text-[20px] text-on-surface-variant/30">hub</span>
+            </div>
+
+            {loading ? (
+              <div className="flex items-center justify-center py-6 gap-2 text-on-surface-variant">
+                <span className="material-symbols-outlined animate-spin text-[22px]">progress_activity</span>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                {PIPELINE_CONFIG.map(cfg => {
+                  const count = stats?.pipelineMap?.[cfg.key] ?? 0
+                  if (count === 0) return null
+                  return (
+                    <div
+                      key={cfg.key}
+                      className="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/10 flex flex-col gap-2"
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className="material-symbols-outlined text-[16px]"
+                          style={{ color: cfg.color }}
+                        >
+                          {cfg.icon}
+                        </span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant truncate">
+                          {cfg.label}
+                        </span>
+                      </div>
+                      <p className="text-3xl font-light tracking-tighter" style={{ color: cfg.color }}>
+                        {count}
+                      </p>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* ── ACTIVE REQUIREMENTS LIST ── */}
           <div className="bg-surface-container-low rounded-2xl p-7">
             <div className="flex items-center justify-between mb-6">
               <div>

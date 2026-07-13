@@ -342,9 +342,7 @@ function CandidateNotes({ rc, canManage, onSave }) {
   const [saving, setSaving] = useState(false)
   const hasNotes = Boolean(rc.notes?.trim())
 
-  useEffect(() => {
-    setDraft(rc.notes ?? '')
-  }, [rc.id, rc.notes])
+  useEffect(() => { setDraft(rc.notes ?? '') }, [rc.id, rc.notes])
 
   async function handleSave() {
     if (saving) return
@@ -363,90 +361,68 @@ function CandidateNotes({ rc, canManage, onSave }) {
 
   return (
     <>
-      <div className="mt-2 rounded-xl border border-primary/10 bg-gradient-to-br from-surface-container-lowest to-surface-container p-2.5 shadow-sm">
-        <div className="mb-2 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-primary/80">
-            <span className="material-symbols-outlined text-[13px]">note_stack</span>
-            Follow-Up Notes
-          </div>
-          {hasNotes && (
-            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary">
-              Active
-            </span>
-          )}
-        </div>
-
-        <p className={`min-h-[34px] text-[11px] leading-relaxed ${hasNotes ? 'text-on-surface-variant' : 'text-on-surface-variant/60 italic'}`}>
-          {hasNotes ? rc.notes : 'No follow-up notes yet.'}
-        </p>
-
-        {canManage && (
-          <button
-            type="button"
-            onClick={() => setShowModal(true)}
-            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary/90 to-primary-container px-3 py-2 text-[11px] font-semibold text-on-primary shadow-[0_8px_18px_rgba(7,29,71,0.18)] transition-all hover:opacity-95"
-          >
-            <span className="material-symbols-outlined text-[14px]">{hasNotes ? 'edit_note' : 'note_add'}</span>
-            {hasNotes ? 'Open Notes' : 'Add Notes'}
-          </button>
-        )}
-      </div>
+      <button
+        type="button"
+        onClick={e => { e.stopPropagation(); setShowModal(true) }}
+        title={hasNotes ? 'Ver nota' : 'Agregar nota'}
+        className={`shrink-0 p-1 rounded-lg transition-colors ${
+          hasNotes ? 'text-primary hover:bg-primary/10' : 'text-slate-300 hover:text-slate-500 hover:bg-slate-100'
+        }`}
+      >
+        <span className="material-symbols-outlined text-[16px]">
+          {hasNotes ? 'sticky_note_2' : 'note_add'}
+        </span>
+      </button>
 
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#071D47]/55 p-4 backdrop-blur-sm" onClick={() => !saving && setShowModal(false)}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#071D47]/55 p-4 backdrop-blur-sm"
+          onClick={() => !saving && setShowModal(false)}
+        >
           <div
-            className="w-full max-w-2xl rounded-3xl border border-outline-variant/20 bg-surface-container-lowest shadow-[0_20px_60px_rgba(7,29,71,0.32)]"
+            className="w-full max-w-lg rounded-2xl border border-outline-variant/20 bg-surface-container-lowest shadow-[0_20px_60px_rgba(7,29,71,0.32)]"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex items-start justify-between gap-4 border-b border-outline-variant/15 px-6 py-5">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant/10">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary/70">Interview Pipeline</p>
-                <h3 className="mt-1 text-xl font-bold text-primary">Candidate Notes</h3>
-                <p className="mt-1 text-sm text-on-surface-variant">{rc.candidate?.full_name ?? 'Candidate'}</p>
+                <p className="text-sm font-bold text-primary">Notas · {rc.candidate?.full_name ?? 'Candidato'}</p>
+                <p className="text-xs text-on-surface-variant mt-0.5">{hasNotes ? 'Edita o visualiza la nota' : 'Sin notas aún'}</p>
               </div>
               <button
                 type="button"
                 onClick={() => !saving && setShowModal(false)}
-                className="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container hover:text-primary"
+                className="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors"
               >
                 <span className="material-symbols-outlined text-[20px]">close</span>
               </button>
             </div>
 
-            <div className="space-y-4 px-6 py-5">
-              <div className="rounded-2xl border border-primary/10 bg-surface-container/70 p-4">
-                <p className="mb-2 text-[11px] font-bold uppercase tracking-widest text-primary/75">Tracking Notes</p>
-                <textarea
-                  rows={10}
-                  value={draft}
-                  onChange={e => setDraft(e.target.value)}
-                  placeholder="Add detailed follow-up notes, interview feedback, reminders, blockers, next steps, or any relevant context for this candidate..."
-                  className="w-full resize-none rounded-2xl border border-outline-variant/20 bg-surface-container-lowest px-4 py-3 text-sm leading-6 text-on-surface outline-none focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
-
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-xs text-on-surface-variant">
-                  {draft.trim() ? `${draft.trim().length} characters` : 'No notes added yet'}
-                </p>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => { setDraft(rc.notes ?? ''); setShowModal(false) }}
-                    className="rounded-full border border-outline-variant/25 px-4 py-2 text-sm font-medium text-on-surface-variant transition-colors hover:bg-surface-container"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    disabled={saving}
-                    onClick={handleSave}
-                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-primary-container px-5 py-2 text-sm font-semibold text-on-primary shadow-[0_10px_20px_rgba(7,29,71,0.18)] disabled:opacity-60"
-                  >
-                    {saving && <span className="material-symbols-outlined animate-spin text-[16px]">progress_activity</span>}
-                    Save Notes
-                  </button>
-                </div>
+            <div className="px-5 py-4 space-y-3">
+              <textarea
+                autoFocus
+                rows={7}
+                value={draft}
+                onChange={e => setDraft(e.target.value)}
+                placeholder="Escribe aquí las notas de seguimiento…"
+                className="w-full resize-none rounded-xl border border-outline-variant/20 bg-surface-container px-4 py-3 text-sm leading-6 text-on-surface outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface-variant/40"
+              />
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => { setDraft(rc.notes ?? ''); setShowModal(false) }}
+                  className="px-4 py-2 rounded-xl border border-outline-variant/25 text-sm font-medium text-on-surface-variant hover:bg-surface-container transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={handleSave}
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60"
+                >
+                  {saving && <span className="material-symbols-outlined animate-spin text-[14px]">progress_activity</span>}
+                  Guardar
+                </button>
               </div>
             </div>
           </div>
@@ -658,43 +634,15 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
                       >drag_indicator</span>
                     )}
 
-                    <div className="px-3 pt-2.5 pb-2.5">
-                      <p className="text-sm font-bold text-slate-800 leading-snug pr-5">
+                    <div className="px-3 py-2 flex items-center justify-between gap-1">
+                      <p className="text-sm font-bold text-slate-800 leading-snug flex-1 min-w-0 truncate">
                         {rc.candidate?.full_name ?? '—'}
                       </p>
-                      {rc.candidate?.role?.name && (
-                        <p className="text-xs text-slate-500 mt-0.5 leading-tight">
-                          {rc.candidate.role.name}
-                        </p>
-                      )}
-                      {(() => {
-                        const techs = [...new Set(
-                          (rc.candidate?.candidate_stack ?? [])
-                            .map(s => s.technology?.ct_name_tech)
-                            .filter(Boolean)
-                        )].slice(0, 3)
-                        return techs.length > 0 ? (
-                          <div className="flex flex-wrap gap-1 mt-1.5">
-                            {techs.map(t => (
-                              <span key={t} className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
-                                {t}
-                              </span>
-                            ))}
-                          </div>
-                        ) : null
-                      })()}
-                      <div className="flex items-center justify-between mt-1.5">
-                        {rc.submitted_at && (
-                          <p className="text-[10px] text-slate-400 mt-1.5 font-medium">
-                            {new Date(rc.submitted_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}
-                          </p>
-                        )}
-                        <CandidateNotes
-                          rc={rc}
-                          canManage={canManage}
-                          onSave={(notes) => saveNotes(rc.id, notes)}
-                        />
-                      </div>
+                      <CandidateNotes
+                        rc={rc}
+                        canManage={canManage}
+                        onSave={(notes) => saveNotes(rc.id, notes)}
+                      />
                     </div>
                   </div>
                 ))}

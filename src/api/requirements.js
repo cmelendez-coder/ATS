@@ -207,10 +207,12 @@ export async function updateRequirementSummary(id, patch) {
 }
 
 // ─── Standalone req board (completely independent table) ─────────────────────
-export async function getReqBoard() {
+export async function getReqBoard(weekNumber, weekYear) {
   const { data, error } = await supabase
     .from('req_board')
     .select('*')
+    .eq('week_number', weekNumber)
+    .eq('week_year', weekYear)
     .order('sort_order')
   if (error) throw error
   return data ?? []
@@ -244,7 +246,7 @@ export async function getWeeklyBoardStats(weekNumber, weekYear) {
     supabase.from('tracker_entry').select('id', { count: 'exact', head: true })
       .eq('status', 'Rejected').eq('week_number', weekNumber).eq('week_year', weekYear),
     supabase.from('req_board').select('id', { count: 'exact', head: true })
-      .eq('activo', true),
+      .eq('activo', true).eq('week_number', weekNumber).eq('week_year', weekYear),
   ])
   return {
     sent:            sent            ?? 0,

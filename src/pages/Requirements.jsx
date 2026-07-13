@@ -1042,38 +1042,49 @@ function getISOWeekReq(date = new Date()) {
   return { week: 1 + Math.round(((d - w1) / 86400000 - 3 + ((w1.getDay() + 6) % 7)) / 7), year: d.getFullYear() }
 }
 
+function shiftWeek({ week, year }, delta) {
+  // Get Monday of the given ISO week, shift by delta weeks, return new ISO week
+  const jan4    = new Date(year, 0, 4)
+  const dow     = jan4.getDay() || 7
+  const monday  = new Date(jan4)
+  monday.setDate(jan4.getDate() - dow + 1 + (week - 1) * 7 + delta * 7)
+  return getISOWeekReq(monday)
+}
+
 /* ── Standalone Board Table (reads/writes only req_board) ── */
 function ReqBoardTable() {
-  const [rows, setRows]         = useState([])
-  const [loading, setLoading]   = useState(true)
-  const [kpi, setKpi]           = useState(null)
+  const currentWeek                     = getISOWeekReq()
+  const [selWeek, setSelWeek]           = useState(currentWeek)
+  const [rows, setRows]                 = useState([])
+  const [loading, setLoading]           = useState(true)
+  const [kpi, setKpi]                   = useState(null)
   const [showAddModal, setShowAddModal] = useState(false)
 
-  const { week, year } = getISOWeekReq()
+  const isCurrentWeek = selWeek.week === currentWeek.week && selWeek.year === currentWeek.year
 
   useEffect(() => {
+    setLoading(true)
     Promise.all([
-      getReqBoard(),
-      getWeeklyBoardStats(week, year),
+      getReqBoard(selWeek.week, selWeek.year),
+      getWeeklyBoardStats(selWeek.week, selWeek.year),
     ]).then(([boardRows, stats]) => {
       setRows(boardRows)
       setKpi(stats)
     }).finally(() => setLoading(false))
-  }, [week, year])
+  }, [selWeek.week, selWeek.year])
 
   async function handleUpdate(id, patch) {
     setRows(prev => prev.map(r => r.id === id ? { ...r, ...patch } : r))
     try {
       await updateReqBoardRow(id, patch)
-      // refresh active count when toggle changes
       if ('activo' in patch) {
-        getWeeklyBoardStats(week, year).then(setKpi)
+        getWeeklyBoardStats(selWeek.week, selWeek.year).then(setKpi)
       }
     } catch { /* optimistic fallback */ }
   }
 
   async function handleAddRow(data) {
-    const newRow = await addReqBoardRow(data)
+    const newRow = await addReqBoardRow({ ...data, week_number: selWeek.week, week_year: selWeek.year })
     setRows(prev => [...prev, newRow])
     setShowAddModal(false)
   }
@@ -1106,11 +1117,41 @@ function ReqBoardTable() {
 
       {/* ── KPI bar ── */}
       <div className="bg-surface-container-low rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
           <div>
             <h2 className="text-sm font-bold text-primary">Prioridades Semanales</h2>
-            <p className="text-[11px] text-on-surface-variant mt-0.5">Actividad de esta semana</p>
+            <p className="text-[11px] text-on-surface-variant mt-0.5">Actividad semanal por posición</p>
           </div>
+
+          {/* Week navigator */}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 bg-surface-container rounded-xl px-1 py-1">
+              <button
+                onClick={() => setSelWeek(w => shiftWeek(w, -1))}
+                className="p-1.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors"
+              >
+                <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+              </button>
+              <span className="text-sm font-semibold text-primary px-2 whitespace-nowrap">
+                Week {String(selWeek.week).padStart(2, '0')} · {selWeek.year}
+              </span>
+              <button
+                onClick={() => setSelWeek(w => shiftWeek(w, 1))}
+                className="p-1.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors"
+              >
+                <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+              </button>
+            </div>
+            {!isCurrentWeek && (
+              <button
+                onClick={() => setSelWeek(currentWeek)}
+                className="px-3 py-2 rounded-xl bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors"
+              >
+                Hoy
+              </button>
+            )}
+          </div>
+
           <button
             onClick={() => setShowAddModal(true)}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors"

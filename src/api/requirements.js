@@ -208,14 +208,32 @@ export async function updateRequirementSummary(id, patch) {
 
 // ─── Standalone req board (completely independent table) ─────────────────────
 export async function getReqBoard(weekNumber, weekYear) {
-  const { data, error } = await supabase
-    .from('req_board')
-    .select('*')
-    .eq('week_number', weekNumber)
-    .eq('week_year', weekYear)
-    .order('sort_order')
+  const [{ data: rows, error }, { data: sentRows }] = await Promise.all([
+    supabase
+      .from('req_board')
+      .select('*')
+      .eq('week_number', weekNumber)
+      .eq('week_year', weekYear)
+      .order('sort_order'),
+    supabase
+      .from('tracker_entry')
+      .select('requirement_id')
+      .eq('status', 'Sent')
+      .eq('week_number', weekNumber)
+      .eq('week_year', weekYear),
+  ])
   if (error) throw error
-  return data ?? []
+
+  // Count sent per requirement_id from tracker
+  const sentByReq = {}
+  for (const r of sentRows ?? []) {
+    if (r.requirement_id) sentByReq[r.requirement_id] = (sentByReq[r.requirement_id] ?? 0) + 1
+  }
+
+  return (rows ?? []).map(row => ({
+    ...row,
+    enviados: row.requirement_id != null ? (sentByReq[row.requirement_id] ?? 0) : null,
+  }))
 }
 
 export async function updateReqBoardRow(id, patch) {
@@ -226,6 +244,7 @@ export async function updateReqBoardRow(id, patch) {
 export async function addReqBoardRow(data) {
   const { data: maxRow } = await supabase
     .from('req_board').select('sort_order')
+    .eq('week_number', data.week_number).eq('week_year', data.week_year)
     .order('sort_order', { ascending: false }).limit(1).maybeSingle()
   const { data: row, error } = await supabase
     .from('req_board')

@@ -885,6 +885,7 @@ function AddReqModal({ onAdd, onClose }) {
     setAdding(req.id)
     try {
       await onAdd({
+        requirement_id: req.id,
         position:  req.job_title,
         cliente:   req.client?.name ?? null,
         ftes:      req.fte_count    ?? null,
@@ -892,7 +893,6 @@ function AddReqModal({ onAdd, onClose }) {
         recruiter: null,
         everscale: null,
         interno:   null,
-        enviados:  null,
       })
     } finally {
       setAdding(null)

@@ -1487,7 +1487,7 @@ return (
           </div>
 
           {/* Filters */}
-          <div className="p-5 bg-surface-container-lowest rounded-2xl shadow-[0_2px_16px_rgba(24,28,30,0.04)] border border-outline-variant/10">
+          {viewMode === 'pipeline' && <div className="p-5 bg-surface-container-lowest rounded-2xl shadow-[0_2px_16px_rgba(24,28,30,0.04)] border border-outline-variant/10">
             <div className="flex flex-col lg:flex-row gap-4 items-end">
               <div className="w-full lg:w-1/3">
                 <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Search</label>
@@ -1529,7 +1529,7 @@ return (
                 </div>
               </div>
             </div>
-          </div>
+          </div>}
 
 
           {/* ── TABLA VIEW ── */}

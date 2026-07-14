@@ -601,7 +601,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
         <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
           {data.ote ? `$${Number(String(data.ote).replace(/[^0-9.]/g,'')).toLocaleString('en-US').replace(/,/g,"'")}` : '—'}
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[220px] truncate">{data.notes || '—'}</td>
+        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[220px]"><CellPopover text={data.notes} /></td>
         <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">{data.email || <span className="text-on-surface-variant/40">—</span>}</td>
         <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">{data.phone || <span className="text-on-surface-variant/40">—</span>}</td>
         <td className="px-3 py-2 text-xs text-on-surface-variant text-center">

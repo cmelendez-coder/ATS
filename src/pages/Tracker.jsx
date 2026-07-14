@@ -448,8 +448,8 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
           email:        info.email        || prev.email,
           phone:        info.phone        || prev.phone,
         }
-        // Auto-save so extracted fields reach the candidate table immediately
-        if (updated.id || updated.candidate_name?.trim()) saveTrackerEntry(updated).catch(() => {})
+        // Auto-save only for existing entries — new rows save via Guardar to avoid double-insert
+        if (updated.id) saveTrackerEntry(updated).catch(() => {})
         return updated
       })
     } catch (err) {

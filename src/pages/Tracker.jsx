@@ -525,7 +525,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
         onDoubleClick={() => { if (!readOnly) onStartEdit() }}
         title={!readOnly ? 'Doble clic para editar' : undefined}
       >
-        <td className="sticky left-0 z-10 group-odd:bg-surface-container-lowest group-even:bg-[#152d5f] px-3 py-2 text-xs text-white font-bold whitespace-nowrap">
+        <td className="sticky left-0 z-10 w-[200px] group-odd:bg-surface-container-lowest group-even:bg-[#152d5f] px-3 py-2 text-xs text-white font-bold whitespace-nowrap">
           <div className="flex items-center gap-1.5">
             <span>{data.candidate_name}</span>
             {data.candidate_id && <span className="text-secondary" title="En Talent Directory"><span className="material-symbols-outlined text-[11px] align-middle">check_circle</span></span>}
@@ -549,7 +549,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
         <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
           {data.state || <span className="text-on-surface-variant/40">—</span>}
         </td>
-        <td className="px-3 py-2">
+        <td className="sticky left-[200px] z-10 group-odd:bg-surface-container-lowest group-even:bg-[#152d5f] px-3 py-2">
           <div className="relative" ref={statusMenuRef}>
             <button
               type="button"
@@ -653,7 +653,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
       }}
     >
       {/* Candidato + Guardar */}
-      <td className="sticky left-0 z-10 bg-surface-container/80 backdrop-blur-sm px-2 py-1.5 min-w-[160px]">
+      <td className="sticky left-0 z-10 w-[200px] bg-surface-container/80 backdrop-blur-sm px-2 py-1.5 min-w-[200px]">
         <CandidateSearch
           value={data.candidate_name}
           candidateId={data.candidate_id}
@@ -788,7 +788,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
       </td>
 
       {/* Status */}
-      <td className="px-2 py-1.5 min-w-[120px]">
+      <td className="sticky left-[200px] z-10 bg-surface-container/80 backdrop-blur-sm px-2 py-1.5 min-w-[120px]">
         <select
           className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-primary/30"
           value={data.status}
@@ -1139,7 +1139,7 @@ export default function Tracker() {
                 <table className="w-full text-left border-collapse min-w-[900px]">
                   <thead>
                     <tr className="sticky top-0 z-30 bg-surface-container-low border-b border-outline-variant/10">
-                      <th className="sticky left-0 z-20 bg-surface-container-low px-3 py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">
+                      <th className="sticky left-0 z-20 w-[200px] bg-surface-container-low px-3 py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">
                         <div className="flex items-center gap-3">
                           <span>Candidato</span>
                           {canEdit && (year > currentYear || (year === currentYear && week >= currentWeek)) && (
@@ -1155,7 +1155,10 @@ export default function Tracker() {
                         </div>
                       </th>
                       {['Requerimiento/Cliente', 'CV', 'LinkedIn', 'Estado', 'Status', 'English', 'Salario', 'OTE', 'Notas', 'Email', 'Phone', 'YoE', 'Target Role', 'Technologies', 'Skills', 'Modules', ''].map(h => (
-                        <th key={h} className="px-3 py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">{h}</th>
+                        <th
+                          key={h}
+                          className={`px-3 py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap${h === 'Status' ? ' sticky left-[200px] z-20 bg-surface-container-low' : ''}`}
+                        >{h}</th>
                       ))}
                     </tr>
                   </thead>

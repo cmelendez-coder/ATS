@@ -442,19 +442,8 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
     setCvUploading(true)
     try {
       const url = await uploadCVFile(file, data.candidate_name)
-      set('cv_url', url)
-      // Extract LinkedIn, state, email and phone from CV text (no AI, free)
-      const info = await extractCVInfo(url)
       setData(prev => {
-        const updated = {
-          ...prev,
-          cv_url:       url,
-          linkedin_url: info.linkedin_url || prev.linkedin_url,
-          state:        info.state        || prev.state,
-          email:        info.email        || prev.email,
-          phone:        info.phone        || prev.phone,
-        }
-        // Auto-save only for existing entries — new rows save via Guardar to avoid double-insert
+        const updated = { ...prev, cv_url: url }
         if (updated.id) saveTrackerEntry(updated).catch(() => {})
         return updated
       })

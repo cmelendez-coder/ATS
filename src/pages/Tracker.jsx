@@ -368,11 +368,8 @@ function CellPopover({ text, limit = 55, wordLimit = null }) {
   const [open, setOpen] = useState(false)
   if (!text) return <span className="text-on-surface-variant/40">—</span>
   const words = text.split(' ')
-  const preview = wordLimit != null
-    ? words.slice(0, wordLimit).join(' ')
-    : text.slice(0, limit)
   const isTruncated = wordLimit != null ? words.length > wordLimit : text.length > limit
-  if (!isTruncated) return <span>{text}</span>
+  const preview = wordLimit != null ? words.slice(0, wordLimit).join(' ') : text.slice(0, limit)
   return (
     <>
       <button
@@ -381,7 +378,7 @@ function CellPopover({ text, limit = 55, wordLimit = null }) {
         className="text-left text-xs text-on-surface-variant hover:text-primary transition-colors"
         title="Click para ver completo"
       >
-        {preview}<span className="text-primary/60">…</span>
+        {isTruncated ? <>{preview}<span className="text-primary/60">…</span></> : text}
       </button>
       {open && (
         <div

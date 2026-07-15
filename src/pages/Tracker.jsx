@@ -364,10 +364,15 @@ function ScreeningNoteModal({ onConfirm, onCancel }) {
 }
 
 // Expandable cell for long text — shows preview, click to open modal
-function CellPopover({ text, limit = 55 }) {
+function CellPopover({ text, limit = 55, wordLimit = null }) {
   const [open, setOpen] = useState(false)
   if (!text) return <span className="text-on-surface-variant/40">—</span>
-  if (text.length <= limit) return <span>{text}</span>
+  const words = text.split(' ')
+  const preview = wordLimit != null
+    ? words.slice(0, wordLimit).join(' ')
+    : text.slice(0, limit)
+  const isTruncated = wordLimit != null ? words.length > wordLimit : text.length > limit
+  if (!isTruncated) return <span>{text}</span>
   return (
     <>
       <button
@@ -376,7 +381,7 @@ function CellPopover({ text, limit = 55 }) {
         className="text-left text-xs text-on-surface-variant hover:text-primary transition-colors"
         title="Click para ver completo"
       >
-        {text.slice(0, limit)}<span className="text-primary/60">…</span>
+        {preview}<span className="text-primary/60">…</span>
       </button>
       {open && (
         <div
@@ -605,7 +610,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
         <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
           {data.ote ? `$${Number(String(data.ote).replace(/[^0-9.]/g,'')).toLocaleString('en-US').replace(/,/g,"'")}` : '—'}
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[220px]"><CellPopover text={data.notes} /></td>
+        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[220px]"><CellPopover text={data.notes} wordLimit={3} /></td>
         <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">{data.email || <span className="text-on-surface-variant/40">—</span>}</td>
         <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">{data.phone || <span className="text-on-surface-variant/40">—</span>}</td>
         <td className="px-3 py-2 text-xs text-on-surface-variant text-center">

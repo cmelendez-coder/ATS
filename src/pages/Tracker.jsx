@@ -415,6 +415,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
   const [showStatusMenu, setShowStatusMenu]         = useState(false)
   const [linkedinExempt, setLinkedinExempt]         = useState(false)
   const statusMenuRef = useRef(null)
+  const savingRef     = useRef(false)
   const stateListId = useId()
 
   useEffect(() => {
@@ -488,9 +489,11 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
   }
 
   async function handleSave() {
+    if (savingRef.current) return
     if (!data.candidate_name?.trim()) { setError('Ingresa el nombre del candidato.'); return }
     if (!data.requirement_id)         { setError('Selecciona una posición/requerimiento.'); return }
     if (!linkedinExempt && !isValidLinkedIn(data.linkedin_url)) { setError('LinkedIn requerido (debe comenzar con linkedin.com/in/…).'); return }
+    savingRef.current = true
     setSaving(true)
     setError(null)
     try {
@@ -510,6 +513,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
     } catch (e) {
       setError(e.message ?? 'Error al guardar.')
     } finally {
+      savingRef.current = false
       setSaving(false)
     }
   }

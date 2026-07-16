@@ -263,7 +263,7 @@ export async function getWeeklyBoardStats(weekNumber, weekYear) {
     supabase.from('tracker_entry').select('id', { count: 'exact', head: true })
       .eq('status', 'Sent').eq('week_number', weekNumber).eq('week_year', weekYear),
     supabase.from('tracker_entry').select('id', { count: 'exact', head: true })
-      .eq('status', 'Rejected').eq('week_number', weekNumber).eq('week_year', weekYear),
+      .in('status', ['Rejected', 'HSE', 'Backed Out']).eq('week_number', weekNumber).eq('week_year', weekYear),
     supabase.from('req_board').select('id', { count: 'exact', head: true })
       .eq('activo', true).eq('week_number', weekNumber).eq('week_year', weekYear),
   ])

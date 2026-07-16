@@ -549,7 +549,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
         <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
           {data.state || <span className="text-on-surface-variant/40">—</span>}
         </td>
-        <td className="sticky left-[200px] z-10 group-odd:bg-surface-container-lowest group-even:bg-[#152d5f] px-3 py-2">
+        <td className={`sticky left-[200px] ${showStatusMenu ? 'z-50' : 'z-10'} group-odd:bg-surface-container-lowest group-even:bg-[#152d5f] px-3 py-2`}>
           <div className="relative" ref={statusMenuRef}>
             <button
               type="button"

@@ -1174,7 +1174,11 @@ export default function Tracker() {
                       .sort((a, b) => {
                         if (a._editing && !b._editing) return -1
                         if (!a._editing && b._editing) return 1
-                        return (STATUS_ORDER[a.status] ?? 99) - (STATUS_ORDER[b.status] ?? 99)
+                        const statusDiff = (STATUS_ORDER[a.status] ?? 99) - (STATUS_ORDER[b.status] ?? 99)
+                        if (statusDiff !== 0) return statusDiff
+                        const reqA = a.requirement?.job_title ?? ''
+                        const reqB = b.requirement?.job_title ?? ''
+                        return reqA.localeCompare(reqB)
                       })
                       .map((row) => {
                       const key = row._key ?? row.id

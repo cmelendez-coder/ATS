@@ -429,6 +429,18 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
     return () => document.removeEventListener('mousedown', handleClick)
   }, [showStatusMenu])
 
+  useEffect(() => {
+    if (!editing) return
+    function handleEscape(e) {
+      if (e.key !== 'Escape') return
+      e.preventDefault()
+      if (row.id) { setData({ ...row }); setError(null); onEndEdit() }
+      else onDelete()
+    }
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [editing, row, onEndEdit, onDelete])
+
   function set(field, value) {
     setData(prev => ({ ...prev, [field]: value }))
   }
@@ -649,11 +661,6 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
         if (e.key === 'Enter' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'TEXTAREA') {
           e.preventDefault()
           handleSave()
-        }
-        if (e.key === 'Escape') {
-          e.preventDefault()
-          if (row.id) { setData({ ...row }); setError(null); onEndEdit() }
-          else onDelete()
         }
       }}
     >

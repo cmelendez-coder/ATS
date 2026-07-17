@@ -450,9 +450,17 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
     if (!file) return
     setCvUploading(true)
     try {
-      const url = await uploadCVFile(file, data.candidate_name)
+      const [url, extracted] = await Promise.all([
+        uploadCVFile(file, data.candidate_name),
+        extractCVInfo(file).catch(() => ({})),
+      ])
       setData(prev => {
-        const updated = { ...prev, cv_url: url }
+        const updated = {
+          ...prev,
+          cv_url: url,
+          email: extracted?.email || prev.email,
+          phone: extracted?.phone || prev.phone,
+        }
         if (updated.id) saveTrackerEntry(updated).catch(() => {})
         return updated
       })
@@ -787,16 +795,14 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
 
       {/* Estado (entidad federativa) */}
       <td className="px-2 py-1.5 min-w-[150px]">
-        <input
-          list={stateListId}
-          className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none"
-          placeholder="Estado…"
+        <select
+          className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-primary/30"
           value={data.state || ''}
           onChange={e => set('state', e.target.value)}
-        />
-        <datalist id={stateListId}>
-          {MX_STATES.map(s => <option key={s} value={s} />)}
-        </datalist>
+        >
+          <option value="">— Estado —</option>
+          {MX_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
       </td>
 
       {/* Status */}

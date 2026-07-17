@@ -901,8 +901,8 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
       {/* YoE */}
       <td className="px-2 py-1.5 min-w-[60px]">
         <input
-          type="number"
-          min="0" max="50"
+          type="text"
+          inputMode="numeric"
           className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none text-center"
           placeholder="0"
           value={data.yoe ?? ''}

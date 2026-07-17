@@ -650,6 +650,11 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
           e.preventDefault()
           handleSave()
         }
+        if (e.key === 'Escape') {
+          e.preventDefault()
+          if (row.id) { setData({ ...row }); setError(null); onEndEdit() }
+          else onDelete()
+        }
       }}
     >
       {/* Candidato + Guardar */}

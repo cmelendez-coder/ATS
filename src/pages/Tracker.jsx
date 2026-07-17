@@ -375,7 +375,7 @@ function CellPopover({ text, limit = 55, wordLimit = null }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-left text-xs text-on-surface-variant hover:text-primary transition-colors"
+        className="text-left text-xs text-on-surface-variant hover:text-primary transition-colors whitespace-nowrap"
         title="Click para ver completo"
       >
         {isTruncated ? <>{preview}<span className="text-primary/60">…</span></> : text}
@@ -602,17 +602,17 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
         <td className="px-3 py-2 text-xs text-on-surface-variant text-center">
           {data.yoe != null && data.yoe !== '' ? `${data.yoe} yrs` : <span className="text-on-surface-variant/40">—</span>}
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[160px]">
-          <CellPopover text={data.target_role} />
+        <td className="px-3 py-2 text-xs text-on-surface-variant">
+          <CellPopover text={data.target_role} wordLimit={2} />
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[120px]">
-          <CellPopover text={data.technologies} limit={10} />
+        <td className="px-3 py-2 text-xs text-on-surface-variant">
+          <CellPopover text={data.technologies} wordLimit={2} />
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[120px]">
-          <CellPopover text={data.skills} limit={10} />
+        <td className="px-3 py-2 text-xs text-on-surface-variant">
+          <CellPopover text={data.skills} wordLimit={2} />
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[140px]">
-          <CellPopover text={data.modules} />
+        <td className="px-3 py-2 text-xs text-on-surface-variant">
+          <CellPopover text={data.modules} wordLimit={2} />
         </td>
         <td className="px-3 py-2">
           {!readOnly && (

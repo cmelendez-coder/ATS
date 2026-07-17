@@ -230,51 +230,6 @@ export default function Dashboard() {
               )}
             </Link>
 
-            {/* Overdue */}
-            <Link
-              to="/requirements"
-              className="block rounded-2xl p-5 shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden border transition-shadow hover:shadow-[0_4px_24px_rgba(24,28,30,0.08)]"
-              style={{
-                backgroundColor: !loading && (stats?.overdueCount ?? 0) > 0 ? 'rgba(186,26,26,0.08)' : undefined,
-              }}
-              // falls back to normal tile if no overdue
-            >
-              <div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                  background: !loading && (stats?.overdueCount ?? 0) > 0
-                    ? 'linear-gradient(135deg, rgba(186,26,26,0.10) 0%, transparent 60%)'
-                    : 'linear-gradient(135deg, rgba(80,177,82,0.03) 0%, transparent 60%)',
-                  borderColor: !loading && (stats?.overdueCount ?? 0) > 0 ? '#ba1a1a33' : undefined,
-                }}
-              />
-              <div
-                className="absolute inset-0 rounded-2xl border"
-                style={{
-                  borderColor: !loading && (stats?.overdueCount ?? 0) > 0 ? '#ba1a1a44' : '#25457f44',
-                }}
-              />
-              <div className="flex items-start justify-between mb-2">
-                <h3 className="text-xs uppercase tracking-[0.08em] font-bold text-on-surface-variant">Overdue</h3>
-                <span
-                  className="material-symbols-outlined text-[18px]"
-                  style={{ color: !loading && (stats?.overdueCount ?? 0) > 0 ? '#ba1a1a' : '#c1cbe466' }}
-                >
-                  schedule
-                </span>
-              </div>
-              <p
-                className="text-5xl tracking-tighter font-light"
-                style={{ color: !loading && (stats?.overdueCount ?? 0) > 0 ? '#ba1a1a' : '#50B152' }}
-              >
-                {loading ? '…' : stats?.overdueCount ?? 0}
-              </p>
-              {!loading && (
-                <p className="text-[11px] text-on-surface-variant mt-2">
-                  {(stats?.overdueCount ?? 0) > 0 ? 'reqs past target date' : 'all on track'}
-                </p>
-              )}
-            </Link>
           </div>
 
           {/* ── CHARTS SECTION ── */}
@@ -325,23 +280,6 @@ export default function Dashboard() {
               )}
             </div>
 
-            {/* Bar chart: Reqs by priority */}
-            <div className="bg-surface-container-low rounded-2xl p-6">
-              <h2 className="text-sm font-bold text-primary mb-1">Por Urgencia</h2>
-              <p className="text-[11px] text-on-surface-variant mb-5">All requirements</p>
-
-              {loading ? (
-                <div className="flex items-center justify-center h-28">
-                  <span className="material-symbols-outlined animate-spin text-[22px] text-on-surface-variant/40">progress_activity</span>
-                </div>
-              ) : (
-                <div className="space-y-3 mt-2">
-                  {priorityBars.map(b => (
-                    <HBar key={b.label} label={b.label} count={b.count} max={maxPriorityCount} color={b.color} />
-                  ))}
-                </div>
-              )}
-            </div>
           </div>
 
           {/* ── PIPELINE ACTIVITY (esta semana) ── */}

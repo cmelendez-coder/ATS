@@ -12,6 +12,7 @@ import {
   updateRequirementStatus, updateRequirementPriority,
   getReqBoard, updateReqBoardRow, getWeeklyBoardStats, addReqBoardRow,
 } from '../api/requirements'
+import { createClientCandidate } from '../api/talent'
 
 /* ── helpers ── */
 const PRIORITY = {
@@ -62,13 +63,18 @@ function reqLabel(num, date) {
 
 /* ── Add Candidate Modal ── */
 function AddCandidateModal({ reqId, existingIds, firstStageName, onAdd, onClose }) {
+  const [tab, setTab]           = useState('everscale') // 'everscale' | 'client'
   const [term, setTerm]         = useState('')
   const [results, setResults]   = useState([])
   const [searching, setSearching] = useState(false)
-  const [adding, setAdding]     = useState(null) // candidate_id being added
+  const [adding, setAdding]     = useState(null)
+  const [clientName, setClientName] = useState('')
+  const [clientEmail, setClientEmail] = useState('')
+  const [clientAdding, setClientAdding] = useState(false)
+  const [clientErr, setClientErr] = useState(null)
 
   useEffect(() => {
-    if (term.length < 2) { setResults([]); return }
+    if (tab !== 'everscale' || term.length < 2) { setResults([]); return }
     setSearching(true)
     const t = setTimeout(async () => {
       try {
@@ -79,7 +85,7 @@ function AddCandidateModal({ reqId, existingIds, firstStageName, onAdd, onClose 
       }
     }, 300)
     return () => clearTimeout(t)
-  }, [term])
+  }, [term, tab])
 
   async function pick(candidate) {
     if (adding) return
@@ -92,6 +98,20 @@ function AddCandidateModal({ reqId, existingIds, firstStageName, onAdd, onClose 
     }
   }
 
+  async function addClientCand() {
+    if (!clientName.trim()) { setClientErr('El nombre es obligatorio.'); return }
+    setClientAdding(true)
+    setClientErr(null)
+    try {
+      const cand = await createClientCandidate(clientName, clientEmail)
+      await addCandidateToRequirement(reqId, cand.candidate_id, firstStageName)
+      onAdd()
+    } catch (err) {
+      setClientErr(err.message ?? 'Error al agregar candidato')
+      setClientAdding(false)
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
       <div
@@ -101,77 +121,143 @@ function AddCandidateModal({ reqId, existingIds, firstStageName, onAdd, onClose 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-outline-variant/10">
           <div>
-            <h2 className="font-bold text-primary text-base">Add Candidate to Pipeline</h2>
-            <p className="text-xs text-on-surface-variant mt-0.5">The candidate will start in the first stage</p>
+            <h2 className="font-bold text-primary text-base">Agregar candidato al pipeline</h2>
+            <p className="text-xs text-on-surface-variant mt-0.5">El candidato iniciará en la primera etapa</p>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors">
             <span className="material-symbols-outlined text-[20px]">close</span>
           </button>
         </div>
 
-        {/* Search */}
-        <div className="px-5 pt-4 pb-2">
-          <div className="relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
-              {searching ? 'progress_activity' : 'search'}
-            </span>
-            <input
-              autoFocus
-              className="w-full pl-10 pr-4 py-3 bg-surface-container-high rounded-xl text-sm border-none outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface-variant"
-              placeholder="Buscar candidato por nombre…"
-              value={term}
-              onChange={e => setTerm(e.target.value)}
-            />
-          </div>
+        {/* Tabs */}
+        <div className="flex gap-1 px-5 pt-4 pb-2">
+          <button
+            onClick={() => setTab('everscale')}
+            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all
+              ${tab === 'everscale' ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'}`}
+          >
+            <span className="material-symbols-outlined text-[15px]">search</span>
+            Candidato Everscale
+          </button>
+          <button
+            onClick={() => setTab('client')}
+            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all
+              ${tab === 'client' ? 'bg-amber-500 text-white' : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'}`}
+          >
+            <span className="material-symbols-outlined text-[15px]">business</span>
+            Candidato del cliente
+          </button>
         </div>
 
-        {/* Results */}
-        <div className="px-5 pb-4 max-h-72 overflow-y-auto space-y-1">
-          {term.length < 2 && (
-            <div className="flex flex-col items-center py-8 gap-2 text-on-surface-variant">
-              <span className="material-symbols-outlined text-[32px] opacity-30">person_search</span>
-              <p className="text-sm">Escribe al menos 2 caracteres para buscar</p>
+        {/* Tab: Everscale search */}
+        {tab === 'everscale' && (
+          <>
+            <div className="px-5 pt-2 pb-2">
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
+                  {searching ? 'progress_activity' : 'search'}
+                </span>
+                <input
+                  autoFocus
+                  className="w-full pl-10 pr-4 py-3 bg-surface-container-high rounded-xl text-sm border-none outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface-variant"
+                  placeholder="Buscar candidato por nombre…"
+                  value={term}
+                  onChange={e => setTerm(e.target.value)}
+                />
+              </div>
             </div>
-          )}
-          {term.length >= 2 && !searching && results.length === 0 && (
-            <div className="flex flex-col items-center py-8 gap-2 text-on-surface-variant">
-              <span className="material-symbols-outlined text-[32px] opacity-30">search_off</span>
-              <p className="text-sm">No se encontraron candidatos</p>
+            <div className="px-5 pb-4 max-h-72 overflow-y-auto space-y-1">
+              {term.length < 2 && (
+                <div className="flex flex-col items-center py-8 gap-2 text-on-surface-variant">
+                  <span className="material-symbols-outlined text-[32px] opacity-30">person_search</span>
+                  <p className="text-sm">Escribe al menos 2 caracteres para buscar</p>
+                </div>
+              )}
+              {term.length >= 2 && !searching && results.length === 0 && (
+                <div className="flex flex-col items-center py-8 gap-2 text-on-surface-variant">
+                  <span className="material-symbols-outlined text-[32px] opacity-30">search_off</span>
+                  <p className="text-sm">No se encontraron candidatos</p>
+                </div>
+              )}
+              {results.map(c => {
+                const alreadyIn = existingIds.has(c.candidate_id)
+                const isAdding  = adding === c.candidate_id
+                return (
+                  <button
+                    key={c.candidate_id}
+                    disabled={alreadyIn || !!adding}
+                    onClick={() => !alreadyIn && pick(c)}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-left
+                      ${alreadyIn ? 'opacity-50 cursor-not-allowed' : 'hover:bg-surface-container cursor-pointer'}`}
+                  >
+                    <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary shrink-0">
+                      {c.full_name?.charAt(0)?.toUpperCase() ?? '?'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-primary truncate">{c.full_name}</p>
+                      <p className="text-xs text-on-surface-variant truncate">
+                        {c.role?.name ?? '—'}{c.seniority?.name ? ` · ${c.seniority.name}` : ''}
+                      </p>
+                    </div>
+                    <div className="shrink-0">
+                      {alreadyIn ? (
+                        <span className="text-[10px] font-bold text-on-surface-variant bg-surface-container px-2 py-1 rounded-full">Ya agregado</span>
+                      ) : isAdding ? (
+                        <span className="material-symbols-outlined animate-spin text-primary text-[18px]">progress_activity</span>
+                      ) : (
+                        <span className="material-symbols-outlined text-primary text-[20px]">add_circle</span>
+                      )}
+                    </div>
+                  </button>
+                )
+              })}
             </div>
-          )}
-          {results.map(c => {
-            const alreadyIn = existingIds.has(c.candidate_id)
-            const isAdding  = adding === c.candidate_id
-            return (
-              <button
-                key={c.candidate_id}
-                disabled={alreadyIn || !!adding}
-                onClick={() => !alreadyIn && pick(c)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-left
-                  ${alreadyIn ? 'opacity-50 cursor-not-allowed' : 'hover:bg-surface-container cursor-pointer'}`}
-              >
-                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary shrink-0">
-                  {c.full_name?.charAt(0)?.toUpperCase() ?? '?'}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-primary truncate">{c.full_name}</p>
-                  <p className="text-xs text-on-surface-variant truncate">
-                    {c.role?.name ?? '—'}{c.seniority?.name ? ` · ${c.seniority.name}` : ''}
-                  </p>
-                </div>
-                <div className="shrink-0">
-                  {alreadyIn ? (
-                    <span className="text-[10px] font-bold text-on-surface-variant bg-surface-container px-2 py-1 rounded-full">Ya agregado</span>
-                  ) : isAdding ? (
-                    <span className="material-symbols-outlined animate-spin text-primary text-[18px]">progress_activity</span>
-                  ) : (
-                    <span className="material-symbols-outlined text-primary text-[20px]">add_circle</span>
-                  )}
-                </div>
-              </button>
-            )
-          })}
-        </div>
+          </>
+        )}
+
+        {/* Tab: Client candidate */}
+        {tab === 'client' && (
+          <div className="px-5 pt-2 pb-5 space-y-3">
+            <div className="rounded-xl bg-amber-500/8 border border-amber-500/20 px-3 py-2.5 flex items-start gap-2">
+              <span className="material-symbols-outlined text-amber-500 text-[16px] mt-0.5 shrink-0">info</span>
+              <p className="text-xs text-on-surface-variant leading-relaxed">
+                El candidato se guardará en el directorio de talento como <strong className="text-amber-600">Candidato de cliente</strong> y podrá ser recontactado en el futuro.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <input
+                autoFocus
+                className="w-full px-4 py-3 bg-surface-container-high rounded-xl text-sm border-none outline-none focus:ring-2 focus:ring-amber-400/30 placeholder:text-on-surface-variant"
+                placeholder="Nombre completo *"
+                value={clientName}
+                onChange={e => { setClientName(e.target.value); setClientErr(null) }}
+              />
+              <input
+                className="w-full px-4 py-3 bg-surface-container-high rounded-xl text-sm border-none outline-none focus:ring-2 focus:ring-amber-400/30 placeholder:text-on-surface-variant"
+                placeholder="Email (opcional)"
+                type="email"
+                value={clientEmail}
+                onChange={e => setClientEmail(e.target.value)}
+              />
+            </div>
+            {clientErr && (
+              <p className="text-xs text-error flex items-center gap-1">
+                <span className="material-symbols-outlined text-[13px]">error</span>{clientErr}
+              </p>
+            )}
+            <button
+              onClick={addClientCand}
+              disabled={clientAdding || !clientName.trim()}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 transition-colors disabled:opacity-50"
+            >
+              {clientAdding
+                ? <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                : <span className="material-symbols-outlined text-[18px]">person_add</span>
+              }
+              {clientAdding ? 'Agregando…' : 'Agregar candidato del cliente'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -233,6 +319,12 @@ function CardDetailModal({ rc, stages, canManage, onClose, onStageChange, onNote
             <p className="text-sm text-slate-500 mt-0.5">
               {[rc.candidate?.role?.name, rc.candidate?.seniority?.name].filter(Boolean).join(' · ')}
             </p>
+            {rc.candidate?.source === 'client' && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full mt-1.5">
+                <span className="material-symbols-outlined text-[12px]">business</span>
+                Candidato de cliente
+              </span>
+            )}
           </div>
           <button onClick={onClose} className="mt-0.5 p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors shrink-0">
             <span className="material-symbols-outlined text-[20px]">close</span>
@@ -632,6 +724,12 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
                       <p className="text-sm font-bold text-slate-800 leading-snug truncate">
                         {rc.candidate?.full_name ?? '—'}
                       </p>
+                      {rc.candidate?.source === 'client' && (
+                        <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full mt-1">
+                          <span className="material-symbols-outlined text-[10px]">business</span>
+                          Cliente
+                        </span>
+                      )}
                     </div>
                   </div>
                 ))}

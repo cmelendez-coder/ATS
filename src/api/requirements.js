@@ -117,7 +117,7 @@ export async function getRequirementCandidates(requirementId) {
     .select(`
       id, submitted_at, submittal_status, notes,
       candidate:candidate_id(
-        candidate_id, full_name, email,
+        candidate_id, full_name, email, source,
         role:role_id(name),
         seniority:seniority_id(name),
         candidate_stack(technology:catalog_technology!technology_id(ct_name_tech))

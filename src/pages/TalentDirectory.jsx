@@ -374,7 +374,14 @@ export default function TalentDirectory() {
                           {/* Name + Role + Email */}
                           <td className="py-4 px-5">
                             <p className="font-semibold text-primary text-sm group-hover:text-surface-tint transition-colors whitespace-nowrap">{c.full_name}</p>
-                            <p className="text-xs text-on-surface-variant">{c.role?.name ?? '—'}</p>
+                            {c.source === 'client' ? (
+                              <span className="inline-flex items-center gap-1 text-[9px] font-bold text-amber-600 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded-full mt-0.5">
+                                <span className="material-symbols-outlined text-[10px]">business</span>
+                                Candidato de cliente
+                              </span>
+                            ) : (
+                              <p className="text-xs text-on-surface-variant">{c.role?.name ?? '—'}</p>
+                            )}
                           </td>
 
                           {/* Technologies */}

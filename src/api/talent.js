@@ -18,7 +18,7 @@ export async function searchCandidates({ q = '', englishMin = '', englishMax = '
   let baseQuery = supabase
     .from('candidate')
     .select(`
-      candidate_id, candidate_code, full_name, email, phone,
+      candidate_id, candidate_code, full_name, email, phone, source,
       english_score, years_experience, cv_url, linkedin_url,
       status:catalog_status!status_id(name),
       seniority:catalog_seniority!seniority_id(name),
@@ -208,6 +208,26 @@ export async function createCandidate(form) {
   }
 
   return candidate
+}
+
+// ─── Create a minimal client-sourced candidate ────────────────────
+export async function createClientCandidate(fullName, email) {
+  const code = `CAND-${Date.now().toString(36).toUpperCase()}`
+  const { data: statusRow } = await supabase
+    .from('catalog_status').select('status_id').eq('name', 'Available').single()
+  const { data, error } = await supabase
+    .from('candidate')
+    .insert({
+      candidate_code: code,
+      full_name:      fullName.trim(),
+      email:          email?.trim() || null,
+      source:         'client',
+      status_id:      statusRow?.status_id ?? null,
+    })
+    .select('candidate_id, candidate_code')
+    .single()
+  if (error) throw error
+  return data
 }
 
 // ─── Assignment helpers for Add Talent form ───────────────────────

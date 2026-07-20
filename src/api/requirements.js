@@ -279,15 +279,18 @@ export async function getCatalogs() {
     { data: statuses },
     { data: arrangements },
     { data: clients },
+    { data: officeHours },
   ] = await Promise.all([
     supabase.from('catalog_requirement_status').select('id, name').order('id'),
     supabase.from('catalog_work_arrangement').select('id, name').order('id'),
     supabase.from('client').select('id, name').order('name'),
+    supabase.from('catalog_office_hours').select('id, name').order('id'),
   ])
   return {
     statuses:     statuses     ?? [],
     arrangements: arrangements ?? [],
     clients:      clients      ?? [],
+    officeHours:  officeHours  ?? [],
   }
 }
 

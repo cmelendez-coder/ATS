@@ -37,7 +37,7 @@ export default function NewRequirement() {
     variable:            '',
     periodicidad:        '',
     work_arrangement_id: '',
-    office_hours:        '',
+    office_hours_id:     '',
     visa_us_required:    false,
     tech_reqs:           '',
     special_request:     '',
@@ -83,6 +83,7 @@ export default function NewRequirement() {
         variable:            form.variable ? String(form.variable) + '%' : null,
         periodicidad:        form.periodicidad || null,
         work_arrangement_id: form.work_arrangement_id ? Number(form.work_arrangement_id) : null,
+        office_hours_id:     form.office_hours_id ? Number(form.office_hours_id) : null,
         visa_us_required:    form.visa_us_required,
         tech_reqs:           form.tech_reqs || null,
         special_request:     form.special_request || null,
@@ -338,7 +339,13 @@ export default function NewRequirement() {
                   </div>
                   <div>
                     <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Office Hours</label>
-                    <input className="form-field" placeholder="e.g. Mon–Fri 9am–6pm CST" type="text" value={form.office_hours} onChange={e => set('office_hours', e.target.value)} />
+                    <div className="relative">
+                      <select className="form-field appearance-none pr-8" value={form.office_hours_id} onChange={e => set('office_hours_id', e.target.value)}>
+                        <option value="">— Select —</option>
+                        {(catalogs.officeHours ?? []).map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+                      </select>
+                      <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[18px]">arrow_drop_down</span>
+                    </div>
                   </div>
                   <div className="col-span-2">
                     <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-3">VISA US Required</label>

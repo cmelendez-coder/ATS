@@ -26,6 +26,8 @@ const CLIENT_LOGOS = {
   'PacVue':       '/logos/pacvue.png',
   'LogicMonitor': '/logos/logicmonitor.webp',
   'BlueConic':    '/logos/blueconic.png',
+  'Mygo':         '/logos/mygo.png',
+  'Numen':        '/logos/numen.png',
 }
 
 function ClientLogo({ name = '', size = 'sm' }) {

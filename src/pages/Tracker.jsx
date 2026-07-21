@@ -567,9 +567,6 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
               </a>
             : <span className="text-on-surface-variant/40">—</span>}
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
-          {data.state || <span className="text-on-surface-variant/40">—</span>}
-        </td>
         <td className={`sticky left-[200px] ${showStatusMenu ? 'z-50' : 'z-10'} group-odd:bg-surface-container-lowest group-even:bg-[#152d5f] px-3 py-2`}>
           <div className="relative" ref={statusMenuRef}>
             <button
@@ -609,6 +606,9 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
           )}
         </td>
         <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[220px]"><CellPopover text={data.notes} wordLimit={3} /></td>
+        <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
+          {data.state || <span className="text-on-surface-variant/40">—</span>}
+        </td>
         <td className="px-3 py-2 text-xs text-on-surface-variant text-center">{data.english_score != null ? `${data.english_score}%` : '—'}</td>
         <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
           {data.salary
@@ -1181,7 +1181,7 @@ export default function Tracker() {
                           )}
                         </div>
                       </th>
-                      {['Requerimiento/Cliente', 'CV', 'LinkedIn', 'Estado', 'Status', 'Notas', 'English', 'Salario', 'OTE', 'Email', 'Phone', 'YoE', 'Target Role', 'Technologies', 'Skills', 'Modules', ''].map(h => (
+                      {['Requerimiento/Cliente', 'CV', 'LinkedIn', 'Status', 'Notas', 'Estado', 'English', 'Salario', 'OTE', 'Email', 'Phone', 'YoE', 'Target Role', 'Technologies', 'Skills', 'Modules', ''].map(h => (
                         <th
                           key={h}
                           className={`px-3 py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap${h === 'Status' ? ' sticky left-[200px] z-20 bg-surface-container-low' : ''}`}

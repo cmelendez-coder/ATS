@@ -216,6 +216,47 @@ function RequirementSearch({ value, requirements, currentReq, onSelect, disabled
   )
 }
 
+function RejectedFeedbackModal({ onConfirm, onCancel }) {
+  const [feedback, setFeedback] = useState('')
+  const textareaRef = useRef(null)
+  useEffect(() => { textareaRef.current?.focus() }, [])
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div className="bg-surface-container-high rounded-2xl shadow-2xl border border-outline-variant/20 p-6 w-full max-w-sm mx-4">
+        <div className="flex items-center gap-3 mb-4">
+          <span className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center">
+            <span className="material-symbols-outlined text-red-400 text-[18px]">thumb_down</span>
+          </span>
+          <div>
+            <h3 className="text-sm font-bold text-on-surface">Marcar como Rejected</h3>
+            <p className="text-xs text-on-surface-variant mt-0.5">Agrega el feedback del rechazo (opcional)</p>
+          </div>
+        </div>
+        <textarea
+          ref={textareaRef}
+          className="w-full bg-surface-container text-on-surface text-xs px-3 py-2 rounded-lg border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-red-400/50 resize-none placeholder:text-on-surface-variant/40"
+          rows={4}
+          placeholder="Motivo del rechazo…"
+          value={feedback}
+          onChange={e => setFeedback(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) onConfirm(feedback) }}
+        />
+        <p className="text-[10px] text-on-surface-variant/50 mt-1 mb-4">Ctrl+Enter para guardar</p>
+        <div className="flex gap-2 justify-end">
+          <button type="button" onClick={onCancel}
+            className="px-4 py-1.5 text-xs rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors">
+            Cancelar
+          </button>
+          <button type="button" onClick={() => onConfirm(feedback)}
+            className="px-4 py-1.5 text-xs rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600 transition-colors">
+            Guardar Rejected
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // Two-step confirmation modal for "Sent" status
 function SentConfirmModal({ onConfirm, onCancel }) {
   const [step, setStep] = useState(1)
@@ -413,6 +454,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
   const editing = isEditing
   const [showSentModal, setShowSentModal]           = useState(false)
   const [showScreeningModal, setShowScreeningModal] = useState(false)
+  const [showRejectedModal, setShowRejectedModal]   = useState(false)
   const [cvUploading, setCvUploading]               = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm]   = useState(false)
   const [showStatusMenu, setShowStatusMenu]         = useState(false)
@@ -588,6 +630,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
                       if (s === data.status) return
                       if (s === 'Sent') setShowSentModal(true)
                       else if (s === 'Screening') setShowScreeningModal(true)
+                      else if (s === 'Rejected') setShowRejectedModal(true)
                       else quickUpdateStatus(s)
                     }}
                   >
@@ -656,6 +699,12 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
             <ScreeningNoteModal
               onConfirm={({ note, datetime }) => { quickUpdateStatus('Screening', { screening_note: note, screening_datetime: datetime }); setShowScreeningModal(false) }}
               onCancel={() => setShowScreeningModal(false)}
+            />
+          )}
+          {showRejectedModal && !editing && (
+            <RejectedFeedbackModal
+              onConfirm={(feedback) => { quickUpdateStatus('Rejected', { notes: feedback || data.notes }); setShowRejectedModal(false) }}
+              onCancel={() => setShowRejectedModal(false)}
             />
           )}
         </td>
@@ -804,6 +853,8 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
               setShowSentModal(true)
             } else if (e.target.value === 'Screening') {
               setShowScreeningModal(true)
+            } else if (e.target.value === 'Rejected') {
+              setShowRejectedModal(true)
             } else {
               set('status', e.target.value)
             }
@@ -827,6 +878,12 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
           <ScreeningNoteModal
             onConfirm={({ note, datetime }) => { set('status', 'Screening'); set('screening_note', note); set('screening_datetime', datetime); setShowScreeningModal(false) }}
             onCancel={() => setShowScreeningModal(false)}
+          />
+        )}
+        {showRejectedModal && (
+          <RejectedFeedbackModal
+            onConfirm={(feedback) => { set('status', 'Rejected'); if (feedback) set('notes', feedback); setShowRejectedModal(false) }}
+            onCancel={() => setShowRejectedModal(false)}
           />
         )}
       </td>

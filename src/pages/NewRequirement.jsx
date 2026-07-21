@@ -59,8 +59,8 @@ export default function NewRequirement() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (!form.client_id || !form.job_title || !form.application_date || !form.target_fill_date) {
-      setError('Complete los campos requeridos.')
+    if (!form.client_id || !form.job_title || !form.application_date || !form.target_fill_date || !form.salary_cap) {
+      setError('Complete los campos requeridos: cliente, puesto, fechas y salary cap.')
       return
     }
     setLoading(true)
@@ -295,10 +295,10 @@ export default function NewRequirement() {
                 </h2>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Salary Cap</label>
+                    <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Salary Cap <span className="text-error">*</span></label>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm font-medium">$</span>
-                      <input className="form-field pl-7" placeholder="0.00" type="number" min="0" step="100" value={form.salary_cap} onChange={e => set('salary_cap', e.target.value)} />
+                      <input className="form-field pl-7" placeholder="0.00" type="number" min="1" step="100" value={form.salary_cap} onChange={e => set('salary_cap', e.target.value)} required />
                     </div>
                   </div>
                   <div>
@@ -327,22 +327,12 @@ export default function NewRequirement() {
                   <span className="material-symbols-outlined text-[18px] filled">apartment</span>Work Details
                 </h2>
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
+                  <div className="col-span-2">
                     <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Work Arrangement <span className="text-error">*</span></label>
                     <div className="relative">
                       <select className="form-field appearance-none cursor-pointer pr-9" value={form.work_arrangement_id} onChange={e => set('work_arrangement_id', e.target.value)}>
                         <option value="">Select…</option>
                         {catalogs.arrangements.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                      </select>
-                      <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[18px]">arrow_drop_down</span>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Office Hours</label>
-                    <div className="relative">
-                      <select className="form-field appearance-none pr-8" value={form.office_hours_id} onChange={e => set('office_hours_id', e.target.value)}>
-                        <option value="">— Select —</option>
-                        {(catalogs.officeHours ?? []).map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
                       </select>
                       <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[18px]">arrow_drop_down</span>
                     </div>

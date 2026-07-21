@@ -3,18 +3,24 @@ import { supabase } from '../lib/supabase'
 export async function getDashboardStats() {
   const today = new Date().toISOString().split('T')[0]
 
-  // ISO week start (Monday 00:00 local → UTC)
+  // ISO week number + year
   const now = new Date()
   const dow = now.getDay() || 7
   const weekStart = new Date(now)
   weekStart.setDate(now.getDate() - dow + 1)
   weekStart.setHours(0, 0, 0, 0)
+  const tmp = new Date(weekStart)
+  tmp.setDate(tmp.getDate() + 3 - (tmp.getDay() + 6) % 7)
+  const jan4 = new Date(tmp.getFullYear(), 0, 4)
+  const isoWeek = 1 + Math.round(((tmp - jan4) / 86400000 - 3 + (jan4.getDay() + 6) % 7) / 7)
+  const isoYear = tmp.getFullYear()
 
   const [
     { count: totalClients },
     { count: totalCandidates },
     { data: allRequirements },
-    { data: weeklyStages },
+    { count: weeklySentCount },
+    { count: weeklyRejectedCount },
     { count: newCandidatesThisWeek },
   ] = await Promise.all([
     supabase.from('client').select('*', { count: 'exact', head: true }),
@@ -24,11 +30,10 @@ export async function getDashboardStats() {
       status:status_id(name),
       client:client_id(name)
     `).order('created_at', { ascending: false }),
-    supabase
-      .from('requirement_candidate_stage_history')
-      .select('stage_name')
-      .in('stage_name', ['Submitted to Client', 'Rejected'])
-      .gte('entered_at', weekStart.toISOString()),
+    supabase.from('tracker_entry').select('*', { count: 'exact', head: true })
+      .eq('status', 'Sent').eq('week_number', isoWeek).eq('week_year', isoYear),
+    supabase.from('tracker_entry').select('*', { count: 'exact', head: true })
+      .in('status', ['Rejected', 'HSE', 'Backed Out']).eq('week_number', isoWeek).eq('week_year', isoYear),
     supabase
       .from('candidate')
       .select('candidate_id', { count: 'exact', head: true })
@@ -66,9 +71,8 @@ export async function getDashboardStats() {
     .slice(0, 6)
     .map(([name, count]) => ({ name, count }))
 
-  // Weekly pipeline counts from stage history
-  const weeklySent     = (weeklyStages ?? []).filter(r => r.stage_name === 'Submitted to Client').length
-  const weeklyRejected = (weeklyStages ?? []).filter(r => r.stage_name === 'Rejected').length
+  const weeklySent     = weeklySentCount     ?? 0
+  const weeklyRejected = weeklyRejectedCount ?? 0
 
   return {
     totalRequirements:    reqs.length,

@@ -9,6 +9,7 @@ import {
   deleteTrackerEntry,
   uploadCVFile,
   extractCVInfo,
+  backfillSentCandidates,
   createScreeningEvent,
   recruiterFromEmail,
 } from '../api/tracker'
@@ -1018,6 +1019,14 @@ export default function Tracker() {
   useEffect(() => {
     fetchActiveRequirements()
       .then(setRequirements)
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    const FLAG = 'tracker_backfill_sent_v1'
+    if (localStorage.getItem(FLAG)) return
+    backfillSentCandidates()
+      .then(() => localStorage.setItem(FLAG, '1'))
       .catch(() => {})
   }, [])
 

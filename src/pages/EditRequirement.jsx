@@ -307,22 +307,12 @@ export default function EditRequirement() {
                   <span className="material-symbols-outlined text-[18px] filled">apartment</span>Work Details
                 </h2>
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
+                  <div className="col-span-2">
                     <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Work Arrangement <span className="text-error">*</span></label>
                     <div className="relative">
                       <select className="form-field appearance-none cursor-pointer pr-9" value={form.work_arrangement_id} onChange={e => set('work_arrangement_id', e.target.value)}>
                         <option value="">Select…</option>
                         {catalogs.arrangements.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                      </select>
-                      <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[18px]">arrow_drop_down</span>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Office Hours</label>
-                    <div className="relative">
-                      <select className="form-field appearance-none pr-8" value={form.office_hours_id} onChange={e => set('office_hours_id', e.target.value)}>
-                        <option value="">— Select —</option>
-                        {(catalogs.officeHours ?? []).map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
                       </select>
                       <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[18px]">arrow_drop_down</span>
                     </div>

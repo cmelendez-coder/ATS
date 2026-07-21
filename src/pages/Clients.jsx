@@ -112,7 +112,7 @@ function StageForm({ initial = EMPTY_STAGE_FORM, onSave, onCancel, saving }) {
 
   return (
     <div className="mt-3 rounded-xl border border-outline-variant/20 bg-surface-container p-4 space-y-3">
-      <div className="grid grid-cols-1 sm:grid-cols-[1.6fr_110px_90px] gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-[1fr_110px] gap-2">
         <input
           className={inputCls}
           placeholder="Nombre de la fase *"
@@ -125,18 +125,11 @@ function StageForm({ initial = EMPTY_STAGE_FORM, onSave, onCancel, saving }) {
           value={form.color}
           onChange={e => set('color', e.target.value)}
         />
-        <input
-          className={inputCls}
-          type="number"
-          min="1"
-          value={form.position}
-          onChange={e => set('position', e.target.value)}
-        />
       </div>
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-xs text-on-surface-variant">
           <span className="inline-block w-3 h-3 rounded-full border border-white/60" style={{ backgroundColor: form.color }}></span>
-          Posicion {form.position || 1}
+          Vista previa del color
         </div>
         <div className="flex gap-2">
           <button
@@ -173,6 +166,7 @@ export default function Clients() {
   const [stageEditing, setStageEditing] = useState(null) // null | { clientId, mode, stage? }
   const [showCreateClient, setShowCreateClient] = useState(false)
   const [saving, setSaving]           = useState(false)
+  const [dragState, setDragState]     = useState({ clientId: null, draggedId: null, overId: null })
 
   const load = useCallback(async () => {
     try {
@@ -266,13 +260,32 @@ export default function Clients() {
     if (!form.name.trim()) return
     setSaving(true)
     try {
-      const newStage = await createClientStage(clientId, form)
+      const currentStages = clients.find(c => c.id === clientId)?.stages ?? []
+      const nextPos = currentStages.length + 1
+      const newStage = await createClientStage(clientId, { ...form, position: nextPos })
       setClients(prev => prev.map(c =>
         c.id === clientId ? { ...c, stages: sortStages([...(c.stages ?? []), newStage]) } : c
       ))
       setStageEditing(null)
     } catch (e) { alert(e.message) }
     finally { setSaving(false) }
+  }
+
+  async function handleReorderStages(clientId, draggedId, targetId) {
+    setDragState({ clientId: null, draggedId: null, overId: null })
+    if (draggedId === targetId) return
+    const clientObj = clients.find(c => c.id === clientId)
+    const stages = [...(clientObj?.stages ?? [])]
+    const fromIdx = stages.findIndex(s => s.stage_id === draggedId)
+    const toIdx   = stages.findIndex(s => s.stage_id === targetId)
+    if (fromIdx === -1 || toIdx === -1) return
+    const [moved] = stages.splice(fromIdx, 1)
+    stages.splice(toIdx, 0, moved)
+    const reordered = stages.map((s, i) => ({ ...s, position: i + 1 }))
+    setClients(prev => prev.map(c => c.id === clientId ? { ...c, stages: reordered } : c))
+    try {
+      await Promise.all(reordered.map(s => updateClientStage(s.stage_id, { name: s.name, color: s.color, position: s.position })))
+    } catch (e) { alert(e.message); load() }
   }
 
   async function handleSaveEditStage(clientId, stageId, form) {
@@ -472,8 +485,10 @@ export default function Clients() {
                           </div>
                         )}
 
-                        {stages.map(stage => {
+                        {stages.map((stage, idx) => {
                           const isEditingStage = stageEditing?.mode === 'edit' && stageEditing?.stage?.stage_id === stage.stage_id
+                          const isDragging = dragState.draggedId === stage.stage_id
+                          const isOver    = dragState.overId === stage.stage_id && dragState.clientId === client.id && !isDragging
                           return isEditingStage ? (
                             <StageForm
                               key={stage.stage_id}
@@ -483,14 +498,28 @@ export default function Clients() {
                               saving={saving}
                             />
                           ) : (
-                            <div key={stage.stage_id} className="rounded-xl border border-outline-variant/15 bg-surface-container/60 p-3">
-                              <div className="flex items-start justify-between gap-3">
-                                <div className="min-w-0">
-                                  <div className="flex items-center gap-2">
-                                    <span className="inline-block w-3 h-3 rounded-full border border-white/60 shrink-0" style={{ backgroundColor: stage.color }}></span>
-                                    <p className="font-semibold text-primary text-sm truncate">{stage.name}</p>
-                                  </div>
-                                  <p className="text-[11px] text-on-surface-variant mt-1">Posicion {stage.position}</p>
+                            <div
+                              key={stage.stage_id}
+                              draggable
+                              onDragStart={() => setDragState({ clientId: client.id, draggedId: stage.stage_id, overId: null })}
+                              onDragOver={e => { e.preventDefault(); setDragState(s => ({ ...s, overId: stage.stage_id })) }}
+                              onDragLeave={() => setDragState(s => ({ ...s, overId: null }))}
+                              onDrop={e => { e.preventDefault(); handleReorderStages(client.id, dragState.draggedId, stage.stage_id) }}
+                              onDragEnd={() => setDragState({ clientId: null, draggedId: null, overId: null })}
+                              className={`rounded-xl border p-3 transition-all duration-100 select-none
+                                ${isOver    ? 'border-primary/60 bg-primary/8 shadow-[0_0_0_2px_rgba(var(--color-primary)/0.2)]' : 'border-outline-variant/15 bg-surface-container/60'}
+                                ${isDragging ? 'opacity-40 scale-[0.98]' : ''}
+                              `}
+                            >
+                              <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <span
+                                    className="material-symbols-outlined text-[18px] text-on-surface-variant/30 cursor-grab active:cursor-grabbing shrink-0"
+                                    title="Arrastra para reordenar"
+                                  >drag_indicator</span>
+                                  <span className="text-[10px] font-bold text-on-surface-variant/40 w-4 shrink-0">{idx + 1}</span>
+                                  <span className="inline-block w-3 h-3 rounded-full border border-white/60 shrink-0" style={{ backgroundColor: stage.color }}></span>
+                                  <p className="font-semibold text-primary text-sm truncate">{stage.name}</p>
                                 </div>
                                 {can('clients.contacts.manage') && (
                                   <div className="flex gap-1 shrink-0">

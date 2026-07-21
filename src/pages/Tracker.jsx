@@ -794,18 +794,6 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
         )}
       </td>
 
-      {/* Estado (entidad federativa) */}
-      <td className="px-2 py-1.5 min-w-[150px]">
-        <select
-          className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-primary/30"
-          value={data.state || ''}
-          onChange={e => set('state', e.target.value)}
-        >
-          <option value="">— Estado —</option>
-          {MX_STATES.map(s => <option key={s} value={s}>{s}</option>)}
-        </select>
-      </td>
-
       {/* Status */}
       <td className="sticky left-[200px] z-10 bg-surface-container/80 backdrop-blur-sm px-2 py-1.5 min-w-[120px]">
         <select
@@ -841,6 +829,16 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
             onCancel={() => setShowScreeningModal(false)}
           />
         )}
+      </td>
+
+      {/* Notas */}
+      <td className="px-2 py-1.5 min-w-[180px]">
+        <input
+          className="w-full bg-transparent text-on-surface text-xs px-2 py-1.5 focus:outline-none placeholder:text-on-surface-variant/40"
+          placeholder="Notas…"
+          value={data.notes || ''}
+          onChange={e => set('notes', e.target.value)}
+        />
       </td>
 
       {/* English */}
@@ -885,16 +883,6 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
         />
       </td>
 
-      {/* Notas */}
-      <td className="px-2 py-1.5 min-w-[180px]">
-        <input
-          className="w-full bg-transparent text-on-surface text-xs px-2 py-1.5 focus:outline-none placeholder:text-on-surface-variant/40"
-          placeholder="Notas…"
-          value={data.notes || ''}
-          onChange={e => set('notes', e.target.value)}
-        />
-      </td>
-
       {/* Email */}
       <td className="px-2 py-1.5 min-w-[160px]">
         <input
@@ -915,6 +903,18 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
           value={data.phone || ''}
           onChange={e => set('phone', e.target.value.replace(/\D/g, ''))}
         />
+      </td>
+
+      {/* Estado (entidad federativa) */}
+      <td className="px-2 py-1.5 min-w-[150px]">
+        <select
+          className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-primary/30"
+          value={data.state || ''}
+          onChange={e => set('state', e.target.value)}
+        >
+          <option value="">— Estado —</option>
+          {MX_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
       </td>
 
       {/* YoE */}

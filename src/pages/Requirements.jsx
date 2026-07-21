@@ -1521,13 +1521,6 @@ return (
         <div className="flex items-center gap-2">
           <RequirementAlertBell count={pendingCount} loading={alertsLoading} show={showAlerts} />
           <div className="w-px h-5 bg-outline-variant/40 mx-1"></div>
-          {can('requirements.create') && (
-            <Link to="/requirements/new">
-              <button className="hidden sm:flex items-center justify-center h-9 px-5 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary font-medium text-sm hover:opacity-90 transition-opacity">
-                Create Request
-              </button>
-            </Link>
-          )}
         </div>
       </header>
 
@@ -1555,7 +1548,6 @@ return (
                 <h1 className="text-[2.25rem] leading-none tracking-[-0.02em] font-extrabold text-primary">Requirements</h1>
                 <span className="px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant text-xs font-bold">{requirements.length}</span>
               </div>
-              <p className="text-on-surface-variant text-base">Manage and track active client requisitions across all portfolios.</p>
             </div>
             <div className="flex gap-2 shrink-0">
               {/* View mode toggle */}
@@ -1589,50 +1581,6 @@ return (
             </div>
           </div>
 
-          {/* Filters */}
-          {viewMode === 'pipeline' && <div className="p-5 bg-surface-container-lowest rounded-2xl shadow-[0_2px_16px_rgba(24,28,30,0.04)] border border-outline-variant/10">
-            <div className="flex flex-col lg:flex-row gap-4 items-end">
-              <div className="w-full lg:w-1/3">
-                <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Search</label>
-                <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
-                  <input
-                    className="w-full pl-10 pr-4 py-2.5 bg-surface-container-high border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 transition-shadow placeholder:text-on-surface-variant"
-                    placeholder="ID, title, or client..."
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="w-full lg:w-2/3 flex flex-wrap gap-3">
-                <div className="flex-1 min-w-[140px]">
-                  <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Status</label>
-                  <select
-                    className="w-full px-3 py-2.5 bg-surface-container-high border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer"
-                    value={filterStatus}
-                    onChange={e => setFilterStatus(e.target.value)}
-                  >
-                    <option value="">All Statuses</option>
-                    {catalogs.statuses.filter(s => s.id !== 1).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                  </select>
-                </div>
-                <div className="flex-1 min-w-[140px]">
-                  <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">Client</label>
-                  <select
-                    className="w-full px-3 py-2.5 bg-surface-container-high border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer"
-                    value={filterClient}
-                    onChange={e => setFilterClient(e.target.value)}
-                  >
-                    <option value="">All Clients</option>
-                    {catalogs.clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
-                </div>
-                <div className="flex items-end gap-2">
-                  <button onClick={clearFilters} className="px-4 py-2.5 bg-surface-container text-on-surface rounded-lg text-sm font-medium hover:bg-surface-container-highest transition-colors">Clear</button>
-                </div>
-              </div>
-            </div>
-          </div>}
 
 
           {/* ── TABLA VIEW ── */}

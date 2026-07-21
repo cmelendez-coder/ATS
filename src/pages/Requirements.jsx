@@ -1738,7 +1738,7 @@ return (
                               onClick={() => toggleRow(req.id)}
                             >
                               {/* Priority pill */}
-                              <div className="lg:col-span-1 flex items-center">
+                              <div className="lg:col-span-2 flex items-center">
                                 <button
                                   className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wide whitespace-nowrap hover:opacity-75 transition-opacity ${pri.bg} ${pri.text} ${pri.border}`}
                                   title="Cambiar prioridad"
@@ -1759,10 +1759,9 @@ return (
                                 </button>
                               </div>
 
-                              {/* REQ ID + Title */}
-                              <div className="lg:col-span-5">
-                                <span className="font-mono text-[11px] text-on-surface-variant/70">{reqLabel(req.req_number, req.application_date)}</span>
-                                <p className="font-semibold text-primary text-sm leading-snug group-hover:text-surface-tint transition-colors mt-0.5">{req.job_title}</p>
+                              {/* Title */}
+                              <div className="lg:col-span-4">
+                                <p className="font-semibold text-primary text-sm leading-snug group-hover:text-surface-tint transition-colors">{req.job_title}</p>
                               </div>
 
                               {/* Salary + mode */}

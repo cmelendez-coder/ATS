@@ -218,12 +218,6 @@ function AddCandidateModal({ reqId, existingIds, firstStageName, onAdd, onClose 
         {/* Tab: Client candidate */}
         {tab === 'client' && (
           <div className="px-5 pt-2 pb-5 space-y-3">
-            <div className="rounded-xl bg-amber-500/8 border border-amber-500/20 px-3 py-2.5 flex items-start gap-2">
-              <span className="material-symbols-outlined text-amber-500 text-[16px] mt-0.5 shrink-0">info</span>
-              <p className="text-xs text-on-surface-variant leading-relaxed">
-                El candidato se guardará en el directorio de talento como <strong className="text-amber-600">Candidato de cliente</strong> y podrá ser recontactado en el futuro.
-              </p>
-            </div>
             <div className="space-y-2">
               <input
                 autoFocus
@@ -1757,21 +1751,13 @@ return (
                               </div>
 
                               {/* REQ ID + Title */}
-                              <div className="lg:col-span-4">
+                              <div className="lg:col-span-5">
                                 <span className="font-mono text-[11px] text-on-surface-variant/70">{reqLabel(req.req_number, req.application_date)}</span>
                                 <p className="font-semibold text-primary text-sm leading-snug group-hover:text-surface-tint transition-colors mt-0.5">{req.job_title}</p>
                               </div>
 
-                              {/* Candidates */}
-                              <div className="lg:col-span-1 flex flex-col items-center gap-0.5">
-                                <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">group</span>
-                                <p className="text-[10px] text-on-surface-variant/60 whitespace-nowrap font-medium">
-                                  {candidateCount} cand{candidateCount !== 1 ? 's' : '.'}
-                                </p>
-                              </div>
-
                               {/* Salary + mode */}
-                              <div className="lg:col-span-2 space-y-0.5">
+                              <div className="lg:col-span-3 space-y-0.5">
                                 {req.salary_cap ? (
                                   <p className="text-xs">
                                     <span className="font-semibold text-primary">${Number(req.salary_cap).toLocaleString()}</span>
@@ -1789,12 +1775,6 @@ return (
                               <div className="lg:col-span-1">
                                 <p className="text-xs text-on-surface-variant/70">{req.fte_count ?? 1} FTE</p>
                                 {req.duration && <p className="text-[10px] text-on-surface-variant/50">{req.duration}</p>}
-                              </div>
-
-                              {/* Target fill date */}
-                              <div className="lg:col-span-1">
-                                <p className="text-[9px] font-bold text-on-surface-variant/50 uppercase tracking-wider mb-0.5">Target</p>
-                                <p className="text-xs font-semibold text-primary">{fmt(req.target_fill_date)}</p>
                               </div>
 
                               {/* Status + actions */}
@@ -1828,15 +1808,6 @@ return (
                                     >
                                       <span className="material-symbols-outlined text-[15px]">edit</span>
                                     </Link>
-                                  )}
-                                  {can('requirements.delete') && (
-                                    <button
-                                      title="Delete"
-                                      className="p-1.5 rounded-lg hover:bg-error-container text-on-surface-variant hover:text-error transition-colors"
-                                      onClick={e => handleDelete(e, req.id)}
-                                    >
-                                      <span className="material-symbols-outlined text-[15px]">delete_outline</span>
-                                    </button>
                                   )}
                                 </div>
                                 <span

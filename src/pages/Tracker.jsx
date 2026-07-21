@@ -608,6 +608,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
             <p className="text-[10px] text-blue-300/70 mt-0.5 whitespace-nowrap">{data.screening_note}</p>
           )}
         </td>
+        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[220px]"><CellPopover text={data.notes} wordLimit={3} /></td>
         <td className="px-3 py-2 text-xs text-on-surface-variant text-center">{data.english_score != null ? `${data.english_score}%` : '—'}</td>
         <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
           {data.salary
@@ -617,7 +618,6 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
         <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
           {data.ote ? `$${Number(String(data.ote).replace(/[^0-9.]/g,'')).toLocaleString('en-US').replace(/,/g,"'")}` : '—'}
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[220px]"><CellPopover text={data.notes} wordLimit={3} /></td>
         <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">{data.email || <span className="text-on-surface-variant/40">—</span>}</td>
         <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">{data.phone || <span className="text-on-surface-variant/40">—</span>}</td>
         <td className="px-3 py-2 text-xs text-on-surface-variant text-center">
@@ -1181,7 +1181,7 @@ export default function Tracker() {
                           )}
                         </div>
                       </th>
-                      {['Requerimiento/Cliente', 'CV', 'LinkedIn', 'Estado', 'Status', 'English', 'Salario', 'OTE', 'Notas', 'Email', 'Phone', 'YoE', 'Target Role', 'Technologies', 'Skills', 'Modules', ''].map(h => (
+                      {['Requerimiento/Cliente', 'CV', 'LinkedIn', 'Estado', 'Status', 'Notas', 'English', 'Salario', 'OTE', 'Email', 'Phone', 'YoE', 'Target Role', 'Technologies', 'Skills', 'Modules', ''].map(h => (
                         <th
                           key={h}
                           className={`px-3 py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap${h === 'Status' ? ' sticky left-[200px] z-20 bg-surface-container-low' : ''}`}

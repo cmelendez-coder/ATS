@@ -1405,6 +1405,7 @@ export default function Requirements() {
   useEffect(() => { load() }, [load])
 
   const toggleRow = (id) => setExpanded(prev => ({ ...prev, [id]: !prev[id] }))
+  const anyExpanded = Object.values(expanded).some(Boolean)
 
   async function handleDelete(e, id) {
     e.stopPropagation()
@@ -1527,6 +1528,14 @@ return (
           )}
         </div>
       </header>
+
+      {/* Backdrop when a requirement is expanded */}
+      {anyExpanded && (
+        <div
+          className="fixed inset-0 bg-black/50 z-20 transition-opacity duration-300"
+          onClick={() => setExpanded({})}
+        />
+      )}
 
       {/* CONTENT */}
       <div className="flex-1 overflow-y-auto bg-surface pb-20">
@@ -1722,7 +1731,7 @@ return (
                         const candidateCount = req.rc_count?.length ?? 0
 
                         return (
-                          <div key={req.id} className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-[0_2px_12px_rgba(24,28,30,0.04)] overflow-hidden">
+                          <div key={req.id} className={`bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-[0_2px_12px_rgba(24,28,30,0.04)] overflow-hidden transition-shadow duration-200 ${isExpanded ? 'relative z-30 shadow-[0_8px_40px_rgba(0,0,0,0.35)]' : ''}`}>
                             {/* Main row */}
                             <div
                               className="grid grid-cols-1 lg:grid-cols-12 gap-x-3 gap-y-2 items-center px-5 py-4 cursor-pointer group hover:bg-surface-container/25 transition-colors"
@@ -1826,12 +1835,6 @@ return (
                                   canDrag={can('requirements.pipeline')}
                                   canManage={can('requirements.edit')}
                                 />
-                                <div className="flex items-center justify-between mt-3 pt-3 border-t border-outline-variant/10">
-                                  <p className="text-xs text-on-surface-variant">
-                                    App. Date: <span className="font-medium">{fmt(req.application_date)}</span>
-                                    &nbsp;·&nbsp; VISA: <span className="font-medium">{req.visa_us_required ? 'Required' : 'Not required'}</span>
-                                  </p>
-                                </div>
                               </div>
                             )}
                           </div>

@@ -320,7 +320,7 @@ function CardDetailModal({ rc, stages, canManage, onClose, onStageChange, onNote
               {[rc.candidate?.role?.name, rc.candidate?.seniority?.name].filter(Boolean).join(' · ')}
             </p>
             {rc.candidate?.source === 'client' && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full mt-1.5">
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-white bg-amber-500 px-2 py-0.5 rounded-full mt-1.5">
                 <span className="material-symbols-outlined text-[12px]">business</span>
                 Candidato de cliente
               </span>
@@ -725,7 +725,7 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
                         {rc.candidate?.full_name ?? '—'}
                       </p>
                       {rc.candidate?.source === 'client' && (
-                        <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full mt-1">
+                        <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-white bg-amber-500 px-1.5 py-0.5 rounded-full mt-1">
                           <span className="material-symbols-outlined text-[10px]">business</span>
                           Cliente
                         </span>

@@ -1739,8 +1739,8 @@ return (
                       <div className="flex items-center justify-center h-12 px-4 rounded-xl bg-white shadow-sm border border-outline-variant/10 shrink-0">
                         <ClientLogo name={clientName} size="header" />
                       </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant shrink-0">
-                        {reqs.length} req{reqs.length !== 1 ? 's' : ''}
+                      <span className="text-[10px] italic text-on-surface-variant/70 shrink-0">
+                        {reqs.length} Requerimiento{reqs.length !== 1 ? 's' : ''} abierto{reqs.length !== 1 ? 's' : ''}
                       </span>
                       <div className="flex-1 h-px bg-outline-variant/15" />
                     </div>

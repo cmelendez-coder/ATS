@@ -1529,7 +1529,7 @@ return (
                     className="w-full text-left px-3 py-2 text-[11px] hover:bg-surface-container transition-colors text-on-surface flex items-center gap-2"
                     onClick={() => handleStatusChange(statusPickerId, s.id, s.name)}
                   >
-                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${(STATUS_STYLE[s.name] ?? DEFAULT_STATUS).dot}`}></span>
+                    <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${s.name.startsWith('Closed') ? 'bg-error' : (STATUS_STYLE[s.name] ?? DEFAULT_STATUS).dot}`}></span>
                     {s.name.startsWith('Closed') ? 'Closed' : s.name}
                   </button>
                 ))}

@@ -1623,24 +1623,33 @@ return (
             const pacvueFTEs      = openReqs.filter(r => r.client?.name === 'PacVue').reduce((s, r) => s + (r.fte_count ?? 1), 0)
             const contractorFTEs  = openReqs.filter(r => r.client?.name !== 'LogicMonitor' && r.client?.name !== 'PacVue').reduce((s, r) => s + (r.fte_count ?? 1), 0)
             return (
-              <div className="flex flex-wrap items-stretch gap-3 mb-4">
+              <div className="flex flex-wrap items-stretch gap-3 mb-6">
                 {/* Main card */}
-                <div className="flex items-center gap-3 bg-surface-container border border-outline-variant/20 rounded-2xl px-5 py-3">
-                  <span className="material-symbols-outlined text-primary text-[22px]">group</span>
-                  <div>
-                    <p className="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest leading-none mb-1">Open FTE's</p>
-                    <p className="text-3xl font-bold text-primary leading-none">{totalFTEs}</p>
+                <div className="relative overflow-hidden flex items-center gap-4 rounded-2xl px-6 py-4 bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/30 shadow-lg shadow-primary/10 min-w-[160px]">
+                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined text-primary text-[22px]">group</span>
                   </div>
+                  <div>
+                    <p className="text-[9px] font-bold text-primary/70 uppercase tracking-[0.15em] leading-none mb-1.5">Open FTE's</p>
+                    <p className="text-4xl font-black text-primary leading-none">{totalFTEs}</p>
+                  </div>
+                  <div className="absolute -right-3 -bottom-3 w-16 h-16 rounded-full bg-primary/10 blur-xl" />
                 </div>
+                {/* Divider */}
+                <div className="w-px self-stretch bg-outline-variant/20 mx-1" />
                 {/* Mini cards */}
                 {[
-                  { label: 'LogicMonitor', count: lmFTEs,         color: 'text-blue-400'   },
-                  { label: 'Pacvue',       count: pacvueFTEs,     color: 'text-purple-400' },
-                  { label: 'Contractor',   count: contractorFTEs, color: 'text-amber-400'  },
-                ].map(({ label, count, color }) => (
-                  <div key={label} className="bg-surface-container border border-outline-variant/20 rounded-2xl px-4 py-3 min-w-[90px]">
-                    <p className="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest leading-none mb-1">{label}</p>
-                    <p className={`text-2xl font-bold leading-none ${color}`}>{count}</p>
+                  { label: 'LogicMonitor', count: lmFTEs,         num: 'text-blue-400',   border: 'border-blue-500/25',   glow: 'shadow-blue-500/10',   icon: 'monitor',          bg: 'from-blue-500/10 to-blue-500/5'   },
+                  { label: 'PacVue',       count: pacvueFTEs,     num: 'text-purple-400', border: 'border-purple-500/25', glow: 'shadow-purple-500/10', icon: 'campaign',         bg: 'from-purple-500/10 to-purple-500/5' },
+                  { label: 'Contractor',   count: contractorFTEs, num: 'text-amber-400',  border: 'border-amber-500/25',  glow: 'shadow-amber-500/10',  icon: 'handshake',        bg: 'from-amber-500/10 to-amber-500/5'  },
+                ].map(({ label, count, num, border, glow, icon, bg }) => (
+                  <div key={label} className={`relative overflow-hidden flex items-center gap-3 rounded-2xl px-5 py-4 bg-gradient-to-br ${bg} border ${border} shadow-lg ${glow} min-w-[130px]`}>
+                    <span className={`material-symbols-outlined text-[18px] ${num} opacity-70`}>{icon}</span>
+                    <div>
+                      <p className={`text-[9px] font-bold uppercase tracking-[0.15em] leading-none mb-1.5 ${num} opacity-70`}>{label}</p>
+                      <p className={`text-3xl font-black leading-none ${num}`}>{count}</p>
+                    </div>
+                    <div className={`absolute -right-2 -bottom-2 w-12 h-12 rounded-full ${num.replace('text-','bg-')} opacity-10 blur-xl`} />
                   </div>
                 ))}
               </div>

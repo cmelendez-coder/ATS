@@ -1615,7 +1615,37 @@ return (
             </div>
           </div>
 
-
+          {/* ── Open FTE Stats ── */}
+          {viewMode === 'pipeline' && !loading && (() => {
+            const openReqs        = requirements.filter(r => r.status?.name === 'Open')
+            const totalFTEs       = openReqs.reduce((s, r) => s + (r.fte_count ?? 1), 0)
+            const lmFTEs          = openReqs.filter(r => r.client?.name === 'LogicMonitor').reduce((s, r) => s + (r.fte_count ?? 1), 0)
+            const pacvueFTEs      = openReqs.filter(r => r.client?.name === 'Pacvue').reduce((s, r) => s + (r.fte_count ?? 1), 0)
+            const contractorFTEs  = openReqs.filter(r => r.client?.name !== 'LogicMonitor' && r.client?.name !== 'Pacvue').reduce((s, r) => s + (r.fte_count ?? 1), 0)
+            return (
+              <div className="flex flex-wrap items-stretch gap-3 mb-4">
+                {/* Main card */}
+                <div className="flex items-center gap-3 bg-surface-container border border-outline-variant/20 rounded-2xl px-5 py-3">
+                  <span className="material-symbols-outlined text-primary text-[22px]">group</span>
+                  <div>
+                    <p className="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest leading-none mb-1">Open FTE's</p>
+                    <p className="text-3xl font-bold text-primary leading-none">{totalFTEs}</p>
+                  </div>
+                </div>
+                {/* Mini cards */}
+                {[
+                  { label: 'LogicMonitor', count: lmFTEs,         color: 'text-blue-400'   },
+                  { label: 'Pacvue',       count: pacvueFTEs,     color: 'text-purple-400' },
+                  { label: 'Contractor',   count: contractorFTEs, color: 'text-amber-400'  },
+                ].map(({ label, count, color }) => (
+                  <div key={label} className="bg-surface-container border border-outline-variant/20 rounded-2xl px-4 py-3 min-w-[90px]">
+                    <p className="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest leading-none mb-1">{label}</p>
+                    <p className={`text-2xl font-bold leading-none ${color}`}>{count}</p>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
 
           {/* ── TABLA VIEW ── */}
           {viewMode === 'tabla' && <ReqBoardTable />}

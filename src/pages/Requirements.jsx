@@ -1753,7 +1753,7 @@ return (
                                 {req.salary_cap ? (
                                   <p className="text-xs">
                                     <span className="font-semibold text-primary">${Number(req.salary_cap).toLocaleString()}</span>
-                                    {req.variable && <span className="text-on-surface-variant"> · {req.variable}</span>}
+                                    {req.variable && parseFloat(req.variable) !== 0 && <span className="text-on-surface-variant"> · {req.variable}</span>}
                                   </p>
                                 ) : (
                                   <p className="text-xs text-on-surface-variant/40">No salary</p>

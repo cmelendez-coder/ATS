@@ -188,6 +188,14 @@ export async function updateRequirementCandidateNotes(rcId, notes) {
   if (error) throw error
 }
 
+export async function updateCandidateSource(candidateId, isClient) {
+  const { error } = await supabase
+    .from('candidate')
+    .update({ source: isClient ? 'client' : null })
+    .eq('candidate_id', candidateId)
+  if (error) throw error
+}
+
 export async function removeCandidateFromRequirement(rcId) {
   const { error } = await supabase
     .from('requirement_candidate')

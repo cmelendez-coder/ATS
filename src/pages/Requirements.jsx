@@ -6,7 +6,7 @@ import RequirementAlertBell from '../components/RequirementAlertBell'
 import {
   listRequirements, deleteRequirement,
   getRequirementCandidates, addCandidateToRequirement,
-  updateCandidateStage, updateRequirementCandidateNotes, removeCandidateFromRequirement,
+  updateCandidateStage, updateRequirementCandidateNotes, updateCandidateSource, removeCandidateFromRequirement,
   getCatalogs, getClientStages, searchCandidatesForReq,
   listPendingApprovals, approveRequirement, rejectRequirement,
   updateRequirementStatus, updateRequirementPriority,
@@ -260,11 +260,13 @@ function AddCandidateModal({ reqId, existingIds, firstStageName, onAdd, onClose 
 }
 
 /* ── Card Detail Modal (Trello-style) ── */
-function CardDetailModal({ rc, stages, canManage, onClose, onStageChange, onNotesUpdate }) {
+function CardDetailModal({ rc, stages, canManage, onClose, onStageChange, onNotesUpdate, onSourceUpdate }) {
   const [notes, setNotes]           = useState(rc.notes ?? '')
   const [saving, setSaving]         = useState(false)
   const [savedOk, setSavedOk]       = useState(false)
   const [rejectStep, setRejectStep] = useState(0) // 0=idle 1=first confirm 2=second confirm
+  const [isClient, setIsClient]     = useState(rc.candidate?.source === 'client')
+  const [togglingSource, setTogglingSource] = useState(false)
 
   const isDirty = notes !== (rc.notes ?? '')
   const stage   = stages.find(s => s.name === rc.submittal_status)
@@ -285,6 +287,21 @@ function CardDetailModal({ rc, stages, canManage, onClose, onStageChange, onNote
       setTimeout(() => setSavedOk(false), 2000)
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function toggleSource() {
+    if (togglingSource || !rc.candidate?.candidate_id) return
+    const next = !isClient
+    setIsClient(next)
+    setTogglingSource(true)
+    try {
+      await updateCandidateSource(rc.candidate.candidate_id, next)
+      onSourceUpdate?.(rc.id, rc.candidate.candidate_id, next ? 'client' : null)
+    } catch {
+      setIsClient(!next)
+    } finally {
+      setTogglingSource(false)
     }
   }
 
@@ -315,12 +332,21 @@ function CardDetailModal({ rc, stages, canManage, onClose, onStageChange, onNote
             <p className="text-sm text-slate-500 mt-0.5">
               {[rc.candidate?.role?.name, rc.candidate?.seniority?.name].filter(Boolean).join(' · ')}
             </p>
-            {rc.candidate?.source === 'client' && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-white bg-amber-500 px-2 py-0.5 rounded-full mt-1.5">
-                <span className="material-symbols-outlined text-[12px]">business</span>
-                Candidato de cliente
+            <button
+              type="button"
+              onClick={toggleSource}
+              disabled={togglingSource}
+              className="flex items-center gap-2 mt-2 group"
+              title={isClient ? 'Quitar etiqueta de cliente' : 'Marcar como candidato de cliente'}
+            >
+              {/* Toggle track */}
+              <span className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors duration-200 ${isClient ? 'bg-amber-500' : 'bg-slate-200'}`}>
+                <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform duration-200 ${isClient ? 'translate-x-4' : 'translate-x-1'}`} />
               </span>
-            )}
+              <span className={`text-[11px] font-semibold transition-colors ${isClient ? 'text-amber-600' : 'text-slate-400 group-hover:text-slate-500'}`}>
+                {isClient ? 'Candidato de cliente' : 'Candidato normal'}
+              </span>
+            </button>
           </div>
           <button onClick={onClose} className="mt-0.5 p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors shrink-0">
             <span className="material-symbols-outlined text-[20px]">close</span>
@@ -521,6 +547,12 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
   function handleModalNotesUpdate(rcId, notes) {
     setRcList(prev => prev.map(r => r.id === rcId ? { ...r, notes } : r))
     setOpenCard(prev => prev?.id === rcId ? { ...prev, notes } : prev)
+  }
+
+  function handleModalSourceUpdate(rcId, candidateId, source) {
+    const patch = r => r.id === rcId ? { ...r, candidate: { ...r.candidate, source } } : r
+    setRcList(prev => prev.map(patch))
+    setOpenCard(prev => prev?.id === rcId ? patch(prev) : prev)
   }
 
   async function saveNotes(rcId, notes) {
@@ -787,6 +819,7 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
             if (stageName === 'Rejected') setActiveView('rechazados')
           }}
           onNotesUpdate={handleModalNotesUpdate}
+          onSourceUpdate={handleModalSourceUpdate}
         />
       )}
     </div>

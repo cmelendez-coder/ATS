@@ -1620,8 +1620,8 @@ return (
             const openReqs        = requirements.filter(r => r.status?.name === 'Open')
             const totalFTEs       = openReqs.reduce((s, r) => s + (r.fte_count ?? 1), 0)
             const lmFTEs          = openReqs.filter(r => r.client?.name === 'LogicMonitor').reduce((s, r) => s + (r.fte_count ?? 1), 0)
-            const pacvueFTEs      = openReqs.filter(r => r.client?.name === 'Pacvue').reduce((s, r) => s + (r.fte_count ?? 1), 0)
-            const contractorFTEs  = openReqs.filter(r => r.client?.name !== 'LogicMonitor' && r.client?.name !== 'Pacvue').reduce((s, r) => s + (r.fte_count ?? 1), 0)
+            const pacvueFTEs      = openReqs.filter(r => r.client?.name === 'PacVue').reduce((s, r) => s + (r.fte_count ?? 1), 0)
+            const contractorFTEs  = openReqs.filter(r => r.client?.name !== 'LogicMonitor' && r.client?.name !== 'PacVue').reduce((s, r) => s + (r.fte_count ?? 1), 0)
             return (
               <div className="flex flex-wrap items-stretch gap-3 mb-4">
                 {/* Main card */}

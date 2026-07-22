@@ -260,7 +260,7 @@ function AddCandidateModal({ reqId, existingIds, firstStageName, onAdd, onClose 
 }
 
 /* ── Card Detail Modal (Trello-style) ── */
-function CardDetailModal({ rc, stages, canManage, onClose, onStageChange, onNotesUpdate, onSourceUpdate }) {
+function CardDetailModal({ rc, stages, canManage, clientName, onClose, onStageChange, onNotesUpdate, onSourceUpdate }) {
   const [notes, setNotes]           = useState(rc.notes ?? '')
   const [saving, setSaving]         = useState(false)
   const [savedOk, setSavedOk]       = useState(false)
@@ -344,7 +344,7 @@ function CardDetailModal({ rc, stages, canManage, onClose, onStageChange, onNote
                 <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform duration-200 ${isClient ? 'translate-x-4' : 'translate-x-1'}`} />
               </span>
               <span className={`text-[11px] font-semibold transition-colors ${isClient ? 'text-amber-600' : 'text-slate-400 group-hover:text-slate-500'}`}>
-                {isClient ? 'Candidato de cliente' : 'Candidato normal'}
+                {isClient ? `Candidato de ${clientName ?? 'cliente'}` : 'Candidato de Everscale Group'}
               </span>
             </button>
           </div>
@@ -480,7 +480,7 @@ function CardDetailModal({ rc, stages, canManage, onClose, onStageChange, onNote
 
 /* ── Pipeline Panel ── */
 
-function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
+function PipelinePanel({ reqId, clientId, clientName, canDrag, canManage }) {
   const [rcList, setRcList]     = useState([])
   const [stages, setStages]     = useState([])
   const [loading, setLoading]   = useState(true)
@@ -818,6 +818,7 @@ function PipelinePanel({ reqId, clientId, canDrag, canManage }) {
             handleModalStageChange(rcId, stageName)
             if (stageName === 'Rejected') setActiveView('rechazados')
           }}
+          clientName={clientName}
           onNotesUpdate={handleModalNotesUpdate}
           onSourceUpdate={handleModalSourceUpdate}
         />
@@ -1814,6 +1815,7 @@ return (
                                 <PipelinePanel
                                   reqId={req.id}
                                   clientId={client?.id}
+                                  clientName={client?.name ?? req.client?.name}
                                   canDrag={can('requirements.pipeline')}
                                   canManage={can('requirements.edit')}
                                 />

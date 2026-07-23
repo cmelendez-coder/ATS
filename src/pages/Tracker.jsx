@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import {
   fetchTrackerEntries,
   fetchActiveRequirements,
+  fetchClosedRequirements,
   searchCandidatesSimple,
   saveTrackerEntry,
   deleteTrackerEntry,
@@ -195,10 +196,21 @@ function CandidateSearch({ value, candidateId, onSelect, disabled }) {
 }
 
 // Requirement dropdown — native select (renders outside overflow:hidden containers)
-function RequirementSearch({ value, requirements, currentReq, onSelect, disabled }) {
-  const opts = currentReq && !requirements.find(r => r.id === currentReq.id)
-    ? [currentReq, ...requirements]
-    : requirements
+function RequirementSearch({ value, requirements, closedRequirements = [], currentReq, onSelect, disabled }) {
+  // If currentReq is not in open or closed lists (deleted req), add it as orphan
+  const allKnown = [...requirements, ...closedRequirements]
+  const orphan = currentReq && !allKnown.find(r => r.id === currentReq.id) ? currentReq : null
+
+  // Group open requirements by client
+  const openList = orphan ? [orphan, ...requirements] : requirements
+  const groups = {}
+  for (const r of openList) {
+    const key = r.client?.name ?? '—'
+    if (!groups[key]) groups[key] = []
+    groups[key].push(r)
+  }
+  const sortedGroups = Object.entries(groups).sort(([a], [b]) => a.localeCompare(b))
+
   return (
     <select
       className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none cursor-pointer"
@@ -207,11 +219,22 @@ function RequirementSearch({ value, requirements, currentReq, onSelect, disabled
       onChange={e => onSelect(e.target.value ? Number(e.target.value) : null)}
     >
       <option value="">Seleccionar posición…</option>
-      {opts.map(r => (
-        <option key={r.id} value={r.id}>
-          {r.job_title}{r.client?.name ? ` — ${r.client.name}` : ''}
-        </option>
+      {sortedGroups.map(([client, reqs]) => (
+        <optgroup key={client} label={client}>
+          {reqs.map(r => (
+            <option key={r.id} value={r.id}>{r.job_title}</option>
+          ))}
+        </optgroup>
       ))}
+      {closedRequirements.length > 0 && (
+        <optgroup label="── Cerradas ──">
+          {closedRequirements.map(r => (
+            <option key={r.id} value={r.id} style={{ color: '#6b7280' }}>
+              {r.job_title}{r.client?.name ? ` — ${r.client.name}` : ''}
+            </option>
+          ))}
+        </optgroup>
+      )}
     </select>
   )
 }
@@ -447,7 +470,7 @@ function CellPopover({ text, limit = 55, wordLimit = null }) {
 }
 
 // Single editable row
-function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, onStartEdit, onEndEdit }) {
+function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDelete, readOnly, isEditing, onStartEdit, onEndEdit }) {
   const [data, setData]           = useState({ ...row })
   const [saving, setSaving]       = useState(false)
   const [error, setError]         = useState(null)
@@ -763,6 +786,7 @@ function TrackerRow({ row, requirements, onSave, onDelete, readOnly, isEditing, 
         <RequirementSearch
           value={data.requirement_id}
           requirements={requirements}
+          closedRequirements={closedRequirements}
           currentReq={data.requirement}
           onSelect={id => set('requirement_id', id)}
         />
@@ -1063,6 +1087,7 @@ export default function Tracker() {
   const [year, setYear]               = useState(currentYear)
   const [entries, setEntries]         = useState([])
   const [requirements, setRequirements] = useState([])
+  const [closedRequirements, setClosedRequirements] = useState([])
   const [loading, setLoading]         = useState(true)
   const [refreshKey, setRefreshKey]   = useState(0)
   const [editingKey, setEditingKey]   = useState(null)
@@ -1074,8 +1099,8 @@ export default function Tracker() {
     : myRecruiter != null && myRecruiter === activeTab
 
   useEffect(() => {
-    fetchActiveRequirements()
-      .then(setRequirements)
+    Promise.all([fetchActiveRequirements(), fetchClosedRequirements()])
+      .then(([open, closed]) => { setRequirements(open); setClosedRequirements(closed) })
       .catch(() => {})
   }, [])
 
@@ -1271,6 +1296,7 @@ export default function Tracker() {
                           key={key}
                           row={row}
                           requirements={requirements}
+                          closedRequirements={closedRequirements}
                           onSave={refresh}
                           onDelete={() => removeRow(key)}
                           readOnly={!canEdit}

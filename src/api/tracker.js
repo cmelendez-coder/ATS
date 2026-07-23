@@ -33,20 +33,35 @@ export async function searchCandidatesSimple(q) {
   return data ?? []
 }
 
+function sortByClientThenTitle(list) {
+  return [...list].sort((a, b) => {
+    const ca = String(a.client?.name ?? '').toLowerCase()
+    const cb = String(b.client?.name ?? '').toLowerCase()
+    if (ca !== cb) return ca.localeCompare(cb)
+    return String(a.job_title ?? '').toLowerCase().localeCompare(String(b.job_title ?? '').toLowerCase())
+  })
+}
+
 export async function fetchActiveRequirements() {
   const { data, error } = await supabase
     .from('requirement')
     .select('id, req_number, job_title, client:client_id(name), status:status_id(name)')
     .order('created_at', { ascending: false })
   if (error) throw error
-  return (data ?? [])
-    .filter(r => !String(r.status?.name ?? '').toLowerCase().startsWith('closed'))
-    .sort((a, b) => {
-      const ca = String(a.client?.name ?? '').toLowerCase()
-      const cb = String(b.client?.name ?? '').toLowerCase()
-      if (ca !== cb) return ca.localeCompare(cb)
-      return String(a.job_title ?? '').toLowerCase().localeCompare(String(b.job_title ?? '').toLowerCase())
-    })
+  return sortByClientThenTitle(
+    (data ?? []).filter(r => !String(r.status?.name ?? '').toLowerCase().startsWith('closed'))
+  )
+}
+
+export async function fetchClosedRequirements() {
+  const { data, error } = await supabase
+    .from('requirement')
+    .select('id, req_number, job_title, client:client_id(name), status:status_id(name)')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return sortByClientThenTitle(
+    (data ?? []).filter(r => String(r.status?.name ?? '').toLowerCase().startsWith('closed'))
+  )
 }
 
 async function _syncCandidateFromEntry(candidateId, entry) {

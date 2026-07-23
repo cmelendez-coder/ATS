@@ -298,7 +298,7 @@ export default function NewRequirement() {
                     <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Salary Cap <span className="text-error">*</span></label>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm font-medium">$</span>
-                      <input className="form-field pl-7" placeholder="0.00" type="number" min="1" step="100" value={form.salary_cap} onChange={e => set('salary_cap', e.target.value)} required />
+                      <input className="form-field pl-7" placeholder="0.00" type="text" inputMode="numeric" value={form.salary_cap} onChange={e => set('salary_cap', e.target.value)} required />
                     </div>
                   </div>
                   <div>

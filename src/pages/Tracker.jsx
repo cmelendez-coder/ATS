@@ -195,21 +195,33 @@ function CandidateSearch({ value, candidateId, onSelect, disabled }) {
   )
 }
 
+const CLIENT_PRIORITY = ['LogicMonitor', 'PacVue', 'BlueConic']
+
+function groupByClient(list) {
+  const map = {}
+  for (const r of list) {
+    const key = r.client?.name ?? '—'
+    if (!map[key]) map[key] = []
+    map[key].push(r)
+  }
+  return Object.entries(map).sort(([a], [b]) => {
+    const ia = CLIENT_PRIORITY.indexOf(a)
+    const ib = CLIENT_PRIORITY.indexOf(b)
+    if (ia !== -1 && ib !== -1) return ia - ib
+    if (ia !== -1) return -1
+    if (ib !== -1) return 1
+    return a.localeCompare(b)
+  })
+}
+
 // Requirement dropdown — native select (renders outside overflow:hidden containers)
 function RequirementSearch({ value, requirements, closedRequirements = [], currentReq, onSelect, disabled }) {
   // If currentReq is not in open or closed lists (deleted req), add it as orphan
   const allKnown = [...requirements, ...closedRequirements]
   const orphan = currentReq && !allKnown.find(r => r.id === currentReq.id) ? currentReq : null
 
-  // Group open requirements by client
-  const openList = orphan ? [orphan, ...requirements] : requirements
-  const groups = {}
-  for (const r of openList) {
-    const key = r.client?.name ?? '—'
-    if (!groups[key]) groups[key] = []
-    groups[key].push(r)
-  }
-  const sortedGroups = Object.entries(groups).sort(([a], [b]) => a.localeCompare(b))
+  const openGroups   = groupByClient(orphan ? [orphan, ...requirements] : requirements)
+  const closedGroups = groupByClient(closedRequirements)
 
   return (
     <select
@@ -219,21 +231,24 @@ function RequirementSearch({ value, requirements, closedRequirements = [], curre
       onChange={e => onSelect(e.target.value ? Number(e.target.value) : null)}
     >
       <option value="">Seleccionar posición…</option>
-      {sortedGroups.map(([client, reqs]) => (
+      {openGroups.map(([client, reqs]) => (
         <optgroup key={client} label={client}>
-          {reqs.map(r => (
-            <option key={r.id} value={r.id}>{r.job_title}</option>
-          ))}
+          {reqs.map(r => <option key={r.id} value={r.id}>{r.job_title}</option>)}
         </optgroup>
       ))}
-      {closedRequirements.length > 0 && (
-        <optgroup label="── Cerradas ──">
-          {closedRequirements.map(r => (
-            <option key={r.id} value={r.id} style={{ color: '#6b7280' }}>
-              {r.job_title}{r.client?.name ? ` — ${r.client.name}` : ''}
-            </option>
+      {closedGroups.length > 0 && (
+        <>
+          <option disabled style={{ color: '#6b7280', fontStyle: 'italic' }}>── Cerradas ──</option>
+          {closedGroups.map(([client, reqs]) => (
+            <optgroup key={`closed-${client}`} label={client}>
+              {reqs.map(r => (
+                <option key={r.id} value={r.id} style={{ color: '#6b7280' }}>
+                  {r.job_title}
+                </option>
+              ))}
+            </optgroup>
           ))}
-        </optgroup>
+        </>
       )}
     </select>
   )

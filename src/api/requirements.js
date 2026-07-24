@@ -240,7 +240,9 @@ export async function getReqBoard(weekNumber, weekYear) {
 
   return (rows ?? []).map(row => ({
     ...row,
-    enviados: row.requirement_id != null ? (sentByReq[row.requirement_id] ?? 0) : null,
+    enviados: row.requirement_id != null
+      ? (sentByReq[row.requirement_id] ?? 0)
+      : (row.enviados ?? null),
   }))
 }
 

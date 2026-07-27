@@ -5,7 +5,6 @@ import {
   createRequirement,
   getCatalogs,
   getNextReqNumber,
-  notifyManagersNewRequirement,
 } from '../api/requirements'
 
 const DURATION_OPTIONS = ['Permanent', '3 Months', '6 Months', '12 Months', 'Contract']
@@ -63,6 +62,10 @@ export default function NewRequirement() {
       setError('Complete los campos requeridos: cliente, puesto, fechas y salary cap.')
       return
     }
+    if (Number(form.salary_cap) < 20000) {
+      setError('El salary cap debe ser de al menos $20,000.')
+      return
+    }
     setLoading(true)
     setError(null)
     try {
@@ -72,7 +75,7 @@ export default function NewRequirement() {
         job_title:           form.job_title,
         priority:            priority,
         stage:               form.stage,
-        status_id:           1, // Always starts as Pending Approval
+        status_id:           2,
         application_date:    form.application_date,
         target_fill_date:    form.target_fill_date,
         first_resource_sent: form.first_resource_sent || null,
@@ -92,13 +95,6 @@ export default function NewRequirement() {
       })
 
       setSavedReqLabel(`REQ-${new Date().getFullYear()}-${String(nextReqNum).padStart(3, '0')}`)
-
-      try {
-        await notifyManagersNewRequirement(requirement.id)
-      } catch (notifyError) {
-        console.error('No se pudo enviar la notificacion por correo del requerimiento:', notifyError)
-      }
-
       setSubmitted(true)
     } catch (err) {
       setError(err.message ?? 'Error al guardar.')
@@ -116,20 +112,13 @@ export default function NewRequirement() {
       <div className="flex-1 flex items-center justify-center bg-surface p-8">
         <div className="max-w-md w-full text-center space-y-6">
           <div className="w-20 h-20 rounded-full bg-secondary-container flex items-center justify-center mx-auto">
-            <span className="material-symbols-outlined text-[40px] text-secondary">schedule_send</span>
+            <span className="material-symbols-outlined text-[40px] text-secondary">check_circle</span>
           </div>
           <div>
-            <h2 className="text-2xl font-extrabold tracking-tight text-primary">Enviado para aprobación</h2>
+            <h2 className="text-2xl font-extrabold tracking-tight text-primary">Requerimiento creado</h2>
             <p className="text-on-surface-variant mt-2 text-sm leading-relaxed">
-              El requerimiento <span className="font-bold text-primary font-mono">{savedReqLabel}</span> fue registrado y está pendiente de autorización.<br />
-              Un administrador deberá aprobarlo antes de que aparezca oficialmente en el sistema.
+              El requerimiento <span className="font-bold text-primary font-mono">{savedReqLabel}</span> fue creado exitosamente y ya está disponible en el sistema.
             </p>
-          </div>
-          <div className="bg-surface-container-low rounded-2xl px-5 py-4 text-left border border-outline-variant/10">
-            <div className="flex items-center gap-2 text-xs text-on-surface-variant">
-              <span className="material-symbols-outlined text-[16px] text-secondary">info</span>
-              El administrador verá una notificación en la sección de Requerimientos para revisar y aprobar la solicitud.
-            </div>
           </div>
           <div className="flex gap-3 justify-center">
             <Link

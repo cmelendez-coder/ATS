@@ -44,14 +44,22 @@ function probationBadge(emp) {
   const d = daysSince(emp.start_date)
   if (d < 0) return null
   if (d < 60) return 'green'
-  if (d <= 120) return 'red'
-  return null
+  if (d < 90) return 'red'
+  return 'activo'
 }
 
 function ProbationBadge({ emp }) {
   const badge = probationBadge(emp)
   if (!badge) return null
   const d = daysSince(emp.start_date)
+  if (badge === 'activo') {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-600 text-white">
+        <span className="w-1.5 h-1.5 rounded-full bg-white inline-block" />
+        Activo
+      </span>
+    )
+  }
   if (badge === 'green') {
     return (
       <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-600/20 text-green-300 border border-green-500/30">
@@ -347,7 +355,7 @@ export default function Employees() {
   const exitedEmps = employees.filter(e => e.status === 'exited')
 
   const expiring = activeEmps
-    .filter(e => probationBadge(e) === 'red' && daysSince(e.start_date) < 90)
+    .filter(e => probationBadge(e) === 'red')
     .sort((a, b) => daysSince(b.start_date) - daysSince(a.start_date))
 
   function groupByClient(list) {

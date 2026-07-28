@@ -347,7 +347,7 @@ export default function Employees() {
   const exitedEmps = employees.filter(e => e.status === 'exited')
 
   const expiring = activeEmps
-    .filter(e => probationBadge(e) === 'red')
+    .filter(e => probationBadge(e) === 'red' && daysSince(e.start_date) < 90)
     .sort((a, b) => daysSince(b.start_date) - daysSince(a.start_date))
 
   function groupByClient(list) {

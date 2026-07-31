@@ -24,11 +24,14 @@ const PRIORITY = {
 }
 
 const CLIENT_LOGOS = {
-  'PacVue':       '/logos/pacvue.png',
-  'LogicMonitor': '/logos/logicmonitor.webp',
-  'BlueConic':    '/logos/blueconic.png',
-  'Mygo':         '/logos/mygo.png',
-  'Numen':        '/logos/numen.png',
+  'PacVue':          '/logos/pacvue.png',
+  'LogicMonitor':    '/logos/logicmonitor.webp',
+  'BlueConic':       '/logos/blueconic.png',
+  'Mygo':            '/logos/mygo.png',
+  'Numen':           '/logos/numen.png',
+  'Yash':            '/logos/yash.png',
+  'HTC':             '/logos/htc.png',
+  'Bahwan Cybertek': '/logos/bahwan.png',
 }
 
 function ClientLogo({ name = '', size = 'sm' }) {

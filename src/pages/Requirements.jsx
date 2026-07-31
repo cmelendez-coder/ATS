@@ -1608,11 +1608,11 @@ return (
               {/* Portal links */}
               <div className="flex gap-3">
                 <a href="https://hr-everscalegroup.netlify.app" target="_blank" rel="noopener noreferrer"
-                  className="portal-glow flex items-center rounded-2xl border border-outline-variant/30 bg-surface-container-low overflow-hidden px-4 py-2 transition-transform cursor-pointer">
+                  className="portal-glow flex items-center rounded-2xl border border-outline-variant/30 bg-white overflow-hidden px-4 py-2 transition-transform cursor-pointer">
                   <img src="/portals/hr-portal.png" alt="HR Portal" className="h-16 w-auto object-contain" />
                 </a>
                 <a href="https://clients-everscalegroup.netlify.app/login" target="_blank" rel="noopener noreferrer"
-                  className="portal-glow flex items-center rounded-2xl border border-outline-variant/30 bg-surface-container-low overflow-hidden px-4 py-2 transition-transform cursor-pointer">
+                  className="portal-glow flex items-center rounded-2xl border border-outline-variant/30 bg-white overflow-hidden px-4 py-2 transition-transform cursor-pointer">
                   <img src="/portals/client-portal.png" alt="Client Portal" className="h-16 w-auto object-contain" />
                 </a>
               </div>

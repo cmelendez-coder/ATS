@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { searchCandidates } from '../api/talent'
 import { usePermissions } from '../hooks/usePermissions'
+import PortalButtons from '../components/PortalButtons'
 
 // Deterministic color per tech name
 const TECH_PALETTE = [
@@ -225,7 +226,7 @@ export default function TalentDirectory() {
         <div className="max-w-7xl mx-auto px-6 md:px-10 py-10 space-y-8">
 
           {/* Page Header */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div className="space-y-1.5">
               <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
                 <Link to="/" className="hover:text-primary transition-colors">Dashboard</Link>
@@ -239,7 +240,9 @@ export default function TalentDirectory() {
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex flex-col items-end gap-3 shrink-0">
+              <PortalButtons />
+              <div className="flex items-center gap-2">
               {candidates.length > 0 && !loading && (
                 <button
                   type="button"
@@ -258,6 +261,7 @@ export default function TalentDirectory() {
                   </button>
                 </Link>
               )}
+              </div>
             </div>
           </div>
 

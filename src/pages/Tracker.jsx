@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useId } from 'react'
+import PortalButtons from '../components/PortalButtons'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import {
@@ -1188,7 +1189,7 @@ export default function Tracker() {
         <div className="max-w-[1400px] mx-auto px-6 md:px-10 py-8 space-y-6">
 
           {/* Breadcrumb + Title */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
                 <Link to="/" className="hover:text-primary transition-colors">Dashboard</Link>
@@ -1224,8 +1225,10 @@ export default function Tracker() {
               </div>
             </div>
 
-            {/* Week selector */}
-            <div className="flex items-center gap-2 bg-surface-container-lowest border border-outline-variant/20 rounded-xl px-4 py-2 shadow-sm">
+            <div className="flex flex-col items-end gap-3 shrink-0">
+              <PortalButtons />
+              {/* Week selector */}
+              <div className="flex items-center gap-2 bg-surface-container-lowest border border-outline-variant/20 rounded-xl px-4 py-2 shadow-sm">
               <button type="button" onClick={prevWeek} className="p-1 rounded-full hover:bg-surface-container transition-colors text-on-surface-variant hover:text-primary">
                 <span className="material-symbols-outlined text-[18px]">chevron_left</span>
               </button>
@@ -1238,6 +1241,7 @@ export default function Tracker() {
                   Hoy
                 </button>
               )}
+            </div>
             </div>
           </div>
 

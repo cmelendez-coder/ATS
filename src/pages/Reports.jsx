@@ -17,6 +17,7 @@ import {
   escapeHtml,
 } from '../lib/reportPdf'
 import ReportPreviewModal from '../components/ReportPreviewModal'
+import PortalButtons from '../components/PortalButtons'
 
 function MetricCard({ label, value, icon, tone = 'primary', sublabel = '' }) {
   const toneMap = {
@@ -616,16 +617,19 @@ export default function Reports() {
 
       <div className="flex-1 overflow-y-auto bg-surface p-6 md:p-10 pb-24">
         <div className="max-w-7xl mx-auto space-y-8">
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
-              <Link to="/" className="hover:text-primary transition-colors">Dashboard</Link>
-              <span className="material-symbols-outlined text-[14px]">chevron_right</span>
-              <span className="text-primary font-medium">Reports</span>
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
+                <Link to="/" className="hover:text-primary transition-colors">Dashboard</Link>
+                <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+                <span className="text-primary font-medium">Reports</span>
+              </div>
+              <h1 className="text-[2.25rem] leading-none tracking-[-0.02em] font-extrabold text-primary">Reports</h1>
+              <p className="text-on-surface-variant text-base max-w-3xl">
+                Resumen operativo de candidatos, requerimientos por cliente y distribucion de candidatos en cada fase del pipeline.
+              </p>
             </div>
-            <h1 className="text-[2.25rem] leading-none tracking-[-0.02em] font-extrabold text-primary">Reports</h1>
-            <p className="text-on-surface-variant text-base max-w-3xl">
-              Resumen operativo de candidatos, requerimientos por cliente y distribucion de candidatos en cada fase del pipeline.
-            </p>
+            <PortalButtons />
           </div>
 
           {error && (

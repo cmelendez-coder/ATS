@@ -4,6 +4,7 @@ import { usePermissions } from '../hooks/usePermissions'
 import { useRequirementAlerts } from '../hooks/useRequirementAlerts'
 import { getDashboardStats } from '../api/dashboard'
 import RequirementAlertBell from '../components/RequirementAlertBell'
+import PortalButtons from '../components/PortalButtons'
 
 const PRIORITY = {
   0: { label: 'Alta',  color: '#ba1a1a', bg: 'bg-error-container',        text: 'text-on-error-container' },
@@ -144,9 +145,12 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto space-y-8">
 
           {/* Page Header */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <h1 className="text-[2.25rem] leading-none tracking-[-0.02em] font-extrabold text-primary">Overview</h1>
-            <p className="text-sm font-medium text-on-surface-variant shrink-0 pb-1">{currentDate}</p>
+            <div className="flex flex-col items-end gap-3 shrink-0">
+              <PortalButtons />
+              <p className="text-sm font-medium text-on-surface-variant">{currentDate}</p>
+            </div>
           </div>
 
           {/* Quick Actions */}

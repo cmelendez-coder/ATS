@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { usePermissions } from '../hooks/usePermissions'
 import ClientCreateForm from '../components/ClientCreateForm'
+import PortalButtons from '../components/PortalButtons'
 import {
   listClients,
   createClient,
@@ -333,7 +334,7 @@ export default function Clients() {
         <div className="max-w-7xl mx-auto space-y-8">
 
           {/* Page header */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div className="space-y-1.5">
               <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
                 <Link to="/" className="hover:text-primary transition-colors">Dashboard</Link>
@@ -343,7 +344,9 @@ export default function Clients() {
               <h1 className="text-[2.25rem] leading-none tracking-[-0.02em] font-extrabold text-primary">Clients</h1>
               <p className="text-on-surface-variant text-base">Oficinas, zonas horarias, sector y detalles operativos de cada cliente.</p>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-col items-end gap-3 shrink-0">
+              <PortalButtons />
+              <div className="flex flex-wrap items-center gap-3">
               {!loading && (
                 <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-surface-container text-on-surface-variant text-sm font-semibold shrink-0">
                   <span className="material-symbols-outlined text-[16px]">apartment</span>
@@ -360,6 +363,7 @@ export default function Clients() {
                   {showCreateClient ? 'Cerrar formulario' : 'Nuevo cliente'}
                 </button>
               )}
+              </div>
             </div>
           </div>
 

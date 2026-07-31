@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { usePermissions } from '../hooks/usePermissions'
 import { useRequirementAlerts } from '../hooks/useRequirementAlerts'
 import RequirementAlertBell from '../components/RequirementAlertBell'
+import PortalButtons from '../components/PortalButtons'
 import {
   listRequirements, deleteRequirement,
   getRequirementCandidates, addCandidateToRequirement,
@@ -1488,27 +1489,6 @@ export default function Requirements() {
 
 return (
     <>
-      <style>{`
-        @keyframes portalGlow {
-          0%, 100% {
-            box-shadow: 0 0 0px 0px rgba(109,179,58,0.0), 0 2px 8px rgba(0,0,0,0.12);
-            opacity: 0.75;
-          }
-          50% {
-            box-shadow: 0 0 22px 6px rgba(109,179,58,0.55), 0 0 40px 14px rgba(109,179,58,0.2), 0 4px 16px rgba(0,0,0,0.2);
-            opacity: 1;
-          }
-        }
-        .portal-glow {
-          animation: portalGlow 2.5s ease-in-out infinite;
-        }
-        .portal-glow:hover {
-          animation: none;
-          opacity: 1;
-          box-shadow: 0 0 28px 8px rgba(109,179,58,0.7), 0 4px 20px rgba(0,0,0,0.25);
-          transform: scale(1.04);
-        }
-      `}</style>
       {priorityPickerId !== null && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => { setPriorityPickerId(null); setPriorityPickerPos(null) }} />
@@ -1605,17 +1585,7 @@ return (
               </div>
             </div>
             <div className="flex flex-col items-end gap-3 shrink-0">
-              {/* Portal links */}
-              <div className="flex gap-3">
-                <a href="https://hr-everscalegroup.netlify.app" target="_blank" rel="noopener noreferrer"
-                  className="portal-glow flex items-center rounded-2xl border border-outline-variant/30 bg-white overflow-hidden px-4 py-2 transition-transform cursor-pointer">
-                  <img src="/portals/hr-portal.png" alt="HR Portal" className="h-16 w-auto object-contain" />
-                </a>
-                <a href="https://clients-everscalegroup.netlify.app/login" target="_blank" rel="noopener noreferrer"
-                  className="portal-glow flex items-center rounded-2xl border border-outline-variant/30 bg-white overflow-hidden px-4 py-2 transition-transform cursor-pointer">
-                  <img src="/portals/client-portal.png" alt="Client Portal" className="h-16 w-auto object-contain" />
-                </a>
-              </div>
+              <PortalButtons />
               {/* Controls row */}
               <div className="flex gap-2">
                 <div className="flex items-center gap-1 p-1 bg-surface-container rounded-xl">

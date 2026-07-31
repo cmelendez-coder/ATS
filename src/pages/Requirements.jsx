@@ -1584,6 +1584,15 @@ return (
               </div>
             </div>
             <div className="flex gap-2 shrink-0">
+              {/* Portal links */}
+              <a href="https://hr-everscalegroup.netlify.app" target="_blank" rel="noopener noreferrer"
+                className="flex items-center rounded-xl border border-outline-variant/20 bg-surface-container-low hover:bg-surface-container transition-colors overflow-hidden px-2 py-1">
+                <img src="/portals/hr-portal.png" alt="HR Portal" className="h-7 w-auto object-contain" />
+              </a>
+              <a href="https://clients-everscalegroup.netlify.app/login" target="_blank" rel="noopener noreferrer"
+                className="flex items-center rounded-xl border border-outline-variant/20 bg-surface-container-low hover:bg-surface-container transition-colors overflow-hidden px-2 py-1">
+                <img src="/portals/client-portal.png" alt="Client Portal" className="h-7 w-auto object-contain" />
+              </a>
               {/* View mode toggle */}
               <div className="flex items-center gap-1 p-1 bg-surface-container rounded-xl">
                 <button

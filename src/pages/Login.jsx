@@ -32,7 +32,16 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen font-sans relative selection:bg-blue-600/30" style={{ backgroundColor: '#0f172a', color: '#f1f5f9' }}>
+    <div
+      className="min-h-screen font-sans relative selection:bg-blue-600/30"
+      style={{
+        color: '#f1f5f9',
+        backgroundImage: 'url(/Gemini_Generated_Image_4g9xsn4g9xsn4g9x.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
 
       <div className="flex flex-col items-center w-full min-h-screen">
 

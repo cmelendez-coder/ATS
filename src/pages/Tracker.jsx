@@ -622,11 +622,11 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
   if (!editing) {
     return (
       <tr
-        className={`odd:bg-transparent even:bg-white/[0.04] hover:bg-surface-container/40 transition-colors group border-b border-outline-variant/10 ${!readOnly ? 'cursor-pointer' : ''}`}
+        className={`odd:bg-transparent even:bg-white/[0.04] hover:bg-[#12306f]/60 transition-colors group border-b border-outline-variant/10 ${!readOnly ? 'cursor-pointer' : ''}`}
         onDoubleClick={() => { if (!readOnly) onStartEdit() }}
         title={!readOnly ? 'Doble clic para editar' : undefined}
       >
-        <td className="sticky left-0 z-10 w-[200px] group-odd:bg-surface-container-lowest group-even:bg-[#152d5f] px-3 py-2 text-xs text-white font-bold whitespace-nowrap">
+        <td className="sticky left-0 z-10 w-[200px] group-odd:bg-[#0b2458] group-even:bg-[#152d5f] px-3 py-2 text-xs text-white font-bold whitespace-nowrap">
           <div className="flex items-center gap-1.5">
             <span>{data.candidate_name}</span>
             {data.candidate_id && <span className="text-secondary" title="En Talent Directory"><span className="material-symbols-outlined text-[11px] align-middle">check_circle</span></span>}
@@ -1252,7 +1252,7 @@ export default function Tracker() {
           )}
 
           {/* Table */}
-          <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-[0_2px_16px_rgba(24,28,30,0.04)] overflow-hidden">
+          <div className="bg-[#071D47] rounded-2xl border border-outline-variant/10 shadow-[0_2px_16px_rgba(24,28,30,0.04)] overflow-hidden">
             {loading ? (
               <div className="flex items-center justify-center py-16 gap-3 text-on-surface-variant">
                 <span className="material-symbols-outlined animate-spin text-[24px]">progress_activity</span>

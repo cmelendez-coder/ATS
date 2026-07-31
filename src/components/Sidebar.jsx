@@ -78,7 +78,6 @@ export default function Sidebar({ collapsed = false, onToggle }) {
             <NavItem to="/reports" icon="analytics" label="Reports" collapsed={collapsed} />
             <NavItem to="/tracker" icon="table_view" label="Tracker" collapsed={collapsed} />
             <NavItem to="/requirements" icon="list_alt" label="Requirements" collapsed={collapsed} />
-            <NavItem to="/employees" icon="badge" label="Employees" collapsed={collapsed} />
           </div>
         </div>
         <div>

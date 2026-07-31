@@ -13,7 +13,6 @@ import AddTalent from './pages/AddTalent'
 import EditTalent from './pages/EditTalent'
 import Reports from './pages/Reports'
 import Tracker from './pages/Tracker'
-import Employees from './pages/Employees'
 
 function Protected({ children, permission }) {
   return <ProtectedRoute permission={permission}><Layout>{children}</Layout></ProtectedRoute>
@@ -28,7 +27,6 @@ export default function App() {
           <Route path="/"                    element={<Protected><Dashboard /></Protected>} />
           <Route path="/reports"             element={<Protected><Reports /></Protected>} />
           <Route path="/tracker"             element={<Protected><Tracker /></Protected>} />
-          <Route path="/employees"           element={<Protected><Employees /></Protected>} />
           <Route path="/clients"             element={<Protected><Clients /></Protected>} />
           <Route path="/requirements"        element={<Protected><Requirements /></Protected>} />
           <Route path="/requirements/new"    element={<Protected permission="requirements.create"><NewRequirement /></Protected>} />

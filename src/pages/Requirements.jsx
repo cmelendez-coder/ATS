@@ -34,22 +34,28 @@ const CLIENT_LOGOS = {
   'Bahwan Cybertek': '/logos/bahwan.png',
 }
 
-const LOGO_SCALE = {
-  'Bahwan Cybertek': 2.0,
+const LOGO_EXTRA = {
+  'Bahwan Cybertek': { scale: 1.6, smW: 'w-[88px]', headerW: 'w-[160px]' },
 }
 
 function ClientLogo({ name = '', size = 'sm' }) {
   const [err, setErr] = useState(false)
   const src = CLIENT_LOGOS[name]
   if (src && !err) {
-    const cls = size === 'header' ? 'h-8 w-auto max-w-[120px]' : 'h-5 w-auto max-w-[56px]'
-    const scale = LOGO_SCALE[name]
-    const img = <img src={src} alt={name} className={`${cls} object-contain`} style={scale ? { transform: `scale(${scale})` } : undefined} onError={() => setErr(true)} />
-    if (scale) {
-      const wrapCls = size === 'header' ? 'h-8 max-w-[120px] overflow-hidden flex items-center justify-center' : 'h-5 max-w-[56px] overflow-hidden flex items-center justify-center'
-      return <div className={wrapCls}>{img}</div>
+    const extra = LOGO_EXTRA[name]
+    if (extra) {
+      const wrapCls = size === 'header'
+        ? `h-8 ${extra.headerW} overflow-hidden flex items-center justify-center`
+        : `h-5 ${extra.smW} overflow-hidden flex items-center justify-center`
+      const imgCls = size === 'header' ? 'h-8 w-auto object-contain' : 'h-5 w-auto object-contain'
+      return (
+        <div className={wrapCls}>
+          <img src={src} alt={name} className={imgCls} style={{ transform: `scale(${extra.scale})` }} onError={() => setErr(true)} />
+        </div>
+      )
     }
-    return img
+    const cls = size === 'header' ? 'h-8 w-auto max-w-[120px]' : 'h-5 w-auto max-w-[56px]'
+    return <img src={src} alt={name} className={`${cls} object-contain`} onError={() => setErr(true)} />
   }
   const av = size === 'header' ? 'w-8 h-8 text-sm' : 'w-6 h-6 text-[11px]'
   return (

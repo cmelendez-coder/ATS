@@ -1488,6 +1488,27 @@ export default function Requirements() {
 
 return (
     <>
+      <style>{`
+        @keyframes portalGlow {
+          0%, 100% {
+            box-shadow: 0 0 0px 0px rgba(109,179,58,0.0), 0 2px 8px rgba(0,0,0,0.12);
+            opacity: 0.75;
+          }
+          50% {
+            box-shadow: 0 0 22px 6px rgba(109,179,58,0.55), 0 0 40px 14px rgba(109,179,58,0.2), 0 4px 16px rgba(0,0,0,0.2);
+            opacity: 1;
+          }
+        }
+        .portal-glow {
+          animation: portalGlow 2.5s ease-in-out infinite;
+        }
+        .portal-glow:hover {
+          animation: none;
+          opacity: 1;
+          box-shadow: 0 0 28px 8px rgba(109,179,58,0.7), 0 4px 20px rgba(0,0,0,0.25);
+          transform: scale(1.04);
+        }
+      `}</style>
       {priorityPickerId !== null && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => { setPriorityPickerId(null); setPriorityPickerPos(null) }} />
@@ -1571,7 +1592,7 @@ return (
         <div className="max-w-7xl mx-auto px-6 md:px-10 py-10 space-y-8">
 
           {/* Page Header */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div className="space-y-1.5">
               <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
                 <Link to="/" className="hover:text-primary transition-colors">Dashboard</Link>
@@ -1583,44 +1604,48 @@ return (
                 <span className="px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant text-xs font-bold">{requirements.length}</span>
               </div>
             </div>
-            <div className="flex gap-2 shrink-0">
+            <div className="flex flex-col items-end gap-3 shrink-0">
               {/* Portal links */}
-              <a href="https://hr-everscalegroup.netlify.app" target="_blank" rel="noopener noreferrer"
-                className="flex items-center rounded-xl border border-outline-variant/20 bg-surface-container-low hover:bg-surface-container transition-colors overflow-hidden px-2 py-1">
-                <img src="/portals/hr-portal.png" alt="HR Portal" className="h-7 w-auto object-contain" />
-              </a>
-              <a href="https://clients-everscalegroup.netlify.app/login" target="_blank" rel="noopener noreferrer"
-                className="flex items-center rounded-xl border border-outline-variant/20 bg-surface-container-low hover:bg-surface-container transition-colors overflow-hidden px-2 py-1">
-                <img src="/portals/client-portal.png" alt="Client Portal" className="h-7 w-auto object-contain" />
-              </a>
-              {/* View mode toggle */}
-              <div className="flex items-center gap-1 p-1 bg-surface-container rounded-xl">
-                <button
-                  onClick={() => setViewMode('pipeline')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    viewMode === 'pipeline' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-[14px]">view_kanban</span>
-                  Pipeline
-                </button>
-                <button
-                  onClick={() => setViewMode('tabla')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                    viewMode === 'tabla' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-[14px]">table_view</span>
-                  Prioridades
-                </button>
+              <div className="flex gap-3">
+                <a href="https://hr-everscalegroup.netlify.app" target="_blank" rel="noopener noreferrer"
+                  className="portal-glow flex items-center rounded-2xl border border-outline-variant/30 bg-surface-container-low overflow-hidden px-4 py-2 transition-transform cursor-pointer">
+                  <img src="/portals/hr-portal.png" alt="HR Portal" className="h-16 w-auto object-contain" />
+                </a>
+                <a href="https://clients-everscalegroup.netlify.app/login" target="_blank" rel="noopener noreferrer"
+                  className="portal-glow flex items-center rounded-2xl border border-outline-variant/30 bg-surface-container-low overflow-hidden px-4 py-2 transition-transform cursor-pointer">
+                  <img src="/portals/client-portal.png" alt="Client Portal" className="h-16 w-auto object-contain" />
+                </a>
               </div>
-              {can('requirements.create') && (
-                <Link to="/requirements/new">
-                  <button className="flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity">
-                    <span className="material-symbols-outlined text-[16px]">add</span>New Requirement
+              {/* Controls row */}
+              <div className="flex gap-2">
+                <div className="flex items-center gap-1 p-1 bg-surface-container rounded-xl">
+                  <button
+                    onClick={() => setViewMode('pipeline')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      viewMode === 'pipeline' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[14px]">view_kanban</span>
+                    Pipeline
                   </button>
-                </Link>
-              )}
+                  <button
+                    onClick={() => setViewMode('tabla')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      viewMode === 'tabla' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[14px]">table_view</span>
+                    Prioridades
+                  </button>
+                </div>
+                {can('requirements.create') && (
+                  <Link to="/requirements/new">
+                    <button className="flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity">
+                      <span className="material-symbols-outlined text-[16px]">add</span>New Requirement
+                    </button>
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
 

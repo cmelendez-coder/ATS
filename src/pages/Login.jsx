@@ -23,7 +23,7 @@ export default function Login() {
     try {
       const user = await loginApi({ EMAIL: email.trim(), PASS_CLP: password })
       setSession(user)
-      navigate('/talent', { replace: true })
+      navigate('/requirements', { replace: true })
     } catch {
       setError('Credenciales inválidas. Intente de nuevo.')
     } finally {

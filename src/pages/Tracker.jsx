@@ -1165,6 +1165,7 @@ export default function Tracker() {
     else setWeek(w => w + 1)
   }
 
+  const review    = entries.filter(e => e.status === 'Review').length
   const sent      = entries.filter(e => e.status === 'Sent').length
   const rejected  = entries.filter(e => ['Rejected', 'HSE', 'Backed Out'].includes(e.status)).length
   const onHold    = entries.filter(e => e.status === 'On Hold').length
@@ -1249,6 +1250,7 @@ export default function Tracker() {
           {entries.length > 0 && (
             <div className="flex gap-3 flex-wrap">
               <span className="px-3 py-1 rounded-full bg-surface-container text-on-surface-variant text-xs font-bold">{entries.length} candidatos</span>
+              {review > 0 && <span className="px-3 py-1 rounded-full bg-orange-600/20 text-orange-300 text-xs font-bold border border-orange-500/30">{review} In Review</span>}
               {sent > 0 && <span className="px-3 py-1 rounded-full bg-pink-600/20 text-pink-300 text-xs font-bold border border-pink-500/30">{sent} Sent</span>}
               {rejected > 0 && <span className="px-3 py-1 rounded-full bg-red-600/20 text-red-300 text-xs font-bold border border-red-500/30">{rejected} Rejected/HSE/Backed Out</span>}
               {onHold > 0 && <span className="px-3 py-1 rounded-full bg-slate-600/20 text-slate-300 text-xs font-bold border border-slate-500/30">{onHold} On Hold</span>}

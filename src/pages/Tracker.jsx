@@ -585,6 +585,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
     if (savingRef.current) return
     if (!data.candidate_name?.trim()) { setError('Ingresa el nombre del candidato.'); return }
     if (!data.requirement_id)         { setError('Selecciona una posición/requerimiento.'); return }
+    if (data.salary?.toString().trim() && !data.amount_type) { setError('Selecciona Gross o Net para el salario ingresado.'); return }
     if (!linkedinExempt && !isValidLinkedIn(data.linkedin_url)) { setError('LinkedIn requerido (debe comenzar con linkedin.com/in/…).'); return }
     savingRef.current = true
     setSaving(true)
@@ -960,7 +961,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
             onChange={e => set('salary', e.target.value)}
           />
           <select
-            className="flex-1 bg-surface-container text-on-surface text-xs px-1 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-primary/30"
+            className={`flex-1 bg-surface-container text-on-surface text-xs px-1 py-1.5 rounded focus:outline-none focus:ring-1 ${data.salary?.toString().trim() && !data.amount_type ? 'ring-1 ring-red-500 border border-red-500' : 'focus:ring-primary/30'}`}
             value={data.amount_type || ''}
             onChange={e => set('amount_type', e.target.value)}
           >

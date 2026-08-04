@@ -13,7 +13,7 @@ async function upsertCatalog(table, nameCol, idCol, value) {
 }
 
 // ─── Search / list candidates ─────────────────────────────────────
-// Searches across: full_name, email, role name, technology names, and skillset notes (all OR'd)
+// Searches across: full_name, bdd_role, bdd_technology, bdd_module, bdd_skills, role catalog, tech stack, and skillset notes. Email is intentionally excluded.
 export async function searchCandidates({ q = '', englishMin = '', englishMax = '' } = {}) {
   let baseQuery = supabase
     .from('candidate')

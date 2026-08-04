@@ -41,8 +41,9 @@ export async function searchCandidates({ q = '', englishMin = '', englishMax = '
 
   const term = q.trim()
 
-  // Parallel lookups in related tables
-  const [techData, roleData, noteData] = await Promise.all([
+  // Parallel lookups: RPC for bdd_* text fields, catalog lookups, and skillset notes
+  const [textData, techData, roleData, noteData] = await Promise.all([
+    supabase.rpc('search_candidates_text', { term }),
     supabase.from('catalog_technology').select('technology_id').ilike('ct_name_tech', `%${term}%`),
     supabase.from('catalog_role').select('role_id').ilike('name', `%${term}%`),
     supabase.from('candidate_note').select('candidate_id').ilike('note_text', `%${term}%`).eq('note_type', 'skillset'),
@@ -58,28 +59,21 @@ export async function searchCandidates({ q = '', englishMin = '', englishMax = '
     techCandIds = (stackRows ?? []).map(r => r.candidate_id)
   }
 
-  // Merge all indirect candidate IDs (tech + skillset notes)
-  const extraIds = [...new Set([
+  // Merge all matching candidate IDs
+  const allIds = [...new Set([
+    ...(textData.data ?? []).map(r => r.candidate_id),
     ...techCandIds,
     ...(noteData.data ?? []).map(r => r.candidate_id),
+    ...(roleData.data?.length
+      ? await supabase.from('candidate').select('candidate_id')
+          .in('role_id', roleData.data.map(r => r.role_id))
+          .then(r => (r.data ?? []).map(c => c.candidate_id))
+      : []),
   ])]
 
-  // Build OR: name, email, role, bdd legacy columns, and all indirect matches
-  const conditions = [
-    `full_name.ilike.%${term}%`,
-    `bdd_role.ilike.%${term}%`,
-    `bdd_technology.ilike.%${term}%`,
-    `bdd_module.ilike.%${term}%`,
-    `bdd_skills.ilike.%${term}%`,
-  ]
-  if (roleData.data?.length) {
-    conditions.push(`role_id.in.(${roleData.data.map(r => r.role_id).join(',')})`)
-  }
-  if (extraIds.length) {
-    conditions.push(`candidate_id.in.(${extraIds.join(',')})`)
-  }
+  if (!allIds.length) return []
 
-  const { data, error } = await baseQuery.or(conditions.join(','))
+  const { data, error } = await baseQuery.in('candidate_id', allIds)
   if (error) throw error
   return data ?? []
 }

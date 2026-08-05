@@ -34,6 +34,10 @@ const STATUS_ORDER    = { 'Review': 0, 'WA': 1, 'Contacted': 2, 'Screening': 3, 
 const ENGLISH_OPTIONS = [90, 85, 80, 75, 70, 60, 50, 40, 30]
 const AMOUNT_TYPES    = ['Gross', 'Net']
 
+function toTitleCase(str) {
+  return (str ?? '').trim().toLowerCase().replace(/\b\w/g, c => c.toUpperCase())
+}
+
 const STATUS_DOT = {
   'Review':     'bg-orange-400',
   'WA':         'bg-green-400',
@@ -147,6 +151,14 @@ function CandidateSearch({ value, candidateId, onSelect, disabled }) {
     }, 300)
   }
 
+  function handleBlur() {
+    const normalized = toTitleCase(query)
+    if (normalized && normalized !== query) {
+      setQuery(normalized)
+      onSelect({ candidate_name: normalized, candidate_id: null })
+    }
+  }
+
   function pick(row) {
     setQuery(row.full_name)
     setOpen(false)
@@ -167,6 +179,7 @@ function CandidateSearch({ value, candidateId, onSelect, disabled }) {
         placeholder="Nombre del candidato…"
         value={query}
         onChange={handleChange}
+        onBlur={handleBlur}
         disabled={disabled}
       />
       {candidateId && (
@@ -587,12 +600,15 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
     if (!data.requirement_id)         { setError('Selecciona una posición/requerimiento.'); return }
     if (data.salary?.toString().trim() && !data.amount_type) { setError('Selecciona Gross o Net para el salario ingresado.'); return }
     if (!linkedinExempt && !isValidLinkedIn(data.linkedin_url)) { setError('LinkedIn requerido (debe comenzar con linkedin.com/in/…).'); return }
+    const normalizedName = toTitleCase(data.candidate_name)
+    setData(prev => ({ ...prev, candidate_name: normalizedName }))
+    const savePayload = { ...data, candidate_name: normalizedName }
     savingRef.current = true
     setSaving(true)
     setError(null)
     try {
-      const { entryId, candidateId } = await saveTrackerEntry(data)
-      setData(prev => ({ ...prev, id: entryId, candidate_id: candidateId, synced_to_req: data.status === 'Sent' ? true : prev.synced_to_req }))
+      const { entryId, candidateId } = await saveTrackerEntry(savePayload)
+      setData(prev => ({ ...prev, id: entryId, candidate_id: candidateId, synced_to_req: savePayload.status === 'Sent' ? true : prev.synced_to_req }))
       if (data.status === 'Screening' && data.screening_datetime) {
         const req = requirements.find(r => r.id === data.requirement_id)
         createScreeningEvent({

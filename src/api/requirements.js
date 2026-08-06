@@ -7,7 +7,6 @@ const REQ_SELECT = `
   tech_reqs, special_request, notes, created_at,
   recruiter, everscale_count, interno_count,
   work_arrangement_id, office_hours_id, status_id,
-  close_reason, covered_by_everscale,
   client:client_id(id, name),
   status:status_id(id, name),
   work_arrangement:work_arrangement_id(id, name),

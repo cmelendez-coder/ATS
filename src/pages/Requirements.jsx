@@ -1578,11 +1578,11 @@ export default function Requirements() {
     setCloseModal(null)
     try {
       await saveRequirementClosure({ requirementId: reqId, closeReason, coveredByEverscale })
-      await handleStatusChange(reqId, statusId, statusName)
       setClosuresMap(prev => ({ ...prev, [reqId]: { requirement_id: reqId, close_reason: closeReason, covered_by_everscale: coveredByEverscale } }))
-    } catch (err) {
-      alert(err.message)
+    } catch (_) {
+      // table may not exist yet — status change proceeds regardless
     }
+    await handleStatusChange(reqId, statusId, statusName)
   }
 
   async function handlePriorityChange(reqId, priority) {

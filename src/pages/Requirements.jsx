@@ -1525,6 +1525,7 @@ export default function Requirements() {
   const [priorityPickerId, setPriorityPickerId] = useState(null)
   const [priorityPickerPos, setPriorityPickerPos] = useState(null)
   const [closeModal, setCloseModal] = useState(null) // { reqId, statusId, statusName } | null
+  const [notePopover, setNotePopover] = useState(null) // { text, top, left } | null
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -1607,6 +1608,18 @@ return (
           onConfirm={handleCloseConfirm}
           onCancel={() => setCloseModal(null)}
         />
+      )}
+      {notePopover && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setNotePopover(null)} />
+          <div
+            className="fixed z-50 max-w-xs bg-surface-container-high border border-outline-variant/20 rounded-xl shadow-xl px-4 py-3 text-xs text-on-surface leading-relaxed"
+            style={{ top: notePopover.top, left: notePopover.left }}
+          >
+            <p className="font-semibold text-on-surface-variant text-[10px] uppercase tracking-wider mb-1.5">Nota de cierre</p>
+            <p>{notePopover.text}</p>
+          </div>
+        </>
       )}
       {priorityPickerId !== null && (
         <>
@@ -1925,7 +1938,16 @@ return (
                                   <div className="lg:col-span-2 min-w-0">
                                     <p className="text-[9px] font-bold text-on-surface-variant/50 uppercase tracking-[0.12em] mb-0.5">Nota</p>
                                     {req.close_reason ? (
-                                      <p className="text-xs text-on-surface truncate" title={req.close_reason}>{req.close_reason}</p>
+                                      <button
+                                        onClick={e => {
+                                          e.stopPropagation()
+                                          const rect = e.currentTarget.getBoundingClientRect()
+                                          setNotePopover({ text: req.close_reason, top: rect.bottom + 6, left: rect.left })
+                                        }}
+                                        className="text-xs text-primary/80 hover:text-primary underline underline-offset-2 transition-colors text-left"
+                                      >
+                                        Click to see note
+                                      </button>
                                     ) : (
                                       <p className="text-xs text-on-surface-variant/30">—</p>
                                     )}

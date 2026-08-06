@@ -209,6 +209,16 @@ export async function updateRequirementStatus(id, statusId) {
   if (error) throw error
 }
 
+export async function saveRequirementClosure({ requirementId, closeReason, coveredByEverscale }) {
+  const { error } = await supabase
+    .from('requirement_closure')
+    .upsert(
+      { requirement_id: requirementId, close_reason: closeReason || null, covered_by_everscale: coveredByEverscale, closed_at: new Date().toISOString() },
+      { onConflict: 'requirement_id' }
+    )
+  if (error) throw error
+}
+
 export async function updateRequirementSummary(id, patch) {
   const { error } = await supabase.from('requirement').update(patch).eq('id', id)
   if (error) throw error

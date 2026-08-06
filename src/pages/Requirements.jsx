@@ -12,6 +12,7 @@ import {
   listPendingApprovals, approveRequirement, rejectRequirement,
   updateRequirementStatus, updateRequirementPriority,
   getReqBoard, updateReqBoardRow, getWeeklyBoardStats, addReqBoardRow,
+  saveRequirementClosure,
 } from '../api/requirements'
 import { createClientCandidate } from '../api/talent'
 
@@ -1426,6 +1427,86 @@ function ReqBoardTable() {
   )
 }
 
+/* ── Close Requirement Modal ── */
+function CloseRequirementModal({ onConfirm, onCancel }) {
+  const [reason, setReason] = useState('')
+  const [covered, setCovered] = useState(null) // true | false | null
+
+  function handleSubmit(e) {
+    e.preventDefault()
+    if (covered === null) return
+    onConfirm({ closeReason: reason.trim() || null, coveredByEverscale: covered })
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onCancel} />
+      <form
+        onSubmit={handleSubmit}
+        className="relative bg-surface-container rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6 flex flex-col gap-5"
+      >
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-semibold text-on-surface">Cerrar requerimiento</h2>
+          <button type="button" onClick={onCancel} className="text-on-surface-variant hover:text-on-surface transition-colors">
+            <span className="material-symbols-outlined text-[20px]">close</span>
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-medium text-on-surface-variant">Razón de cierre</label>
+          <textarea
+            rows={3}
+            placeholder="Describe brevemente por qué se cierra..."
+            value={reason}
+            onChange={e => setReason(e.target.value)}
+            className="bg-surface-container-high border border-outline-variant/30 rounded-xl px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant resize-none focus:outline-none focus:ring-2 focus:ring-primary/30"
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="text-xs font-medium text-on-surface-variant">¿Posición cubierta por Everscale?</label>
+          <div className="flex gap-3">
+            {[{ label: 'Sí', value: true }, { label: 'No', value: false }].map(opt => (
+              <button
+                key={String(opt.value)}
+                type="button"
+                onClick={() => setCovered(opt.value)}
+                className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-colors ${
+                  covered === opt.value
+                    ? 'bg-primary text-on-primary border-primary'
+                    : 'bg-surface-container-high text-on-surface-variant border-outline-variant/30 hover:border-primary/40'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+          {covered === null && (
+            <p className="text-[11px] text-error">Selecciona una opción para continuar.</p>
+          )}
+        </div>
+
+        <div className="flex gap-3 justify-end pt-1">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-4 py-2 rounded-xl text-sm text-on-surface-variant hover:text-on-surface transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            disabled={covered === null}
+            className="px-5 py-2 rounded-xl text-sm font-medium bg-error text-on-error disabled:opacity-40 hover:opacity-90 transition-opacity"
+          >
+            Confirmar cierre
+          </button>
+        </div>
+      </form>
+    </div>
+  )
+}
+
 /* ── Main Page ── */
 export default function Requirements() {
   const { can } = usePermissions()
@@ -1443,6 +1524,7 @@ export default function Requirements() {
   const [statusPickerPos, setStatusPickerPos] = useState(null)
   const [priorityPickerId, setPriorityPickerId] = useState(null)
   const [priorityPickerPos, setPriorityPickerPos] = useState(null)
+  const [closeModal, setCloseModal] = useState(null) // { reqId, statusId, statusName } | null
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -1488,6 +1570,17 @@ export default function Requirements() {
     }
   }
 
+  async function handleCloseConfirm({ closeReason, coveredByEverscale }) {
+    const { reqId, statusId, statusName } = closeModal
+    setCloseModal(null)
+    try {
+      await saveRequirementClosure({ requirementId: reqId, closeReason, coveredByEverscale })
+      await handleStatusChange(reqId, statusId, statusName)
+    } catch (err) {
+      alert(err.message)
+    }
+  }
+
   async function handlePriorityChange(reqId, priority) {
     try {
       await updateRequirementPriority(reqId, priority)
@@ -1508,6 +1601,12 @@ export default function Requirements() {
 
 return (
     <>
+      {closeModal && (
+        <CloseRequirementModal
+          onConfirm={handleCloseConfirm}
+          onCancel={() => setCloseModal(null)}
+        />
+      )}
       {priorityPickerId !== null && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => { setPriorityPickerId(null); setPriorityPickerPos(null) }} />
@@ -1547,7 +1646,14 @@ return (
                   <button
                     key={s.id}
                     className="w-full text-left px-3 py-2 text-[11px] hover:bg-surface-container transition-colors text-on-surface flex items-center gap-2"
-                    onClick={() => handleStatusChange(statusPickerId, s.id, s.name)}
+                    onClick={() => {
+                      if (s.name.startsWith('Closed')) {
+                        setStatusPickerId(null); setStatusPickerPos(null)
+                        setCloseModal({ reqId: statusPickerId, statusId: s.id, statusName: s.name })
+                      } else {
+                        handleStatusChange(statusPickerId, s.id, s.name)
+                      }
+                    }}
                   >
                     <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${s.name.startsWith('Closed') ? 'bg-error' : (STATUS_STYLE[s.name] ?? DEFAULT_STATUS).dot}`}></span>
                     {s.name.startsWith('Closed') ? 'Closed' : s.name}

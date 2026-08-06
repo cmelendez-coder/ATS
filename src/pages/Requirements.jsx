@@ -1921,14 +1921,28 @@ return (
 
                               {/* Closed-only: Nota + Cubierta por Everscale */}
                               {isClosed && (
-                                <div className="lg:col-span-3 min-w-0">
-                                  <p className="text-[9px] font-bold text-on-surface-variant/50 uppercase tracking-[0.12em] mb-0.5">Nota</p>
-                                  {req.close_reason ? (
-                                    <p className="text-xs text-on-surface truncate" title={req.close_reason}>{req.close_reason}</p>
-                                  ) : (
-                                    <p className="text-xs text-on-surface-variant/30">—</p>
-                                  )}
-                                </div>
+                                <>
+                                  <div className="lg:col-span-2 min-w-0">
+                                    <p className="text-[9px] font-bold text-on-surface-variant/50 uppercase tracking-[0.12em] mb-0.5">Nota</p>
+                                    {req.close_reason ? (
+                                      <p className="text-xs text-on-surface truncate" title={req.close_reason}>{req.close_reason}</p>
+                                    ) : (
+                                      <p className="text-xs text-on-surface-variant/30">—</p>
+                                    )}
+                                  </div>
+                                  <div className="lg:col-span-1">
+                                    <p className="text-[9px] font-bold text-on-surface-variant/50 uppercase tracking-[0.12em] mb-0.5">¿Cubierta por nosotros?</p>
+                                    {req.covered_by_everscale === true && (
+                                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-secondary/15 text-secondary border border-secondary/20">Sí</span>
+                                    )}
+                                    {req.covered_by_everscale === false && (
+                                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-error/10 text-error border border-error/20">No</span>
+                                    )}
+                                    {req.covered_by_everscale == null && (
+                                      <p className="text-xs text-on-surface-variant/30">—</p>
+                                    )}
+                                  </div>
+                                </>
                               )}
 
                               {/* Salary + mode */}

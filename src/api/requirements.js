@@ -10,7 +10,8 @@ const REQ_SELECT = `
   client:client_id(id, name),
   status:status_id(id, name),
   work_arrangement:work_arrangement_id(id, name),
-  rc_count:requirement_candidate(id)
+  rc_count:requirement_candidate(id),
+  closure:requirement_closure(close_reason, covered_by_everscale)
 `
 
 export async function listRequirements({ search = '', statusId = '', clientId = '', excludePending = false } = {}) {

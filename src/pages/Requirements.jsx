@@ -1882,6 +1882,9 @@ return (
                         const st             = STATUS_STYLE[req.status?.name] ?? DEFAULT_STATUS
                         const candidateCount = req.rc_count?.length ?? 0
 
+                        const closure = Array.isArray(req.closure) ? req.closure[0] : req.closure
+                        const isClosed = activeTab === 'closed'
+
                         return (
                           <div key={req.id} className={`bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-[0_2px_12px_rgba(24,28,30,0.04)] overflow-hidden transition-shadow duration-200 ${isExpanded ? 'relative z-30 shadow-[0_8px_40px_rgba(0,0,0,0.35)]' : ''}`}>
                             {/* Main row */}
@@ -1912,12 +1915,38 @@ return (
                               </div>
 
                               {/* Title */}
-                              <div className="lg:col-span-4">
+                              <div className={isClosed ? 'lg:col-span-3' : 'lg:col-span-4'}>
                                 <p className="font-semibold text-primary text-sm leading-snug group-hover:text-surface-tint transition-colors">{req.job_title}</p>
                               </div>
 
+                              {/* Closed-only: Nota + Cubierta por Everscale */}
+                              {isClosed && (
+                                <>
+                                  <div className="lg:col-span-2 min-w-0">
+                                    <p className="text-[9px] font-bold text-on-surface-variant/50 uppercase tracking-[0.12em] mb-0.5">Nota</p>
+                                    {closure?.close_reason ? (
+                                      <p className="text-xs text-on-surface truncate" title={closure.close_reason}>{closure.close_reason}</p>
+                                    ) : (
+                                      <p className="text-xs text-on-surface-variant/30">—</p>
+                                    )}
+                                  </div>
+                                  <div className="lg:col-span-1">
+                                    <p className="text-[9px] font-bold text-on-surface-variant/50 uppercase tracking-[0.12em] mb-0.5">Everscale</p>
+                                    {closure?.covered_by_everscale === true && (
+                                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-secondary/15 text-secondary border border-secondary/20">Sí</span>
+                                    )}
+                                    {closure?.covered_by_everscale === false && (
+                                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-error/10 text-error border border-error/20">No</span>
+                                    )}
+                                    {closure?.covered_by_everscale == null && (
+                                      <p className="text-xs text-on-surface-variant/30">—</p>
+                                    )}
+                                  </div>
+                                </>
+                              )}
+
                               {/* Salary + mode */}
-                              <div className="lg:col-span-3 space-y-0.5">
+                              <div className={`${isClosed ? 'lg:col-span-2' : 'lg:col-span-3'} space-y-0.5`}>
                                 {req.salary_cap ? (
                                   <p className="text-xs">
                                     <span className="font-semibold text-primary">${Number(req.salary_cap).toLocaleString()}</span>
@@ -1931,11 +1960,13 @@ return (
                                 </p>
                               </div>
 
-                              {/* FTE */}
-                              <div className="lg:col-span-1">
-                                <p className="text-xs text-on-surface-variant/70">{req.fte_count ?? 1} FTE</p>
-                                {req.duration && <p className="text-[10px] text-on-surface-variant/50">{req.duration}</p>}
-                              </div>
+                              {/* FTE — hidden in closed tab */}
+                              {!isClosed && (
+                                <div className="lg:col-span-1">
+                                  <p className="text-xs text-on-surface-variant/70">{req.fte_count ?? 1} FTE</p>
+                                  {req.duration && <p className="text-[10px] text-on-surface-variant/50">{req.duration}</p>}
+                                </div>
+                              )}
 
                               {/* Status + actions */}
                               <div className="lg:col-span-2 flex items-center justify-end gap-1.5">

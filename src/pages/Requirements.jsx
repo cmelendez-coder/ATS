@@ -1946,7 +1946,7 @@ return (
                                         }}
                                         className="text-xs text-primary/80 hover:text-primary underline underline-offset-2 transition-colors text-left"
                                       >
-                                        Click to see note
+                                        Click here to view the note
                                       </button>
                                     ) : (
                                       <p className="text-xs text-on-surface-variant/30">—</p>

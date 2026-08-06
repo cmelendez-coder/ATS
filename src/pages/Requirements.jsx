@@ -1925,7 +1925,7 @@ return (
                                   <div className="lg:col-span-2 min-w-0">
                                     <p className="text-[9px] font-bold text-on-surface-variant/50 uppercase tracking-[0.12em] mb-0.5">Nota</p>
                                     {req.close_reason ? (
-                                      <p className="text-xs text-on-surface truncate" title={closure.close_reason}>{closure.close_reason}</p>
+                                      <p className="text-xs text-on-surface truncate" title={req.close_reason}>{req.close_reason}</p>
                                     ) : (
                                       <p className="text-xs text-on-surface-variant/30">—</p>
                                     )}

@@ -10,8 +10,7 @@ const REQ_SELECT = `
   client:client_id(id, name),
   status:status_id(id, name),
   work_arrangement:work_arrangement_id(id, name),
-  rc_count:requirement_candidate(id),
-  closure:requirement_closure(close_reason, covered_by_everscale)
+  rc_count:requirement_candidate(id)
 `
 
 export async function listRequirements({ search = '', statusId = '', clientId = '', excludePending = false } = {}) {
@@ -208,6 +207,16 @@ export async function removeCandidateFromRequirement(rcId) {
 export async function updateRequirementStatus(id, statusId) {
   const { error } = await supabase.from('requirement').update({ status_id: statusId }).eq('id', id)
   if (error) throw error
+}
+
+export async function listRequirementClosures(requirementIds) {
+  if (!requirementIds?.length) return {}
+  const { data, error } = await supabase
+    .from('requirement_closure')
+    .select('requirement_id, close_reason, covered_by_everscale')
+    .in('requirement_id', requirementIds)
+  if (error) return {} // table may not exist yet
+  return Object.fromEntries((data ?? []).map(r => [r.requirement_id, r]))
 }
 
 export async function saveRequirementClosure({ requirementId, closeReason, coveredByEverscale }) {

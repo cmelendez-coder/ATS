@@ -12,7 +12,7 @@ import {
   listPendingApprovals, approveRequirement, rejectRequirement,
   updateRequirementStatus, updateRequirementPriority,
   getReqBoard, updateReqBoardRow, getWeeklyBoardStats, addReqBoardRow,
-  saveRequirementClosure,
+  saveRequirementClosure, listRequirementClosures,
 } from '../api/requirements'
 import { createClientCandidate } from '../api/talent'
 
@@ -1525,6 +1525,7 @@ export default function Requirements() {
   const [priorityPickerId, setPriorityPickerId] = useState(null)
   const [priorityPickerPos, setPriorityPickerPos] = useState(null)
   const [closeModal, setCloseModal] = useState(null) // { reqId, statusId, statusName } | null
+  const [closuresMap, setClosuresMap] = useState({}) // requirementId → closure row
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -1535,6 +1536,8 @@ export default function Requirements() {
       ])
       setRequirements(reqs)
       setCatalogs(cats)
+      const closedIds = reqs.filter(r => r.status?.name?.startsWith('Closed')).map(r => r.id)
+      listRequirementClosures(closedIds).then(setClosuresMap)
     } finally {
       setLoading(false)
     }
@@ -1576,6 +1579,7 @@ export default function Requirements() {
     try {
       await saveRequirementClosure({ requirementId: reqId, closeReason, coveredByEverscale })
       await handleStatusChange(reqId, statusId, statusName)
+      setClosuresMap(prev => ({ ...prev, [reqId]: { requirement_id: reqId, close_reason: closeReason, covered_by_everscale: coveredByEverscale } }))
     } catch (err) {
       alert(err.message)
     }
@@ -1882,7 +1886,7 @@ return (
                         const st             = STATUS_STYLE[req.status?.name] ?? DEFAULT_STATUS
                         const candidateCount = req.rc_count?.length ?? 0
 
-                        const closure = Array.isArray(req.closure) ? req.closure[0] : req.closure
+                        const closure = closuresMap[req.id] ?? null
                         const isClosed = activeTab === 'closed'
 
                         return (

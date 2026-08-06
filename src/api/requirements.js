@@ -7,6 +7,7 @@ const REQ_SELECT = `
   tech_reqs, special_request, notes, created_at,
   recruiter, everscale_count, interno_count,
   work_arrangement_id, office_hours_id, status_id,
+  close_reason, covered_by_everscale,
   client:client_id(id, name),
   status:status_id(id, name),
   work_arrangement:work_arrangement_id(id, name),
@@ -209,23 +210,11 @@ export async function updateRequirementStatus(id, statusId) {
   if (error) throw error
 }
 
-export async function listRequirementClosures(requirementIds) {
-  if (!requirementIds?.length) return {}
-  const { data, error } = await supabase
-    .from('requirement_closure')
-    .select('requirement_id, close_reason, covered_by_everscale')
-    .in('requirement_id', requirementIds)
-  if (error) return {} // table may not exist yet
-  return Object.fromEntries((data ?? []).map(r => [r.requirement_id, r]))
-}
-
 export async function saveRequirementClosure({ requirementId, closeReason, coveredByEverscale }) {
   const { error } = await supabase
-    .from('requirement_closure')
-    .upsert(
-      { requirement_id: requirementId, close_reason: closeReason || null, covered_by_everscale: coveredByEverscale, closed_at: new Date().toISOString() },
-      { onConflict: 'requirement_id' }
-    )
+    .from('requirement')
+    .update({ close_reason: closeReason || null, covered_by_everscale: coveredByEverscale })
+    .eq('id', requirementId)
   if (error) throw error
 }
 

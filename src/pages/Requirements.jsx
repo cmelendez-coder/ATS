@@ -12,7 +12,7 @@ import {
   listPendingApprovals, approveRequirement, rejectRequirement,
   updateRequirementStatus, updateRequirementPriority,
   getReqBoard, updateReqBoardRow, getWeeklyBoardStats, addReqBoardRow,
-  saveRequirementClosure, listRequirementClosures,
+  saveRequirementClosure,
 } from '../api/requirements'
 import { createClientCandidate } from '../api/talent'
 
@@ -1525,7 +1525,6 @@ export default function Requirements() {
   const [priorityPickerId, setPriorityPickerId] = useState(null)
   const [priorityPickerPos, setPriorityPickerPos] = useState(null)
   const [closeModal, setCloseModal] = useState(null) // { reqId, statusId, statusName } | null
-  const [closuresMap, setClosuresMap] = useState({}) // requirementId → closure row
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -1536,8 +1535,6 @@ export default function Requirements() {
       ])
       setRequirements(reqs)
       setCatalogs(cats)
-      const closedIds = reqs.filter(r => r.status?.name?.startsWith('Closed')).map(r => r.id)
-      listRequirementClosures(closedIds).then(setClosuresMap)
     } finally {
       setLoading(false)
     }
@@ -1578,7 +1575,7 @@ export default function Requirements() {
     setCloseModal(null)
     try {
       await saveRequirementClosure({ requirementId: reqId, closeReason, coveredByEverscale })
-      setClosuresMap(prev => ({ ...prev, [reqId]: { requirement_id: reqId, close_reason: closeReason, covered_by_everscale: coveredByEverscale } }))
+      setRequirements(prev => prev.map(r => r.id === reqId ? { ...r, close_reason: closeReason || null, covered_by_everscale: coveredByEverscale } : r))
     } catch (_) {
       // table may not exist yet — status change proceeds regardless
     }
@@ -1886,7 +1883,6 @@ return (
                         const st             = STATUS_STYLE[req.status?.name] ?? DEFAULT_STATUS
                         const candidateCount = req.rc_count?.length ?? 0
 
-                        const closure = closuresMap[req.id] ?? null
                         const isClosed = activeTab === 'closed'
 
                         return (
@@ -1928,7 +1924,7 @@ return (
                                 <>
                                   <div className="lg:col-span-2 min-w-0">
                                     <p className="text-[9px] font-bold text-on-surface-variant/50 uppercase tracking-[0.12em] mb-0.5">Nota</p>
-                                    {closure?.close_reason ? (
+                                    {req.close_reason ? (
                                       <p className="text-xs text-on-surface truncate" title={closure.close_reason}>{closure.close_reason}</p>
                                     ) : (
                                       <p className="text-xs text-on-surface-variant/30">—</p>
@@ -1936,13 +1932,13 @@ return (
                                   </div>
                                   <div className="lg:col-span-1">
                                     <p className="text-[9px] font-bold text-on-surface-variant/50 uppercase tracking-[0.12em] mb-0.5">Everscale</p>
-                                    {closure?.covered_by_everscale === true && (
+                                    {req.covered_by_everscale === true && (
                                       <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-secondary/15 text-secondary border border-secondary/20">Sí</span>
                                     )}
-                                    {closure?.covered_by_everscale === false && (
+                                    {req.covered_by_everscale === false && (
                                       <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-error/10 text-error border border-error/20">No</span>
                                     )}
-                                    {closure?.covered_by_everscale == null && (
+                                    {req.covered_by_everscale == null && (
                                       <p className="text-xs text-on-surface-variant/30">—</p>
                                     )}
                                   </div>

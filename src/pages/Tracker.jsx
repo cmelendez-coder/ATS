@@ -846,10 +846,10 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
           <label
             className={`flex items-center gap-1 text-xs cursor-pointer rounded px-1.5 py-1 transition-colors shrink-0 ${
               cvUploading
-                ? 'text-on-surface-variant/50 pointer-events-none'
+                ? 'text-white/30 pointer-events-none'
                 : data.cv_url
-                  ? 'text-on-surface-variant hover:text-primary hover:bg-surface-container'
-                  : 'text-on-surface-variant hover:text-primary hover:bg-surface-container border border-dashed border-outline-variant/40'
+                  ? 'text-white/50 hover:text-[#81b927] hover:bg-white/5'
+                  : 'text-white/50 hover:text-[#81b927] hover:bg-white/5 border border-dashed border-white/20'
             }`}
             title={data.cv_url ? 'Reemplazar CV' : 'Adjuntar CV'}
           >
@@ -872,7 +872,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
       <td className="px-2 py-1.5 min-w-[160px]">
         <div className="flex items-center gap-1">
           <input
-            className={`w-full bg-transparent text-on-surface text-xs px-2 py-1 focus:outline-none placeholder:text-on-surface-variant/30 rounded border ${linkedinExempt ? 'border-dashed border-outline-variant/20 opacity-40' : isValidLinkedIn(data.linkedin_url) ? 'border-dashed border-outline-variant/30' : 'border-red-500/60 bg-red-500/5'}`}
+            className={`w-full bg-transparent text-white text-xs px-2 py-1 focus:outline-none placeholder:text-white/30 rounded border ${linkedinExempt ? 'border-dashed border-white/20 opacity-40' : isValidLinkedIn(data.linkedin_url) ? 'border-dashed border-white/20' : 'border-red-500/60 bg-red-500/5'}`}
             placeholder={linkedinExempt ? 'Sin LinkedIn' : 'linkedin.com/in/…'}
             value={linkedinExempt ? '' : (data.linkedin_url || '')}
             disabled={linkedinExempt}
@@ -888,7 +888,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
           <button
             type="button"
             onClick={() => { setLinkedinExempt(false); set('linkedin_url', '') }}
-            className="mt-1 text-[10px] text-on-surface-variant/50 hover:text-primary transition-colors underline"
+            className="mt-1 text-[10px] text-white/40 hover:text-[#81b927] transition-colors underline"
           >
             Agregar LinkedIn
           </button>
@@ -896,7 +896,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
           <button
             type="button"
             onClick={() => { setLinkedinExempt(true); set('linkedin_url', '') }}
-            className="mt-1 text-[10px] text-on-surface-variant/50 hover:text-orange-400 transition-colors"
+            className="mt-1 text-[10px] text-white/40 hover:text-orange-400 transition-colors"
           >
             No cuento con LinkedIn
           </button>
@@ -951,7 +951,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
       {/* Notas */}
       <td className="px-2 py-1.5 min-w-[180px]">
         <input
-          className="w-full bg-transparent text-on-surface text-xs px-2 py-1.5 focus:outline-none placeholder:text-on-surface-variant/40"
+          className="w-full bg-transparent text-white text-xs px-2 py-1.5 focus:outline-none placeholder:text-white/30"
           placeholder="Notas…"
           value={data.notes || ''}
           onChange={e => set('notes', e.target.value)}
@@ -1004,7 +1004,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
       <td className="px-2 py-1.5 min-w-[160px]">
         <input
           type="email"
-          className="w-full bg-transparent text-on-surface text-xs px-2 py-1.5 focus:outline-none placeholder:text-on-surface-variant/40"
+          className="w-full bg-transparent text-white text-xs px-2 py-1.5 focus:outline-none placeholder:text-white/30"
           placeholder="email@ejemplo.com"
           value={data.email || ''}
           onChange={e => set('email', e.target.value)}
@@ -1015,7 +1015,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
       <td className="px-2 py-1.5 min-w-[130px]">
         <input
           type="tel"
-          className="w-full bg-transparent text-on-surface text-xs px-2 py-1.5 focus:outline-none placeholder:text-on-surface-variant/40"
+          className="w-full bg-transparent text-white text-xs px-2 py-1.5 focus:outline-none placeholder:text-white/30"
           placeholder="5512345678"
           value={data.phone || ''}
           onChange={e => set('phone', e.target.value.replace(/\D/g, ''))}
@@ -1049,7 +1049,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
       {/* Target Role */}
       <td className="px-2 py-1.5 min-w-[140px]">
         <input
-          className="w-full bg-transparent text-on-surface text-xs px-2 py-1.5 focus:outline-none placeholder:text-on-surface-variant/40"
+          className="w-full bg-transparent text-white text-xs px-2 py-1.5 focus:outline-none placeholder:text-white/30"
           placeholder="Target Role…"
           value={data.target_role || ''}
           onChange={e => set('target_role', e.target.value)}
@@ -1059,7 +1059,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
       {/* Technologies */}
       <td className="px-2 py-1.5 min-w-[180px]">
         <input
-          className="w-full bg-transparent text-on-surface text-xs px-2 py-1.5 focus:outline-none placeholder:text-on-surface-variant/40"
+          className="w-full bg-transparent text-white text-xs px-2 py-1.5 focus:outline-none placeholder:text-white/30"
           placeholder="Technologies…"
           value={data.technologies || ''}
           onChange={e => set('technologies', e.target.value)}
@@ -1069,7 +1069,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
       {/* Skills */}
       <td className="px-2 py-1.5 min-w-[180px]">
         <input
-          className="w-full bg-transparent text-on-surface text-xs px-2 py-1.5 focus:outline-none placeholder:text-on-surface-variant/40"
+          className="w-full bg-transparent text-white text-xs px-2 py-1.5 focus:outline-none placeholder:text-white/30"
           placeholder="Skills…"
           value={data.skills || ''}
           onChange={e => set('skills', e.target.value)}
@@ -1079,7 +1079,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
       {/* Modules (SAP) */}
       <td className="px-2 py-1.5 min-w-[120px]">
         <input
-          className="w-full bg-transparent text-on-surface text-xs px-2 py-1.5 focus:outline-none placeholder:text-on-surface-variant/40"
+          className="w-full bg-transparent text-white text-xs px-2 py-1.5 focus:outline-none placeholder:text-white/30"
           placeholder="Modules…"
           value={data.modules || ''}
           onChange={e => set('modules', e.target.value)}

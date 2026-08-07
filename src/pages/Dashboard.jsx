@@ -111,6 +111,15 @@ export default function Dashboard() {
         .map(([name, count]) => ({ name, count, color: STATUS_COLORS[name] ?? '#25457f' }))
     : []
 
+  const CLIENT_COLORS = ['#81b927','#4e90d0','#f59e0b','#a855f7','#14b8a6','#f97316','#ef4444','#06b6d4']
+  const clientSegments = stats
+    ? (stats.topClients ?? []).map((c, i) => ({
+        name:  c.name,
+        count: c.count,
+        color: CLIENT_COLORS[i % CLIENT_COLORS.length],
+      }))
+    : []
+
   const priorityBars = stats
     ? Object.entries(stats.reqByPriority)
         .filter(([, c]) => c > 0)
@@ -252,10 +261,10 @@ export default function Dashboard() {
           {/* ── CHARTS SECTION ── */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-            {/* Donut: Requirements by Status */}
+            {/* Donut: Open requirements by client */}
             <div className="bg-surface-container-low rounded-2xl p-6">
-              <h2 className="text-sm font-bold text-primary mb-1">Status</h2>
-              <p className="text-[11px] text-on-surface-variant mb-5">Requirements by stage</p>
+              <h2 className="text-sm font-bold text-primary mb-1">Open Requirements</h2>
+              <p className="text-[11px] text-on-surface-variant mb-5">Por cliente</p>
 
               {loading ? (
                 <div className="flex items-center justify-center h-28">
@@ -263,9 +272,9 @@ export default function Dashboard() {
                 </div>
               ) : (
                 <>
-                  <DonutChart segments={statusSegments} total={stats?.totalRequirements ?? 0} />
+                  <DonutChart segments={clientSegments} total={stats?.openCount ?? 0} />
                   <div className="mt-5 space-y-2">
-                    {statusSegments.map(seg => (
+                    {clientSegments.map(seg => (
                       <div key={seg.name} className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: seg.color }} />
                         <span className="text-[11px] text-on-surface-variant flex-1 truncate">{seg.name}</span>

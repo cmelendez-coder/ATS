@@ -187,16 +187,9 @@ export default function Dashboard() {
                 <h3 className="text-xs uppercase tracking-[0.08em] font-bold text-on-surface-variant">Open Requirements</h3>
                 <span className="material-symbols-outlined text-[18px] text-on-surface-variant/40">assignment</span>
               </div>
-              <p className="text-5xl tracking-tighter font-light text-primary">
+              <p className="text-[5.5rem] leading-none tracking-tighter font-light text-primary">
                 {loading ? '…' : stats?.openCount ?? 0}
               </p>
-              {!loading && (
-                <p className="text-[11px] text-on-surface-variant mt-2">
-                  <span>{stats?.closedCount ?? 0} Closed</span>
-                  <span className="mx-1 opacity-40">·</span>
-                  <span>{stats?.totalRequirements ?? 0} Total</span>
-                </p>
-              )}
             </Link>
 
             {/* Clients — top 3 by open requirements */}

@@ -60,7 +60,7 @@ const STATUS_STYLE = {
   'Contacted':  'bg-cyan-600/20 text-cyan-300 border border-cyan-500/40',
   'CV':         'bg-purple-600/20 text-purple-300 border border-purple-500/40',
   'Screening':  'bg-blue-600/20 text-blue-300 border border-blue-500/40',
-  'Sent':       'bg-[#1f6d44]/30 text-[#81b927] border border-[#81b927]/40',
+  'Sent':       'bg-pink-500/20 text-pink-300 border border-pink-400/40',
   'Rejected':   'bg-red-700/25 text-red-400 border border-red-500/40',
   'HSE':        'bg-yellow-500/20 text-yellow-300 border border-yellow-400/40',
   'On Hold':    'bg-slate-600/20 text-slate-400 border border-slate-500/40',

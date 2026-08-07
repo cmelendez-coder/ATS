@@ -39,9 +39,9 @@ body {
 /* Kanban / pipeline cards — blue on paper bg */
 .pipeline-card,
 .kanban-card {
-  background: #c6dff2;
-  border: 1px solid rgba(100, 160, 210, 0.35);
-  box-shadow: 0 2px 8px rgba(7, 29, 71, 0.08);
+  background: #4e5c70;
+  border: 1px solid rgba(78, 92, 112, 0.5);
+  box-shadow: 0 2px 8px rgba(7, 29, 71, 0.15);
 }
 
 .kanban-card textarea { resize: vertical; min-height: 72px; }

@@ -69,7 +69,6 @@ export async function getDashboardStats() {
   }
   const topClients = Object.entries(clientMap)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 6)
     .map(([name, count]) => ({ name, count }))
 
   const weeklySent     = weeklySentCount     ?? 0

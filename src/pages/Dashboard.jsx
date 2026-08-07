@@ -210,16 +210,21 @@ export default function Dashboard() {
               {loading ? (
                 <div className="h-16 flex items-center text-on-surface-variant/40 text-sm">…</div>
               ) : (
-                <div className="grid grid-cols-3 gap-3">
-                  {(stats?.topClients ?? []).slice(0, 3).map((client, i) => {
+                <div className="flex flex-wrap gap-3">
+                  {(stats?.topClients ?? []).map((client, i) => {
                     const P = [
                       { bg: '#dce8f7', num: '#071d47', lbl: '#4a6890' },
                       { bg: '#ede8f8', num: '#3d2a80', lbl: '#6b58a0' },
                       { bg: '#fef2e0', num: '#a85200', lbl: '#8a6030' },
+                      { bg: '#e2f0e8', num: '#1f5e35', lbl: '#3a7a52' },
+                      { bg: '#fce8e8', num: '#9b1c1c', lbl: '#b04040' },
+                      { bg: '#e8f4fd', num: '#0b4f8a', lbl: '#2e6da0' },
+                      { bg: '#f0ece8', num: '#5a3e28', lbl: '#7a5c40' },
+                      { bg: '#edf2e8', num: '#3a5520', lbl: '#587a38' },
                     ]
-                    const p = P[i] ?? P[0]
+                    const p = P[i % P.length]
                     return (
-                      <div key={client.name} className="rounded-xl p-3.5" style={{ backgroundColor: p.bg }}>
+                      <div key={client.name} className="rounded-xl p-3.5 min-w-[100px]" style={{ backgroundColor: p.bg }}>
                         <p className="text-[9px] font-bold uppercase tracking-widest mb-2 truncate" style={{ color: p.lbl }}>{client.name}</p>
                         <p className="text-[2rem] font-light leading-none" style={{ color: p.num }}>{client.count}</p>
                       </div>

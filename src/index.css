@@ -3,8 +3,9 @@
 @tailwind utilities;
 
 body {
-  font-family: 'Inter', sans-serif;
-  background-color: #071D47;
+  font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+  background-color: #f7f9fb;
+  color: #10284d;
 }
 
 .material-symbols-outlined {
@@ -15,11 +16,12 @@ body {
   font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
+/* Sidebar nav — active item: navy bg, white text */
 .nav-active {
-  background-color: #ffffff;
-  color: #071736;
+  background-color: #071d47;
+  color: #ffffff;
   font-weight: 600;
-  box-shadow: 0 1px 8px rgba(24,28,30,0.06);
+  box-shadow: 0 2px 8px rgba(7, 29, 71, 0.18);
 }
 
 .nav-active .material-symbols-outlined {
@@ -28,18 +30,18 @@ body {
 
 /* Dashboard */
 .stat-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-.stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(24,28,30,0.09); }
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(7, 29, 71, 0.08); }
 
 /* Requirements list */
 .row-actions { opacity: 0; transition: opacity 0.15s ease; }
 .req-row:hover .row-actions { opacity: 1; }
 
+/* Kanban / pipeline cards — white on paper bg */
 .pipeline-card,
 .kanban-card {
-  background: rgba(255,255,255,0.92);
-  border: 1px solid rgba(255,255,255,0.72);
-  box-shadow: 0 10px 30px rgba(24,28,30,0.06);
-  backdrop-filter: blur(10px);
+  background: #ffffff;
+  border: 1px solid rgba(207, 213, 214, 0.7);
+  box-shadow: 0 2px 8px rgba(7, 29, 71, 0.06);
 }
 
 .kanban-card textarea { resize: vertical; min-height: 72px; }
@@ -62,8 +64,8 @@ body {
 }
 
 .kanban-lane.drag-over {
-  border-color: rgba(77,92,144,0.35);
-  background-color: rgba(255,255,255,0.95);
+  border-color: rgba(31, 109, 68, 0.35);
+  background-color: rgba(223, 234, 221, 0.6);
   transform: translateY(-2px);
 }
 
@@ -72,23 +74,23 @@ body {
 /* New Requirement form */
 .form-field {
   width: 100%;
-  background-color: #e5e9eb;
+  background-color: #eef3f7;
   border: none;
   border-bottom: 2px solid transparent;
   border-radius: 0.5rem 0.5rem 0 0;
   padding: 0.75rem 1rem;
   font-size: 0.875rem;
-  color: #181c1e;
+  color: #10284d;
   font-weight: 500;
   transition: border-color 0.15s, background-color 0.15s;
   outline: none;
 }
-.form-field:focus { border-bottom-color: #50B152; background-color: #e0e3e5; }
-.form-field::placeholder { color: #757680; font-weight: 400; }
+.form-field:focus { border-bottom-color: #1f6d44; background-color: #e8eef2; }
+.form-field::placeholder { color: #6b7583; font-weight: 400; }
 
 .priority-btn.active {
   background-color: #ffffff;
-  box-shadow: 0 1px 6px rgba(24,28,30,0.1);
+  box-shadow: 0 1px 6px rgba(7, 29, 71, 0.1);
   font-weight: 600;
 }
 
@@ -97,21 +99,21 @@ body {
 
 .form-input {
   width: 100%;
-  background-color: #e0e3e5;
+  background-color: #eef3f7;
   border: none;
-  border-bottom: 1px solid #757680;
+  border-bottom: 1px solid #b8c8d8;
   padding: 1.5rem 1rem 0.5rem;
-  color: #181c1e;
+  color: #10284d;
   font-size: 0.875rem;
   transition: border-color 0.3s ease;
 }
-.form-input:focus { outline: none; border-bottom-color: #50B152; }
+.form-input:focus { outline: none; border-bottom-color: #1f6d44; }
 
 .form-label {
   position: absolute;
   top: 1rem;
   left: 1rem;
-  color: #45464f;
+  color: #4e5c70;
   font-size: 1rem;
   transition: all 0.3s ease;
   pointer-events: none;
@@ -126,7 +128,7 @@ body {
 
 /* Edit Talent form — underline floating labels */
 .input-underline { transition: border-color 0.3s ease; }
-.input-underline:focus-within { border-bottom-color: #1d6d00; }
+.input-underline:focus-within { border-bottom-color: #1f6d44; }
 
 .floating-label {
   transition: all 0.2s ease;
@@ -136,5 +138,5 @@ body {
 .input-field:focus + .floating-label,
 .input-field:not(:placeholder-shown) + .floating-label {
   transform: translateY(-1.5rem) scale(0.75);
-  color: #50B152;
+  color: #1f6d44;
 }

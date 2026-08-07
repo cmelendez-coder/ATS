@@ -11,53 +11,68 @@ export default {
   theme: {
     extend: {
       colors: {
-        'outline-variant': '#25457f',
-        'outline': '#2a4a88',
-        'primary': '#50B152',
-        'secondary-fixed': '#94fb6f',
-        'primary-container': '#1a5c1c',
-        'tertiary-fixed': '#ffdbcd',
-        'on-secondary-fixed-variant': '#145200',
-        'inverse-on-surface': '#071D47',
-        'on-secondary-fixed': '#042100',
-        'inverse-primary': '#b5c4ff',
-        'secondary': '#50B152',
-        'primary-fixed-dim': '#b5c4ff',
-        'on-tertiary': '#ffffff',
-        'on-secondary': '#ffffff',
-        'surface-container': '#12306f',
-        'on-error-container': '#ffb4ab',
-        'error': '#ba1a1a',
-        'surface-container-low': '#0f2b66',
-        'on-primary-container': '#c0f0c1',
-        'on-secondary-container': '#b7f0c0',
-        'surface': '#071D47',
-        'on-surface-variant': '#c1cbe4',
-        'tertiary': '#180400',
-        'on-background': '#ffffff',
-        'surface-tint': '#50B152',
-        'on-primary': '#ffffff',
-        'on-tertiary-container': '#bc7758',
-        'on-tertiary-fixed': '#360f00',
-        'inverse-surface': '#eef1f3',
-        'on-primary-fixed': '#041749',
-        'background': '#071D47',
-        'surface-bright': '#0b2458',
-        'on-surface': '#ffffff',
-        'on-primary-fixed-variant': '#354476',
-        'on-error': '#ffffff',
-        'surface-container-highest': '#183a7b',
-        'error-container': '#ffdad6',
-        'primary-fixed': '#dce1ff',
-        'tertiary-fixed-dim': '#ffb596',
-        'surface-container-high': '#153575',
-        'secondary-container': '#1f4a2d',
-        'surface-container-lowest': '#0b2458',
-        'on-tertiary-fixed-variant': '#6e381e',
-        'surface-variant': '#1b3a78',
-        'tertiary-container': '#3e1300',
-        'surface-dim': '#061a40',
-        'secondary-fixed-dim': '#7ad27d',
+        // Borders
+        'outline-variant':             '#cfd5d6',  // --line, subtle dividers
+        'outline':                     '#b8c8d8',  // visible borders
+
+        // Primary — Everscale forest green
+        'primary':                     '#1f6d44',
+        'on-primary':                  '#ffffff',
+        'primary-container':           '#dfeadd',  // --green-pale
+        'on-primary-container':        '#0a2b1a',
+        'primary-fixed':               '#dfeadd',
+        'primary-fixed-dim':           '#81b927',  // --green-bright
+        'on-primary-fixed':            '#071d47',
+        'on-primary-fixed-variant':    '#1f6d44',
+        'surface-tint':                '#1f6d44',
+        'inverse-primary':             '#81b927',
+
+        // Secondary — Everscale navy
+        'secondary':                   '#0b2a58',  // --navy-2
+        'on-secondary':                '#ffffff',
+        'secondary-container':         '#e8eef2',  // --mist
+        'on-secondary-container':      '#071d47',
+        'secondary-fixed':             '#c8d4e8',
+        'secondary-fixed-dim':         '#a0b4cc',
+        'on-secondary-fixed':          '#071d47',
+        'on-secondary-fixed-variant':  '#0b2a58',
+
+        // Tertiary — slate
+        'tertiary':                    '#4e5c70',  // --slate
+        'on-tertiary':                 '#ffffff',
+        'tertiary-container':          '#cce0f0',
+        'on-tertiary-container':       '#071d47',
+        'tertiary-fixed':              '#cce0f0',
+        'tertiary-fixed-dim':          '#67add2',  // --digital-blue
+        'on-tertiary-fixed':           '#071d47',
+        'on-tertiary-fixed-variant':   '#0b2a58',
+
+        // Surfaces — light paper hierarchy
+        'background':                  '#f7f9fb',  // --paper
+        'on-background':               '#10284d',  // --ink
+        'surface':                     '#f7f9fb',  // --paper
+        'surface-dim':                 '#eef3f7',  // --paper-2
+        'surface-bright':              '#ffffff',
+        'surface-variant':             '#eef3f7',
+        'surface-container-lowest':    '#ffffff',
+        'surface-container-low':       '#f0f4f8',  // sidebar bg
+        'surface-container':           '#ffffff',  // cards
+        'surface-container-high':      '#eef3f7',  // --paper-2, card headers
+        'surface-container-highest':   '#dce4ea',
+
+        // On-surface text
+        'on-surface':                  '#10284d',  // --ink
+        'on-surface-variant':          '#4e5c70',  // --slate
+
+        // Inverse
+        'inverse-surface':             '#071d47',  // --navy
+        'inverse-on-surface':          '#f7f9fb',
+
+        // Error
+        'error':                       '#ba1a1a',
+        'on-error':                    '#ffffff',
+        'error-container':             '#ffdad6',
+        'on-error-container':          '#410002',
       },
       borderRadius: {
         DEFAULT: '0.125rem',
@@ -67,9 +82,9 @@ export default {
         full: '9999px',
       },
       fontFamily: {
-        headline: ['Inter', 'sans-serif'],
-        body: ['Inter', 'sans-serif'],
-        label: ['Inter', 'sans-serif'],
+        headline: ['"IBM Plex Sans"', 'sans-serif'],
+        body:     ['"IBM Plex Sans"', 'sans-serif'],
+        label:    ['"IBM Plex Sans"', 'sans-serif'],
       },
     },
   },

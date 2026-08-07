@@ -244,7 +244,7 @@ export default function Dashboard() {
               </p>
               {!loading && (
                 <p className="text-[11px] text-on-surface-variant mt-2">
-                  <span className="text-primary font-semibold">+{stats?.weeklySent ?? 0}</span> enviados esta semana
+                  <span className="text-primary font-semibold">+{stats?.monthlySent ?? 0}</span> Agregados al Talent Pool
                 </p>
               )}
             </Link>

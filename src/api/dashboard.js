@@ -15,13 +15,16 @@ export async function getDashboardStats() {
   const isoWeek = 1 + Math.round(((tmp - jan4) / 86400000 - 3 + (jan4.getDay() + 6) % 7) / 7)
   const isoYear = tmp.getFullYear()
 
+  // First day of current calendar month
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+
   const [
     { count: totalClients },
     { count: totalCandidates },
     { data: allRequirements },
     { count: weeklySentCount },
     { count: weeklyRejectedCount },
-    { count: newCandidatesThisWeek },
+    { count: monthlySentCount },
   ] = await Promise.all([
     supabase.from('client').select('*', { count: 'exact', head: true }),
     supabase.from('candidate').select('*', { count: 'exact', head: true }),
@@ -34,10 +37,8 @@ export async function getDashboardStats() {
       .eq('status', 'Sent').eq('week_number', isoWeek).eq('week_year', isoYear),
     supabase.from('tracker_entry').select('*', { count: 'exact', head: true })
       .in('status', ['Rejected', 'HSE', 'Backed Out']).eq('week_number', isoWeek).eq('week_year', isoYear),
-    supabase
-      .from('candidate')
-      .select('candidate_id', { count: 'exact', head: true })
-      .gte('created_at', weekStart.toISOString()),
+    supabase.from('tracker_entry').select('*', { count: 'exact', head: true })
+      .eq('status', 'Sent').gte('created_at', monthStart),
   ])
 
   const reqs = allRequirements ?? []
@@ -86,7 +87,7 @@ export async function getDashboardStats() {
     topClients,
     weeklySent,
     weeklyRejected,
-    newCandidatesThisWeek: newCandidatesThisWeek ?? 0,
+    monthlySent: monthlySentCount ?? 0,
     recentRequirements:   reqs.slice(0, 5),
   }
 }

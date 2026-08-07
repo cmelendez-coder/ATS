@@ -55,7 +55,7 @@ export default {
         'surface-bright':              '#ffffff',
         'surface-variant':             '#eef3f7',
         'surface-container-lowest':    '#c6dff2',  // cards — blue
-        'surface-container-low':       '#f0f4f8',  // sidebar bg
+        'surface-container-low':       '#071d47',  // sidebar bg
         'surface-container':           '#b8d5ec',  // inner card containers
         'surface-container-high':      '#a8cae7',  // card headers / highlighted
         'surface-container-highest':   '#97bee1',  // most highlighted

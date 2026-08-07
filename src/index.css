@@ -16,12 +16,12 @@ body {
   font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
-/* Sidebar nav — active item: navy bg, white text */
+/* Sidebar nav — active item: forest green on navy sidebar */
 .nav-active {
-  background-color: #071d47;
+  background-color: #1f6d44;
   color: #ffffff;
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(7, 29, 71, 0.18);
+  box-shadow: 0 2px 8px rgba(31, 109, 68, 0.3);
 }
 
 .nav-active .material-symbols-outlined {

@@ -35,7 +35,10 @@ const ENGLISH_OPTIONS = [90, 85, 80, 75, 70, 60, 50, 40, 30]
 const AMOUNT_TYPES    = ['Gross', 'Net']
 
 function toTitleCase(str) {
-  return (str ?? '').trim().toLowerCase().replace(/\b\w/g, c => c.toUpperCase())
+  return (str ?? '').trim().toLowerCase()
+    .split(/\s+/)
+    .map(w => w ? w[0].toUpperCase() + w.slice(1) : w)
+    .join(' ')
 }
 
 const STATUS_DOT = {

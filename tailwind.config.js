@@ -47,18 +47,18 @@ export default {
         'on-tertiary-fixed':           '#071d47',
         'on-tertiary-fixed-variant':   '#0b2a58',
 
-        // Surfaces — light paper hierarchy
-        'background':                  '#f7f9fb',  // --paper
+        // Surfaces
+        'background':                  '#f7f9fb',  // --paper (page bg)
         'on-background':               '#10284d',  // --ink
         'surface':                     '#f7f9fb',  // --paper
         'surface-dim':                 '#eef3f7',  // --paper-2
         'surface-bright':              '#ffffff',
         'surface-variant':             '#eef3f7',
-        'surface-container-lowest':    '#ffffff',
+        'surface-container-lowest':    '#c6dff2',  // cards — blue
         'surface-container-low':       '#f0f4f8',  // sidebar bg
-        'surface-container':           '#ffffff',  // cards
-        'surface-container-high':      '#eef3f7',  // --paper-2, card headers
-        'surface-container-highest':   '#dce4ea',
+        'surface-container':           '#b8d5ec',  // inner card containers
+        'surface-container-high':      '#a8cae7',  // card headers / highlighted
+        'surface-container-highest':   '#97bee1',  // most highlighted
 
         // On-surface text
         'on-surface':                  '#10284d',  // --ink

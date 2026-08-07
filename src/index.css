@@ -36,12 +36,12 @@ body {
 .row-actions { opacity: 0; transition: opacity 0.15s ease; }
 .req-row:hover .row-actions { opacity: 1; }
 
-/* Kanban / pipeline cards — white on paper bg */
+/* Kanban / pipeline cards — blue on paper bg */
 .pipeline-card,
 .kanban-card {
-  background: #ffffff;
-  border: 1px solid rgba(207, 213, 214, 0.7);
-  box-shadow: 0 2px 8px rgba(7, 29, 71, 0.06);
+  background: #c6dff2;
+  border: 1px solid rgba(100, 160, 210, 0.35);
+  box-shadow: 0 2px 8px rgba(7, 29, 71, 0.08);
 }
 
 .kanban-card textarea { resize: vertical; min-height: 72px; }

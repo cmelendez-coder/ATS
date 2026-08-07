@@ -189,28 +189,28 @@ export default function Dashboard() {
             {/* Open Requirements */}
             <Link
               to="/requirements"
-              className="col-span-1 block bg-surface-container-lowest rounded-2xl p-5 shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden border border-outline-variant/10 hover:shadow-[0_4px_24px_rgba(24,28,30,0.08)] transition-shadow"
+              className="col-span-1 block bg-[#0b2a58] rounded-2xl p-5 shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden border border-white/[0.08] hover:shadow-[0_4px_24px_rgba(24,28,30,0.08)] transition-shadow"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.04] to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent pointer-events-none" />
               <div className="flex items-start justify-between mb-2">
-                <h3 className="text-xs uppercase tracking-[0.08em] font-bold text-on-surface-variant">Open Requirements</h3>
-                <span className="material-symbols-outlined text-[18px] text-on-surface-variant/40">assignment</span>
+                <h3 className="text-xs uppercase tracking-[0.08em] font-bold text-white/60">Open Requirements</h3>
+                <span className="material-symbols-outlined text-[18px] text-white/30">assignment</span>
               </div>
-              <p className="text-[5.5rem] leading-none tracking-tighter font-light text-primary">
+              <p className="text-[5.5rem] leading-none tracking-tighter font-light text-[#81b927]">
                 {loading ? '…' : stats?.openCount ?? 0}
               </p>
             </Link>
 
             {/* Clients — top 3 by open requirements */}
-            <div className="col-span-2 bg-surface-container-lowest rounded-2xl p-5 shadow-[0_2px_16px_rgba(24,28,30,0.05)] border border-outline-variant/10">
+            <div className="col-span-2 bg-[#0b2a58] rounded-2xl p-5 shadow-[0_2px_16px_rgba(24,28,30,0.05)] border border-white/[0.08]">
               <div className="flex items-start justify-between mb-4">
-                <h3 className="text-xs uppercase tracking-[0.08em] font-bold text-on-surface-variant">Clients</h3>
-                <Link to="/clients" className="text-[10px] text-primary/60 hover:text-primary transition-colors font-semibold">
+                <h3 className="text-xs uppercase tracking-[0.08em] font-bold text-white/60">Clients</h3>
+                <Link to="/clients" className="text-[10px] text-white/40 hover:text-white/80 transition-colors font-semibold">
                   {!loading && `${stats?.totalClients ?? 0} total →`}
                 </Link>
               </div>
               {loading ? (
-                <div className="h-16 flex items-center text-on-surface-variant/40 text-sm">…</div>
+                <div className="h-16 flex items-center text-white/30 text-sm">…</div>
               ) : (
                 <div className="flex flex-wrap gap-3">
                   {(stats?.topClients ?? []).map((client, i) => {
@@ -239,19 +239,19 @@ export default function Dashboard() {
             {/* Talent Pool */}
             <Link
               to="/talent"
-              className="block bg-surface-container-lowest rounded-2xl p-5 shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden border border-outline-variant/10 hover:shadow-[0_4px_24px_rgba(24,28,30,0.08)] transition-shadow"
+              className="block bg-[#0b2a58] rounded-2xl p-5 shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden border border-white/[0.08] hover:shadow-[0_4px_24px_rgba(24,28,30,0.08)] transition-shadow"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
               <div className="flex items-start justify-between mb-2">
-                <h3 className="text-xs uppercase tracking-[0.08em] font-bold text-on-surface-variant">Talent Pool</h3>
-                <span className="material-symbols-outlined text-[18px] text-on-surface-variant/40">people</span>
+                <h3 className="text-xs uppercase tracking-[0.08em] font-bold text-white/60">Talent Pool</h3>
+                <span className="material-symbols-outlined text-[18px] text-white/30">people</span>
               </div>
-              <p className="text-5xl tracking-tighter font-light text-primary">
+              <p className="text-5xl tracking-tighter font-light text-[#81b927]">
                 {loading ? '…' : (stats?.totalCandidates ?? 0).toLocaleString()}
               </p>
               {!loading && (
-                <p className="text-[11px] text-on-surface-variant mt-2">
-                  <span className="text-primary font-semibold">+{stats?.monthlySent ?? 0}</span> Agregados al Talent Pool en {new Date().toLocaleDateString('es-MX', { month: 'long' }).replace(/^\w/, c => c.toUpperCase())}
+                <p className="text-[11px] text-white/60 mt-2">
+                  <span className="text-[#81b927] font-semibold">+{stats?.monthlySent ?? 0}</span> Agregados al Talent Pool en {new Date().toLocaleDateString('es-MX', { month: 'long' }).replace(/^\w/, c => c.toUpperCase())}
                 </p>
               )}
             </Link>

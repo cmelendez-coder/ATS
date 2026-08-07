@@ -54,8 +54,8 @@ export default {
         'surface-dim':                 '#eef3f7',  // --paper-2
         'surface-bright':              '#ffffff',
         'surface-variant':             '#eef3f7',
-        'surface-container-lowest':    '#4e5c70',  // cards — slate
-        'surface-container-low':       '#10284d',  // sidebar bg
+        'surface-container-lowest':    '#c6dff2',  // cards — light blue
+        'surface-container-low':       '#4e5c70',  // section bg — slate
         'surface-container':           '#b8d5ec',  // inner card containers
         'surface-container-high':      '#a8cae7',  // card headers / highlighted
         'surface-container-highest':   '#97bee1',  // most highlighted

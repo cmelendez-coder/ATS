@@ -43,7 +43,7 @@ export default function Sidebar({ collapsed = false, onToggle }) {
   }
 
   return (
-    <nav className={`hidden md:flex flex-col h-full py-6 px-4 bg-surface-container-low border-r border-white/[0.06] fixed left-0 top-0 z-50 shrink-0 transition-[width] duration-200 ${collapsed ? 'w-20' : 'w-64'}`}>
+    <nav className={`hidden md:flex flex-col h-full py-6 px-4 bg-[#10284d] border-r border-white/[0.06] fixed left-0 top-0 z-50 shrink-0 transition-[width] duration-200 ${collapsed ? 'w-20' : 'w-64'}`}>
       {/* Brand */}
       <div className={`flex items-center px-2 mb-8 ${collapsed ? 'justify-center' : 'justify-between gap-3'}`}>
         <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3'} min-w-0`}>

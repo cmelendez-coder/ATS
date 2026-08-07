@@ -177,7 +177,8 @@ export async function saveTrackerEntry(entry) {
   // 1. Create candidate in Talent Directory if new
   let candidateId = entry.candidate_id ?? null
 
-  if (!candidateId && entry.candidate_name?.trim()) {
+  // Only create a candidate record when status is Sent — they earn their place in the Talent Directory
+  if (!candidateId && entry.candidate_name?.trim() && entry.status === 'Sent') {
     const { data: statusRow } = await supabase
       .from('catalog_status').select('status_id').eq('name', 'Available').single()
 

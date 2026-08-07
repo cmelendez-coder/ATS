@@ -15,6 +15,18 @@ async function upsertCatalog(table, nameCol, idCol, value) {
 // ─── Search / list candidates ─────────────────────────────────────
 // Searches across: full_name, bdd_role, bdd_technology, bdd_module, bdd_skills, role catalog, tech stack, and skillset notes. Email is intentionally excluded.
 export async function searchCandidates({ q = '', englishMin = '', englishMax = '' } = {}) {
+  // Determine which candidate_ids appear in the tracker but have never been Sent.
+  // Those should be excluded — the Talent Directory only shows candidates who earned
+  // a "Sent" status in the tracker (or were added manually with no tracker entry).
+  const [{ data: allTrackerRows }, { data: sentRows }] = await Promise.all([
+    supabase.from('tracker_entry').select('candidate_id').not('candidate_id', 'is', null),
+    supabase.from('tracker_entry').select('candidate_id').eq('status', 'Sent').not('candidate_id', 'is', null),
+  ])
+  const sentIds = new Set((sentRows ?? []).map(r => r.candidate_id))
+  const excludeIds = [...new Set(
+    (allTrackerRows ?? []).map(r => r.candidate_id).filter(id => !sentIds.has(id))
+  )]
+
   let baseQuery = supabase
     .from('candidate')
     .select(`
@@ -29,6 +41,10 @@ export async function searchCandidates({ q = '', englishMin = '', englishMax = '
     `)
     .order('created_at', { ascending: false })
     .limit(5000)
+
+  if (excludeIds.length > 0) {
+    baseQuery = baseQuery.not('candidate_id', 'in', `(${excludeIds.join(',')})`)
+  }
 
   if (englishMin !== '') baseQuery = baseQuery.gte('english_score', Number(englishMin))
   if (englishMax !== '') baseQuery = baseQuery.lte('english_score', Number(englishMax))

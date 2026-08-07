@@ -588,7 +588,7 @@ function PipelinePanel({ reqId, clientId, clientName, canDrag, canManage }) {
   }
 
   if (loading) return (
-    <div className="flex items-center justify-center py-10 gap-2 text-on-surface-variant">
+    <div className="flex items-center justify-center py-10 gap-2 text-white/50">
       <span className="material-symbols-outlined animate-spin text-[20px]">progress_activity</span>
       <span className="text-sm">Loading pipeline…</span>
     </div>
@@ -602,8 +602,8 @@ function PipelinePanel({ reqId, clientId, clientName, canDrag, canManage }) {
 
   if (stages.length === 0) return (
     <div className="flex flex-col items-center justify-center py-8 text-center">
-      <span className="material-symbols-outlined text-[36px] text-on-surface-variant/30 mb-2">account_tree</span>
-      <p className="text-sm text-on-surface-variant">No pipeline stages configured for this client.</p>
+      <span className="material-symbols-outlined text-[36px] text-white/30 mb-2">account_tree</span>
+      <p className="text-sm text-white/50">No pipeline stages configured for this client.</p>
     </div>
   )
 
@@ -614,40 +614,40 @@ function PipelinePanel({ reqId, clientId, clientName, canDrag, canManage }) {
       {/* Header */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
-          <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
+          <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest">
             Interview Pipeline
           </p>
           {/* Tabs */}
-          <div className="flex items-center gap-0.5 p-0.5 bg-surface-container rounded-lg">
+          <div className="flex items-center gap-0.5 p-0.5 bg-white/10 rounded-lg">
             <button
               onClick={() => setActiveView('activos')}
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all ${
                 activeView === 'activos'
-                  ? 'bg-surface-container-lowest text-primary shadow-sm'
-                  : 'text-on-surface-variant hover:text-on-surface'
+                  ? 'bg-white/20 text-white shadow-sm'
+                  : 'text-white/50 hover:text-white'
               }`}
             >
               Activos
               <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
-                activeView === 'activos' ? 'bg-primary/10 text-primary' : 'bg-surface-container-high text-on-surface-variant'
+                activeView === 'activos' ? 'bg-white/20 text-white' : 'bg-white/10 text-white/40'
               }`}>{activeRcs.length}</span>
             </button>
             <button
               onClick={() => setActiveView('rechazados')}
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all ${
                 activeView === 'rechazados'
-                  ? 'bg-surface-container-lowest text-red-500 shadow-sm'
-                  : 'text-on-surface-variant hover:text-on-surface'
+                  ? 'bg-white/20 text-red-400 shadow-sm'
+                  : 'text-white/50 hover:text-white'
               }`}
             >
               Rechazados
               <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
-                activeView === 'rechazados' ? 'bg-red-500/10 text-red-500' : 'bg-surface-container-high text-on-surface-variant'
+                activeView === 'rechazados' ? 'bg-red-500/20 text-red-400' : 'bg-white/10 text-white/40'
               }`}>{rejectedRcs.length}</span>
             </button>
           </div>
           {canDrag && activeRcs.length > 0 && activeView === 'activos' && (
-            <span className="text-[10px] text-on-surface-variant/50 flex items-center gap-1">
+            <span className="text-[10px] text-white/40 flex items-center gap-1">
               <span className="material-symbols-outlined text-[11px]">drag_indicator</span>
               Arrastra para mover
             </span>
@@ -656,7 +656,7 @@ function PipelinePanel({ reqId, clientId, clientName, canDrag, canManage }) {
         {canManage && activeView === 'activos' && (
           <button
             onClick={() => setShowAdd(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#81b927]/20 text-[#81b927] text-xs font-semibold hover:bg-[#81b927]/30 transition-colors"
           >
             <span className="material-symbols-outlined text-[15px]">person_add</span>
             Agregar Candidato
@@ -668,7 +668,7 @@ function PipelinePanel({ reqId, clientId, clientName, canDrag, canManage }) {
       {activeView === 'rechazados' && (
         <div className="space-y-1.5 py-1">
           {rejectedRcs.length === 0 ? (
-            <div className="flex flex-col items-center py-10 gap-2 text-on-surface-variant/40">
+            <div className="flex flex-col items-center py-10 gap-2 text-white/30">
               <span className="material-symbols-outlined text-[36px]">person_off</span>
               <p className="text-sm">Sin candidatos rechazados</p>
             </div>
@@ -676,18 +676,18 @@ function PipelinePanel({ reqId, clientId, clientName, canDrag, canManage }) {
             <div
               key={rc.id}
               onClick={() => setOpenCard(rc)}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-red-500/5 border border-red-200/30 cursor-pointer hover:bg-red-500/10 transition-colors"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-red-500/10 border border-red-400/20 cursor-pointer hover:bg-red-500/15 transition-colors"
             >
-              <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-sm font-bold text-red-500 shrink-0">
+              <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-sm font-bold text-red-400 shrink-0">
                 {rc.candidate?.full_name?.charAt(0)?.toUpperCase() ?? '?'}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-on-surface truncate">{rc.candidate?.full_name ?? '—'}</p>
+                <p className="text-sm font-semibold text-white truncate">{rc.candidate?.full_name ?? '—'}</p>
                 {rc.candidate?.role?.name && (
-                  <p className="text-xs text-on-surface-variant">{rc.candidate.role.name}</p>
+                  <p className="text-xs text-white/60">{rc.candidate.role.name}</p>
                 )}
               </div>
-              <span className="material-symbols-outlined text-[16px] text-on-surface-variant/30">chevron_right</span>
+              <span className="material-symbols-outlined text-[16px] text-white/30">chevron_right</span>
             </div>
           ))}
         </div>
@@ -709,9 +709,9 @@ function PipelinePanel({ reqId, clientId, clientName, canDrag, canManage }) {
               `}
               style={{
                 width: 180,
-                backgroundColor: isOver ? stage.color + '12' : 'rgba(var(--md-sys-color-surface-container-lowest), 0.7)',
+                backgroundColor: isOver ? stage.color + '18' : 'rgba(255,255,255,0.06)',
                 borderColor: isOver ? stage.color : 'transparent',
-                outline: !isOver ? `1px solid rgba(var(--md-sys-color-outline-variant), 0.2)` : 'none',
+                outline: !isOver ? '1px solid rgba(255,255,255,0.08)' : 'none',
                 borderRadius: 16,
               }}
               onDragOver={canDrag ? e => { e.preventDefault(); setDragOver(stage.name) } : undefined}
@@ -797,7 +797,7 @@ function PipelinePanel({ reqId, clientId, clientName, canDrag, canManage }) {
 
                 {/* Empty state (no dragging) */}
                 {!isDraggingAny && cards.length === 0 && (
-                  <div className="text-[10px] text-on-surface-variant/30 text-center py-3 select-none">
+                  <div className="text-[10px] text-white/30 text-center py-3 select-none">
                     Sin candidatos
                   </div>
                 )}

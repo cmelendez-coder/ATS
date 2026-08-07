@@ -57,8 +57,8 @@ function DonutChart({ segments, total }) {
         className="absolute rounded-full bg-surface-container-low flex flex-col items-center justify-center"
         style={{ inset: 20 }}
       >
-        <span className="text-lg font-bold text-primary leading-none">{total}</span>
-        <span className="text-[8px] text-on-surface-variant mt-0.5">total</span>
+        <span className="text-lg font-bold text-[#81b927] leading-none">{total}</span>
+        <span className="text-[8px] text-white/50 mt-0.5">total</span>
       </div>
     </div>
   )
@@ -69,14 +69,14 @@ function HBar({ label, count, max, color }) {
   const pct = max > 0 ? Math.max((count / max) * 100, 4) : 0
   return (
     <div className="flex items-center gap-2.5">
-      <span className="text-[11px] text-on-surface-variant w-24 truncate shrink-0">{label}</span>
-      <div className="flex-1 h-1.5 bg-surface-container rounded-full overflow-hidden">
+      <span className="text-[11px] text-white/70 w-24 truncate shrink-0">{label}</span>
+      <div className="flex-1 h-1.5 bg-white/20 rounded-full overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-500"
           style={{ width: `${pct}%`, backgroundColor: color }}
         />
       </div>
-      <span className="text-[11px] font-semibold text-primary w-5 text-right shrink-0">{count}</span>
+      <span className="text-[11px] font-semibold text-white w-5 text-right shrink-0">{count}</span>
     </div>
   )
 }
@@ -263,12 +263,12 @@ export default function Dashboard() {
 
             {/* Donut: Open requirements by client */}
             <div className="bg-surface-container-low rounded-2xl p-6">
-              <h2 className="text-sm font-bold text-primary mb-1">Open Requirements</h2>
-              <p className="text-[11px] text-on-surface-variant mb-5">Por cliente</p>
+              <h2 className="text-sm font-bold text-white mb-1">Open Requirements</h2>
+              <p className="text-[11px] text-white/60 mb-5">Por cliente</p>
 
               {loading ? (
                 <div className="flex items-center justify-center h-28">
-                  <span className="material-symbols-outlined animate-spin text-[22px] text-on-surface-variant/40">progress_activity</span>
+                  <span className="material-symbols-outlined animate-spin text-[22px] text-white/40">progress_activity</span>
                 </div>
               ) : (
                 <>
@@ -277,8 +277,8 @@ export default function Dashboard() {
                     {clientSegments.map(seg => (
                       <div key={seg.name} className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: seg.color }} />
-                        <span className="text-[11px] text-on-surface-variant flex-1 truncate">{seg.name}</span>
-                        <span className="text-[11px] font-semibold text-primary">{seg.count}</span>
+                        <span className="text-[11px] text-white/70 flex-1 truncate">{seg.name}</span>
+                        <span className="text-[11px] font-semibold text-white">{seg.count}</span>
                       </div>
                     ))}
                   </div>
@@ -288,15 +288,15 @@ export default function Dashboard() {
 
             {/* Bar chart: Open reqs by client */}
             <div className="bg-surface-container-low rounded-2xl p-6">
-              <h2 className="text-sm font-bold text-primary mb-1">Por Cliente</h2>
-              <p className="text-[11px] text-on-surface-variant mb-5">Open requirements</p>
+              <h2 className="text-sm font-bold text-white mb-1">Por Cliente</h2>
+              <p className="text-[11px] text-white/60 mb-5">Open requirements</p>
 
               {loading ? (
                 <div className="flex items-center justify-center h-28">
-                  <span className="material-symbols-outlined animate-spin text-[22px] text-on-surface-variant/40">progress_activity</span>
+                  <span className="material-symbols-outlined animate-spin text-[22px] text-white/40">progress_activity</span>
                 </div>
               ) : !stats?.topClients?.length ? (
-                <p className="text-[11px] text-on-surface-variant/50 text-center py-8">No open requirements</p>
+                <p className="text-[11px] text-white/50 text-center py-8">No open requirements</p>
               ) : (
                 <div className="space-y-3 mt-2">
                   {stats.topClients.map(c => (
@@ -312,14 +312,14 @@ export default function Dashboard() {
           <div className="bg-surface-container-low rounded-2xl p-6">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h2 className="text-sm font-bold text-primary">Pipeline de Candidatos</h2>
-                <p className="text-[11px] text-on-surface-variant mt-0.5">Actividad de esta semana</p>
+                <h2 className="text-sm font-bold text-white">Pipeline de Candidatos</h2>
+                <p className="text-[11px] text-white/60 mt-0.5">Actividad de esta semana</p>
               </div>
-              <span className="material-symbols-outlined text-[20px] text-on-surface-variant/30">hub</span>
+              <span className="material-symbols-outlined text-[20px] text-white/30">hub</span>
             </div>
 
             {loading ? (
-              <div className="flex items-center justify-center py-6 gap-2 text-on-surface-variant">
+              <div className="flex items-center justify-center py-6 gap-2 text-white/60">
                 <span className="material-symbols-outlined animate-spin text-[22px]">progress_activity</span>
               </div>
             ) : (() => {
@@ -391,23 +391,23 @@ export default function Dashboard() {
           <div className="bg-surface-container-low rounded-2xl p-7">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-xl font-bold tracking-tight text-primary">Active Requirements</h2>
-                <p className="text-xs text-on-surface-variant mt-0.5">Most recent requisitions</p>
+                <h2 className="text-xl font-bold tracking-tight text-white">Active Requirements</h2>
+                <p className="text-xs text-white/60 mt-0.5">Most recent requisitions</p>
               </div>
-              <Link to="/requirements" className="text-sm font-medium text-surface-tint hover:text-primary transition-colors flex items-center gap-1">
+              <Link to="/requirements" className="text-sm font-medium text-white/70 hover:text-white transition-colors flex items-center gap-1">
                 View All <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
               </Link>
             </div>
 
             {loading ? (
-              <div className="flex items-center justify-center py-10 gap-2 text-on-surface-variant">
+              <div className="flex items-center justify-center py-10 gap-2 text-white/60">
                 <span className="material-symbols-outlined animate-spin text-[22px]">progress_activity</span>
                 <span className="text-sm">Cargando…</span>
               </div>
             ) : !stats?.recentRequirements?.length ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <span className="material-symbols-outlined text-[44px] text-on-surface-variant/25 mb-3">assignment</span>
-                <p className="text-sm font-medium text-on-surface-variant">No requirements yet</p>
+                <span className="material-symbols-outlined text-[44px] text-white/25 mb-3">assignment</span>
+                <p className="text-sm font-medium text-white/60">No requirements yet</p>
                 {can('requirements.create') && (
                   <Link to="/requirements/new" className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity">
                     <span className="material-symbols-outlined text-[15px]">add</span>Create one

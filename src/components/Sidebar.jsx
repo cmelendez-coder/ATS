@@ -62,7 +62,7 @@ export default function Sidebar({ collapsed = false, onToggle }) {
         <button
           type="button"
           onClick={onToggle}
-          className={`rounded-full p-2 text-white/40 hover:bg-white/10 hover:text-white transition-colors ${collapsed ? 'absolute top-6 -right-4 bg-[#071d47] border border-white/10 shadow-sm' : ''}`}
+          className={`rounded-full p-2 text-white/40 hover:bg-white/10 hover:text-white transition-colors ${collapsed ? 'absolute top-6 -right-4 bg-[#10284d] border border-white/10 shadow-sm' : ''}`}
           title={collapsed ? 'Expandir menu' : 'Contraer menu'}
         >
           <span className="material-symbols-outlined text-[18px]">{collapsed ? 'chevron_right' : 'chevron_left'}</span>

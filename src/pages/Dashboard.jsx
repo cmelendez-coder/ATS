@@ -177,42 +177,57 @@ export default function Dashboard() {
 
           {/* ── STAT TILES ── */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {/* Requirements */}
+            {/* Open Requirements */}
             <Link
               to="/requirements"
               className="col-span-1 block bg-surface-container-lowest rounded-2xl p-5 shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden border border-outline-variant/10 hover:shadow-[0_4px_24px_rgba(24,28,30,0.08)] transition-shadow"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.04] to-transparent pointer-events-none" />
               <div className="flex items-start justify-between mb-2">
-                <h3 className="text-xs uppercase tracking-[0.08em] font-bold text-on-surface-variant">Requirements</h3>
+                <h3 className="text-xs uppercase tracking-[0.08em] font-bold text-on-surface-variant">Open Requirements</h3>
                 <span className="material-symbols-outlined text-[18px] text-on-surface-variant/40">assignment</span>
               </div>
               <p className="text-5xl tracking-tighter font-light text-primary">
-                {loading ? '…' : stats?.totalRequirements ?? 0}
+                {loading ? '…' : stats?.openCount ?? 0}
               </p>
               {!loading && (
                 <p className="text-[11px] text-on-surface-variant mt-2">
-                  <span className="text-primary font-semibold">{stats?.openCount ?? 0} Open</span>
-                  <span className="mx-1 opacity-40">·</span>
                   <span>{stats?.closedCount ?? 0} Closed</span>
+                  <span className="mx-1 opacity-40">·</span>
+                  <span>{stats?.totalRequirements ?? 0} Total</span>
                 </p>
               )}
             </Link>
 
-            {/* Clients */}
-            <Link
-              to="/clients"
-              className="block bg-surface-container-lowest rounded-2xl p-5 shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden border border-outline-variant/10 hover:shadow-[0_4px_24px_rgba(24,28,30,0.08)] transition-shadow"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-secondary/[0.06] to-transparent pointer-events-none" />
-              <div className="flex items-start justify-between mb-2">
+            {/* Clients — top 3 by open requirements */}
+            <div className="col-span-2 bg-surface-container-lowest rounded-2xl p-5 shadow-[0_2px_16px_rgba(24,28,30,0.05)] border border-outline-variant/10">
+              <div className="flex items-start justify-between mb-4">
                 <h3 className="text-xs uppercase tracking-[0.08em] font-bold text-on-surface-variant">Clients</h3>
-                <span className="material-symbols-outlined text-[18px] text-on-surface-variant/40">business</span>
+                <Link to="/clients" className="text-[10px] text-primary/60 hover:text-primary transition-colors font-semibold">
+                  {!loading && `${stats?.totalClients ?? 0} total →`}
+                </Link>
               </div>
-              <p className="text-5xl tracking-tighter font-light text-primary">
-                {loading ? '…' : stats?.totalClients ?? 0}
-              </p>
-            </Link>
+              {loading ? (
+                <div className="h-16 flex items-center text-on-surface-variant/40 text-sm">…</div>
+              ) : (
+                <div className="grid grid-cols-3 gap-3">
+                  {(stats?.topClients ?? []).slice(0, 3).map((client, i) => {
+                    const P = [
+                      { bg: '#dce8f7', num: '#071d47', lbl: '#4a6890' },
+                      { bg: '#ede8f8', num: '#3d2a80', lbl: '#6b58a0' },
+                      { bg: '#fef2e0', num: '#a85200', lbl: '#8a6030' },
+                    ]
+                    const p = P[i] ?? P[0]
+                    return (
+                      <div key={client.name} className="rounded-xl p-3.5" style={{ backgroundColor: p.bg }}>
+                        <p className="text-[9px] font-bold uppercase tracking-widest mb-2 truncate" style={{ color: p.lbl }}>{client.name}</p>
+                        <p className="text-[2rem] font-light leading-none" style={{ color: p.num }}>{client.count}</p>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
 
             {/* Talent Pool */}
             <Link

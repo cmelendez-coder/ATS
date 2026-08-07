@@ -55,16 +55,16 @@ const STATUS_DOT = {
 }
 
 const STATUS_STYLE = {
-  'Review':     'bg-orange-600/20 text-orange-300 border border-orange-500/40',
-  'WA':         'bg-green-600/20 text-green-300 border border-green-500/40',
+  'Review':     'bg-amber-500/20 text-amber-300 border border-amber-400/40',
+  'WA':         'bg-emerald-600/20 text-emerald-300 border border-emerald-500/40',
   'Contacted':  'bg-cyan-600/20 text-cyan-300 border border-cyan-500/40',
   'CV':         'bg-purple-600/20 text-purple-300 border border-purple-500/40',
   'Screening':  'bg-blue-600/20 text-blue-300 border border-blue-500/40',
-  'Sent':       'bg-pink-600/20 text-pink-300 border border-pink-500/40',
-  'Rejected':   'bg-red-600/20 text-red-300 border border-red-500/40',
+  'Sent':       'bg-[#1f6d44]/30 text-[#81b927] border border-[#81b927]/40',
+  'Rejected':   'bg-red-700/25 text-red-400 border border-red-500/40',
   'HSE':        'bg-yellow-500/20 text-yellow-300 border border-yellow-400/40',
-  'On Hold':    'bg-slate-600/20 text-slate-300 border border-slate-500/40',
-  'Backed Out': 'bg-neutral-700 text-neutral-300 border border-neutral-500/40',
+  'On Hold':    'bg-slate-600/20 text-slate-400 border border-slate-500/40',
+  'Backed Out': 'bg-zinc-700/40 text-zinc-400 border border-zinc-500/40',
 }
 
 function toAbsoluteUrl(url) {
@@ -178,7 +178,7 @@ function CandidateSearch({ value, candidateId, onSelect, disabled }) {
   return (
     <div ref={wrapRef} className="relative w-full">
       <input
-        className="w-full bg-transparent text-on-surface text-xs px-2 py-1.5 focus:outline-none placeholder:text-on-surface-variant/40"
+        className="w-full bg-transparent text-white text-xs px-2 py-1.5 focus:outline-none placeholder:text-[#8ab0d0]/50"
         placeholder="Nombre del candidato…"
         value={query}
         onChange={handleChange}
@@ -191,18 +191,18 @@ function CandidateSearch({ value, candidateId, onSelect, disabled }) {
         </span>
       )}
       {open && (
-        <div className="absolute left-0 top-full mt-1 z-50 bg-surface-container-high border border-outline-variant/30 rounded-lg shadow-xl w-64 max-h-48 overflow-y-auto">
+        <div className="absolute left-0 top-full mt-1 z-50 bg-[#0b2a58] border border-white/10 rounded-lg shadow-xl w-64 max-h-48 overflow-y-auto">
           {loading
-            ? <p className="text-xs text-on-surface-variant p-3">Buscando…</p>
+            ? <p className="text-xs text-[#8ab0d0] p-3">Buscando…</p>
             : results.map(r => (
               <button
                 key={r.candidate_id}
                 type="button"
-                className="w-full text-left px-3 py-2 hover:bg-surface-container text-xs"
+                className="w-full text-left px-3 py-2 hover:bg-[#071d47] text-xs"
                 onMouseDown={() => pick(r)}
               >
-                <span className="text-primary font-medium block">{r.full_name}</span>
-                {r.email && <span className="text-on-surface-variant/60">{r.email}</span>}
+                <span className="text-[#81b927] font-medium block">{r.full_name}</span>
+                {r.email && <span className="text-[#8ab0d0]/70">{r.email}</span>}
               </button>
             ))
           }
@@ -242,7 +242,7 @@ function RequirementSearch({ value, requirements, closedRequirements = [], curre
 
   return (
     <select
-      className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none cursor-pointer"
+      className="w-full bg-[#071d47] text-white text-xs px-2 py-1.5 rounded focus:outline-none cursor-pointer border border-white/10"
       value={value ?? ''}
       disabled={disabled}
       onChange={e => onSelect(e.target.value ? Number(e.target.value) : null)}
@@ -472,7 +472,7 @@ function CellPopover({ text, limit = 55, wordLimit = null }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-left text-xs text-on-surface-variant hover:text-primary transition-colors whitespace-nowrap"
+        className="text-left text-xs text-[#8ab0d0] hover:text-[#81b927] transition-colors whitespace-nowrap"
         title="Click para ver completo"
       >
         {isTruncated ? <>{preview}<span className="text-primary/60">…</span></> : text}
@@ -483,14 +483,14 @@ function CellPopover({ text, limit = 55, wordLimit = null }) {
           onClick={() => setOpen(false)}
         >
           <div
-            className="bg-surface-container-high rounded-2xl border border-outline-variant/20 shadow-2xl p-5 max-w-sm w-full mx-4 max-h-[60vh] overflow-y-auto"
+            className="bg-[#0b2a58] rounded-2xl border border-white/10 shadow-2xl p-5 max-w-sm w-full mx-4 max-h-[60vh] overflow-y-auto"
             onClick={e => e.stopPropagation()}
           >
-            <p className="text-xs text-on-surface leading-relaxed whitespace-pre-wrap">{text}</p>
+            <p className="text-xs text-white/90 leading-relaxed whitespace-pre-wrap">{text}</p>
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="mt-4 text-xs text-primary hover:underline"
+              className="mt-4 text-xs text-[#81b927] hover:underline"
             >
               Cerrar
             </button>
@@ -643,32 +643,32 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
   if (!editing) {
     return (
       <tr
-        className={`odd:bg-transparent even:bg-white/[0.04] hover:bg-surface-container/40 transition-colors group border-b border-outline-variant/10 ${!readOnly ? 'cursor-pointer' : ''}`}
+        className={`odd:bg-transparent even:bg-[#0b2a58]/50 hover:bg-[#0b2a58]/80 transition-colors group border-b border-white/[0.05] ${!readOnly ? 'cursor-pointer' : ''}`}
         onDoubleClick={() => { if (!readOnly) onStartEdit() }}
         title={!readOnly ? 'Doble clic para editar' : undefined}
       >
-        <td className="sticky left-0 z-10 w-[200px] group-odd:bg-surface-container-lowest group-even:bg-[#152d5f] px-3 py-2 text-xs text-white font-bold whitespace-nowrap">
+        <td className="sticky left-0 z-10 w-[200px] group-odd:bg-[#071d47] group-even:bg-[#0b2a58] px-3 py-2 text-xs text-white font-bold whitespace-nowrap">
           <div className="flex items-center gap-1.5">
             <span>{data.candidate_name}</span>
-            {data.candidate_id && <span className="text-secondary" title="En Talent Directory"><span className="material-symbols-outlined text-[11px] align-middle">check_circle</span></span>}
+            {data.candidate_id && <span className="text-[#81b927]" title="En Talent Directory"><span className="material-symbols-outlined text-[11px] align-middle">check_circle</span></span>}
           </div>
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
-          {req ? <span>{req.job_title} <span className="text-on-surface-variant/50">· {req.client?.name}</span></span> : '—'}
+        <td className="px-3 py-2 text-xs text-[#8ab0d0] whitespace-nowrap">
+          {req ? <span>{req.job_title} <span className="text-[#8ab0d0]/50">· {req.client?.name}</span></span> : '—'}
         </td>
         <td className="px-3 py-2 text-xs">
           {data.cv_url
-            ? <a href={data.cv_url} target="_blank" rel="noreferrer" className="text-primary hover:underline flex items-center gap-1"><span className="material-symbols-outlined text-[13px]">open_in_new</span>CV</a>
-            : <span className="text-on-surface-variant/40">—</span>}
+            ? <a href={data.cv_url} target="_blank" rel="noreferrer" className="text-[#81b927] hover:underline flex items-center gap-1"><span className="material-symbols-outlined text-[13px]">open_in_new</span>CV</a>
+            : <span className="text-[#8ab0d0]/30">—</span>}
         </td>
         <td className="px-3 py-2 text-xs">
           {data.linkedin_url
-            ? <a href={toAbsoluteUrl(data.linkedin_url)} target="_blank" rel="noreferrer" className="text-[#0A66C2] hover:opacity-75 transition-opacity inline-block" title="Ver LinkedIn">
+            ? <a href={toAbsoluteUrl(data.linkedin_url)} target="_blank" rel="noreferrer" className="text-[#5aaae0] hover:opacity-75 transition-opacity inline-block" title="Ver LinkedIn">
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
               </a>
-            : <span className="text-on-surface-variant/40">—</span>}
+            : <span className="text-[#8ab0d0]/30">—</span>}
         </td>
-        <td className={`sticky left-[200px] ${showStatusMenu ? 'z-50' : 'z-10'} group-odd:bg-surface-container-lowest group-even:bg-[#152d5f] px-3 py-2`}>
+        <td className={`sticky left-[200px] ${showStatusMenu ? 'z-50' : 'z-10'} group-odd:bg-[#071d47] group-even:bg-[#0b2a58] px-3 py-2`}>
           <div className="relative" ref={statusMenuRef}>
             <button
               type="button"
@@ -678,12 +678,12 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
               {data.status}
             </button>
             {showStatusMenu && !readOnly && (
-              <div className="absolute left-0 top-full mt-1 z-50 bg-surface-container-high border border-outline-variant/30 rounded-lg shadow-xl min-w-[130px] py-1">
+              <div className="absolute left-0 top-full mt-1 z-50 bg-[#0b2a58] border border-white/10 rounded-lg shadow-xl min-w-[130px] py-1">
                 {STATUS_OPTIONS.map(s => (
                   <button
                     key={s}
                     type="button"
-                    className={`w-full text-left px-3 py-1.5 text-xs hover:bg-surface-container transition-colors flex items-center gap-2 ${s === data.status ? 'text-primary font-bold' : 'text-on-surface'}`}
+                    className={`w-full text-left px-3 py-1.5 text-xs hover:bg-[#071d47] transition-colors flex items-center gap-2 ${s === data.status ? 'text-[#81b927] font-bold' : 'text-white/80'}`}
                     onClick={() => {
                       setShowStatusMenu(false)
                       if (s === data.status) return
@@ -707,46 +707,46 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
             <p className="text-[10px] text-blue-300/70 mt-0.5 whitespace-nowrap">{data.screening_note}</p>
           )}
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant max-w-[220px]"><CellPopover text={data.notes} wordLimit={3} /></td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant text-center">{data.english_score != null ? `${data.english_score}%` : '—'}</td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
+        <td className="px-3 py-2 text-xs text-[#8ab0d0] max-w-[220px]"><CellPopover text={data.notes} wordLimit={3} /></td>
+        <td className="px-3 py-2 text-xs text-[#8ab0d0] text-center">{data.english_score != null ? `${data.english_score}%` : '—'}</td>
+        <td className="px-3 py-2 text-xs text-[#8ab0d0] whitespace-nowrap">
           {data.salary
             ? `$${Number(String(data.salary).replace(/[^0-9.]/g,'')).toLocaleString('en-US').replace(/,/g,"'")}${data.amount_type ? ` (${data.amount_type})` : ''}`
             : '—'}
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
+        <td className="px-3 py-2 text-xs text-[#8ab0d0] whitespace-nowrap">
           {data.ote ? `$${Number(String(data.ote).replace(/[^0-9.]/g,'')).toLocaleString('en-US').replace(/,/g,"'")}` : '—'}
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">{data.email || <span className="text-on-surface-variant/40">—</span>}</td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">{data.phone || <span className="text-on-surface-variant/40">—</span>}</td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant whitespace-nowrap">
-          {data.state || <span className="text-on-surface-variant/40">—</span>}
+        <td className="px-3 py-2 text-xs text-[#8ab0d0] whitespace-nowrap">{data.email || <span className="text-[#8ab0d0]/30">—</span>}</td>
+        <td className="px-3 py-2 text-xs text-[#8ab0d0] whitespace-nowrap">{data.phone || <span className="text-[#8ab0d0]/30">—</span>}</td>
+        <td className="px-3 py-2 text-xs text-[#8ab0d0] whitespace-nowrap">
+          {data.state || <span className="text-[#8ab0d0]/30">—</span>}
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant text-center">
-          {data.yoe != null && data.yoe !== '' ? `${data.yoe} yrs` : <span className="text-on-surface-variant/40">—</span>}
+        <td className="px-3 py-2 text-xs text-[#8ab0d0] text-center">
+          {data.yoe != null && data.yoe !== '' ? `${data.yoe} yrs` : <span className="text-[#8ab0d0]/30">—</span>}
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant">
+        <td className="px-3 py-2 text-xs text-[#8ab0d0]">
           <CellPopover text={data.target_role} wordLimit={2} />
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant">
+        <td className="px-3 py-2 text-xs text-[#8ab0d0]">
           <CellPopover text={data.technologies} wordLimit={2} />
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant">
+        <td className="px-3 py-2 text-xs text-[#8ab0d0]">
           <CellPopover text={data.skills} wordLimit={2} />
         </td>
-        <td className="px-3 py-2 text-xs text-on-surface-variant">
+        <td className="px-3 py-2 text-xs text-[#8ab0d0]">
           <CellPopover text={data.modules} wordLimit={2} />
         </td>
         <td className="px-3 py-2">
           {!readOnly && (
             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button type="button" onClick={handleDelete} className="p-1 rounded hover:bg-red-500/10 text-on-surface-variant hover:text-red-400 transition-colors" title="Eliminar">
+              <button type="button" onClick={handleDelete} className="p-1 rounded hover:bg-red-500/10 text-[#8ab0d0]/50 hover:text-red-400 transition-colors" title="Eliminar">
                 <span className="material-symbols-outlined text-[14px]">delete</span>
               </button>
             </div>
           )}
           {readOnly && (
-            <span className="material-symbols-outlined text-[14px] text-on-surface-variant/30" title="Solo lectura">lock</span>
+            <span className="material-symbols-outlined text-[14px] text-[#8ab0d0]/30" title="Solo lectura">lock</span>
           )}
           {showSentModal && !editing && (
             <SentConfirmModal
@@ -773,7 +773,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
 
   return (
     <tr
-      className="bg-surface-container/40 border-b border-primary/20"
+      className="bg-[#0b2a58] border-b border-[#81b927]/20"
       onKeyDown={e => {
         if (e.key === 'Enter' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'TEXTAREA') {
           e.preventDefault()
@@ -782,7 +782,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
       }}
     >
       {/* Candidato + Guardar */}
-      <td className="sticky left-0 z-10 w-[200px] bg-surface-container/80 backdrop-blur-sm px-2 py-1.5 min-w-[200px]">
+      <td className="sticky left-0 z-10 w-[200px] bg-[#0b2a58] backdrop-blur-sm px-2 py-1.5 min-w-[200px]">
         <CandidateSearch
           value={data.candidate_name}
           candidateId={data.candidate_id}
@@ -803,7 +803,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-1 px-3 py-1 bg-primary text-on-primary text-xs font-semibold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 shadow-[0_0_8px_rgba(34,197,94,0.3)]"
+            className="flex items-center gap-1 px-3 py-1 bg-[#1f6d44] text-white text-xs font-semibold rounded-lg hover:bg-[#1f6d44]/80 transition-opacity disabled:opacity-50 shadow-[0_0_8px_rgba(31,109,68,0.4)]"
           >
             {saving
               ? <span className="material-symbols-outlined text-[12px] animate-spin">progress_activity</span>
@@ -904,9 +904,9 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
       </td>
 
       {/* Status */}
-      <td className="sticky left-[200px] z-10 bg-surface-container/80 backdrop-blur-sm px-2 py-1.5 min-w-[120px]">
+      <td className="sticky left-[200px] z-10 bg-[#0b2a58] backdrop-blur-sm px-2 py-1.5 min-w-[120px]">
         <select
-          className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-primary/30"
+          className="w-full bg-[#071d47] text-white text-xs px-2 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-[#81b927]/30 border border-white/10"
           value={data.status}
           onChange={e => {
             if (e.target.value === 'Sent') {
@@ -961,7 +961,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
       {/* English */}
       <td className="px-2 py-1.5 min-w-[80px]">
         <select
-          className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-primary/30"
+          className="w-full bg-[#071d47] text-white text-xs px-2 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-[#81b927]/30 border border-white/10"
           value={data.english_score ?? ''}
           onChange={e => set('english_score', e.target.value ? Number(e.target.value) : null)}
         >
@@ -974,13 +974,13 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
       <td className="px-2 py-1.5 min-w-[140px]">
         <div className="flex gap-1">
           <input
-            className="w-16 bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-primary/30 placeholder:text-on-surface-variant/40"
+            className="w-16 bg-[#071d47] text-white text-xs px-2 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-[#81b927]/30 border border-white/10 placeholder:text-white/30"
             placeholder="$"
             value={data.salary || ''}
             onChange={e => set('salary', e.target.value)}
           />
           <select
-            className={`flex-1 bg-surface-container text-on-surface text-xs px-1 py-1.5 rounded focus:outline-none focus:ring-1 ${data.salary?.toString().trim() && !data.amount_type ? 'ring-1 ring-red-500 border border-red-500' : 'focus:ring-primary/30'}`}
+            className={`flex-1 bg-[#071d47] text-white text-xs px-1 py-1.5 rounded focus:outline-none focus:ring-1 border ${data.salary?.toString().trim() && !data.amount_type ? 'ring-1 ring-red-500 border-red-500' : 'border-white/10 focus:ring-[#81b927]/30'}`}
             value={data.amount_type || ''}
             onChange={e => set('amount_type', e.target.value)}
           >
@@ -993,7 +993,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
       {/* OTE */}
       <td className="px-2 py-1.5 min-w-[100px]">
         <input
-          className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-primary/30 placeholder:text-on-surface-variant/40"
+          className="w-full bg-[#071d47] text-white text-xs px-2 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-[#81b927]/30 border border-white/10 placeholder:text-white/30"
           placeholder="$"
           value={data.ote || ''}
           onChange={e => set('ote', e.target.value)}
@@ -1025,7 +1025,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
       {/* Estado (entidad federativa) */}
       <td className="px-2 py-1.5 min-w-[150px]">
         <select
-          className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-primary/30"
+          className="w-full bg-[#071d47] text-white text-xs px-2 py-1.5 rounded focus:outline-none focus:ring-1 focus:ring-[#81b927]/30 border border-white/10"
           value={data.state || ''}
           onChange={e => set('state', e.target.value)}
         >
@@ -1039,7 +1039,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
         <input
           type="text"
           inputMode="numeric"
-          className="w-full bg-surface-container text-on-surface text-xs px-2 py-1.5 rounded focus:outline-none text-center"
+          className="w-full bg-[#071d47] text-white text-xs px-2 py-1.5 rounded focus:outline-none text-center border border-white/10"
           placeholder="0"
           value={data.yoe ?? ''}
           onChange={e => set('yoe', e.target.value === '' ? null : Number(e.target.value))}
@@ -1227,8 +1227,8 @@ export default function Tracker() {
                     onClick={() => setActiveTab(tab.key)}
                     className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${
                       activeTab === tab.key
-                        ? 'bg-primary text-on-primary'
-                        : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+                        ? 'bg-[#071d47] text-white shadow-sm'
+                        : 'bg-[#071d47]/8 text-[#071d47] hover:bg-[#071d47]/15 border border-[#071d47]/10'
                     }`}
                   >
                     {tab.label}
@@ -1249,7 +1249,7 @@ export default function Tracker() {
             <div className="flex flex-col items-end gap-3 shrink-0">
               <PortalButtons />
               {/* Week selector */}
-              <div className="flex items-center gap-2 bg-surface-container-lowest border border-outline-variant/20 rounded-xl px-4 py-2 shadow-sm">
+              <div className="flex items-center gap-2 bg-white border border-[#071d47]/15 rounded-xl px-4 py-2 shadow-sm">
               <button type="button" onClick={prevWeek} className="p-1 rounded-full hover:bg-surface-container transition-colors text-on-surface-variant hover:text-primary">
                 <span className="material-symbols-outlined text-[18px]">chevron_left</span>
               </button>
@@ -1269,16 +1269,16 @@ export default function Tracker() {
           {/* Summary chips */}
           {entries.length > 0 && (
             <div className="flex gap-3 flex-wrap">
-              <span className="px-3 py-1 rounded-full bg-surface-container text-on-surface-variant text-xs font-bold">{entries.length} candidatos</span>
-              {review > 0 && <span className="px-3 py-1 rounded-full bg-orange-600/20 text-orange-300 text-xs font-bold border border-orange-500/30">{review} In Review</span>}
-              {sent > 0 && <span className="px-3 py-1 rounded-full bg-pink-600/20 text-pink-300 text-xs font-bold border border-pink-500/30">{sent} Sent</span>}
-              {rejected > 0 && <span className="px-3 py-1 rounded-full bg-red-600/20 text-red-300 text-xs font-bold border border-red-500/30">{rejected} Rejected/HSE/Backed Out</span>}
-              {onHold > 0 && <span className="px-3 py-1 rounded-full bg-slate-600/20 text-slate-300 text-xs font-bold border border-slate-500/30">{onHold} On Hold</span>}
+              <span className="px-3 py-1 rounded-full bg-[#071d47]/10 text-[#071d47] text-xs font-bold border border-[#071d47]/10">{entries.length} candidatos</span>
+              {review > 0 && <span className="px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-bold border border-amber-200">{review} In Review</span>}
+              {sent > 0 && <span className="px-3 py-1 rounded-full bg-[#1f6d44]/10 text-[#1f6d44] text-xs font-bold border border-[#1f6d44]/20">{sent} Sent</span>}
+              {rejected > 0 && <span className="px-3 py-1 rounded-full bg-red-50 text-red-700 text-xs font-bold border border-red-200">{rejected} Rejected/HSE/Backed Out</span>}
+              {onHold > 0 && <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold border border-slate-200">{onHold} On Hold</span>}
             </div>
           )}
 
           {/* Table */}
-          <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-[0_2px_16px_rgba(24,28,30,0.04)] overflow-hidden">
+          <div className="bg-[#071d47] rounded-2xl border border-white/5 shadow-[0_4px_32px_rgba(7,29,71,0.25)] overflow-hidden">
             {loading ? (
               <div className="flex items-center justify-center py-16 gap-3 text-on-surface-variant">
                 <span className="material-symbols-outlined animate-spin text-[24px]">progress_activity</span>
@@ -1288,8 +1288,8 @@ export default function Tracker() {
               <div ref={tableScrollRef} className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-260px)]">
                 <table className="w-full text-left border-collapse min-w-[900px]">
                   <thead>
-                    <tr className="sticky top-0 z-30 bg-surface-container-low border-b border-outline-variant/10">
-                      <th className="sticky left-0 z-20 w-[200px] bg-surface-container-low px-3 py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">
+                    <tr className="sticky top-0 z-30 bg-[#0b2a58] border-b border-white/5">
+                      <th className="sticky left-0 z-20 w-[200px] bg-[#0b2a58] px-3 py-3 text-[10px] font-bold text-[#81b927] uppercase tracking-widest whitespace-nowrap">
                         <div className="flex items-center gap-3">
                           <span>Candidato</span>
                           {canEdit && (year > currentYear || (year === currentYear && week >= currentWeek)) && (
@@ -1307,7 +1307,7 @@ export default function Tracker() {
                       {['Requerimiento/Cliente', 'CV', 'LinkedIn', 'Status', 'Notas', 'English', 'Salario', 'OTE', 'Email', 'Phone', 'Estado', 'YoE', 'Target Role', 'Technologies', 'Skills', 'Modules', ''].map(h => (
                         <th
                           key={h}
-                          className={`px-3 py-3 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap${h === 'Status' ? ' sticky left-[200px] z-20 bg-surface-container-low' : ''}`}
+                          className={`px-3 py-3 text-[10px] font-bold text-[#81b927]/70 uppercase tracking-widest whitespace-nowrap${h === 'Status' ? ' sticky left-[200px] z-20 bg-[#0b2a58]' : ''}`}
                         >{h}</th>
                       ))}
                     </tr>
@@ -1315,7 +1315,7 @@ export default function Tracker() {
                   <tbody>
                     {entries.length === 0 && (
                       <tr>
-                        <td colSpan={8} className="py-16 text-center text-on-surface-variant/50 text-sm">
+                        <td colSpan={8} className="py-16 text-center text-[#8ab0d0]/50 text-sm">
                           Sin candidatos esta semana. Agrega uno con el botón de arriba.
                         </td>
                       </tr>

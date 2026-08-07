@@ -1899,10 +1899,10 @@ return (
                         const isClosed = activeTab === 'closed'
 
                         return (
-                          <div key={req.id} className={`bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-[0_2px_12px_rgba(24,28,30,0.04)] overflow-hidden transition-shadow duration-200 ${isExpanded ? 'relative z-30 shadow-[0_8px_40px_rgba(0,0,0,0.35)]' : ''}`}>
+                          <div key={req.id} className={`bg-[#10284d] rounded-2xl border border-white/[0.08] shadow-[0_2px_12px_rgba(7,29,71,0.3)] overflow-hidden transition-shadow duration-200 ${isExpanded ? 'relative z-30 shadow-[0_8px_40px_rgba(0,0,0,0.45)]' : ''}`}>
                             {/* Main row */}
                             <div
-                              className="grid grid-cols-1 lg:grid-cols-12 gap-x-3 gap-y-2 items-center px-5 py-4 cursor-pointer group hover:bg-surface-container/25 transition-colors"
+                              className="grid grid-cols-1 lg:grid-cols-12 gap-x-3 gap-y-2 items-center px-5 py-4 cursor-pointer group hover:bg-white/5 transition-colors"
                               onClick={() => toggleRow(req.id)}
                             >
                               {/* Priority pill */}
@@ -1929,14 +1929,14 @@ return (
 
                               {/* Title */}
                               <div className={isClosed ? 'lg:col-span-3' : 'lg:col-span-4'}>
-                                <p className="font-semibold text-primary text-sm leading-snug group-hover:text-surface-tint transition-colors">{req.job_title}</p>
+                                <p className="font-semibold text-white text-sm leading-snug group-hover:text-[#81b927] transition-colors">{req.job_title}</p>
                               </div>
 
                               {/* Closed-only: Nota + Cubierta por Everscale */}
                               {isClosed && (
                                 <>
                                   <div className="lg:col-span-2 min-w-0">
-                                    <p className="text-[9px] font-bold text-on-surface-variant/50 uppercase tracking-[0.12em] mb-0.5">Nota</p>
+                                    <p className="text-[9px] font-bold text-white/40 uppercase tracking-[0.12em] mb-0.5">Nota</p>
                                     {req.close_reason ? (
                                       <button
                                         onClick={e => {
@@ -1944,16 +1944,16 @@ return (
                                           const rect = e.currentTarget.getBoundingClientRect()
                                           setNotePopover({ text: req.close_reason, top: rect.bottom + 6, left: rect.left })
                                         }}
-                                        className="text-xs text-primary/80 hover:text-primary underline underline-offset-2 transition-colors text-left"
+                                        className="text-xs text-[#81b927]/80 hover:text-[#81b927] underline underline-offset-2 transition-colors text-left"
                                       >
                                         Click here to view the note
                                       </button>
                                     ) : (
-                                      <p className="text-xs text-on-surface-variant/30">—</p>
+                                      <p className="text-xs text-white/25">—</p>
                                     )}
                                   </div>
                                   <div className="lg:col-span-1">
-                                    <p className="text-[9px] font-bold text-on-surface-variant/50 uppercase tracking-[0.12em] mb-0.5">¿Cubierta por nosotros?</p>
+                                    <p className="text-[9px] font-bold text-white/40 uppercase tracking-[0.12em] mb-0.5">¿Cubierta por nosotros?</p>
                                     {req.covered_by_everscale === true && (
                                       <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-secondary/15 text-secondary border border-secondary/20">Sí</span>
                                     )}
@@ -1961,7 +1961,7 @@ return (
                                       <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-error/10 text-error border border-error/20">No</span>
                                     )}
                                     {req.covered_by_everscale == null && (
-                                      <p className="text-xs text-on-surface-variant/30">—</p>
+                                      <p className="text-xs text-white/25">—</p>
                                     )}
                                   </div>
                                 </>
@@ -1971,13 +1971,13 @@ return (
                               <div className={`${isClosed ? 'lg:col-span-2' : 'lg:col-span-3'} space-y-0.5`}>
                                 {req.salary_cap ? (
                                   <p className="text-xs">
-                                    <span className="font-semibold text-primary">${Number(req.salary_cap).toLocaleString()}</span>
-                                    {req.variable && parseFloat(req.variable) !== 0 && <span className="text-on-surface-variant"> · {req.variable}</span>}
+                                    <span className="font-semibold text-[#81b927]">${Number(req.salary_cap).toLocaleString()}</span>
+                                    {req.variable && parseFloat(req.variable) !== 0 && <span className="text-white/50"> · {req.variable}</span>}
                                   </p>
                                 ) : (
-                                  <p className="text-xs text-on-surface-variant/40">No salary</p>
+                                  <p className="text-xs text-white/30">No salary</p>
                                 )}
-                                <p className="text-xs text-on-surface-variant/70">
+                                <p className="text-xs text-white/50">
                                   {req.work_arrangement?.name ?? '—'}{req.desired_location ? ` · ${req.desired_location}` : ''}
                                 </p>
                               </div>
@@ -1985,8 +1985,8 @@ return (
                               {/* FTE — hidden in closed tab */}
                               {!isClosed && (
                                 <div className="lg:col-span-1">
-                                  <p className="text-xs text-on-surface-variant/70">{req.fte_count ?? 1} FTE</p>
-                                  {req.duration && <p className="text-[10px] text-on-surface-variant/50">{req.duration}</p>}
+                                  <p className="text-xs text-white/50">{req.fte_count ?? 1} FTE</p>
+                                  {req.duration && <p className="text-[10px] text-white/35">{req.duration}</p>}
                                 </div>
                               )}
 
@@ -2016,7 +2016,7 @@ return (
                                     <Link
                                       to={`/requirements/edit/${req.id}`}
                                       title="Edit"
-                                      className="p-1.5 rounded-lg hover:bg-primary/10 text-on-surface-variant hover:text-primary transition-colors"
+                                      className="p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-[#81b927] transition-colors"
                                       onClick={e => e.stopPropagation()}
                                     >
                                       <span className="material-symbols-outlined text-[15px]">edit</span>
@@ -2024,7 +2024,7 @@ return (
                                   )}
                                 </div>
                                 <span
-                                  className="material-symbols-outlined text-[18px] text-on-surface-variant transition-transform duration-200 shrink-0"
+                                  className="material-symbols-outlined text-[18px] text-white/40 transition-transform duration-200 shrink-0"
                                   style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
                                 >expand_more</span>
                               </div>
@@ -2032,7 +2032,7 @@ return (
 
                             {/* Pipeline panel */}
                             {isExpanded && (
-                              <div className="border-t border-outline-variant/10 bg-surface-container/30 px-5 py-4">
+                              <div className="border-t border-white/[0.06] bg-[#0b2a58]/40 px-5 py-4">
                                 <PipelinePanel
                                   reqId={req.id}
                                   clientId={client?.id}

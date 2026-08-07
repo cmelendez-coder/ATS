@@ -229,7 +229,7 @@ export default function Dashboard() {
               </p>
               {!loading && (
                 <p className="text-[11px] text-on-surface-variant mt-2">
-                  <span className="text-primary font-semibold">+{stats?.newCandidatesThisWeek ?? 0}</span> esta semana
+                  <span className="text-primary font-semibold">+{stats?.weeklySent ?? 0}</span> enviados esta semana
                 </p>
               )}
             </Link>

@@ -66,11 +66,11 @@ function ClientLogo({ name = '', size = 'sm' }) {
   )
 }
 const STATUS_STYLE = {
-  'Open':                 { bg: 'bg-secondary-container',    text: 'text-on-secondary-container', dot: 'bg-secondary' },
+  'Open':                 { bg: 'bg-secondary-container',    text: 'text-on-secondary-container', dot: 'bg-[#22c55e]' },
   'Pending Approval':     { bg: 'bg-tertiary-container',     text: 'text-on-tertiary-container',  dot: 'bg-tertiary' },
   'Pending Validation':   { bg: 'bg-tertiary-container',     text: 'text-on-tertiary-container',  dot: 'bg-tertiary' },
   'Paused':               { bg: 'bg-surface-container-high', text: 'text-on-surface-variant',     dot: 'bg-outline' },
-  'Closed - Covered':     { bg: 'bg-primary/10',             text: 'text-primary',                dot: 'bg-primary' },
+  'Closed - Covered':     { bg: 'bg-primary/10',             text: 'text-primary',                dot: 'bg-error' },
   'Closed - Not Covered': { bg: 'bg-error-container',        text: 'text-on-error-container',     dot: 'bg-error' },
 }
 const DEFAULT_STATUS = { bg: 'bg-surface-container', text: 'text-on-surface-variant', dot: 'bg-outline' }

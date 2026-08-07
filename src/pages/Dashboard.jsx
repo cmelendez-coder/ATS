@@ -249,7 +249,7 @@ export default function Dashboard() {
               </p>
               {!loading && (
                 <p className="text-[11px] text-on-surface-variant mt-2">
-                  <span className="text-primary font-semibold">+{stats?.monthlySent ?? 0}</span> Agregados al Talent Pool
+                  <span className="text-primary font-semibold">+{stats?.monthlySent ?? 0}</span> Agregados al Talent Pool en {new Date().toLocaleDateString('es-MX', { month: 'long' }).replace(/^\w/, c => c.toUpperCase())}
                 </p>
               )}
             </Link>

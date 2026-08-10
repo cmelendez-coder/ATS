@@ -1285,7 +1285,7 @@ export default function Tracker() {
                 <span className="text-sm">Cargando…</span>
               </div>
             ) : (
-              <div ref={tableScrollRef} className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-260px)]">
+              <div ref={tableScrollRef} className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-10px)]">
                 <table className="w-full text-left border-collapse min-w-[900px]">
                   <thead>
                     <tr className="sticky top-0 z-30 bg-[#0b2a58] border-b border-white/5">

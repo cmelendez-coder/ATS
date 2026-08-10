@@ -12,6 +12,7 @@ import {
   listPendingApprovals, approveRequirement, rejectRequirement,
   updateRequirementStatus, updateRequirementPriority,
   getReqBoard, updateReqBoardRow, getWeeklyBoardStats, addReqBoardRow,
+  getOpenRequirementsForBoard,
   saveRequirementClosure,
 } from '../api/requirements'
 import { createClientCandidate } from '../api/talent'
@@ -1146,14 +1147,13 @@ function ReqBoardTable() {
   const [rows, setRows]                 = useState([])
   const [loading, setLoading]           = useState(true)
   const [kpi, setKpi]                   = useState(null)
-  const [showAddModal, setShowAddModal] = useState(false)
 
   const isCurrentWeek = selWeek.week === currentWeek.week && selWeek.year === currentWeek.year
 
   useEffect(() => {
     setLoading(true)
     Promise.all([
-      getReqBoard(selWeek.week, selWeek.year),
+      getOpenRequirementsForBoard(selWeek.week, selWeek.year),
       getWeeklyBoardStats(selWeek.week, selWeek.year),
     ]).then(([boardRows, stats]) => {
       setRows(boardRows)
@@ -1161,20 +1161,33 @@ function ReqBoardTable() {
     }).finally(() => setLoading(false))
   }, [selWeek.week, selWeek.year])
 
-  async function handleUpdate(id, patch) {
-    setRows(prev => prev.map(r => r.id === id ? { ...r, ...patch } : r))
+  async function handleUpdate(requirementId, patch) {
+    const row = rows.find(r => r.requirement_id === requirementId)
+    if (!row) return
+    setRows(prev => prev.map(r => r.requirement_id === requirementId ? { ...r, ...patch } : r))
     try {
-      await updateReqBoardRow(id, patch)
+      if (row.id === null) {
+        const newBoardRow = await addReqBoardRow({
+          requirement_id: requirementId,
+          position:  row.position,
+          cliente:   row.cliente,
+          ftes:      patch.ftes      ?? row.ftes,
+          prioridad: patch.prioridad ?? row.prioridad,
+          recruiter: patch.recruiter ?? row.recruiter,
+          everscale: patch.everscale ?? row.everscale,
+          interno:   patch.interno   ?? row.interno,
+          activo:    patch.activo    ?? row.activo ?? false,
+          week_number: selWeek.week,
+          week_year:   selWeek.year,
+        })
+        setRows(prev => prev.map(r => r.requirement_id === requirementId ? { ...r, id: newBoardRow.id } : r))
+      } else {
+        await updateReqBoardRow(row.id, patch)
+      }
       if ('activo' in patch) {
         getWeeklyBoardStats(selWeek.week, selWeek.year).then(setKpi)
       }
     } catch { /* optimistic fallback */ }
-  }
-
-  async function handleAddRow(data) {
-    const newRow = await addReqBoardRow({ ...data, week_number: selWeek.week, week_year: selWeek.year })
-    setRows(prev => [...prev, newRow])
-    setShowAddModal(false)
   }
 
   const ratio = kpi && kpi.activePositions > 0
@@ -1240,13 +1253,6 @@ function ReqBoardTable() {
             )}
           </div>
 
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors"
-          >
-            <span className="material-symbols-outlined text-[15px]">add</span>
-            Agregar requerimiento
-          </button>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
 
@@ -1336,7 +1342,7 @@ function ReqBoardTable() {
                 {/* Toggle búsqueda */}
                 <td className="px-3 py-3 text-center" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   <div className="flex justify-center">
-                    <Toggle on={activo} onChange={val => handleUpdate(row.id, { activo: val })} />
+                    <Toggle on={activo} onChange={val => handleUpdate(row.requirement_id, { activo: val })} />
                   </div>
                 </td>
 
@@ -1345,7 +1351,7 @@ function ReqBoardTable() {
                   <EditableCell
                     value={row.recruiter}
                     placeholder="—"
-                    onChange={val => handleUpdate(row.id, { recruiter: val || null })}
+                    onChange={val => handleUpdate(row.requirement_id, { recruiter: val || null })}
                   />
                 </td>
 
@@ -1353,7 +1359,7 @@ function ReqBoardTable() {
                 <td className="px-2 py-2 text-center" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   <select
                     value={row.prioridad ?? ''}
-                    onChange={e => handleUpdate(row.id, { prioridad: e.target.value === '' ? null : Number(e.target.value) })}
+                    onChange={e => handleUpdate(row.requirement_id, { prioridad: e.target.value === '' ? null : Number(e.target.value) })}
                     className="rounded-lg text-sm font-bold text-center cursor-pointer outline-none border-none appearance-none px-2 py-1"
                     style={{ backgroundColor: pri.bg, color: pri.text, width: 52 }}
                   >
@@ -1382,7 +1388,7 @@ function ReqBoardTable() {
                     type="number"
                     value={row.ftes != null ? String(row.ftes) : ''}
                     placeholder="—"
-                    onChange={val => handleUpdate(row.id, { ftes: val === '' ? null : Number(val) })}
+                    onChange={val => handleUpdate(row.requirement_id, { ftes: val === '' ? null : Number(val) })}
                   />
                 </td>
 
@@ -1392,7 +1398,7 @@ function ReqBoardTable() {
                     type="number"
                     value={row.everscale != null ? String(row.everscale) : ''}
                     placeholder="—"
-                    onChange={val => handleUpdate(row.id, { everscale: val === '' ? null : Number(val) })}
+                    onChange={val => handleUpdate(row.requirement_id, { everscale: val === '' ? null : Number(val) })}
                   />
                 </td>
 
@@ -1402,7 +1408,7 @@ function ReqBoardTable() {
                     type="number"
                     value={row.interno != null ? String(row.interno) : ''}
                     placeholder="—"
-                    onChange={val => handleUpdate(row.id, { interno: val === '' ? null : Number(val) })}
+                    onChange={val => handleUpdate(row.requirement_id, { interno: val === '' ? null : Number(val) })}
                   />
                 </td>
 
@@ -1417,12 +1423,6 @@ function ReqBoardTable() {
       </table>
     </div>
 
-      {showAddModal && (
-        <AddReqModal
-          onAdd={handleAddRow}
-          onClose={() => setShowAddModal(false)}
-        />
-      )}
     </div>
   )
 }

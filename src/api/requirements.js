@@ -267,10 +267,66 @@ export async function addReqBoardRow(data) {
     .order('sort_order', { ascending: false }).limit(1).maybeSingle()
   const { data: row, error } = await supabase
     .from('req_board')
-    .insert({ ...data, sort_order: (maxRow?.sort_order ?? 0) + 1, activo: false })
+    .insert({ activo: false, ...data, sort_order: (maxRow?.sort_order ?? 0) + 1 })
     .select('*').single()
   if (error) throw error
   return row
+}
+
+export async function getOpenRequirementsForBoard(weekNumber, weekYear) {
+  const [
+    { data: openReqs },
+    { data: boardRows },
+    { data: sentRows },
+  ] = await Promise.all([
+    supabase
+      .from('requirement')
+      .select('id, job_title, priority, fte_count, client:client_id(name)')
+      .eq('status_id', 2)
+      .order('priority', { ascending: true }),
+    supabase
+      .from('req_board')
+      .select('*')
+      .eq('week_number', weekNumber)
+      .eq('week_year', weekYear),
+    supabase
+      .from('tracker_entry')
+      .select('requirement_id')
+      .eq('status', 'Sent')
+      .eq('week_number', weekNumber)
+      .eq('week_year', weekYear),
+  ])
+
+  const boardByReqId = {}
+  for (const b of boardRows ?? []) {
+    if (b.requirement_id != null) boardByReqId[b.requirement_id] = b
+  }
+
+  const sentByReq = {}
+  for (const r of sentRows ?? []) {
+    if (r.requirement_id != null)
+      sentByReq[r.requirement_id] = (sentByReq[r.requirement_id] ?? 0) + 1
+  }
+
+  return (openReqs ?? []).map(req => {
+    const board = boardByReqId[req.id]
+    return {
+      id:             board?.id        ?? null,
+      requirement_id: req.id,
+      position:       req.job_title,
+      cliente:        req.client?.name ?? null,
+      ftes:           board?.ftes      ?? req.fte_count ?? null,
+      prioridad:      board?.prioridad ?? req.priority  ?? null,
+      recruiter:      board?.recruiter ?? null,
+      everscale:      board?.everscale ?? null,
+      interno:        board?.interno   ?? null,
+      activo:         board?.activo    ?? false,
+      enviados:       sentByReq[req.id] ?? 0,
+      sort_order:     board?.sort_order ?? 0,
+      week_number:    weekNumber,
+      week_year:      weekYear,
+    }
+  })
 }
 
 export async function getWeeklyBoardStats(weekNumber, weekYear) {

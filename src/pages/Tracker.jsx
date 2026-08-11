@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useId } from 'react'
+import { createPortal } from 'react-dom'
 import PortalButtons from '../components/PortalButtons'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
@@ -928,23 +929,23 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
         {data.status === 'Screening' && !data.screening_datetime && data.screening_note && (
           <p className="text-[10px] text-blue-300/70 mt-0.5 px-1">{data.screening_note}</p>
         )}
-        {showSentModal && (
+        {showSentModal && createPortal(
           <SentConfirmModal
             onConfirm={() => { set('status', 'Sent'); setShowSentModal(false) }}
             onCancel={() => setShowSentModal(false)}
-          />
+          />, document.body
         )}
-        {showScreeningModal && (
+        {showScreeningModal && createPortal(
           <ScreeningNoteModal
             onConfirm={({ note, datetime }) => { set('status', 'Screening'); set('screening_note', note); set('screening_datetime', datetime); setShowScreeningModal(false) }}
             onCancel={() => setShowScreeningModal(false)}
-          />
+          />, document.body
         )}
-        {showRejectedModal && (
+        {showRejectedModal && createPortal(
           <RejectedFeedbackModal
             onConfirm={(feedback) => { set('status', 'Rejected'); if (feedback) set('notes', feedback); setShowRejectedModal(false) }}
             onCancel={() => setShowRejectedModal(false)}
-          />
+          />, document.body
         )}
       </td>
 

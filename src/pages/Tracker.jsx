@@ -392,14 +392,14 @@ function CellPopover({ text, limit = 55, wordLimit = null }) {
           onClick={() => setOpen(false)}
         >
           <div
-            className="bg-[#0b2a58] rounded-2xl border border-white/10 shadow-2xl p-5 max-w-sm w-full mx-4 max-h-[60vh] overflow-y-auto"
+            className="bg-[#0b2a58] rounded-2xl border border-white/10 shadow-2xl p-10 max-w-2xl w-full mx-4 max-h-[60vh] overflow-y-auto"
             onClick={e => e.stopPropagation()}
           >
-            <p className="text-xs text-white/90 leading-relaxed whitespace-pre-wrap">{text}</p>
+            <p className="text-base text-white/90 leading-relaxed whitespace-pre-wrap">{text}</p>
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="mt-4 text-xs text-[#81b927] hover:underline"
+              className="mt-4 text-base text-[#81b927] hover:underline"
             >
               Cerrar
             </button>

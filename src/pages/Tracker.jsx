@@ -7,7 +7,6 @@ import {
   fetchTrackerEntries,
   fetchActiveRequirements,
   fetchClosedRequirements,
-  searchCandidatesSimple,
   saveTrackerEntry,
   deleteTrackerEntry,
   uploadCVFile,
@@ -121,97 +120,6 @@ function emptyRow(weekNumber, weekYear, recruiter) {
   }
 }
 
-// Candidate search input with dropdown
-function CandidateSearch({ value, candidateId, onSelect, disabled }) {
-  const [query, setQuery]       = useState(value || '')
-  const [results, setResults]   = useState([])
-  const [open, setOpen]         = useState(false)
-  const [loading, setLoading]   = useState(false)
-  const timerRef = useRef(null)
-  const wrapRef  = useRef(null)
-
-  useEffect(() => { setQuery(value || '') }, [value])
-
-  useEffect(() => {
-    function handleClick(e) {
-      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false)
-    }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [])
-
-  function handleChange(e) {
-    const q = e.target.value
-    setQuery(q)
-    onSelect({ candidate_name: q, candidate_id: null })
-    clearTimeout(timerRef.current)
-    if (q.trim().length < 2) { setResults([]); setOpen(false); return }
-    setLoading(true)
-    timerRef.current = setTimeout(async () => {
-      const rows = await searchCandidatesSimple(q)
-      setResults(rows)
-      setOpen(rows.length > 0)
-      setLoading(false)
-    }, 300)
-  }
-
-  function handleBlur() {
-    const normalized = toTitleCase(query)
-    if (normalized && normalized !== query) {
-      setQuery(normalized)
-      onSelect({ candidate_name: normalized, candidate_id: null })
-    }
-  }
-
-  function pick(row) {
-    setQuery(row.full_name)
-    setOpen(false)
-    onSelect({
-      candidate_name:  row.full_name,
-      candidate_id:    row.candidate_id,
-      cv_url:          row.cv_url        || '',
-      linkedin_url:    row.linkedin_url  || '',
-      english_score:   row.english_score ?? null,
-      state:           row.state         || '',
-    })
-  }
-
-  return (
-    <div ref={wrapRef} className="relative w-full">
-      <input
-        className="w-full bg-transparent text-white text-xs px-2 py-1.5 focus:outline-none placeholder:text-[#8ab0d0]/50"
-        placeholder="Nombre del candidato…"
-        value={query}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        disabled={disabled}
-      />
-      {candidateId && (
-        <span className="absolute right-1 top-1/2 -translate-y-1/2 text-secondary" title="En Talent Directory">
-          <span className="material-symbols-outlined text-[12px]">check_circle</span>
-        </span>
-      )}
-      {open && (
-        <div className="absolute left-0 top-full mt-1 z-50 bg-[#0b2a58] border border-white/10 rounded-lg shadow-xl w-64 max-h-48 overflow-y-auto">
-          {loading
-            ? <p className="text-xs text-[#8ab0d0] p-3">Buscando…</p>
-            : results.map(r => (
-              <button
-                key={r.candidate_id}
-                type="button"
-                className="w-full text-left px-3 py-2 hover:bg-[#071d47] text-xs"
-                onMouseDown={() => pick(r)}
-              >
-                <span className="text-[#81b927] font-medium block">{r.full_name}</span>
-                {r.email && <span className="text-[#8ab0d0]/70">{r.email}</span>}
-              </button>
-            ))
-          }
-        </div>
-      )}
-    </div>
-  )
-}
 
 const CLIENT_PRIORITY = ['LogicMonitor', 'PacVue', 'BlueConic']
 
@@ -649,10 +557,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
         title={!readOnly ? 'Doble clic para editar' : undefined}
       >
         <td className="sticky left-0 z-10 w-[200px] group-odd:bg-[#071d47] group-even:bg-[#0b2a58] px-3 py-2 text-xs text-white font-bold whitespace-nowrap">
-          <div className="flex items-center gap-1.5">
-            <span>{data.candidate_name}</span>
-            {data.candidate_id && <span className="text-[#81b927]" title="En Talent Directory"><span className="material-symbols-outlined text-[11px] align-middle">check_circle</span></span>}
-          </div>
+          <span>{data.candidate_name}</span>
         </td>
         <td className="px-3 py-2 text-xs text-[#8ab0d0] whitespace-nowrap">
           {req ? <span>{req.job_title} <span className="text-[#8ab0d0]/50">· {req.client?.name}</span></span> : '—'}
@@ -784,19 +689,18 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
     >
       {/* Candidato + Guardar */}
       <td className="sticky left-0 z-10 w-[200px] bg-[#0b2a58] backdrop-blur-sm px-2 py-1.5 min-w-[200px]">
-        <CandidateSearch
-          value={data.candidate_name}
-          candidateId={data.candidate_id}
-          onSelect={({ candidate_name, candidate_id, cv_url, linkedin_url, english_score, state }) => {
-            setData(prev => ({
-              ...prev,
-              candidate_name,
-              candidate_id:  candidate_id  ?? prev.candidate_id,
-              cv_url:        cv_url        !== undefined ? cv_url        : prev.cv_url,
-              linkedin_url:  linkedin_url  !== undefined ? linkedin_url  : prev.linkedin_url,
-              english_score: english_score !== undefined ? english_score : prev.english_score,
-              state:         state         !== undefined ? state         : prev.state,
-            }))
+        <input
+          className="w-full bg-transparent text-white text-xs px-2 py-1.5 focus:outline-none placeholder:text-[#8ab0d0]/50"
+          placeholder="Nombre del candidato…"
+          value={data.candidate_name || ''}
+          onChange={e => {
+            const raw = e.target.value
+            setData(prev => ({ ...prev, candidate_name: raw, candidate_id: null }))
+          }}
+          onBlur={e => {
+            const normalized = toTitleCase(e.target.value)
+            if (normalized && normalized !== e.target.value)
+              setData(prev => ({ ...prev, candidate_name: normalized }))
           }}
         />
         <div className="flex items-center gap-1.5 mt-1 px-2">

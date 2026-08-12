@@ -76,15 +76,18 @@ function exportToExcel(candidates, searchQuery) {
   const x    = v => String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
   const cell = (v, styleId) => `<Cell ss:StyleID="${styleId}"><Data ss:Type="String">${x(v)}</Data></Cell>`
 
-  const cols = ['Nombre','Email','Teléfono','Rol','English %','Años Exp.','Ciudad','Status','Tecnologías','LinkedIn','CV']
+  const cols = ['Nombre','Email','Teléfono','Rol','English %','Años Exp.','Ciudad','Status','Tecnologías','Skillset (notas)','BDD Tecnología','BDD Skills','LinkedIn','CV']
 
   const headerCells = cols.map(h => cell(h, 'H')).join('')
 
   const dataRows = candidates.map((c, i) => {
-    const odd   = i % 2 === 1
-    const s     = odd ? 'O' : 'E'
-    const sNum  = odd ? 'ON' : 'EN'
-    const techs = [...new Set((c.candidate_stack ?? []).map(t => t.technology?.ct_name_tech).filter(Boolean))].join(', ')
+    const odd      = i % 2 === 1
+    const s        = odd ? 'O' : 'E'
+    const sNum     = odd ? 'ON' : 'EN'
+    const techs    = [...new Set((c.candidate_stack ?? []).map(t => t.technology?.ct_name_tech).filter(Boolean))].join(', ')
+    const skillset = (c.candidate_note ?? []).find(n => n.note_type === 'skillset')?.note_text ?? ''
+    const bddTech  = c.bdd_technology ?? ''
+    const bddSkill = [c.bdd_skills, c.bdd_module].filter(Boolean).join(' | ')
     return `<Row>
       ${cell(c.full_name,             'B' + s)}
       ${cell(c.email        ?? '',    s)}
@@ -95,6 +98,9 @@ function exportToExcel(candidates, searchQuery) {
       ${cell(c.location?.name   ?? '', s)}
       ${cell(c.status?.name     ?? '', s)}
       ${cell(techs,                   s)}
+      ${cell(skillset,               s)}
+      ${cell(bddTech,                s)}
+      ${cell(bddSkill,               s)}
       ${cell(c.linkedin_url ?? '',    s)}
       ${cell(c.cv_url       ?? '',    s)}
     </Row>`
@@ -181,6 +187,9 @@ function exportToExcel(candidates, searchQuery) {
       <Column ss:Width="70"/>
       <Column ss:Width="110"/>
       <Column ss:Width="90"/>
+      <Column ss:Width="160"/>
+      <Column ss:Width="220"/>
+      <Column ss:Width="160"/>
       <Column ss:Width="160"/>
       <Column ss:Width="200"/>
       <Column ss:Width="220"/>

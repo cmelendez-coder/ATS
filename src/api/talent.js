@@ -32,12 +32,14 @@ export async function searchCandidates({ q = '', englishMin = '', englishMax = '
     .select(`
       candidate_id, candidate_code, full_name, email, phone, source,
       english_score, years_experience, cv_url, linkedin_url,
+      bdd_technology, bdd_skills, bdd_module,
       status:catalog_status!status_id(name),
       seniority:catalog_seniority!seniority_id(name),
       location:catalog_location!location_id(name),
       role:catalog_role!role_id(name),
       candidate_availability(availability_id, last_contact_date, recorded_at),
-      candidate_stack(technology:catalog_technology!technology_id(ct_name_tech))
+      candidate_stack(technology:catalog_technology!technology_id(ct_name_tech)),
+      candidate_note(note_type, note_text)
     `)
     .order('created_at', { ascending: false })
     .limit(5000)

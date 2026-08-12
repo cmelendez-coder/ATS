@@ -983,7 +983,7 @@ function EditableCell({ value, onChange, type = 'text', placeholder = '' }) {
       onChange={e => setDraft(e.target.value)}
       onBlur={() => { if (draft !== (value ?? '')) onChange(draft) }}
       onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur() }}
-      className="w-full bg-transparent text-center text-sm text-on-surface placeholder:text-on-surface-variant/30 outline-none focus:bg-surface-container rounded px-1 py-0.5 transition-colors [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+      className="w-full bg-transparent text-center text-sm text-on-surface placeholder:text-on-surface-variant/30 outline-none focus:bg-surface-container rounded px-1 py-0.5 transition-colors border border-[#81b927]/60 focus:border-[#81b927] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
     />
   )
 }

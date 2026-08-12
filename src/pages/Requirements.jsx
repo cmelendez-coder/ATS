@@ -1201,7 +1201,7 @@ function ReqBoardTable() {
 
   const COLS = [
     { label: 'Búsqueda',       width: '80px'  },
-    { label: 'Recruiter',      width: '300px' },
+    { label: 'Recruiter',      width: '150px' },
     { label: 'Prioridad',      width: '80px'  },
     { label: 'Cliente',        width: '130px' },
     { label: 'Position',       width: '210px' },
@@ -1385,7 +1385,7 @@ function ReqBoardTable() {
                 </td>
 
                 {/* Recruiter */}
-                <td className="px-2 py-2" style={{ borderBottom: `1px solid ${rowBorder}`, minWidth: '300px', width: '300px' }}>
+                <td className="px-2 py-2" style={{ borderBottom: `1px solid ${rowBorder}`, minWidth: '150px', width: '150px' }}>
                   <select
                     value={row.recruiter ?? ''}
                     onChange={e => handleUpdate(row.requirement_id, { recruiter: e.target.value || null })}

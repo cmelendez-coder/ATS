@@ -1217,11 +1217,11 @@ function ReqBoardTable() {
     <div className="space-y-5">
 
       {/* ── KPI bar ── */}
-      <div className="bg-surface-container-low rounded-2xl p-6">
+      <div className="rounded-2xl p-6" style={{ backgroundColor: '#81b927' }}>
         <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
           <div>
-            <h2 className="text-sm font-bold text-primary">Prioridades Semanales</h2>
-            <p className="text-[11px] text-on-surface-variant mt-0.5">Actividad semanal por posición</p>
+            <h2 className="text-sm font-bold text-white">Prioridades Semanales</h2>
+            <p className="text-[11px] text-white/70 mt-0.5">Actividad semanal por posición</p>
           </div>
 
           {/* Week navigator */}
@@ -1257,49 +1257,49 @@ function ReqBoardTable() {
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
 
           {/* Semana */}
-          <div className="rounded-xl p-5 flex flex-col gap-2" style={{ backgroundColor: '#81b927', border: '1px solid rgba(255,255,255,0.2)' }}>
+          <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
             <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px] text-white/70">calendar_today</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-white/80">Semana</span>
+              <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">calendar_today</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Semana</span>
             </div>
-            <p className="text-5xl font-light tracking-tighter text-white">{selWeek.week}</p>
+            <p className="text-5xl font-light tracking-tighter text-primary">{selWeek.week}</p>
           </div>
 
           {/* Requerimientos Abiertos */}
-          <div className="rounded-xl p-5 flex flex-col gap-2" style={{ backgroundColor: '#81b927', border: '1px solid rgba(255,255,255,0.2)' }}>
+          <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
             <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px] text-white/70">toggle_on</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-white/80">Req. Abiertos</span>
+              <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">toggle_on</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Req. Abiertos</span>
             </div>
-            <p className="text-5xl font-light tracking-tighter text-white">{kpi?.activePositions ?? 0}</p>
+            <p className="text-5xl font-light tracking-tighter text-primary">{kpi?.activePositions ?? 0}</p>
           </div>
 
           {/* Enviados */}
-          <div className="rounded-xl p-5 flex flex-col gap-2" style={{ backgroundColor: '#81b927', border: '1px solid rgba(255,255,255,0.2)' }}>
+          <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
             <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px] text-white/70">send</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-white/80">Enviados</span>
+              <span className="material-symbols-outlined text-[16px]" style={{ color: '#50B152' }}>send</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Enviados</span>
             </div>
-            <p className="text-5xl font-light tracking-tighter text-white">{kpi?.sent ?? 0}</p>
+            <p className="text-5xl font-light tracking-tighter" style={{ color: '#50B152' }}>{kpi?.sent ?? 0}</p>
           </div>
 
           {/* Rechazados */}
-          <div className="rounded-xl p-5 flex flex-col gap-2" style={{ backgroundColor: '#81b927', border: '1px solid rgba(255,255,255,0.2)' }}>
+          <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
             <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px] text-white/70">cancel</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-white/80">Rechazados</span>
+              <span className="material-symbols-outlined text-[16px]" style={{ color: '#ba1a1a' }}>cancel</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Rechazados</span>
             </div>
-            <p className="text-5xl font-light tracking-tighter text-white">{kpi?.rejected ?? 0}</p>
+            <p className="text-5xl font-light tracking-tighter" style={{ color: '#ba1a1a' }}>{kpi?.rejected ?? 0}</p>
           </div>
 
           {/* Promedio Semanal */}
-          <div className="rounded-xl p-5 flex flex-col gap-2" style={{ backgroundColor: '#81b927', border: '1px solid rgba(255,255,255,0.2)' }}>
+          <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
             <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px] text-white/70">calculate</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-white/80">Promedio Semanal</span>
+              <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">calculate</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Promedio Semanal</span>
             </div>
-            <p className="text-5xl font-light tracking-tighter text-white">
-              {ratio !== null ? ratio : <span className="text-white/40 text-3xl">—</span>}
+            <p className="text-5xl font-light tracking-tighter text-primary">
+              {ratio !== null ? ratio : <span className="text-on-surface-variant/30 text-3xl">—</span>}
             </p>
           </div>
 
@@ -1315,7 +1315,7 @@ function ReqBoardTable() {
               <th
                 key={col.label}
                 style={{ width: col.width }}
-                className="bg-surface-container-low text-[10px] font-bold uppercase tracking-[0.1em] text-on-surface-variant text-center px-3 py-3 border-b border-outline-variant/15 whitespace-nowrap"
+                className="text-[10px] font-bold uppercase tracking-[0.1em] text-white text-center px-3 py-3 border-b border-white/20 whitespace-nowrap" style={{ backgroundColor: '#81b927' }}
               >
                 {col.label}
               </th>

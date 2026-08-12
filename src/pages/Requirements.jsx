@@ -1380,11 +1380,17 @@ function ReqBoardTable() {
 
                 {/* Recruiter */}
                 <td className="px-2 py-2" style={{ borderBottom: `1px solid ${rowBorder}` }}>
-                  <EditableCell
-                    value={row.recruiter}
-                    placeholder="—"
-                    onChange={val => handleUpdate(row.requirement_id, { recruiter: val || null })}
-                  />
+                  <select
+                    value={row.recruiter ?? ''}
+                    onChange={e => handleUpdate(row.requirement_id, { recruiter: e.target.value || null })}
+                    className="w-full bg-transparent text-center text-sm text-on-surface outline-none cursor-pointer rounded px-1 py-0.5 border border-[#81b927]/60 focus:border-[#81b927]"
+                  >
+                    <option value="">—</option>
+                    <option value="César">César</option>
+                    <option value="Enrique">Enrique</option>
+                    <option value="Roberto">Roberto</option>
+                    <option value="César/Enrique">César/Enrique</option>
+                  </select>
                 </td>
 
                 {/* Prioridad */}

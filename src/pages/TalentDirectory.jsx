@@ -124,6 +124,11 @@ export default function TalentDirectory() {
   const [englishMax, setEnglishMax] = useState(restored?.englishMax ?? '')
   const [searching, setSearching]   = useState(false)
   const [hasSearched, setHasSearched] = useState(!!restored)
+  const [fCity, setFCity]           = useState('')
+  const [fEngMin, setFEngMin]       = useState('')
+  const [fEngMax, setFEngMax]       = useState('')
+  const [fYoeMin, setFYoeMin]       = useState('')
+  const [fYoeMax, setFYoeMax]       = useState('')
 
   const load = useCallback(async (q = '', eMin = '', eMax = '', forceSearch = false) => {
     if (!forceSearch && !q.trim() && eMin === '' && eMax === '') return
@@ -161,7 +166,22 @@ export default function TalentDirectory() {
     setCandidates([])
   }
 
-  const total = candidates.length
+  const uniqueCities = [...new Set(
+    candidates.map(c => c.location?.name).filter(Boolean)
+  )].sort()
+
+  const displayed = candidates.filter(c => {
+    if (fCity && c.location?.name !== fCity) return false
+    if (fEngMin !== '' && (c.english_score ?? 0) < Number(fEngMin)) return false
+    if (fEngMax !== '' && (c.english_score ?? 0) > Number(fEngMax)) return false
+    if (fYoeMin !== '' && (c.years_experience ?? 0) < Number(fYoeMin)) return false
+    if (fYoeMax !== '' && (c.years_experience ?? 0) > Number(fYoeMax)) return false
+    return true
+  })
+
+  const hasColumnFilters = fCity || fEngMin || fEngMax || fYoeMin || fYoeMax
+
+  const total = displayed.length
 
   return (
     <>
@@ -322,18 +342,57 @@ export default function TalentDirectory() {
                   <thead>
                     <tr className="bg-surface-container-low">
                       {['Name', 'Technology', 'English', 'YoE', 'Location'].map(h => (
-                        <th
-                          key={h}
-                          className="py-3.5 px-5 text-[11px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap"
-                        >
-                          {h}
-                        </th>
+                        <th key={h} className="py-3.5 px-5 text-[11px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">{h}</th>
                       ))}
                       <th className="py-3.5 px-4 sticky right-0 bg-surface-container-low z-10 shadow-[-8px_0_16px_rgba(0,0,0,0.25)]"></th>
                     </tr>
+                    {/* Column filters row */}
+                    <tr className="bg-surface-container-low border-t border-outline-variant/10">
+                      {/* Name — no filter */}
+                      <td className="px-5 pb-2 pt-1" />
+                      {/* Technology — no filter */}
+                      <td className="px-5 pb-2 pt-1" />
+                      {/* English filter */}
+                      <td className="px-5 pb-2 pt-1">
+                        <div className="flex items-center gap-1">
+                          <input type="number" placeholder="Min" value={fEngMin} onChange={e => setFEngMin(e.target.value)}
+                            className="w-14 text-xs px-1.5 py-1 rounded border border-outline-variant/30 bg-surface-container text-on-surface focus:outline-none focus:border-primary/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none" />
+                          <span className="text-on-surface-variant/40 text-xs">–</span>
+                          <input type="number" placeholder="Max" value={fEngMax} onChange={e => setFEngMax(e.target.value)}
+                            className="w-14 text-xs px-1.5 py-1 rounded border border-outline-variant/30 bg-surface-container text-on-surface focus:outline-none focus:border-primary/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none" />
+                        </div>
+                      </td>
+                      {/* YoE filter */}
+                      <td className="px-5 pb-2 pt-1">
+                        <div className="flex items-center gap-1">
+                          <input type="number" placeholder="Min" value={fYoeMin} onChange={e => setFYoeMin(e.target.value)}
+                            className="w-14 text-xs px-1.5 py-1 rounded border border-outline-variant/30 bg-surface-container text-on-surface focus:outline-none focus:border-primary/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none" />
+                          <span className="text-on-surface-variant/40 text-xs">–</span>
+                          <input type="number" placeholder="Max" value={fYoeMax} onChange={e => setFYoeMax(e.target.value)}
+                            className="w-14 text-xs px-1.5 py-1 rounded border border-outline-variant/30 bg-surface-container text-on-surface focus:outline-none focus:border-primary/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none" />
+                        </div>
+                      </td>
+                      {/* City filter */}
+                      <td className="px-5 pb-2 pt-1">
+                        <select value={fCity} onChange={e => setFCity(e.target.value)}
+                          className="text-xs px-2 py-1 rounded border border-outline-variant/30 bg-surface-container text-on-surface focus:outline-none focus:border-primary/50 max-w-[160px] w-full">
+                          <option value="">Todas las ciudades</option>
+                          {uniqueCities.map(city => <option key={city} value={city}>{city}</option>)}
+                        </select>
+                      </td>
+                      {/* Clear filters */}
+                      <td className="px-4 pb-2 pt-1 sticky right-0 bg-surface-container-low z-10 shadow-[-8px_0_16px_rgba(0,0,0,0.25)]">
+                        {hasColumnFilters && (
+                          <button onClick={() => { setFCity(''); setFEngMin(''); setFEngMax(''); setFYoeMin(''); setFYoeMax('') }}
+                            className="text-[10px] text-primary hover:underline whitespace-nowrap font-semibold">
+                            Limpiar
+                          </button>
+                        )}
+                      </td>
+                    </tr>
                   </thead>
                   <tbody className="divide-y divide-outline-variant/10">
-                    {candidates.map(c => {
+                    {displayed.map(c => {
                       const statusName   = c.status?.name    ?? '—'
                       const seniorityName = c.seniority?.name ?? '—'
                       const sc = STATUS_CLS[statusName]     ?? STATUS_CLS['Inactive']

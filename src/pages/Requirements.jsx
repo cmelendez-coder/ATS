@@ -1243,7 +1243,8 @@ function ReqBoardTable() {
               </span>
               <button
                 onClick={() => setSelWeek(w => shiftWeek(w, 1))}
-                className="p-1.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors"
+                disabled={isCurrentWeek}
+                className="p-1.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-on-surface-variant"
               >
                 <span className="material-symbols-outlined text-[18px]">chevron_right</span>
               </button>

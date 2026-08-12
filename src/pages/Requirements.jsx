@@ -972,7 +972,7 @@ const PRI_TABLE = {
 }
 
 /* ── Inline editable cell ── */
-function EditableCell({ value, onChange, type = 'text', placeholder = '' }) {
+function EditableCell({ value, onChange, type = 'text', placeholder = '', disabled = false }) {
   const [draft, setDraft] = useState(value ?? '')
   useEffect(() => { setDraft(value ?? '') }, [value])
   return (
@@ -980,10 +980,11 @@ function EditableCell({ value, onChange, type = 'text', placeholder = '' }) {
       type={type}
       value={draft}
       placeholder={placeholder}
+      disabled={disabled}
       onChange={e => setDraft(e.target.value)}
-      onBlur={() => { if (draft !== (value ?? '')) onChange(draft) }}
+      onBlur={() => { if (!disabled && draft !== (value ?? '')) onChange(draft) }}
       onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur() }}
-      className="w-full bg-transparent text-center text-sm text-on-surface placeholder:text-on-surface-variant/30 outline-none focus:bg-surface-container rounded px-1 py-0.5 transition-colors border border-[#81b927]/60 focus:border-[#81b927] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+      className="w-full bg-transparent text-center text-sm text-on-surface placeholder:text-on-surface-variant/30 outline-none focus:bg-surface-container rounded px-1 py-0.5 transition-colors border border-[#81b927]/60 focus:border-[#81b927] disabled:opacity-50 disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
     />
   )
 }
@@ -1149,6 +1150,8 @@ function ReqBoardTable() {
   const [kpi, setKpi]                   = useState(null)
 
   const isCurrentWeek = selWeek.week === currentWeek.week && selWeek.year === currentWeek.year
+  const isPastWeek = selWeek.year < currentWeek.year ||
+    (selWeek.year === currentWeek.year && selWeek.week < currentWeek.week)
 
   useEffect(() => {
     setLoading(true)
@@ -1162,6 +1165,7 @@ function ReqBoardTable() {
   }, [selWeek.week, selWeek.year])
 
   async function handleUpdate(requirementId, patch) {
+    if (isPastWeek) return
     const row = rows.find(r => r.requirement_id === requirementId)
     if (!row) return
     setRows(prev => prev.map(r => r.requirement_id === requirementId ? { ...r, ...patch } : r))
@@ -1374,7 +1378,7 @@ function ReqBoardTable() {
               >
                 {/* Toggle búsqueda */}
                 <td className="px-3 py-3 text-center" style={{ borderBottom: `1px solid ${rowBorder}` }}>
-                  <div className="flex justify-center">
+                  <div className={`flex justify-center ${isPastWeek ? 'opacity-50 pointer-events-none' : ''}`}>
                     <Toggle on={activo} onChange={val => handleUpdate(row.requirement_id, { activo: val })} />
                   </div>
                 </td>
@@ -1384,7 +1388,8 @@ function ReqBoardTable() {
                   <select
                     value={row.recruiter ?? ''}
                     onChange={e => handleUpdate(row.requirement_id, { recruiter: e.target.value || null })}
-                    className="w-full bg-transparent text-center text-sm text-on-surface outline-none cursor-pointer rounded px-1 py-0.5 border border-[#81b927]/60 focus:border-[#81b927]"
+                    disabled={isPastWeek}
+                    className="w-full bg-transparent text-center text-sm text-on-surface outline-none cursor-pointer rounded px-1 py-0.5 border border-[#81b927]/60 focus:border-[#81b927] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <option value="">—</option>
                     <option value="César">César</option>
@@ -1399,7 +1404,8 @@ function ReqBoardTable() {
                   <select
                     value={row.prioridad ?? ''}
                     onChange={e => handleUpdate(row.requirement_id, { prioridad: e.target.value === '' ? null : Number(e.target.value) })}
-                    className="rounded-lg text-sm font-bold text-center cursor-pointer outline-none border-none appearance-none px-2 py-1"
+                    disabled={isPastWeek}
+                    className="rounded-lg text-sm font-bold text-center cursor-pointer outline-none border-none appearance-none px-2 py-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ backgroundColor: pri.bg, color: pri.text, width: 52 }}
                   >
                     <option value="" disabled>—</option>
@@ -1427,6 +1433,7 @@ function ReqBoardTable() {
                     type="number"
                     value={row.ftes != null ? String(row.ftes) : ''}
                     placeholder="—"
+                    disabled={isPastWeek}
                     onChange={val => handleUpdate(row.requirement_id, { ftes: val === '' ? null : Number(val) })}
                   />
                 </td>
@@ -1437,6 +1444,7 @@ function ReqBoardTable() {
                     type="number"
                     value={row.everscale != null ? String(row.everscale) : ''}
                     placeholder="—"
+                    disabled={isPastWeek}
                     onChange={val => handleUpdate(row.requirement_id, { everscale: val === '' ? null : Number(val) })}
                   />
                 </td>
@@ -1447,6 +1455,7 @@ function ReqBoardTable() {
                     type="number"
                     value={row.interno != null ? String(row.interno) : ''}
                     placeholder="—"
+                    disabled={isPastWeek}
                     onChange={val => handleUpdate(row.requirement_id, { interno: val === '' ? null : Number(val) })}
                   />
                 </td>

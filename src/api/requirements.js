@@ -278,6 +278,7 @@ export async function getOpenRequirementsForBoard(weekNumber, weekYear) {
     { data: openReqs },
     { data: boardRows },
     { data: sentRows },
+    { data: allBoardRows },
   ] = await Promise.all([
     supabase
       .from('requirement')
@@ -295,11 +296,25 @@ export async function getOpenRequirementsForBoard(weekNumber, weekYear) {
       .eq('status', 'Sent')
       .eq('week_number', weekNumber)
       .eq('week_year', weekYear),
+    // Most recent board entry per requirement (for defaults when current week has none)
+    supabase
+      .from('req_board')
+      .select('*')
+      .order('week_year',   { ascending: false })
+      .order('week_number', { ascending: false }),
   ])
 
   const boardByReqId = {}
   for (const b of boardRows ?? []) {
     if (b.requirement_id != null) boardByReqId[b.requirement_id] = b
+  }
+
+  // Take only the most recent entry per requirement (allBoardRows is already DESC sorted)
+  const latestByReqId = {}
+  for (const b of allBoardRows ?? []) {
+    if (b.requirement_id != null && latestByReqId[b.requirement_id] == null) {
+      latestByReqId[b.requirement_id] = b
+    }
   }
 
   const sentByReq = {}
@@ -309,20 +324,21 @@ export async function getOpenRequirementsForBoard(weekNumber, weekYear) {
   }
 
   return (openReqs ?? []).map(req => {
-    const board = boardByReqId[req.id]
+    const board  = boardByReqId[req.id]
+    const latest = board ? null : latestByReqId[req.id]
     return {
-      id:             board?.id        ?? null,
+      id:             board?.id           ?? null,
       requirement_id: req.id,
       position:       req.job_title,
-      cliente:        req.client?.name ?? null,
-      ftes:           board?.ftes      ?? req.fte_count ?? null,
-      prioridad:      board?.prioridad ?? req.priority  ?? null,
-      recruiter:      board?.recruiter ?? null,
-      everscale:      board?.everscale ?? null,
-      interno:        board?.interno   ?? null,
-      activo:         board?.activo    ?? false,
-      enviados:       sentByReq[req.id] ?? 0,
-      sort_order:     board?.sort_order ?? 0,
+      cliente:        req.client?.name    ?? null,
+      ftes:           board?.ftes         ?? latest?.ftes      ?? req.fte_count ?? null,
+      prioridad:      board?.prioridad    ?? latest?.prioridad ?? req.priority  ?? null,
+      recruiter:      board?.recruiter    ?? latest?.recruiter ?? null,
+      everscale:      board?.everscale    ?? latest?.everscale ?? null,
+      interno:        board?.interno      ?? latest?.interno   ?? null,
+      activo:         board?.activo       ?? latest?.activo    ?? false,
+      enviados:       sentByReq[req.id]   ?? 0,
+      sort_order:     board?.sort_order   ?? 0,
       week_number:    weekNumber,
       week_year:      weekYear,
     }

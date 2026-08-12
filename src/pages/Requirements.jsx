@@ -1190,8 +1190,9 @@ function ReqBoardTable() {
     } catch { /* optimistic fallback */ }
   }
 
-  const ratio = kpi && kpi.activePositions > 0
-    ? (kpi.sent / kpi.activePositions).toFixed(1)
+  const enBusqueda = rows.filter(r => r.activo).length
+  const ratio = enBusqueda > 0 && kpi
+    ? (kpi.sent / enBusqueda).toFixed(1)
     : null
 
   const COLS = [

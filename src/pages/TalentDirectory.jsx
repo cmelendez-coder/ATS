@@ -71,139 +71,244 @@ const WA_SVG = `<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="
 const LI_SVG  = `<svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>`
 const CV_SVG  = `<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 2L2 21l10-8z" fill="#00AC47"/><path d="M12 2l10 19-10-8z" fill="#FBBC04"/><path d="M2 21h20l-10-8z" fill="#4285F4"/></svg>`
 
+// Minimal XLSX (Open XML) builder — no external dependency, no Excel format warning
 function exportToExcel(candidates, searchQuery) {
   const date = new Date().toISOString().slice(0, 10)
-  const x    = v => String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
-  const cell = (v, styleId) => `<Cell ss:StyleID="${styleId}"><Data ss:Type="String">${x(v)}</Data></Cell>`
+  const esc  = v => String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
 
-  const cols = ['Nombre','Email','Teléfono','Rol','English %','Años Exp.','Ciudad','Status','Tecnologías','Skillset (notas)','BDD Tecnología','BDD Skills','LinkedIn','CV']
+  const COLS = ['Nombre','Email','Teléfono','Rol','English %','Años Exp.','Ciudad','Status','Tecnologías','Skillset (notas)','BDD Tecnología','BDD Skills','LinkedIn','CV']
+  const COL_WIDTHS = [22,26,17,16,10,10,16,13,24,32,22,22,30,34]
 
-  const headerCells = cols.map(h => cell(h, 'H')).join('')
+  // Map col index → letter(s)
+  const colLetter = i => i < 26 ? String.fromCharCode(65+i) : String.fromCharCode(64+Math.floor(i/26)) + String.fromCharCode(65+(i%26))
 
-  const dataRows = candidates.map((c, i) => {
-    const odd      = i % 2 === 1
-    const s        = odd ? 'O' : 'E'
-    const sNum     = odd ? 'ON' : 'EN'
+  // Build shared strings table
+  const strings = []
+  const siMap   = {}
+  const si = v => {
+    const s = String(v ?? '')
+    if (siMap[s] == null) { siMap[s] = strings.length; strings.push(s) }
+    return siMap[s]
+  }
+
+  // Pre-register all values
+  COLS.forEach(h => si(h))
+  const rows = candidates.map(c => {
     const techs    = [...new Set((c.candidate_stack ?? []).map(t => t.technology?.ct_name_tech).filter(Boolean))].join(', ')
     const skillset = (c.candidate_note ?? []).find(n => n.note_type === 'skillset')?.note_text ?? ''
     const bddTech  = c.bdd_technology ?? ''
     const bddSkill = [c.bdd_skills, c.bdd_module].filter(Boolean).join(' | ')
-    return `<Row>
-      ${cell(c.full_name,             'B' + s)}
-      ${cell(c.email        ?? '',    s)}
-      ${cell(c.phone        ?? '',    s)}
-      ${cell(c.role?.name   ?? '',    s)}
-      ${cell(c.english_score    != null ? c.english_score + '%' : '', sNum)}
-      ${cell(c.years_experience != null ? String(c.years_experience)  : '', sNum)}
-      ${cell(c.location?.name   ?? '', s)}
-      ${cell(c.status?.name     ?? '', s)}
-      ${cell(techs,                   s)}
-      ${cell(skillset,               s)}
-      ${cell(bddTech,                s)}
-      ${cell(bddSkill,               s)}
-      ${cell(c.linkedin_url ?? '',    s)}
-      ${cell(c.cv_url       ?? '',    s)}
-    </Row>`
-  }).join('\n')
+    return [
+      c.full_name,
+      c.email ?? '',
+      c.phone ?? '',
+      c.role?.name ?? '',
+      c.english_score    != null ? c.english_score + '%' : '',
+      c.years_experience != null ? String(c.years_experience) : '',
+      c.location?.name   ?? '',
+      c.status?.name     ?? '',
+      techs, skillset, bddTech, bddSkill,
+      c.linkedin_url ?? '',
+      c.cv_url       ?? '',
+    ].map(v => { si(v); return v })
+  })
 
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<?mso-application progid="Excel.Sheet"?>
-<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
-  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
-  xmlns:x="urn:schemas-microsoft-com:office:excel"
-  xmlns:o="urn:schemas-microsoft-com:office:office">
-  <Styles>
-    <Style ss:ID="H">
-      <Font ss:Bold="1" ss:Color="#FFFFFF" ss:Size="11" ss:FontName="Calibri"/>
-      <Interior ss:Color="#071d47" ss:Pattern="Solid"/>
-      <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="0"/>
-      <Borders>
-        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#81b927"/>
-        <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#3a5c0f"/>
-      </Borders>
-    </Style>
-    <Style ss:ID="E">
-      <Font ss:Size="10" ss:FontName="Calibri"/>
-      <Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/>
-      <Alignment ss:Vertical="Center"/>
-      <Borders>
-        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
-        <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
-      </Borders>
-    </Style>
-    <Style ss:ID="O">
-      <Font ss:Size="10" ss:FontName="Calibri"/>
-      <Interior ss:Color="#f4f8ee" ss:Pattern="Solid"/>
-      <Alignment ss:Vertical="Center"/>
-      <Borders>
-        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
-        <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
-      </Borders>
-    </Style>
-    <Style ss:ID="BE">
-      <Font ss:Bold="1" ss:Color="#071d47" ss:Size="10" ss:FontName="Calibri"/>
-      <Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/>
-      <Alignment ss:Vertical="Center"/>
-      <Borders>
-        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
-        <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
-      </Borders>
-    </Style>
-    <Style ss:ID="BO">
-      <Font ss:Bold="1" ss:Color="#071d47" ss:Size="10" ss:FontName="Calibri"/>
-      <Interior ss:Color="#f4f8ee" ss:Pattern="Solid"/>
-      <Alignment ss:Vertical="Center"/>
-      <Borders>
-        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
-        <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
-      </Borders>
-    </Style>
-    <Style ss:ID="EN">
-      <Font ss:Size="10" ss:FontName="Calibri"/>
-      <Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/>
-      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
-      <Borders>
-        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
-        <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
-      </Borders>
-    </Style>
-    <Style ss:ID="ON">
-      <Font ss:Size="10" ss:FontName="Calibri"/>
-      <Interior ss:Color="#f4f8ee" ss:Pattern="Solid"/>
-      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
-      <Borders>
-        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
-        <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
-      </Borders>
-    </Style>
-  </Styles>
-  <Worksheet ss:Name="Talent">
-    <Table ss:DefaultRowHeight="18">
-      <Column ss:Width="160"/>
-      <Column ss:Width="180"/>
-      <Column ss:Width="120"/>
-      <Column ss:Width="110"/>
-      <Column ss:Width="70"/>
-      <Column ss:Width="70"/>
-      <Column ss:Width="110"/>
-      <Column ss:Width="90"/>
-      <Column ss:Width="160"/>
-      <Column ss:Width="220"/>
-      <Column ss:Width="160"/>
-      <Column ss:Width="160"/>
-      <Column ss:Width="200"/>
-      <Column ss:Width="220"/>
-      <Row ss:Height="22">${headerCells}</Row>
-      ${dataRows}
-    </Table>
-  </Worksheet>
-</Workbook>`
+  // — styles.xml (minimal: 2 fills + 2 fonts + border + 4 cell xfs) —
+  const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+  <fonts count="3">
+    <font><sz val="10"/><name val="Calibri"/></font>
+    <font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font>
+    <font><b/><sz val="10"/><color rgb="FF071d47"/><name val="Calibri"/></font>
+  </fonts>
+  <fills count="4">
+    <fill><patternFill patternType="none"/></fill>
+    <fill><patternFill patternType="gray125"/></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FF071d47"/></patternFill></fill>
+    <fill><patternFill patternType="solid"><fgColor rgb="FFf4f8ee"/></patternFill></fill>
+  </fills>
+  <borders count="2">
+    <border><left/><right/><top/><bottom/><diagonal/></border>
+    <border>
+      <left style="thin"><color rgb="FFc8d8b0"/></left>
+      <right style="thin"><color rgb="FFc8d8b0"/></right>
+      <top style="thin"><color rgb="FFc8d8b0"/></top>
+      <bottom style="thin"><color rgb="FFc8d8b0"/></bottom>
+    </border>
+  </borders>
+  <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+  <cellXfs count="4">
+    <xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0"><alignment wrapText="1" vertical="center"/></xf>
+    <xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1"><alignment horizontal="center" vertical="center"/></xf>
+    <xf numFmtId="0" fontId="2" fillId="0" borderId="1" xfId="0" applyFont="1"><alignment wrapText="1" vertical="center"/></xf>
+    <xf numFmtId="0" fontId="0" fillId="3" borderId="1" xfId="0" applyFill="1"><alignment wrapText="1" vertical="center"/></xf>
+  </cellXfs>
+</styleSheet>`
 
-  const blob = new Blob([xml], { type: 'application/vnd.ms-excel;charset=utf-8;' })
+  // — sheet1.xml —
+  const colsXml = COL_WIDTHS.map((w,i) => `<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('')
+
+  const headerRow = `<row r="1" ht="20" customHeight="1">${COLS.map((h,ci) =>
+    `<c r="${colLetter(ci)}1" t="s" s="1"><v>${si(h)}</v></c>`
+  ).join('')}</row>`
+
+  const dataRowsXml = rows.map((row, ri) => {
+    const r  = ri + 2
+    const s  = ri % 2 === 1 ? 3 : 0  // odd=striped fill, even=plain; first col always bold style
+    const s0 = ri % 2 === 1 ? 3 : 2  // name cell: bold navy font
+    return `<row r="${r}">${row.map((v, ci) =>
+      `<c r="${colLetter(ci)}${r}" t="s" s="${ci === 0 ? s0 : s}"><v>${si(v)}</v></c>`
+    ).join('')}</row>`
+  }).join('')
+
+  const sheetXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+  <sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>
+  <cols>${colsXml}</cols>
+  <sheetData>${headerRow}${dataRowsXml}</sheetData>
+</worksheet>`
+
+  // — sharedStrings.xml —
+  const ssXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="${strings.length}" uniqueCount="${strings.length}">
+${strings.map(s => `<si><t xml:space="preserve">${esc(s)}</t></si>`).join('\n')}
+</sst>`
+
+  // — workbook.xml —
+  const wbXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <sheets><sheet name="Talent" sheetId="1" r:id="rId1"/></sheets>
+</workbook>`
+
+  // — relationships —
+  const wbRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>
+  <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+  <Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>
+</Relationships>`
+
+  const pkgRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+</Relationships>`
+
+  const contentTypes = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml"  ContentType="application/xml"/>
+  <Override PartName="/xl/workbook.xml"            ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+  <Override PartName="/xl/worksheets/sheet1.xml"   ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+  <Override PartName="/xl/styles.xml"              ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
+  <Override PartName="/xl/sharedStrings.xml"       ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>
+</Types>`
+
+  // Build ZIP using fflate (bundled with Vite projects via rollup)
+  // fflate is available because it's a dependency of many Vite plugins
+  // We build it manually as a ZIP file with stored (no compression) entries
+  function strToU8(s) {
+    return new TextEncoder().encode(s)
+  }
+
+  function makeZip(files) {
+    const parts = []
+    const centralDir = []
+    let offset = 0
+
+    for (const [name, data] of files) {
+      const nameBytes  = strToU8(name)
+      const localHeader = new Uint8Array(30 + nameBytes.length)
+      const view = new DataView(localHeader.buffer)
+      view.setUint32(0,  0x04034b50, true)  // signature
+      view.setUint16(4,  20,         true)   // version needed
+      view.setUint16(6,  0,          true)   // flags
+      view.setUint16(8,  0,          true)   // compression (stored)
+      view.setUint16(10, 0,          true)   // mod time
+      view.setUint16(12, 0,          true)   // mod date
+      view.setUint32(14, crc32(data),true)   // CRC-32
+      view.setUint32(18, data.length, true)  // compressed size
+      view.setUint32(22, data.length, true)  // uncompressed size
+      view.setUint16(26, nameBytes.length, true)
+      view.setUint16(28, 0,          true)   // extra len
+      localHeader.set(nameBytes, 30)
+
+      // Central directory entry
+      const cdEntry = new Uint8Array(46 + nameBytes.length)
+      const cdView  = new DataView(cdEntry.buffer)
+      cdView.setUint32(0,  0x02014b50, true) // central dir sig
+      cdView.setUint16(4,  20,         true)
+      cdView.setUint16(6,  20,         true)
+      cdView.setUint16(8,  0,          true)
+      cdView.setUint16(10, 0,          true)
+      cdView.setUint16(12, 0,          true)
+      cdView.setUint16(14, 0,          true)
+      cdView.setUint32(16, crc32(data),true)
+      cdView.setUint32(20, data.length, true)
+      cdView.setUint32(24, data.length, true)
+      cdView.setUint16(28, nameBytes.length, true)
+      cdView.setUint16(30, 0,          true)
+      cdView.setUint16(32, 0,          true)
+      cdView.setUint16(34, 0,          true)
+      cdView.setUint16(36, 0,          true)
+      cdView.setUint32(38, 0x0000,     true)
+      cdView.setUint32(42, offset,     true)
+      cdEntry.set(nameBytes, 46)
+
+      parts.push(localHeader, data)
+      centralDir.push(cdEntry)
+      offset += localHeader.length + data.length
+    }
+
+    const cdSize   = centralDir.reduce((s,e) => s + e.length, 0)
+    const eocd     = new Uint8Array(22)
+    const eocdView = new DataView(eocd.buffer)
+    eocdView.setUint32(0,  0x06054b50, true)
+    eocdView.setUint16(4,  0,          true)
+    eocdView.setUint16(6,  0,          true)
+    eocdView.setUint16(8,  files.length, true)
+    eocdView.setUint16(10, files.length, true)
+    eocdView.setUint32(12, cdSize,     true)
+    eocdView.setUint32(16, offset,     true)
+    eocdView.setUint16(20, 0,          true)
+
+    const all = [...parts, ...centralDir, eocd]
+    const total = new Uint8Array(all.reduce((s,b) => s + b.length, 0))
+    let pos = 0
+    for (const b of all) { total.set(b, pos); pos += b.length }
+    return total
+  }
+
+  function crc32(data) {
+    const table = crc32.t ?? (crc32.t = (() => {
+      const t = new Uint32Array(256)
+      for (let i = 0; i < 256; i++) {
+        let c = i
+        for (let j = 0; j < 8; j++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1)
+        t[i] = c
+      }
+      return t
+    })())
+    let c = 0xFFFFFFFF
+    for (let i = 0; i < data.length; i++) c = table[(c ^ data[i]) & 0xFF] ^ (c >>> 8)
+    return (c ^ 0xFFFFFFFF) >>> 0
+  }
+
+  const zip = makeZip([
+    ['[Content_Types].xml',           strToU8(contentTypes)],
+    ['_rels/.rels',                   strToU8(pkgRels)],
+    ['xl/workbook.xml',               strToU8(wbXml)],
+    ['xl/_rels/workbook.xml.rels',    strToU8(wbRels)],
+    ['xl/worksheets/sheet1.xml',      strToU8(sheetXml)],
+    ['xl/styles.xml',                 strToU8(stylesXml)],
+    ['xl/sharedStrings.xml',          strToU8(ssXml)],
+  ])
+
+  const blob = new Blob([zip], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
   const url  = URL.createObjectURL(blob)
   const a    = document.createElement('a')
   a.href     = url
-  a.download = `talent${searchQuery ? '-' + searchQuery.replace(/\s+/g, '_') : ''}-${date}.xls`
+  a.download = `talent${searchQuery ? '-' + searchQuery.replace(/\s+/g, '_') : ''}-${date}.xlsx`
   a.click()
   URL.revokeObjectURL(url)
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import UserAvatar from '../components/UserAvatar'
 import { Link, useNavigate } from 'react-router-dom'
 import { createCandidate, fetchClientsSimple, fetchRequirementsByClient, fetchStagesByClient } from '../api/talent'
 
@@ -112,7 +113,7 @@ export default function AddTalent() {
           <button className="hidden sm:flex items-center justify-center h-9 px-5 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary font-medium text-sm opacity-60 cursor-default">
             Add New Talent
           </button>
-          <div className="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-xs font-bold text-primary border border-outline-variant/30 cursor-pointer ml-1">R</div>
+          <UserAvatar />
         </div>
       </header>
 

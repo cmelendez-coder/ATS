@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { searchCandidates } from '../api/talent'
 import { usePermissions } from '../hooks/usePermissions'
 import PortalButtons from '../components/PortalButtons'
+import UserAvatar from '../components/UserAvatar'
 
 // Deterministic color per tech name
 const TECH_PALETTE = [
@@ -186,7 +187,7 @@ export default function TalentDirectory() {
             <span className="material-symbols-outlined text-[20px]">settings</span>
           </button>
           <div className="w-px h-5 bg-outline-variant/40 mx-1"></div>
-          <div className="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-xs font-bold text-primary border border-outline-variant/30 cursor-pointer ml-1">R</div>
+          <UserAvatar />
         </div>
       </header>
 

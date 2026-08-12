@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useId } from 'react'
 import { createPortal } from 'react-dom'
 import PortalButtons from '../components/PortalButtons'
+import UserAvatar from '../components/UserAvatar'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import {
@@ -1107,7 +1108,7 @@ export default function Tracker() {
           <button className="p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors w-9 h-9 flex items-center justify-center">
             <span className="material-symbols-outlined text-[20px]">notifications</span>
           </button>
-          <div className="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-xs font-bold text-primary border border-outline-variant/30 cursor-pointer ml-1">R</div>
+          <UserAvatar />
         </div>
       </header>
 

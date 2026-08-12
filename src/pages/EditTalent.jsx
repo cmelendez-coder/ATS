@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import UserAvatar from '../components/UserAvatar'
 import { Link, useNavigate, useParams, useLocation } from 'react-router-dom'
 import { getCandidate, updateCandidate } from '../api/talent'
 
@@ -205,7 +206,7 @@ export default function EditTalent() {
               Add New Talent
             </button>
           </Link>
-          <div className="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-xs font-bold text-primary border border-outline-variant/30 cursor-pointer ml-1">R</div>
+          <UserAvatar />
         </div>
       </header>
 

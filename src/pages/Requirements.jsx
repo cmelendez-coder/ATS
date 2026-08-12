@@ -972,7 +972,7 @@ const PRI_TABLE = {
 }
 
 /* ── Inline editable cell ── */
-function EditableCell({ value, onChange, type = 'text', placeholder = '', disabled = false }) {
+function EditableCell({ value, onChange, type = 'text', placeholder = '', disabled = false, glow = false, large = false }) {
   const [draft, setDraft] = useState(value ?? '')
   useEffect(() => { setDraft(value ?? '') }, [value])
   return (
@@ -984,7 +984,7 @@ function EditableCell({ value, onChange, type = 'text', placeholder = '', disabl
       onChange={e => setDraft(e.target.value)}
       onBlur={() => { if (!disabled && draft !== (value ?? '')) onChange(draft) }}
       onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur() }}
-      className="w-full bg-transparent text-center text-sm text-on-surface placeholder:text-on-surface-variant/30 outline-none focus:bg-surface-container rounded px-1 py-0.5 transition-colors border border-[#81b927]/60 focus:border-[#81b927] disabled:opacity-50 disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+      className={`w-full bg-transparent text-center text-on-surface placeholder:text-on-surface-variant/30 outline-none focus:bg-surface-container rounded px-1 py-0.5 transition-colors border border-[#81b927]/60 focus:border-[#81b927] disabled:opacity-50 disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none ${large ? 'text-xl font-bold' : 'text-sm'} ${glow && !disabled ? 'cell-glow' : ''}`}
     />
   )
 }
@@ -1220,6 +1220,13 @@ function ReqBoardTable() {
 
   return (
     <div className="space-y-5">
+      <style>{`
+        @keyframes cellGlow {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(129,185,39,0); border-color: rgba(129,185,39,0.4); }
+          50%       { box-shadow: 0 0 10px 3px rgba(129,185,39,0.5); border-color: rgba(129,185,39,1); }
+        }
+        .cell-glow { animation: cellGlow 2.2s ease-in-out infinite; }
+      `}</style>
 
       {/* ── KPI bar ── */}
       <div className="rounded-2xl p-6" style={{ backgroundColor: '#81b927' }}>
@@ -1445,6 +1452,8 @@ function ReqBoardTable() {
                     value={row.everscale != null ? String(row.everscale) : ''}
                     placeholder="—"
                     disabled={isPastWeek}
+                    glow={!isPastWeek}
+                    large
                     onChange={val => handleUpdate(row.requirement_id, { everscale: val === '' ? null : Number(val) })}
                   />
                 </td>
@@ -1456,12 +1465,14 @@ function ReqBoardTable() {
                     value={row.interno != null ? String(row.interno) : ''}
                     placeholder="—"
                     disabled={isPastWeek}
+                    glow={!isPastWeek}
+                    large
                     onChange={val => handleUpdate(row.requirement_id, { interno: val === '' ? null : Number(val) })}
                   />
                 </td>
 
                 {/* Enviados (read-only) */}
-                <td className="px-3 py-2 text-center text-sm text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
+                <td className="px-3 py-2 text-center text-xl font-bold text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   {row.enviados ?? '—'}
                 </td>
               </tr>

@@ -1433,15 +1433,9 @@ function ReqBoardTable() {
                   {row.position ?? '—'}
                 </td>
 
-                {/* FTEs */}
-                <td className="px-2 py-2" style={{ borderBottom: `1px solid ${rowBorder}` }}>
-                  <EditableCell
-                    type="number"
-                    value={row.ftes != null ? String(row.ftes) : ''}
-                    placeholder="—"
-                    disabled={isPastWeek}
-                    onChange={val => handleUpdate(row.requirement_id, { ftes: val === '' ? null : Number(val) })}
-                  />
+                {/* FTEs (read-only from requirement) */}
+                <td className="px-3 py-2 text-center text-sm text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
+                  {row.ftes ?? '—'}
                 </td>
 
                 {/* Everscale */}

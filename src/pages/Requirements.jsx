@@ -1339,10 +1339,10 @@ function ReqBoardTable() {
         </thead>
         <tbody>
           {(() => {
-            const CLIENT_ORDER = ['LogicMonitor', 'PacVue']
+            const CLIENT_LAST = ['LogicMonitor', 'PacVue']
             const clientKey = c => {
-              const i = CLIENT_ORDER.findIndex(n => n.toLowerCase() === (c ?? '').toLowerCase())
-              return i === -1 ? 999 : i
+              const i = CLIENT_LAST.findIndex(n => n.toLowerCase() === (c ?? '').toLowerCase())
+              return i === -1 ? 0 : i + 1  // others=0 (top), LogicMonitor=1, PacVue=2 (bottom)
             }
             const grouped = rows.reduce((acc, row) => {
               const c = row.cliente ?? '—'

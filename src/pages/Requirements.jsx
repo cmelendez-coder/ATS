@@ -1367,7 +1367,7 @@ function ReqBoardTable() {
 
             return (
               <tr
-                key={row.id}
+                key={row.requirement_id}
                 className="transition-colors duration-300"
                 style={{ backgroundColor: rowBg, borderBottom: `1px solid ${rowBorder}` }}
               >

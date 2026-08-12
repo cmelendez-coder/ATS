@@ -1323,7 +1323,30 @@ function ReqBoardTable() {
           </tr>
         </thead>
         <tbody>
-          {rows.map(row => {
+          {(() => {
+            const CLIENT_ORDER = ['LogicMonitor', 'PacVue']
+            const clientKey = c => {
+              const i = CLIENT_ORDER.findIndex(n => n.toLowerCase() === (c ?? '').toLowerCase())
+              return i === -1 ? 999 : i
+            }
+            const grouped = rows.reduce((acc, row) => {
+              const c = row.cliente ?? '—'
+              if (!acc[c]) acc[c] = []
+              acc[c].push(row)
+              return acc
+            }, {})
+            const sortedClients = Object.keys(grouped).sort((a, b) => {
+              const ia = clientKey(a), ib = clientKey(b)
+              if (ia !== ib) return ia - ib
+              return a.localeCompare(b)
+            })
+            return sortedClients.flatMap(cliente => [
+              <tr key={`group-${cliente}`}>
+                <td colSpan={COLS.length} className="px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-white" style={{ backgroundColor: '#81b927' }}>
+                  {cliente}
+                </td>
+              </tr>,
+              ...grouped[cliente].map(row => {
             const pri    = PRI_TABLE[row.prioridad] ?? PRI_TABLE[2]
             const activo = row.activo ?? false
             const rowBg  = activo
@@ -1418,7 +1441,9 @@ function ReqBoardTable() {
                 </td>
               </tr>
             )
-          })}
+          })
+          ])
+        })()}
         </tbody>
       </table>
     </div>

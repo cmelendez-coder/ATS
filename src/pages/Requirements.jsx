@@ -1402,7 +1402,7 @@ function ReqBoardTable() {
                     value={row.recruiter ?? ''}
                     onChange={e => handleUpdate(row.requirement_id, { recruiter: e.target.value || null })}
                     disabled={isPastWeek}
-                    className="w-full bg-transparent text-center text-sm font-bold italic text-on-surface outline-none cursor-pointer rounded px-1 py-0.5 border border-[#81b927]/60 focus:border-[#81b927] disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-transparent text-center text-sm font-bold text-on-surface outline-none cursor-pointer rounded px-1 py-0.5 border border-[#81b927]/60 focus:border-[#81b927] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <option value="">—</option>
                     <option value="César">César</option>
@@ -1418,7 +1418,7 @@ function ReqBoardTable() {
                     value={row.prioridad ?? ''}
                     onChange={e => handleUpdate(row.requirement_id, { prioridad: e.target.value === '' ? null : Number(e.target.value) })}
                     disabled={isPastWeek}
-                    className="rounded-lg text-sm font-bold italic text-center cursor-pointer outline-none border-none appearance-none px-2 py-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="rounded-lg text-sm font-bold text-center cursor-pointer outline-none border-none appearance-none px-2 py-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ backgroundColor: pri.bg, color: pri.text, width: 52 }}
                   >
                     <option value="" disabled>—</option>
@@ -1431,17 +1431,17 @@ function ReqBoardTable() {
                 </td>
 
                 {/* Cliente (read-only) */}
-                <td className="px-3 py-2 text-center text-sm font-bold italic text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
+                <td className="px-3 py-2 text-center text-sm font-bold text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   {row.cliente ?? '—'}
                 </td>
 
                 {/* Position (read-only) */}
-                <td className="px-3 py-2 text-center text-sm font-bold italic text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
+                <td className="px-3 py-2 text-center text-sm font-bold text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   {row.position ?? '—'}
                 </td>
 
                 {/* FTEs (read-only from requirement) */}
-                <td className="px-3 py-2 text-center text-sm font-bold italic text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
+                <td className="px-3 py-2 text-center text-sm font-bold text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   {row.ftes ?? '—'}
                 </td>
 

@@ -336,7 +336,7 @@ export async function getOpenRequirementsForBoard(weekNumber, weekYear) {
       recruiter:      board?.recruiter    ?? latest?.recruiter ?? null,
       everscale:      board?.everscale    ?? latest?.everscale ?? null,
       interno:        board?.interno      ?? latest?.interno   ?? null,
-      activo:         board?.activo       ?? latest?.activo    ?? false,
+      activo:         board?.activo       ?? false,
       enviados:       sentByReq[req.id]   ?? 0,
       sort_order:     board?.sort_order   ?? 0,
       week_number:    weekNumber,

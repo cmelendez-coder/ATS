@@ -1196,7 +1196,7 @@ function ReqBoardTable() {
 
   const COLS = [
     { label: 'Búsqueda',       width: '80px'  },
-    { label: 'Recruiter',      width: '130px' },
+    { label: 'Recruiter',      width: '155px' },
     { label: 'Prioridad',      width: '80px'  },
     { label: 'Cliente',        width: '130px' },
     { label: 'Position',       width: '210px' },

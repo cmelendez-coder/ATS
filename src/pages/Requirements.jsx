@@ -1355,9 +1355,14 @@ function ReqBoardTable() {
               if (ia !== ib) return ia - ib
               return a.localeCompare(b)
             })
+            const groupBg = c => {
+              if (c.toLowerCase() === 'logicmonitor') return { bg: '#071d47', color: '#fff' }
+              if (c.toLowerCase() === 'pacvue')       return { bg: '#ea580c', color: '#fff' }
+              return { bg: '#d1d5db', color: '#374151' }
+            }
             return sortedClients.flatMap(cliente => [
               <tr key={`group-${cliente}`}>
-                <td colSpan={COLS.length} className="px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-white" style={{ backgroundColor: '#81b927' }}>
+                <td colSpan={COLS.length} className="px-4 py-2 text-[11px] font-bold uppercase tracking-widest" style={{ backgroundColor: groupBg(cliente).bg, color: groupBg(cliente).color }}>
                   {cliente}
                 </td>
               </tr>,

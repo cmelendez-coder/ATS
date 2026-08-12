@@ -72,41 +72,58 @@ const LI_SVG  = `<svg viewBox="0 0 24 24" fill="currentColor" width="18" height=
 const CV_SVG  = `<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 2L2 21l10-8z" fill="#00AC47"/><path d="M12 2l10 19-10-8z" fill="#FBBC04"/><path d="M2 21h20l-10-8z" fill="#4285F4"/></svg>`
 
 function exportToExcel(candidates, searchQuery) {
-  const date = new Date().toISOString().slice(0, 10)
+  const date   = new Date().toISOString().slice(0, 10)
+  const esc    = v => String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  const HEADER = '#071d47'
+  const ODD    = '#f4f8ee'
+  const EVEN   = '#ffffff'
+  const BORDER = '1px solid #c8d8b0'
 
-  const esc = val => {
-    const s = String(val ?? '')
-    return s.includes(',') || s.includes('"') || s.includes('\n')
-      ? `"${s.replace(/"/g, '""')}"`
-      : s
-  }
+  const thStyle = `background:${HEADER};color:#fff;font-weight:bold;font-size:11pt;padding:8px 12px;border:${BORDER};white-space:nowrap;`
+  const tdBase  = `font-size:10pt;padding:6px 12px;border:${BORDER};vertical-align:middle;`
 
-  const headers = ['Name','Email','Phone','Role','English %','YoE','Location','Status','Technologies','LinkedIn','CV']
+  const cols = ['Nombre','Email','Teléfono','Rol','English %','Años Exp.','Ciudad','Status','Tecnologías','LinkedIn','CV']
 
-  const rows = candidates.map(c => {
+  const headerRow = `<tr>${cols.map(h => `<th style="${thStyle}">${h}</th>`).join('')}</tr>`
+
+  const dataRows = candidates.map((c, i) => {
+    const bg    = i % 2 === 0 ? EVEN : ODD
+    const td    = (v, extra = '') => `<td style="${tdBase}background:${bg};${extra}">${esc(v)}</td>`
     const techs = [...new Set((c.candidate_stack ?? []).map(s => s.technology?.ct_name_tech).filter(Boolean))].join(', ')
-    return [
-      c.full_name,
-      c.email        ?? '',
-      c.phone        ?? '',
-      c.role?.name   ?? '',
-      c.english_score    != null ? `${c.english_score}%` : '',
-      c.years_experience != null ? String(c.years_experience) : '',
-      c.location?.name ?? '',
-      c.status?.name   ?? '',
-      techs,
-      c.linkedin_url ?? '',
-      c.cv_url       ?? '',
-    ].map(esc).join(',')
-  })
+    const eng   = c.english_score != null ? `${c.english_score}%` : ''
+    const yoe   = c.years_experience != null ? `${c.years_experience}` : ''
 
-  // BOM (﻿) para que Excel abra UTF-8 correctamente
-  const csv  = '﻿' + [headers.join(','), ...rows].join('\n')
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    return `<tr>
+      ${td(c.full_name,       'font-weight:bold;color:#071d47;')}
+      ${td(c.email            ?? '')}
+      ${td(c.phone            ?? '')}
+      ${td(c.role?.name       ?? '')}
+      ${td(eng,                'text-align:center;')}
+      ${td(yoe,                'text-align:center;')}
+      ${td(c.location?.name   ?? '')}
+      ${td(c.status?.name     ?? '')}
+      ${td(techs)}
+      ${td(c.linkedin_url     ?? '')}
+      ${td(c.cv_url           ?? '')}
+    </tr>`
+  }).join('\n')
+
+  const html = `
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+<head><meta charset="utf-8"/></head>
+<body>
+<table style="border-collapse:collapse;font-family:Calibri,Arial,sans-serif;">
+  <thead>${headerRow}</thead>
+  <tbody>${dataRows}</tbody>
+</table>
+</body>
+</html>`
+
+  const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' })
   const url  = URL.createObjectURL(blob)
   const a    = document.createElement('a')
   a.href     = url
-  a.download = `talent${searchQuery ? '-' + searchQuery.replace(/\s+/g, '_') : ''}-${date}.csv`
+  a.download = `talent${searchQuery ? '-' + searchQuery.replace(/\s+/g, '_') : ''}-${date}.xls`
   a.click()
   URL.revokeObjectURL(url)
 }
@@ -236,7 +253,7 @@ export default function TalentDirectory() {
               {candidates.length > 0 && !loading && (
                 <button
                   type="button"
-                  onClick={() => exportToExcel(candidates, query)}
+                  onClick={() => exportToExcel(displayed, query)}
                   className="flex items-center gap-2 bg-surface-container border border-outline-variant/30 text-on-surface px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-surface-container-high transition-colors"
                   title="Exportar resultados a Excel"
                 >
@@ -525,7 +542,7 @@ export default function TalentDirectory() {
             {!loading && candidates.length > 0 && (
               <div className="px-6 py-4 flex items-center justify-between border-t border-outline-variant/10">
                 <p className="text-sm text-on-surface-variant">
-                  Mostrando <span className="font-semibold text-primary">{candidates.length}</span> candidato{candidates.length !== 1 ? 's' : ''}
+                  Mostrando <span className="font-semibold text-primary">{total}</span>{hasColumnFilters ? ` de ${candidates.length}` : ''} candidato{total !== 1 ? 's' : ''}
                 </p>
               </div>
             )}

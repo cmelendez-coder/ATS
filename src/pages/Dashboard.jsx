@@ -185,7 +185,7 @@ export default function Dashboard() {
           </div>
 
           {/* ── STAT TILES ── */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
             {/* Open Requirements */}
             <Link
               to="/requirements"
@@ -249,11 +249,24 @@ export default function Dashboard() {
               <p className="text-5xl tracking-tighter font-light text-[#81b927]">
                 {loading ? '…' : (stats?.totalCandidates ?? 0).toLocaleString()}
               </p>
-              {!loading && (
-                <p className="text-[11px] text-white/60 mt-2">
-                  <span className="text-[#81b927] font-semibold">+{stats?.monthlySent ?? 0}</span> Agregados al Talent Pool en {new Date().toLocaleDateString('es-MX', { month: 'long' }).replace(/^\w/, c => c.toUpperCase())}
-                </p>
-              )}
+            </Link>
+
+            {/* Agregados al Talent Pool este mes */}
+            <Link
+              to="/talent"
+              className="block bg-[#81b927] rounded-2xl p-5 shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden border border-white/[0.12] hover:shadow-[0_4px_24px_rgba(129,185,39,0.35)] transition-shadow"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-white/[0.08] to-transparent pointer-events-none" />
+              <div className="flex items-start justify-between mb-2">
+                <h3 className="text-xs uppercase tracking-[0.08em] font-bold text-white/70">Este mes</h3>
+                <span className="material-symbols-outlined text-[18px] text-white/50">person_add</span>
+              </div>
+              <p className="text-5xl tracking-tighter font-light text-white">
+                {loading ? '…' : `+${stats?.monthlySent ?? 0}`}
+              </p>
+              <p className="text-[11px] text-white/80 mt-2 font-medium">
+                Agregados al Talent Pool en {new Date().toLocaleDateString('es-MX', { month: 'long' }).replace(/^\w/, c => c.toUpperCase())}
+              </p>
             </Link>
 
           </div>

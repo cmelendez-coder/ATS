@@ -1197,7 +1197,7 @@ export default function Tracker() {
                       <th className="sticky left-0 z-20 w-[200px] bg-[#0b2a58] px-3 py-3 text-[10px] font-bold text-[#81b927] uppercase tracking-widest whitespace-nowrap">
                         <div className="flex items-center gap-3">
                           <span>Candidato</span>
-                          {canEdit && (year > currentYear || (year === currentYear && week >= currentWeek)) && (
+                          {canEdit && myRecruiter === activeTab && (year > currentYear || (year === currentYear && week >= currentWeek)) && (
                             <button
                               type="button"
                               onClick={addRow}

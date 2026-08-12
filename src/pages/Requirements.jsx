@@ -1257,7 +1257,7 @@ function ReqBoardTable() {
         <div className="grid grid-cols-2 sm:grid-cols-6 gap-3">
 
           {/* Semana */}
-          <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+          <div className="bg-white rounded-xl p-5 border border-white/40 flex flex-col gap-2">
             <div className="flex items-center gap-1.5">
               <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">calendar_today</span>
               <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Semana</span>
@@ -1266,7 +1266,7 @@ function ReqBoardTable() {
           </div>
 
           {/* Requerimientos Abiertos */}
-          <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+          <div className="bg-white rounded-xl p-5 border border-white/40 flex flex-col gap-2">
             <div className="flex items-center gap-1.5">
               <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">toggle_on</span>
               <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Req. Abiertos</span>
@@ -1275,7 +1275,7 @@ function ReqBoardTable() {
           </div>
 
           {/* Req. en búsqueda */}
-          <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+          <div className="bg-white rounded-xl p-5 border border-white/40 flex flex-col gap-2">
             <div className="flex items-center gap-1.5">
               <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">manage_search</span>
               <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Req. en búsqueda</span>
@@ -1284,7 +1284,7 @@ function ReqBoardTable() {
           </div>
 
           {/* Enviados */}
-          <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+          <div className="bg-white rounded-xl p-5 border border-white/40 flex flex-col gap-2">
             <div className="flex items-center gap-1.5">
               <span className="material-symbols-outlined text-[16px]" style={{ color: '#50B152' }}>send</span>
               <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Enviados</span>
@@ -1293,7 +1293,7 @@ function ReqBoardTable() {
           </div>
 
           {/* Rechazados */}
-          <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+          <div className="bg-white rounded-xl p-5 border border-white/40 flex flex-col gap-2">
             <div className="flex items-center gap-1.5">
               <span className="material-symbols-outlined text-[16px]" style={{ color: '#ba1a1a' }}>cancel</span>
               <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Rechazados</span>
@@ -1302,7 +1302,7 @@ function ReqBoardTable() {
           </div>
 
           {/* Promedio Semanal */}
-          <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+          <div className="bg-white rounded-xl p-5 border border-white/40 flex flex-col gap-2">
             <div className="flex items-center gap-1.5">
               <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">calculate</span>
               <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Promedio Semanal</span>

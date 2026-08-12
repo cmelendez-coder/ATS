@@ -72,54 +72,125 @@ const LI_SVG  = `<svg viewBox="0 0 24 24" fill="currentColor" width="18" height=
 const CV_SVG  = `<svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 2L2 21l10-8z" fill="#00AC47"/><path d="M12 2l10 19-10-8z" fill="#FBBC04"/><path d="M2 21h20l-10-8z" fill="#4285F4"/></svg>`
 
 function exportToExcel(candidates, searchQuery) {
-  const date   = new Date().toISOString().slice(0, 10)
-  const esc    = v => String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-  const HEADER = '#071d47'
-  const ODD    = '#f4f8ee'
-  const EVEN   = '#ffffff'
-  const BORDER = '1px solid #c8d8b0'
-
-  const thStyle = `background:${HEADER};color:#fff;font-weight:bold;font-size:11pt;padding:8px 12px;border:${BORDER};white-space:nowrap;`
-  const tdBase  = `font-size:10pt;padding:6px 12px;border:${BORDER};vertical-align:middle;`
+  const date = new Date().toISOString().slice(0, 10)
+  const x    = v => String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+  const cell = (v, styleId) => `<Cell ss:StyleID="${styleId}"><Data ss:Type="String">${x(v)}</Data></Cell>`
 
   const cols = ['Nombre','Email','Teléfono','Rol','English %','Años Exp.','Ciudad','Status','Tecnologías','LinkedIn','CV']
 
-  const headerRow = `<tr>${cols.map(h => `<th style="${thStyle}">${h}</th>`).join('')}</tr>`
+  const headerCells = cols.map(h => cell(h, 'H')).join('')
 
   const dataRows = candidates.map((c, i) => {
-    const bg    = i % 2 === 0 ? EVEN : ODD
-    const td    = (v, extra = '') => `<td style="${tdBase}background:${bg};${extra}">${esc(v)}</td>`
-    const techs = [...new Set((c.candidate_stack ?? []).map(s => s.technology?.ct_name_tech).filter(Boolean))].join(', ')
-    const eng   = c.english_score != null ? `${c.english_score}%` : ''
-    const yoe   = c.years_experience != null ? `${c.years_experience}` : ''
-
-    return `<tr>
-      ${td(c.full_name,       'font-weight:bold;color:#071d47;')}
-      ${td(c.email            ?? '')}
-      ${td(c.phone            ?? '')}
-      ${td(c.role?.name       ?? '')}
-      ${td(eng,                'text-align:center;')}
-      ${td(yoe,                'text-align:center;')}
-      ${td(c.location?.name   ?? '')}
-      ${td(c.status?.name     ?? '')}
-      ${td(techs)}
-      ${td(c.linkedin_url     ?? '')}
-      ${td(c.cv_url           ?? '')}
-    </tr>`
+    const odd   = i % 2 === 1
+    const s     = odd ? 'O' : 'E'
+    const sNum  = odd ? 'ON' : 'EN'
+    const techs = [...new Set((c.candidate_stack ?? []).map(t => t.technology?.ct_name_tech).filter(Boolean))].join(', ')
+    return `<Row>
+      ${cell(c.full_name,             'B' + s)}
+      ${cell(c.email        ?? '',    s)}
+      ${cell(c.phone        ?? '',    s)}
+      ${cell(c.role?.name   ?? '',    s)}
+      ${cell(c.english_score    != null ? c.english_score + '%' : '', sNum)}
+      ${cell(c.years_experience != null ? String(c.years_experience)  : '', sNum)}
+      ${cell(c.location?.name   ?? '', s)}
+      ${cell(c.status?.name     ?? '', s)}
+      ${cell(techs,                   s)}
+      ${cell(c.linkedin_url ?? '',    s)}
+      ${cell(c.cv_url       ?? '',    s)}
+    </Row>`
   }).join('\n')
 
-  const html = `
-<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-<head><meta charset="utf-8"/></head>
-<body>
-<table style="border-collapse:collapse;font-family:Calibri,Arial,sans-serif;">
-  <thead>${headerRow}</thead>
-  <tbody>${dataRows}</tbody>
-</table>
-</body>
-</html>`
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+  xmlns:x="urn:schemas-microsoft-com:office:excel"
+  xmlns:o="urn:schemas-microsoft-com:office:office">
+  <Styles>
+    <Style ss:ID="H">
+      <Font ss:Bold="1" ss:Color="#FFFFFF" ss:Size="11" ss:FontName="Calibri"/>
+      <Interior ss:Color="#071d47" ss:Pattern="Solid"/>
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="0"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#81b927"/>
+        <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#3a5c0f"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="E">
+      <Font ss:Size="10" ss:FontName="Calibri"/>
+      <Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/>
+      <Alignment ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
+        <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="O">
+      <Font ss:Size="10" ss:FontName="Calibri"/>
+      <Interior ss:Color="#f4f8ee" ss:Pattern="Solid"/>
+      <Alignment ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
+        <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="BE">
+      <Font ss:Bold="1" ss:Color="#071d47" ss:Size="10" ss:FontName="Calibri"/>
+      <Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/>
+      <Alignment ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
+        <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="BO">
+      <Font ss:Bold="1" ss:Color="#071d47" ss:Size="10" ss:FontName="Calibri"/>
+      <Interior ss:Color="#f4f8ee" ss:Pattern="Solid"/>
+      <Alignment ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
+        <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="EN">
+      <Font ss:Size="10" ss:FontName="Calibri"/>
+      <Interior ss:Color="#FFFFFF" ss:Pattern="Solid"/>
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
+        <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
+      </Borders>
+    </Style>
+    <Style ss:ID="ON">
+      <Font ss:Size="10" ss:FontName="Calibri"/>
+      <Interior ss:Color="#f4f8ee" ss:Pattern="Solid"/>
+      <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+      <Borders>
+        <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
+        <Border ss:Position="Right"  ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e2ecd4"/>
+      </Borders>
+    </Style>
+  </Styles>
+  <Worksheet ss:Name="Talent">
+    <Table ss:DefaultRowHeight="18">
+      <Column ss:Width="160"/>
+      <Column ss:Width="180"/>
+      <Column ss:Width="120"/>
+      <Column ss:Width="110"/>
+      <Column ss:Width="70"/>
+      <Column ss:Width="70"/>
+      <Column ss:Width="110"/>
+      <Column ss:Width="90"/>
+      <Column ss:Width="160"/>
+      <Column ss:Width="200"/>
+      <Column ss:Width="220"/>
+      <Row ss:Height="22">${headerCells}</Row>
+      ${dataRows}
+    </Table>
+  </Worksheet>
+</Workbook>`
 
-  const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' })
+  const blob = new Blob([xml], { type: 'application/vnd.ms-excel;charset=utf-8;' })
   const url  = URL.createObjectURL(blob)
   const a    = document.createElement('a')
   a.href     = url

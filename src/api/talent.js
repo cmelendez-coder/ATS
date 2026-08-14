@@ -57,37 +57,48 @@ export async function searchCandidates({ q = '', englishMin = '', englishMax = '
     return data ?? []
   }
 
-  const term = q.trim()
+  // Split query into individual words — AND logic: candidate must match every word
+  const terms = q.trim().split(/\s+/).filter(Boolean)
 
-  // Parallel lookups: RPC for bdd_* text fields, catalog lookups, and skillset notes
-  const [textData, techData, roleData, noteData] = await Promise.all([
-    supabase.rpc('search_candidates_text', { term }),
-    supabase.from('catalog_technology').select('technology_id').ilike('ct_name_tech', `%${term}%`),
-    supabase.from('catalog_role').select('role_id').ilike('name', `%${term}%`),
-    supabase.from('candidate_note').select('candidate_id').ilike('note_text', `%${term}%`).eq('note_type', 'skillset'),
-  ])
+  async function getIdsForTerm(term) {
+    const [textData, techData, roleData, noteData] = await Promise.all([
+      supabase.rpc('search_candidates_text', { term }),
+      supabase.from('catalog_technology').select('technology_id').ilike('ct_name_tech', `%${term}%`),
+      supabase.from('catalog_role').select('role_id').ilike('name', `%${term}%`),
+      supabase.from('candidate_note').select('candidate_id').ilike('note_text', `%${term}%`).eq('note_type', 'skillset'),
+    ])
 
-  // Resolve tech IDs → candidate IDs via candidate_stack
-  let techCandIds = []
-  if (techData.data?.length) {
-    const { data: stackRows } = await supabase
-      .from('candidate_stack')
-      .select('candidate_id')
-      .in('technology_id', techData.data.map(r => r.technology_id))
-    techCandIds = (stackRows ?? []).map(r => r.candidate_id)
+    let techCandIds = []
+    if (techData.data?.length) {
+      const { data: stackRows } = await supabase
+        .from('candidate_stack')
+        .select('candidate_id')
+        .in('technology_id', techData.data.map(r => r.technology_id))
+      techCandIds = (stackRows ?? []).map(r => r.candidate_id)
+    }
+
+    let roleCandIds = []
+    if (roleData.data?.length) {
+      const { data: roleRows } = await supabase
+        .from('candidate').select('candidate_id')
+        .in('role_id', roleData.data.map(r => r.role_id))
+      roleCandIds = (roleRows ?? []).map(c => c.candidate_id)
+    }
+
+    return new Set([
+      ...(textData.data ?? []).map(r => r.candidate_id),
+      ...techCandIds,
+      ...roleCandIds,
+      ...(noteData.data ?? []).map(r => r.candidate_id),
+    ])
   }
 
-  // Merge all matching candidate IDs
-  const allIds = [...new Set([
-    ...(textData.data ?? []).map(r => r.candidate_id),
-    ...techCandIds,
-    ...(noteData.data ?? []).map(r => r.candidate_id),
-    ...(roleData.data?.length
-      ? await supabase.from('candidate').select('candidate_id')
-          .in('role_id', roleData.data.map(r => r.role_id))
-          .then(r => (r.data ?? []).map(c => c.candidate_id))
-      : []),
-  ])]
+  // Fetch matches for each term in parallel, then intersect (AND)
+  const termSets = await Promise.all(terms.map(getIdsForTerm))
+  let allIds = [...termSets[0]]
+  for (let i = 1; i < termSets.length; i++) {
+    allIds = allIds.filter(id => termSets[i].has(id))
+  }
 
   if (!allIds.length) return []
 

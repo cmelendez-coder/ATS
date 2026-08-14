@@ -235,55 +235,26 @@ export async function saveTrackerEntry(entry) {
     updated_at:     new Date().toISOString(),
   }
 
+  // 3. Save tracker entry + willSync in parallel (independent operations)
   let entryId = entry.id ?? null
-  if (entryId) {
-    const { error } = await supabase.from('tracker_entry').update(payload).eq('id', entryId)
-    if (error) throw error
-  } else {
-    const { data, error } = await supabase
-      .from('tracker_entry').insert(payload).select('id').single()
-    if (error) throw error
-    entryId = data.id
-  }
+  let newEntryId = null
 
-  // 3. Keep candidate table in sync with tracker fields
+  const saveEntryPromise = entryId
+    ? supabase.from('tracker_entry').update(payload).eq('id', entryId)
+        .then(({ error }) => { if (error) throw error })
+    : supabase.from('tracker_entry').insert(payload).select('id').single()
+        .then(({ data, error }) => { if (error) throw error; newEntryId = data.id })
+
+  await Promise.all([
+    saveEntryPromise,
+    willSync ? syncCandidateToRequirement(candidateId, entry.requirement_id) : null,
+  ].filter(Boolean))
+
+  if (newEntryId) entryId = newEntryId
+
+  // 4. Sync candidate profile to Talent Directory in the background — does not block save UX
   if (candidateId) {
-    await _syncCandidateFromEntry(candidateId, entry)
-  }
-
-  // 4. Sync to Requirements if status = Sent (only once)
-  if (willSync) {
-    const now = new Date().toISOString()
-
-    const { data: existing } = await supabase
-      .from('requirement_candidate')
-      .select('id')
-      .eq('requirement_id', entry.requirement_id)
-      .eq('candidate_id', candidateId)
-      .maybeSingle()
-
-    if (!existing) {
-      const { data: rc, error: rcError } = await supabase
-        .from('requirement_candidate')
-        .insert({
-          requirement_id:   entry.requirement_id,
-          candidate_id:     candidateId,
-          submitted_at:     now,
-          submittal_status: 'Submitted to Client',
-          stage_updated_at: now,
-        })
-        .select('id')
-        .single()
-      if (rcError) throw rcError
-
-      await supabase.from('requirement_candidate_stage_history').insert({
-        rc_id:          rc.id,
-        candidate_id:   candidateId,
-        requirement_id: entry.requirement_id,
-        stage_name:     'Submitted to Client',
-        entered_at:     now,
-      })
-    }
+    _syncCandidateFromEntry(candidateId, entry).catch(() => {})
   }
 
   return { entryId, candidateId }

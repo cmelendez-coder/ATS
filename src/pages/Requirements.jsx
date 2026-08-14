@@ -984,7 +984,7 @@ function EditableCell({ value, onChange, type = 'text', placeholder = '', disabl
       onChange(draft)
       clearTimeout(savedTimer.current)
       setSaved(true)
-      savedTimer.current = setTimeout(() => setSaved(false), 1150)
+      savedTimer.current = setTimeout(() => setSaved(false), 1500)
     }
   }
 
@@ -1246,11 +1246,11 @@ function ReqBoardTable() {
         .cell-glow { animation: cellGlow 2.2s ease-in-out infinite; }
 
         @keyframes savedFlash {
-          0%   { border-color: #81b927; box-shadow: 0 0 0 4px rgba(129,185,39,0.45); background-color: rgba(129,185,39,0.18); }
-          65%  { border-color: #81b927; box-shadow: 0 0 0 2px rgba(129,185,39,0.15); background-color: rgba(129,185,39,0.06); }
-          100% { border-color: rgba(129,185,39,0.6); box-shadow: none; background-color: transparent; }
+          0%   { background-color: #81b927; color: #fff; border-color: #5c8a15; box-shadow: 0 0 0 5px rgba(129,185,39,0.55), 0 0 18px rgba(129,185,39,0.5); transform: scale(1.07); }
+          35%  { background-color: rgba(129,185,39,0.42); color: #1a4a00; border-color: #81b927; box-shadow: 0 0 0 3px rgba(129,185,39,0.35); transform: scale(1.03); }
+          100% { background-color: transparent; color: inherit; border-color: rgba(129,185,39,0.6); box-shadow: none; transform: scale(1); }
         }
-        .cell-saved { animation: savedFlash 1.1s ease-out forwards; }
+        .cell-saved { animation: savedFlash 1.5s ease-out forwards; }
       `}</style>
 
       {/* ── KPI bar ── */}

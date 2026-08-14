@@ -1385,7 +1385,7 @@ function ReqBoardTable() {
               <th
                 key={col.label}
                 style={{ width: col.width }}
-                className="text-[10px] font-bold uppercase tracking-[0.1em] text-white text-center px-3 py-3 border-b border-white/20 whitespace-nowrap" style={{ backgroundColor: '#81b927' }}
+                className="text-[14px] font-bold uppercase tracking-[0.1em] text-white text-center px-3 py-4 border-b border-white/20 whitespace-nowrap" style={{ backgroundColor: '#81b927' }}
               >
                 {col.label}
               </th>
@@ -1412,7 +1412,7 @@ function ReqBoardTable() {
             })
             return sortedClients.flatMap(cliente => [
               <tr key={`group-${cliente}`} onClick={() => setSelectedReqId(null)} className="cursor-default">
-                <td colSpan={COLS.length} className="px-4 py-2 text-[17px] font-bold uppercase tracking-widest" style={{ backgroundColor: '#10284d', color: '#fff' }}>
+                <td colSpan={COLS.length} className="px-4 py-2 text-[14px] font-bold uppercase tracking-widest" style={{ backgroundColor: '#10284d', color: '#fff' }}>
                   {cliente}
                 </td>
               </tr>,

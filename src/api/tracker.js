@@ -305,6 +305,13 @@ export async function syncCandidateToRequirement(candidateId, requirementId) {
   })
 }
 
+export async function fetchTrackerEntry(id) {
+  const { data, error } = await supabase
+    .from('tracker_entry').select('*').eq('id', id).single()
+  if (error) throw error
+  return data
+}
+
 export async function deleteTrackerEntry(id) {
   const { error } = await supabase.from('tracker_entry').delete().eq('id', id)
   if (error) throw error

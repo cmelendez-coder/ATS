@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import {
   fetchTrackerEntries,
+  fetchTrackerEntry,
   fetchActiveRequirements,
   fetchClosedRequirements,
   saveTrackerEntry,
@@ -458,6 +459,16 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
   useEffect(() => {
     if (!editing) setData({ ...row })
   }, [row]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Re-fetch from DB when entering edit mode so the form always shows current
+  // values — prevents stale local state from overwriting fields like
+  // technologies/modules that were set externally (e.g. via SQL update).
+  useEffect(() => {
+    if (!editing || !row.id) return
+    fetchTrackerEntry(row.id)
+      .then(fresh => { if (fresh) setData(fresh) })
+      .catch(() => {})
+  }, [editing]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!editing) return

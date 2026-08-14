@@ -289,6 +289,51 @@ export async function saveTrackerEntry(entry) {
   return { entryId, candidateId }
 }
 
+// Partial update — only the specified fields are written.
+// Use this instead of saveTrackerEntry when you need to update just a few
+// fields (e.g., status change, CV upload) to avoid overwriting fields like
+// email/phone/salary that may have been set externally or in another session.
+export async function patchTrackerEntry(entryId, patch) {
+  const { error } = await supabase
+    .from('tracker_entry')
+    .update({ ...patch, updated_at: new Date().toISOString() })
+    .eq('id', entryId)
+  if (error) throw error
+}
+
+// Syncs a Sent candidate into requirement_candidate (called from quickUpdateStatus).
+export async function syncCandidateToRequirement(candidateId, requirementId) {
+  const now = new Date().toISOString()
+  const { data: existing } = await supabase
+    .from('requirement_candidate')
+    .select('id')
+    .eq('requirement_id', requirementId)
+    .eq('candidate_id', candidateId)
+    .maybeSingle()
+  if (existing) return
+
+  const { data: rc, error: rcError } = await supabase
+    .from('requirement_candidate')
+    .insert({
+      requirement_id:   requirementId,
+      candidate_id:     candidateId,
+      submitted_at:     now,
+      submittal_status: 'Submitted to Client',
+      stage_updated_at: now,
+    })
+    .select('id')
+    .single()
+  if (rcError) throw rcError
+
+  await supabase.from('requirement_candidate_stage_history').insert({
+    rc_id:          rc.id,
+    candidate_id:   candidateId,
+    requirement_id: requirementId,
+    stage_name:     'Submitted to Client',
+    entered_at:     now,
+  })
+}
+
 export async function deleteTrackerEntry(id) {
   const { error } = await supabase.from('tracker_entry').delete().eq('id', id)
   if (error) throw error

@@ -9,6 +9,8 @@ import {
   fetchActiveRequirements,
   fetchClosedRequirements,
   saveTrackerEntry,
+  patchTrackerEntry,
+  syncCandidateToRequirement,
   deleteTrackerEntry,
   uploadCVFile,
   extractCVInfo,
@@ -450,6 +452,13 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
     return () => document.removeEventListener('mousedown', handleClick)
   }, [showStatusMenu])
 
+  // Keep local data fresh with latest DB values when not editing.
+  // This prevents stale state (loaded before an external update) from being
+  // written back to the DB on the next status change or CV upload.
+  useEffect(() => {
+    if (!editing) setData({ ...row })
+  }, [row]) // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     if (!editing) return
     function handleEscape(e) {
@@ -475,16 +484,13 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
         uploadCVFile(file, data.candidate_name),
         extractCVInfo(file).catch(() => ({})),
       ])
-      setData(prev => {
-        const updated = {
-          ...prev,
-          cv_url: url,
-          email: extracted?.email || prev.email,
-          phone: extracted?.phone || prev.phone,
-        }
-        if (updated.id) saveTrackerEntry(updated).catch(() => {})
-        return updated
-      })
+      // Only PATCH the fields we're actually setting — never overwrite email/phone
+      // with null just because the CV extraction didn't find them.
+      const patch = { cv_url: url }
+      if (extracted?.email) patch.email = extracted.email
+      if (extracted?.phone) patch.phone = extracted.phone
+      setData(prev => ({ ...prev, ...patch }))
+      if (data.id) patchTrackerEntry(data.id, patch).catch(() => {})
     } catch (err) {
       setError('Error al subir el CV: ' + (err.message ?? 'intenta de nuevo'))
     } finally {
@@ -495,14 +501,19 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
 
   async function quickUpdateStatus(newStatus, extraFields = {}) {
     if (!data.id) return
-    const updatedData = { ...data, status: newStatus, ...extraFields }
-    setData(updatedData)
+    const alreadySynced = data.synced_to_req ?? false
+    const willSync = newStatus === 'Sent' && data.candidate_id && data.requirement_id && !alreadySynced
+    // PATCH only status-related fields — never touch email/phone/salary/english_score
+    // from stale local state, which could overwrite values set in another session.
+    const patch = { status: newStatus, synced_to_req: alreadySynced || willSync, ...extraFields }
+    setData(prev => ({ ...prev, ...patch }))
     try {
-      await saveTrackerEntry(updatedData)
+      await patchTrackerEntry(data.id, patch)
+      if (willSync) await syncCandidateToRequirement(data.candidate_id, data.requirement_id)
       if (newStatus === 'Screening' && extraFields.screening_datetime) {
-        const req = requirements.find(r => r.id === updatedData.requirement_id)
+        const req = requirements.find(r => r.id === data.requirement_id)
         createScreeningEvent({
-          candidateName:     updatedData.candidate_name,
+          candidateName:     data.candidate_name,
           requirementTitle:  req ? `${req.job_title} · ${req.client?.name}` : undefined,
           screeningDatetime: extraFields.screening_datetime,
           screeningNote:     extraFields.screening_note || undefined,

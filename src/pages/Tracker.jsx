@@ -222,6 +222,10 @@ function RejectedFeedbackModal({ onConfirm, onCancel }) {
   )
 }
 
+function playSentSound() {
+  try { new Audio('/sounds/sent.wav').play() } catch {}
+}
+
 // Two-step confirmation modal for "Sent" status
 function SentConfirmModal({ onConfirm, onCancel }) {
   const [step, setStep] = useState(1)
@@ -657,7 +661,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
           )}
           {showSentModal && !editing && (
             <SentConfirmModal
-              onConfirm={() => { quickUpdateStatus('Sent'); setShowSentModal(false) }}
+              onConfirm={() => { playSentSound(); quickUpdateStatus('Sent'); setShowSentModal(false) }}
               onCancel={() => setShowSentModal(false)}
             />
           )}
@@ -836,7 +840,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
         )}
         {showSentModal && createPortal(
           <SentConfirmModal
-            onConfirm={() => { set('status', 'Sent'); setShowSentModal(false) }}
+            onConfirm={() => { playSentSound(); set('status', 'Sent'); setShowSentModal(false) }}
             onCancel={() => setShowSentModal(false)}
           />, document.body
         )}

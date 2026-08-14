@@ -1189,6 +1189,10 @@ function ReqBoardTable() {
       } else {
         await updateReqBoardRow(row.id, patch)
       }
+      // Sync prioridad → requirement.priority so Pipeline stays in sync
+      if ('prioridad' in patch) {
+        updateRequirementPriority(requirementId, patch.prioridad).catch(() => {})
+      }
       if ('activo' in patch) {
         getWeeklyBoardStats(selWeek.week, selWeek.year).then(setKpi)
       }

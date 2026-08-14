@@ -332,7 +332,7 @@ export async function getOpenRequirementsForBoard(weekNumber, weekYear) {
       position:       req.job_title,
       cliente:        req.client?.name    ?? null,
       ftes:           req.fte_count ?? null,
-      prioridad:      board?.prioridad    ?? latest?.prioridad ?? req.priority  ?? null,
+      prioridad:      req.priority ?? board?.prioridad ?? latest?.prioridad ?? null,
       recruiter:      board?.recruiter    ?? latest?.recruiter ?? null,
       everscale:      board?.everscale    ?? latest?.everscale ?? null,
       interno:        board?.interno      ?? latest?.interno   ?? null,

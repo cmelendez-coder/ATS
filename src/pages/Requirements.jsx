@@ -971,6 +971,28 @@ const PRI_TABLE = {
   3: { bg: '#d1d5db', text: '#374151' },
 }
 
+/* ── Save chime (Web Audio API, no external files) ── */
+function playChime() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)()
+    const note = (freq, start, dur) => {
+      const osc  = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.type = 'sine'
+      osc.frequency.value = freq
+      gain.gain.setValueAtTime(0, start)
+      gain.gain.linearRampToValueAtTime(0.22, start + 0.02)
+      gain.gain.exponentialRampToValueAtTime(0.001, start + dur)
+      osc.start(start)
+      osc.stop(start + dur)
+    }
+    note(880,  ctx.currentTime,        0.30)  // A5
+    note(1320, ctx.currentTime + 0.12, 0.40)  // E6
+  } catch {}
+}
+
 /* ── Inline editable cell ── */
 function EditableCell({ value, onChange, type = 'text', placeholder = '', disabled = false, glow = false, large = false }) {
   const [draft, setDraft] = useState(value ?? '')
@@ -982,9 +1004,10 @@ function EditableCell({ value, onChange, type = 'text', placeholder = '', disabl
   function handleSave() {
     if (!disabled && draft !== (value ?? '')) {
       onChange(draft)
+      playChime()
       clearTimeout(savedTimer.current)
       setSaved(true)
-      savedTimer.current = setTimeout(() => setSaved(false), 1500)
+      savedTimer.current = setTimeout(() => setSaved(false), 2500)
     }
   }
 
@@ -1250,7 +1273,7 @@ function ReqBoardTable() {
           35%  { background-color: rgba(129,185,39,0.42); color: #1a4a00; border-color: #81b927; box-shadow: 0 0 0 3px rgba(129,185,39,0.35); transform: scale(1.03); }
           100% { background-color: transparent; color: inherit; border-color: rgba(129,185,39,0.6); box-shadow: none; transform: scale(1); }
         }
-        .cell-saved { animation: savedFlash 1.5s ease-out forwards; }
+        .cell-saved { animation: savedFlash 2.5s ease-out forwards; }
       `}</style>
 
       {/* ── KPI bar ── */}

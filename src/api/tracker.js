@@ -73,85 +73,85 @@ async function _syncCandidateFromEntry(candidateId, entry) {
   if (entry.english_score != null) candPatch.english_score = entry.english_score
   if (entry.yoe != null && entry.yoe !== '') candPatch.years_experience = Number(entry.yoe)
 
-  if (entry.target_role?.trim()) {
-    const { data: roleRow } = await supabase
-      .from('catalog_role')
-      .upsert({ name: entry.target_role.trim() }, { onConflict: 'name' })
-      .select('role_id').single()
-    if (roleRow) candPatch.role_id = roleRow.role_id
-  }
+  // Resolve role + location catalog IDs in parallel
+  const [roleRow, locRow] = await Promise.all([
+    entry.target_role?.trim()
+      ? supabase.from('catalog_role')
+          .upsert({ name: entry.target_role.trim() }, { onConflict: 'name' })
+          .select('role_id').single()
+          .then(({ data }) => data)
+      : null,
+    entry.state?.trim()
+      ? supabase.from('catalog_location')
+          .upsert({ name: entry.state.trim() }, { onConflict: 'name' })
+          .select('location_id').single()
+          .then(({ data }) => data)
+      : null,
+  ])
+  if (roleRow) candPatch.role_id      = roleRow.role_id
+  if (locRow)  candPatch.location_id  = locRow.location_id
 
-  if (entry.state?.trim()) {
-    const { data: locRow } = await supabase
-      .from('catalog_location')
-      .upsert({ name: entry.state.trim() }, { onConflict: 'name' })
-      .select('location_id').single()
-    if (locRow) candPatch.location_id = locRow.location_id
-  }
-
-  if (Object.keys(candPatch).length > 0) {
-    candPatch.updated_at = new Date().toISOString()
-    await supabase.from('candidate').update(candPatch).eq('candidate_id', candidateId)
-  }
-
-  const skillText = [entry.skills, entry.modules].filter(Boolean).join('\n').trim()
-  if (skillText) {
-    const { data: existNote } = await supabase
-      .from('candidate_note').select('note_id')
-      .eq('candidate_id', candidateId).eq('note_type', 'skillset').limit(1)
-    if (existNote?.length) {
-      await supabase.from('candidate_note')
-        .update({ note_text: skillText }).eq('note_id', existNote[0].note_id)
-    } else {
-      await supabase.from('candidate_note')
-        .insert({ candidate_id: candidateId, note_type: 'skillset', note_text: skillText })
-    }
-  }
-
+  // Build text payloads
+  const skillText     = [entry.skills, entry.modules].filter(Boolean).join('\n').trim()
   const recruiterNote = [entry.notes, entry.screening_note].filter(Boolean).join('\n\n').trim()
-  if (recruiterNote) {
-    const { data: existRN } = await supabase
+  const costText      = [entry.salary, entry.amount_type].filter(Boolean).join(' ').trim()
+
+  // Helper: upsert a candidate_note by type
+  async function upsertNote(noteType, noteText) {
+    const { data: existing } = await supabase
       .from('candidate_note').select('note_id')
-      .eq('candidate_id', candidateId).eq('note_type', 'recruiter_notes').limit(1)
-    if (existRN?.length) {
+      .eq('candidate_id', candidateId).eq('note_type', noteType).limit(1)
+    if (existing?.length) {
       await supabase.from('candidate_note')
-        .update({ note_text: recruiterNote }).eq('note_id', existRN[0].note_id)
+        .update({ note_text: noteText }).eq('note_id', existing[0].note_id)
     } else {
       await supabase.from('candidate_note')
-        .insert({ candidate_id: candidateId, note_type: 'recruiter_notes', note_text: recruiterNote })
+        .insert({ candidate_id: candidateId, note_type: noteType, note_text: noteText })
     }
   }
 
-  const costText = [entry.salary, entry.amount_type].filter(Boolean).join(' ').trim()
-  if (costText) {
-    const { data: existComp } = await supabase
-      .from('candidate_compensation').select('comp_id')
-      .eq('candidate_id', candidateId).order('recorded_at', { ascending: false }).limit(1)
-    if (existComp?.length) {
-      await supabase.from('candidate_compensation')
-        .update({ cost_text: costText }).eq('comp_id', existComp[0].comp_id)
-    } else {
-      await supabase.from('candidate_compensation')
-        .insert({ candidate_id: candidateId, cost_text: costText })
-    }
-  }
-
-  if (entry.technologies?.trim()) {
+  // Helper: upsert all technologies and batch-insert into candidate_stack
+  async function syncTechs() {
     const techs = entry.technologies.split(',').map(t => t.trim()).filter(Boolean)
-    for (const techName of techs) {
-      const { data: techRow } = await supabase
-        .from('catalog_technology')
-        .upsert({ ct_name_tech: techName }, { onConflict: 'ct_name_tech' })
-        .select('technology_id').single()
-      if (techRow) {
-        await supabase.from('candidate_stack')
-          .upsert(
-            { candidate_id: candidateId, technology_id: techRow.technology_id },
-            { onConflict: 'candidate_id,technology_id', ignoreDuplicates: true }
-          )
-      }
+    // All catalog_technology upserts run in parallel
+    const techRows = await Promise.all(
+      techs.map(name =>
+        supabase.from('catalog_technology')
+          .upsert({ ct_name_tech: name }, { onConflict: 'ct_name_tech' })
+          .select('technology_id').single()
+          .then(({ data }) => data)
+      )
+    )
+    const rows = techRows.filter(Boolean).map(t => ({
+      candidate_id: candidateId,
+      technology_id: t.technology_id,
+    }))
+    if (rows.length) {
+      await supabase.from('candidate_stack')
+        .upsert(rows, { onConflict: 'candidate_id,technology_id', ignoreDuplicates: true })
     }
   }
+
+  // Run candidate update, notes, compensation, and tech sync all in parallel
+  await Promise.all([
+    Object.keys(candPatch).length > 0
+      ? supabase.from('candidate')
+          .update({ ...candPatch, updated_at: new Date().toISOString() })
+          .eq('candidate_id', candidateId)
+      : null,
+    skillText     ? upsertNote('skillset',       skillText)     : null,
+    recruiterNote ? upsertNote('recruiter_notes', recruiterNote) : null,
+    costText
+      ? supabase.from('candidate_compensation').select('comp_id')
+          .eq('candidate_id', candidateId).order('recorded_at', { ascending: false }).limit(1)
+          .then(({ data: existComp }) =>
+            existComp?.length
+              ? supabase.from('candidate_compensation').update({ cost_text: costText }).eq('comp_id', existComp[0].comp_id)
+              : supabase.from('candidate_compensation').insert({ candidate_id: candidateId, cost_text: costText })
+          )
+      : null,
+    entry.technologies?.trim() ? syncTechs() : null,
+  ].filter(Boolean))
 }
 
 export async function backfillSentCandidates() {

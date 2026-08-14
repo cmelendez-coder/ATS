@@ -427,6 +427,15 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
   const [cvUploading, setCvUploading]               = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm]   = useState(false)
   const [showStatusMenu, setShowStatusMenu]         = useState(false)
+  const [copied, setCopied]                         = useState(null) // 'email' | 'phone' | null
+
+  function copyToClipboard(field, value) {
+    if (!value) return
+    navigator.clipboard.writeText(value).then(() => {
+      setCopied(field)
+      setTimeout(() => setCopied(null), 1500)
+    })
+  }
   const [linkedinExempt, setLinkedinExempt]         = useState(false)
   const statusMenuRef = useRef(null)
   const savingRef     = useRef(false)
@@ -628,8 +637,20 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
         <td className="px-3 py-2 text-xs text-[#8ab0d0] whitespace-nowrap">
           {data.ote ? `$${Number(String(data.ote).replace(/[^0-9.]/g,'')).toLocaleString('en-US').replace(/,/g,"'")}` : '—'}
         </td>
-        <td className="px-3 py-2 text-xs text-[#8ab0d0] whitespace-nowrap">{data.email || <span className="text-[#8ab0d0]/30">—</span>}</td>
-        <td className="px-3 py-2 text-xs text-[#8ab0d0] whitespace-nowrap">{data.phone || <span className="text-[#8ab0d0]/30">—</span>}</td>
+        <td className="px-3 py-2 text-xs whitespace-nowrap">
+          {data.email
+            ? <button onClick={() => copyToClipboard('email', data.email)} title="Copiar email" className={`transition-colors duration-200 ${copied === 'email' ? 'text-green-400 font-semibold' : 'text-[#8ab0d0] hover:text-white'}`}>
+                {copied === 'email' ? '✓ Copiado' : data.email}
+              </button>
+            : <span className="text-[#8ab0d0]/30">—</span>}
+        </td>
+        <td className="px-3 py-2 text-xs whitespace-nowrap">
+          {data.phone
+            ? <button onClick={() => copyToClipboard('phone', data.phone)} title="Copiar teléfono" className={`transition-colors duration-200 ${copied === 'phone' ? 'text-green-400 font-semibold' : 'text-[#8ab0d0] hover:text-white'}`}>
+                {copied === 'phone' ? '✓ Copiado' : data.phone}
+              </button>
+            : <span className="text-[#8ab0d0]/30">—</span>}
+        </td>
         <td className="px-3 py-2 text-xs text-[#8ab0d0] whitespace-nowrap">
           {data.state || <span className="text-[#8ab0d0]/30">—</span>}
         </td>

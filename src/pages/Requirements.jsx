@@ -1432,13 +1432,18 @@ function ReqBoardTable() {
                     onChange={e => handleUpdate(row.requirement_id, { prioridad: e.target.value === '' ? null : Number(e.target.value) })}
                     disabled={isPastWeek}
                     className="rounded-lg text-sm font-bold text-center cursor-pointer outline-none border-none appearance-none px-2 py-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ backgroundColor: pri.bg, color: pri.text, width: 52 }}
+                    style={{ backgroundColor: pri.bg, color: pri.text, width: row.prioridad === 3 ? 78 : 52 }}
                   >
                     <option value="" disabled>—</option>
-                    {[0, 1, 2, 3].map(v => (
-                      <option key={v} value={v}
-                        style={{ backgroundColor: PRI_TABLE[v].bg, color: PRI_TABLE[v].text }}
-                      >{v}</option>
+                    {[
+                      { value: 0, label: '0' },
+                      { value: 1, label: '1' },
+                      { value: 2, label: '2' },
+                      { value: 3, label: 'On hold' },
+                    ].map(({ value, label }) => (
+                      <option key={value} value={value}
+                        style={{ backgroundColor: PRI_TABLE[value].bg, color: PRI_TABLE[value].text }}
+                      >{label}</option>
                     ))}
                   </select>
                 </td>

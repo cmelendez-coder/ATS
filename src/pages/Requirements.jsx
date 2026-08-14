@@ -974,7 +974,20 @@ const PRI_TABLE = {
 /* ── Inline editable cell ── */
 function EditableCell({ value, onChange, type = 'text', placeholder = '', disabled = false, glow = false, large = false }) {
   const [draft, setDraft] = useState(value ?? '')
+  const [saved, setSaved] = useState(false)
+  const savedTimer = useRef(null)
+
   useEffect(() => { setDraft(value ?? '') }, [value])
+
+  function handleSave() {
+    if (!disabled && draft !== (value ?? '')) {
+      onChange(draft)
+      clearTimeout(savedTimer.current)
+      setSaved(true)
+      savedTimer.current = setTimeout(() => setSaved(false), 1150)
+    }
+  }
+
   return (
     <input
       type={type}
@@ -982,9 +995,9 @@ function EditableCell({ value, onChange, type = 'text', placeholder = '', disabl
       placeholder={placeholder}
       disabled={disabled}
       onChange={e => setDraft(e.target.value)}
-      onBlur={() => { if (!disabled && draft !== (value ?? '')) onChange(draft) }}
+      onBlur={handleSave}
       onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur() }}
-      className={`w-full bg-transparent text-center text-on-surface placeholder:text-on-surface-variant/30 outline-none focus:bg-surface-container rounded px-1 py-0.5 transition-colors border border-[#81b927]/60 focus:border-[#81b927] disabled:opacity-50 disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none ${large ? 'text-xl font-bold' : 'text-sm'} ${glow && !disabled ? 'cell-glow' : ''}`}
+      className={`w-full bg-transparent text-center text-on-surface placeholder:text-on-surface-variant/30 outline-none focus:bg-surface-container rounded px-1 py-0.5 border border-[#81b927]/60 focus:border-[#81b927] disabled:opacity-50 disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none ${large ? 'text-xl font-bold' : 'text-sm'} ${saved ? 'cell-saved' : glow && !disabled ? 'cell-glow' : ''}`}
     />
   )
 }
@@ -1231,6 +1244,13 @@ function ReqBoardTable() {
           50%       { box-shadow: 0 0 10px 3px rgba(129,185,39,0.5); border-color: rgba(129,185,39,1); }
         }
         .cell-glow { animation: cellGlow 2.2s ease-in-out infinite; }
+
+        @keyframes savedFlash {
+          0%   { border-color: #81b927; box-shadow: 0 0 0 4px rgba(129,185,39,0.45); background-color: rgba(129,185,39,0.18); }
+          65%  { border-color: #81b927; box-shadow: 0 0 0 2px rgba(129,185,39,0.15); background-color: rgba(129,185,39,0.06); }
+          100% { border-color: rgba(129,185,39,0.6); box-shadow: none; background-color: transparent; }
+        }
+        .cell-saved { animation: savedFlash 1.1s ease-out forwards; }
       `}</style>
 
       {/* ── KPI bar ── */}

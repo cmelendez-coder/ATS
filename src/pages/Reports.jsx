@@ -985,72 +985,8 @@ export default function Reports() {
                 />
               </div>
 
-              {/* 2. Filtros de reporte */}
-              <section className="bg-surface-container-lowest rounded-3xl border border-outline-variant/10 shadow-[0_2px_18px_rgba(24,28,30,0.06)] p-6 md:p-7 space-y-6">
-                <div>
-                  <h2 className="text-xl font-bold text-primary">Filtros</h2>
-                  <p className="text-sm text-on-surface-variant mt-1">Filtra por cliente y por rango de fechas antes de ver o descargar cualquier reporte.</p>
-                </div>
-
-                <div className="grid grid-cols-1 xl:grid-cols-[1.2fr_1fr_1fr_auto] gap-3">
-                  <select className="w-full px-3 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer" value={selectedClientId} onChange={e => setSelectedClientId(e.target.value)}>
-                    <option value="all">Todos los clientes</option>
-                    {report.clients.map(client => (
-                      <option key={client.clientId} value={client.clientId}>{client.clientName}</option>
-                    ))}
-                  </select>
-                  <input className="w-full px-3 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 outline-none" type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
-                  <input className="w-full px-3 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 outline-none" type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} />
-                  <button type="button" onClick={clearFilters} className="px-4 py-2.5 rounded-xl border border-outline-variant/20 text-sm font-medium text-on-surface-variant hover:bg-surface-container transition-colors">
-                    Limpiar
-                  </button>
-                </div>
-
-                <div className="rounded-2xl border border-outline-variant/10 bg-surface-container p-4 space-y-3">
-                  <div>
-                    <h3 className="text-sm font-bold text-primary">Con filtro</h3>
-                    <p className="text-sm text-on-surface-variant mt-1">Este reporte respeta el cliente y el rango de fechas que tengas arriba.</p>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <button onClick={handleFilteredPreview} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity">
-                      <span className="material-symbols-outlined text-[16px]">visibility</span>
-                      Vista previa
-                    </button>
-                    <button onClick={handleFilteredDownload} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity">
-                      <span className="material-symbols-outlined text-[16px]">download</span>
-                      Descargar
-                    </button>
-                    <button onClick={handleFilteredPrint} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-secondary to-secondary-container text-on-secondary-container text-sm font-semibold hover:opacity-90 transition-opacity">
-                      <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
-                      Imprimir PDF
-                    </button>
-                  </div>
-                </div>
-              </section>
-
-              {/* 3. Tipos de reporte: General, Por cliente, Por requerimiento */}
-              <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-                <section className="bg-surface-container-lowest rounded-3xl border border-outline-variant/10 shadow-[0_2px_18px_rgba(24,28,30,0.06)] p-6 md:p-7 space-y-5">
-                  <div>
-                    <h2 className="text-xl font-bold text-primary">General</h2>
-                    <p className="text-sm text-on-surface-variant mt-1">Reporte general sin depender de los filtros activos.</p>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <button onClick={handleGeneralPreview} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity">
-                      <span className="material-symbols-outlined text-[16px]">visibility</span>
-                      Vista previa
-                    </button>
-                    <button onClick={handleGeneralDownload} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity">
-                      <span className="material-symbols-outlined text-[16px]">download</span>
-                      Descargar
-                    </button>
-                    <button onClick={handleGeneralPrint} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity">
-                      <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
-                      Imprimir PDF
-                    </button>
-                  </div>
-                </section>
-
+              {/* 3. Tipos de reporte: Por cliente, General mensual */}
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                 <section className="bg-surface-container-lowest rounded-3xl border border-outline-variant/10 shadow-[0_2px_18px_rgba(24,28,30,0.06)] p-6 md:p-7 space-y-5">
                   <div>
                     <h2 className="text-xl font-bold text-primary">Por cliente</h2>

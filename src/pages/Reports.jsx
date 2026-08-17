@@ -5,6 +5,7 @@ import {
   listOpenRequirementsForReports,
   getClientReportPdfData,
   getClientMonthlyReportData,
+  getAllClientsMonthlyReportData,
   getRequirementReportPdfData,
   getWeeklySubmittalsData,
 } from '../api/reports'
@@ -97,6 +98,7 @@ export default function Reports() {
   const [dateTo, setDateTo] = useState('')
   const [selectedClientId, setSelectedClientId] = useState('all')
   const [clientReportMonth, setClientReportMonth] = useState(() => new Date().getMonth() + 1)
+  const [generalMonthlyMonth, setGeneralMonthlyMonth] = useState(() => new Date().getMonth() + 1)
   const [selectedRequirementId, setSelectedRequirementId] = useState('')
   const [preview, setPreview] = useState(null)
   const [busy, setBusy] = useState('')
@@ -414,6 +416,192 @@ export default function Reports() {
     const subtitle = `Candidatos enviados a cliente en la ${weekLabel}`
     const bodyHtml = buildWeeklyBody(weeklySubmittals, weekLabel)
     openPrintableReport({ title, subtitle, bodyHtml })
+  }
+
+  function buildAllClientsMonthlyBody(data) {
+    const monthLabel     = `${MESES[data.month - 1]} ${data.year}`
+    const totalClients   = data.clients.length
+    const totalPositions = data.clients.reduce((s, c) => s + c.requirements.length, 0)
+    const totalFTE       = data.clients.reduce((s, c) => s + c.requirements.reduce((s2, r) => s2 + r.fteCount, 0), 0)
+    const totalSent      = data.clients.reduce((s, c) => s + c.requirements.reduce((s2, r) => s2 + r.candidatesSent, 0), 0)
+
+    const POS_COLORS    = ['#143b7a','#166534','#9a3412','#581c87','#0c4a6e','#7c2d12','#064e3b','#1e1b4b']
+    const CLIENT_COLORS = ['#1e3a5f','#14532d','#431407','#2e1065','#0c2340','#451a03','#022c22','#0f0a1e']
+
+    const kpiBanner = `
+      <section class="section">
+        <div style="background:linear-gradient(135deg,#10213d 0%,#143b7a 100%);border-radius:18px;padding:28px 32px;color:white;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:0;">
+          <div style="padding-right:20px;">
+            <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Periodo</div>
+            <div style="margin-top:8px;font-size:22px;font-weight:800;line-height:1.1;">${escapeHtml(monthLabel)}</div>
+          </div>
+          <div style="padding:0 16px;border-left:1px solid rgba(255,255,255,.15);">
+            <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Clientes</div>
+            <div style="margin-top:6px;font-size:42px;font-weight:800;line-height:1;color:#fbbf24;">${totalClients}</div>
+          </div>
+          <div style="padding:0 16px;border-left:1px solid rgba(255,255,255,.15);">
+            <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Posiciones</div>
+            <div style="margin-top:6px;font-size:42px;font-weight:800;line-height:1;color:#a78bfa;">${totalPositions}</div>
+          </div>
+          <div style="padding:0 16px;border-left:1px solid rgba(255,255,255,.15);">
+            <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">FTEs totales</div>
+            <div style="margin-top:6px;font-size:42px;font-weight:800;line-height:1;color:#34d399;">${totalFTE}</div>
+          </div>
+          <div style="padding:0 16px;border-left:1px solid rgba(255,255,255,.15);">
+            <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Enviados</div>
+            <div style="margin-top:6px;font-size:42px;font-weight:800;line-height:1;color:#60a5fa;">${totalSent}</div>
+          </div>
+        </div>
+      </section>`
+
+    const summaryRows = data.clients.map(c => {
+      const fte  = c.requirements.reduce((s, r) => s + r.fteCount, 0)
+      const sent = c.requirements.reduce((s, r) => s + r.candidatesSent, 0)
+      return `
+        <tr>
+          <td style="padding:9px 12px;border-bottom:1px solid #e9eef8;font-weight:700;font-size:13px;">${escapeHtml(c.clientName)}</td>
+          <td style="padding:9px 12px;border-bottom:1px solid #e9eef8;font-size:13px;">${c.requirements.length}</td>
+          <td style="padding:9px 12px;border-bottom:1px solid #e9eef8;font-size:13px;">${fte}</td>
+          <td style="padding:9px 12px;border-bottom:1px solid #e9eef8;font-size:13px;font-weight:700;color:#143b7a;">${sent}</td>
+        </tr>`
+    }).join('')
+
+    const summarySection = `
+      <section class="section">
+        <h2 style="font-size:17px;margin:0 0 12px;color:#10213d;">Resumen por cliente</h2>
+        <table style="width:100%;border-collapse:collapse;border-radius:12px;overflow:hidden;">
+          <thead>
+            <tr style="background:#10213d;color:white;">
+              <th style="padding:10px 12px;text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;">Cliente</th>
+              <th style="padding:10px 12px;text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;">Posiciones</th>
+              <th style="padding:10px 12px;text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;">FTEs</th>
+              <th style="padding:10px 12px;text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;">Candidatos enviados</th>
+            </tr>
+          </thead>
+          <tbody>${summaryRows}</tbody>
+        </table>
+      </section>`
+
+    const clientDetailSections = data.clients.map((client, ci) => {
+      const clientColor = CLIENT_COLORS[ci % CLIENT_COLORS.length]
+      const maxCand = Math.max(...client.requirements.map(r => r.candidatesSent), 1)
+      const posCards = client.requirements.map((req, i) => {
+        const color  = POS_COLORS[i % POS_COLORS.length]
+        const barPct = Math.round((req.candidatesSent / maxCand) * 100)
+        return `
+          <div style="border:1px solid #d6dce5;border-radius:14px;overflow:hidden;background:white;">
+            <div style="background:${color};padding:10px 12px;">
+              <div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:700;">REQ-${String(req.reqNumber).padStart(3,'0')}</div>
+              <div style="margin-top:2px;font-size:12px;font-weight:700;color:white;line-height:1.3;">${escapeHtml(req.jobTitle)}</div>
+            </div>
+            <div style="padding:10px 12px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+                <span style="font-size:10px;color:#60708b;font-weight:600;text-transform:uppercase;">FTEs</span>
+                <span style="font-size:16px;font-weight:800;color:${color};">${req.fteCount}</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:7px;">
+                <span style="font-size:10px;color:#60708b;font-weight:600;text-transform:uppercase;">Enviados</span>
+                <span style="font-size:16px;font-weight:800;color:${color};">${req.candidatesSent}</span>
+              </div>
+              <div style="height:5px;background:#e9eef8;border-radius:999px;overflow:hidden;">
+                <div style="height:100%;width:${barPct}%;background:${color};border-radius:999px;"></div>
+              </div>
+            </div>
+          </div>`
+      }).join('')
+
+      return `
+        <section class="section" style="margin-top:28px;">
+          <div style="background:${clientColor};color:white;padding:10px 18px;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-weight:800;font-size:15px;">${escapeHtml(client.clientName)}</span>
+            <span style="font-size:11px;background:rgba(255,255,255,.2);padding:2px 12px;border-radius:999px;font-weight:700;">${client.requirements.length} posiciones · ${client.requirements.reduce((s,r)=>s+r.candidatesSent,0)} enviados</span>
+          </div>
+          <div style="border:1px solid #d6dce5;border-top:none;border-radius:0 0 12px 12px;padding:14px;">
+            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;">${posCards}</div>
+          </div>
+        </section>`
+    }).join('')
+
+    const candGroups = data.clients.map((client, ci) => {
+      const clientColor = CLIENT_COLORS[ci % CLIENT_COLORS.length]
+      const reqBlocks = client.requirements.map((req, i) => {
+        const color = POS_COLORS[i % POS_COLORS.length]
+        const bodyRows = req.candidates?.length
+          ? req.candidates.map((c, j) => `
+              <tr style="background:${j % 2 === 0 ? 'white' : '#f8fafc'};">
+                <td style="padding:7px 12px;border-bottom:1px solid #e9eef8;font-size:12px;font-weight:600;">${escapeHtml(c.name)}</td>
+                <td style="padding:7px 12px;border-bottom:1px solid #e9eef8;font-size:11px;color:#60708b;">${escapeHtml(fmtDate(c.sentAt))}</td>
+              </tr>`).join('')
+          : `<tr><td colspan="2" style="padding:8px 12px;color:#60708b;font-size:12px;">Sin candidatos enviados este mes.</td></tr>`
+        return `
+          <div style="margin-bottom:14px;break-inside:avoid;">
+            <div style="background:${color};color:white;padding:7px 12px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-weight:700;font-size:12px;">REQ-${String(req.reqNumber).padStart(3,'0')} — ${escapeHtml(req.jobTitle)}</span>
+              <span style="font-size:11px;background:rgba(255,255,255,.2);padding:2px 9px;border-radius:999px;font-weight:700;">${req.candidatesSent}</span>
+            </div>
+            <table style="width:100%;border-collapse:collapse;border:1px solid #d6dce5;border-top:none;">
+              <thead><tr style="background:#f0f4fa;">
+                <th style="padding:6px 12px;text-align:left;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#60708b;font-weight:700;border-bottom:1px solid #d6dce5;">Candidato</th>
+                <th style="padding:6px 12px;text-align:left;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#60708b;font-weight:700;border-bottom:1px solid #d6dce5;">Fecha enviado</th>
+              </tr></thead>
+              <tbody>${bodyRows}</tbody>
+            </table>
+          </div>`
+      }).join('')
+      return `
+        <div style="margin-bottom:28px;">
+          <div style="background:${clientColor};color:white;padding:9px 16px;border-radius:10px;margin-bottom:10px;">
+            <span style="font-weight:800;font-size:14px;">${escapeHtml(client.clientName)}</span>
+          </div>
+          ${reqBlocks}
+        </div>`
+    }).join('')
+
+    const candSection = `
+      <section class="section" style="page-break-before:always;padding-top:8px;">
+        <h2 style="font-size:17px;margin:0 0 18px;color:#10213d;">Candidatos enviados — ${escapeHtml(monthLabel)}</h2>
+        ${candGroups}
+      </section>`
+
+    return kpiBanner + summarySection + clientDetailSections + candSection
+  }
+
+  async function handleGeneralMonthlyPreview() {
+    setBusy('gen-monthly-preview')
+    try {
+      const data = await getAllClientsMonthlyReportData(2026, generalMonthlyMonth)
+      const monthLabel = `${MESES[data.month - 1]} ${data.year}`
+      const title    = `Reporte General Mensual — ${monthLabel}`
+      const subtitle = `Posiciones activas y candidatos enviados por todos los clientes en ${monthLabel}`
+      const bodyHtml = buildAllClientsMonthlyBody(data)
+      openPreview(title, subtitle, bodyHtml, () => downloadReportHtml({
+        filename: `${slugify(`reporte-general-${monthLabel}`)}.html`, title, subtitle, bodyHtml,
+      }))
+    } finally { setBusy('') }
+  }
+
+  async function handleGeneralMonthlyDownload() {
+    setBusy('gen-monthly-download')
+    try {
+      const data = await getAllClientsMonthlyReportData(2026, generalMonthlyMonth)
+      const monthLabel = `${MESES[data.month - 1]} ${data.year}`
+      const title    = `Reporte General Mensual — ${monthLabel}`
+      const subtitle = `Posiciones activas y candidatos enviados por todos los clientes en ${monthLabel}`
+      const bodyHtml = buildAllClientsMonthlyBody(data)
+      downloadReportHtml({ filename: `${slugify(`reporte-general-${monthLabel}`)}.html`, title, subtitle, bodyHtml })
+    } finally { setBusy('') }
+  }
+
+  async function handleGeneralMonthlyPrint() {
+    setBusy('gen-monthly-print')
+    try {
+      const data = await getAllClientsMonthlyReportData(2026, generalMonthlyMonth)
+      const monthLabel = `${MESES[data.month - 1]} ${data.year}`
+      const title    = `Reporte General Mensual — ${monthLabel}`
+      const subtitle = `Posiciones activas y candidatos enviados por todos los clientes en ${monthLabel}`
+      const bodyHtml = buildAllClientsMonthlyBody(data)
+      openPrintableReport({ title, subtitle, bodyHtml })
+    } finally { setBusy('') }
   }
 
   function buildClientMonthlyBody(data) {
@@ -914,26 +1102,24 @@ export default function Reports() {
 
                 <section className="bg-surface-container-lowest rounded-3xl border border-outline-variant/10 shadow-[0_2px_18px_rgba(24,28,30,0.06)] p-6 md:p-7 space-y-5">
                   <div>
-                    <h2 className="text-xl font-bold text-primary">Por requerimiento</h2>
-                    <p className="text-sm text-on-surface-variant mt-1">Selecciona un requerimiento abierto para su reporte individual.</p>
+                    <h2 className="text-xl font-bold text-primary">General mensual</h2>
+                    <p className="text-sm text-on-surface-variant mt-1">Todos los clientes: posiciones activas, FTEs y candidatos enviados en el mes.</p>
                   </div>
-                  <select className="w-full px-3 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer" value={selectedRequirementId} onChange={e => setSelectedRequirementId(e.target.value)}>
-                    {visibleRequirementOptions.map(requirement => (
-                      <option key={requirement.id} value={requirement.id}>
-                        {requirement.clientName} - REQ-{String(requirement.reqNumber).padStart(3, '0')} - {requirement.jobTitle}
-                      </option>
+                  <select className="w-full px-3 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer" value={generalMonthlyMonth} onChange={e => setGeneralMonthlyMonth(Number(e.target.value))}>
+                    {MESES.map((mes, i) => (
+                      <option key={i + 1} value={i + 1}>{mes} 2026</option>
                     ))}
                   </select>
                   <div className="flex flex-wrap gap-2">
-                    <button onClick={handleRequirementPreview} disabled={!selectedRequirementId || busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
+                    <button onClick={handleGeneralMonthlyPreview} disabled={!!busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
                       <span className="material-symbols-outlined text-[16px]">visibility</span>
                       Vista previa
                     </button>
-                    <button onClick={handleRequirementDownload} disabled={!selectedRequirementId || busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
+                    <button onClick={handleGeneralMonthlyDownload} disabled={!!busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
                       <span className="material-symbols-outlined text-[16px]">download</span>
                       Descargar
                     </button>
-                    <button onClick={handleRequirementPrint} disabled={!selectedRequirementId || busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
+                    <button onClick={handleGeneralMonthlyPrint} disabled={!!busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
                       <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
                       Imprimir PDF
                     </button>

@@ -325,6 +325,67 @@ export async function getClientMonthlyReportData(clientId, year, month) {
   }
 }
 
+export async function getAllClientsMonthlyReportData(year, month) {
+  const monthStr   = String(month).padStart(2, '0')
+  const monthStart = `${year}-${monthStr}-01T00:00:00.000Z`
+  const lastDay    = new Date(year, month, 0).getDate()
+  const monthEnd   = `${year}-${monthStr}-${String(lastDay).padStart(2, '0')}T23:59:59.999Z`
+
+  const { data: requirements, error: reqError } = await supabase
+    .from('requirement')
+    .select('id, req_number, job_title, fte_count, application_date, created_at, status:status_id(name), client:client_id(id, name)')
+    .lte('created_at', monthEnd)
+    .order('created_at', { ascending: true })
+  if (reqError) throw reqError
+
+  const reqIds = (requirements ?? []).map(r => r.id)
+  const { data: rcRows, error: rcError } = reqIds.length
+    ? await supabase
+        .from('requirement_candidate')
+        .select('requirement_id, submitted_at, candidate:candidate_id(full_name)')
+        .in('requirement_id', reqIds)
+        .gte('submitted_at', monthStart)
+        .lte('submitted_at', monthEnd)
+        .order('submitted_at', { ascending: true })
+    : { data: [], error: null }
+  if (rcError) throw rcError
+
+  const candByReq = {}
+  for (const rc of rcRows ?? []) {
+    if (!candByReq[rc.requirement_id]) candByReq[rc.requirement_id] = []
+    candByReq[rc.requirement_id].push({ name: rc.candidate?.full_name ?? 'Sin nombre', sentAt: rc.submitted_at })
+  }
+
+  const isOpen = req => !String(req.status?.name ?? '').toLowerCase().startsWith('closed')
+  const clientMap = {}
+  for (const req of requirements ?? []) {
+    const clientId = req.client?.id
+    if (!clientId) continue
+    const candidates = candByReq[req.id] ?? []
+    if (!isOpen(req) && !candidates.length) continue
+    if (!clientMap[clientId]) {
+      clientMap[clientId] = { clientId, clientName: req.client?.name ?? 'Sin cliente', requirements: [] }
+    }
+    clientMap[clientId].requirements.push({
+      id: req.id,
+      reqNumber: req.req_number,
+      jobTitle: req.job_title,
+      fteCount: req.fte_count ?? 1,
+      applicationDate: req.application_date,
+      createdAt: req.created_at,
+      statusName: req.status?.name ?? '',
+      candidatesSent: candidates.length,
+      candidates,
+    })
+  }
+
+  return {
+    year,
+    month,
+    clients: Object.values(clientMap).sort((a, b) => a.clientName.localeCompare(b.clientName)),
+  }
+}
+
 export async function getRequirementReportPdfData(requirementId) {
   const { data, error } = await supabase
     .from('requirement')

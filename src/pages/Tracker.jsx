@@ -614,8 +614,8 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
           <div className="relative" ref={statusMenuRef}>
             <button
               type="button"
-              onClick={() => { if (!readOnly && data.id) setShowStatusMenu(s => !s) }}
-              className={`px-2 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap ${STATUS_STYLE[data.status] ?? ''} ${!readOnly && data.id ? 'cursor-pointer hover:opacity-80 transition-opacity' : 'cursor-default'}`}
+              onClick={() => { if (!readOnly && data.id && data.status !== 'Sent') setShowStatusMenu(s => !s) }}
+              className={`px-2 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap ${STATUS_STYLE[data.status] ?? ''} ${!readOnly && data.id && data.status !== 'Sent' ? 'cursor-pointer hover:opacity-80 transition-opacity' : 'cursor-default'}`}
             >
               {data.status}
             </button>

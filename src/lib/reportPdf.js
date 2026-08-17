@@ -209,38 +209,57 @@ function loadHtml2Pdf() {
 
 export async function downloadReportPdf({ filename, title, subtitle = '', bodyHtml = '' }) {
   const html2pdf = await loadHtml2Pdf()
-  const reportHtml = buildReportHtml({ title, subtitle, bodyHtml })
 
-  const parser = new DOMParser()
-  const doc = parser.parseFromString(reportHtml, 'text/html')
+  const wrap = document.createElement('div')
+  wrap.style.cssText = 'position:absolute;left:-9999px;top:0;width:794px;background:white;font-family:Arial,Helvetica,sans-serif;color:#10213d;'
 
-  const container = document.createElement('div')
-  container.style.cssText = 'position:fixed;top:-9999px;left:0;width:794px;background:white;'
+  const style = document.createElement('style')
+  style.textContent = `
+    *{box-sizing:border-box;}
+    .page{padding:40px 44px 56px;}
+    .header{border-bottom:2px solid #143b7a;padding-bottom:18px;margin-bottom:24px;display:flex;align-items:flex-start;justify-content:space-between;gap:24px;}
+    .header-copy{flex:1 1 auto;min-width:0;}
+    .header-logo img{width:180px;height:auto;display:block;}
+    h1{margin:10px 0 8px;font-size:32px;line-height:1.05;color:#10213d;}
+    .subtitle{margin:0;color:#60708b;font-size:14px;line-height:1.5;}
+    .section{margin-top:28px;}
+    table{width:100%;border-collapse:collapse;margin-top:8px;}
+    th,td{border-bottom:1px solid #d6dce5;padding:10px 8px;text-align:left;font-size:13px;vertical-align:top;}
+    th{color:#60708b;text-transform:uppercase;letter-spacing:0.08em;font-size:11px;}
+  `
+  wrap.appendChild(style)
 
-  doc.querySelectorAll('style').forEach(s => {
-    const el = document.createElement('style')
-    el.textContent = s.textContent
-    container.appendChild(el)
-  })
-
-  const page = doc.querySelector('.page')
-  if (page) container.appendChild(page.cloneNode(true))
-
-  document.body.appendChild(container)
+  const svgLogoUrl = `${window.location.origin}/${encodeURIComponent('Recurso 1.svg')}`
+  const page = document.createElement('div')
+  page.className = 'page'
+  page.innerHTML = `
+    <div class="header">
+      <div class="header-copy">
+        <h1>${escapeHtml(title)}</h1>
+        ${subtitle ? `<p class="subtitle">${escapeHtml(subtitle)}</p>` : ''}
+      </div>
+      <div class="header-logo">
+        <img src="${escapeHtml(svgLogoUrl)}" alt="Logo" />
+      </div>
+    </div>
+    ${bodyHtml}
+  `
+  wrap.appendChild(page)
+  document.body.appendChild(wrap)
 
   const opt = {
     margin: 0,
-    filename: filename.replace(/\.html$/, '.pdf'),
+    filename,
     image: { type: 'jpeg', quality: 0.95 },
-    html2canvas: { scale: 2, useCORS: true, logging: false },
+    html2canvas: { scale: 2, useCORS: true, logging: false, allowTaint: true },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
     pagebreak: { mode: ['css', 'legacy'] },
   }
 
   try {
-    await html2pdf().set(opt).from(container).save()
+    await html2pdf().set(opt).from(wrap).save()
   } finally {
-    document.body.removeChild(container)
+    document.body.removeChild(wrap)
   }
 }
 

@@ -281,16 +281,18 @@ export async function getClientMonthlyReportData(clientId, year, month) {
   if (clientError) throw clientError
   if (reqError) throw reqError
 
-  // 2. Candidates submitted to those requirements DURING that month only
+  // 2. Tracker entries marked as Sent during that month for those requirements
   const reqIds = (requirements ?? []).map(r => r.id)
+  const nextMonthStart = new Date(year, month, 1).toISOString()
   const { data: rcRows, error: rcError } = reqIds.length
     ? await supabase
-        .from('requirement_candidate')
-        .select('requirement_id, submitted_at, candidate:candidate_id(full_name)')
+        .from('tracker_entry')
+        .select('requirement_id, candidate_name, created_at')
         .in('requirement_id', reqIds)
-        .gte('submitted_at', monthStart)
-        .lte('submitted_at', monthEnd)
-        .order('submitted_at', { ascending: true })
+        .eq('status', 'Sent')
+        .gte('created_at', monthStart)
+        .lt('created_at', nextMonthStart)
+        .order('created_at', { ascending: true })
     : { data: [], error: null }
   if (rcError) throw rcError
 
@@ -298,7 +300,7 @@ export async function getClientMonthlyReportData(clientId, year, month) {
   const candByReq = {}
   for (const rc of rcRows ?? []) {
     if (!candByReq[rc.requirement_id]) candByReq[rc.requirement_id] = []
-    candByReq[rc.requirement_id].push({ name: rc.candidate?.full_name ?? 'Sin nombre', sentAt: rc.submitted_at })
+    candByReq[rc.requirement_id].push({ name: rc.candidate_name ?? 'Sin nombre', sentAt: rc.created_at })
   }
 
   // Only include requirements that were open during the month OR had candidates sent that month
@@ -342,21 +344,23 @@ export async function getAllClientsMonthlyReportData(year, month) {
   if (reqError) throw reqError
 
   const reqIds = (requirements ?? []).map(r => r.id)
+  const nextMonthStart = new Date(year, month, 1).toISOString()
   const { data: rcRows, error: rcError } = reqIds.length
     ? await supabase
-        .from('requirement_candidate')
-        .select('requirement_id, submitted_at, candidate:candidate_id(full_name)')
+        .from('tracker_entry')
+        .select('requirement_id, candidate_name, created_at')
         .in('requirement_id', reqIds)
-        .gte('submitted_at', monthStart)
-        .lte('submitted_at', monthEnd)
-        .order('submitted_at', { ascending: true })
+        .eq('status', 'Sent')
+        .gte('created_at', monthStart)
+        .lt('created_at', nextMonthStart)
+        .order('created_at', { ascending: true })
     : { data: [], error: null }
   if (rcError) throw rcError
 
   const candByReq = {}
   for (const rc of rcRows ?? []) {
     if (!candByReq[rc.requirement_id]) candByReq[rc.requirement_id] = []
-    candByReq[rc.requirement_id].push({ name: rc.candidate?.full_name ?? 'Sin nombre', sentAt: rc.submitted_at })
+    candByReq[rc.requirement_id].push({ name: rc.candidate_name ?? 'Sin nombre', sentAt: rc.created_at })
   }
 
   const isOpen = req => !String(req.status?.name ?? '').toLowerCase().startsWith('closed')

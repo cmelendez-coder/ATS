@@ -262,37 +262,54 @@ export async function getWeeklySubmittalsData(weekStart, weekEnd) {
 }
 
 export async function getClientMonthlyReportData(clientId, year, month) {
-  const monthStr  = String(month).padStart(2, '0')
-  const monthStart = `${year}-${monthStr}-01`
+  const monthStr   = String(month).padStart(2, '0')
+  const monthStart = `${year}-${monthStr}-01T00:00:00.000Z`
   const lastDay    = new Date(year, month, 0).getDate()
-  const monthEnd   = `${year}-${monthStr}-${String(lastDay).padStart(2, '0')}`
+  const monthEnd   = `${year}-${monthStr}-${String(lastDay).padStart(2, '0')}T23:59:59.999Z`
 
+  // 1. All requirements for this client that existed by end of the month (open or closed)
   const [{ data: clientData, error: clientError }, { data: requirements, error: reqError }] = await Promise.all([
     supabase.from('client').select('name').eq('id', clientId).single(),
     supabase
       .from('requirement')
-      .select(`
-        id, req_number, job_title, fte_count, application_date, created_at,
-        status:status_id(name),
-        requirement_candidate(id, submitted_at, candidate:candidate_id(full_name))
-      `)
+      .select('id, req_number, job_title, fte_count, application_date, created_at, status:status_id(name)')
       .eq('client_id', clientId)
-      .gte('created_at', `${monthStart}T00:00:00.000Z`)
-      .lte('created_at', `${monthEnd}T23:59:59.999Z`)
+      .lte('created_at', monthEnd)
       .order('created_at', { ascending: true }),
   ])
-
   if (clientError) throw clientError
   if (reqError) throw reqError
+
+  // 2. Candidates submitted to those requirements DURING that month only
+  const reqIds = (requirements ?? []).map(r => r.id)
+  const { data: rcRows, error: rcError } = reqIds.length
+    ? await supabase
+        .from('requirement_candidate')
+        .select('requirement_id, submitted_at, candidate:candidate_id(full_name)')
+        .in('requirement_id', reqIds)
+        .gte('submitted_at', monthStart)
+        .lte('submitted_at', monthEnd)
+        .order('submitted_at', { ascending: true })
+    : { data: [], error: null }
+  if (rcError) throw rcError
+
+  // Group candidates by requirement_id
+  const candByReq = {}
+  for (const rc of rcRows ?? []) {
+    if (!candByReq[rc.requirement_id]) candByReq[rc.requirement_id] = []
+    candByReq[rc.requirement_id].push({ name: rc.candidate?.full_name ?? 'Sin nombre', sentAt: rc.submitted_at })
+  }
+
+  // Only include requirements that were open during the month OR had candidates sent that month
+  const isOpen = req => !String(req.status?.name ?? '').toLowerCase().startsWith('closed')
+  const filtered = (requirements ?? []).filter(req => isOpen(req) || candByReq[req.id]?.length)
 
   return {
     clientName: clientData.name,
     year,
     month,
-    requirements: (requirements ?? []).map(req => {
-      const rcs = (req.requirement_candidate ?? [])
-        .slice()
-        .sort((a, b) => new Date(a.submitted_at) - new Date(b.submitted_at))
+    requirements: filtered.map(req => {
+      const candidates = candByReq[req.id] ?? []
       return {
         id: req.id,
         reqNumber: req.req_number,
@@ -301,11 +318,8 @@ export async function getClientMonthlyReportData(clientId, year, month) {
         applicationDate: req.application_date,
         createdAt: req.created_at,
         statusName: req.status?.name ?? '',
-        candidatesSent: rcs.length,
-        candidates: rcs.map(rc => ({
-          name: rc.candidate?.full_name ?? 'Sin nombre',
-          sentAt: rc.submitted_at,
-        })),
+        candidatesSent: candidates.length,
+        candidates,
       }
     }),
   }

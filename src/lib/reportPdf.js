@@ -113,7 +113,14 @@ export function buildReportHtml({ title, subtitle = '', bodyHtml = '' }) {
         flex: 0 0 auto;
       }
       .muted { color: var(--muted); }
-      @media print { .page { padding: 22px 24px 28px; } }
+      @page { margin: 8mm 10mm; size: A4 portrait; }
+      @media print {
+        .page { padding: 12px 16px 18px; }
+        h1 { font-size: 22px !important; margin: 6px 0 5px !important; }
+        .section { margin-top: 16px !important; }
+        .header { margin-bottom: 14px !important; }
+        .header-logo img { width: 130px !important; }
+      }
       @media screen and (max-width: 900px) {
         .grid, .stage-list { grid-template-columns: 1fr; }
         .header { flex-direction: column; }

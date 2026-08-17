@@ -430,22 +430,22 @@ export default function Reports() {
 
     const kpiBanner = `
       <section class="section">
-        <div style="background:linear-gradient(135deg,#10213d 0%,#143b7a 100%);border-radius:18px;padding:28px 32px;color:white;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:0;">
-          <div style="padding-right:20px;">
-            <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Periodo</div>
-            <div style="margin-top:8px;font-size:22px;font-weight:800;line-height:1.1;">${escapeHtml(monthLabel)}</div>
+        <div style="background:linear-gradient(135deg,#10213d 0%,#143b7a 100%);border-radius:14px;padding:18px 22px;color:white;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:0;">
+          <div style="padding-right:16px;">
+            <div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Periodo</div>
+            <div style="margin-top:6px;font-size:16px;font-weight:800;line-height:1.1;">${escapeHtml(monthLabel)}</div>
           </div>
-          <div style="padding:0 16px;border-left:1px solid rgba(255,255,255,.15);">
-            <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Clientes</div>
-            <div style="margin-top:6px;font-size:42px;font-weight:800;line-height:1;color:#fbbf24;">${totalClients}</div>
+          <div style="padding:0 12px;border-left:1px solid rgba(255,255,255,.15);">
+            <div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Clientes</div>
+            <div style="margin-top:4px;font-size:30px;font-weight:800;line-height:1;color:#fbbf24;">${totalClients}</div>
           </div>
-          <div style="padding:0 16px;border-left:1px solid rgba(255,255,255,.15);">
-            <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Posiciones</div>
-            <div style="margin-top:6px;font-size:42px;font-weight:800;line-height:1;color:#a78bfa;">${totalPositions}</div>
+          <div style="padding:0 12px;border-left:1px solid rgba(255,255,255,.15);">
+            <div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Posiciones</div>
+            <div style="margin-top:4px;font-size:30px;font-weight:800;line-height:1;color:#a78bfa;">${totalPositions}</div>
           </div>
-          <div style="padding:0 16px;border-left:1px solid rgba(255,255,255,.15);">
-            <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Enviados</div>
-            <div style="margin-top:6px;font-size:42px;font-weight:800;line-height:1;color:#60a5fa;">${totalSent}</div>
+          <div style="padding:0 12px;border-left:1px solid rgba(255,255,255,.15);">
+            <div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Enviados</div>
+            <div style="margin-top:4px;font-size:30px;font-weight:800;line-height:1;color:#60a5fa;">${totalSent}</div>
           </div>
         </div>
       </section>`
@@ -487,21 +487,21 @@ const clientDetailSections = data.clients.map((client) => {
               <div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:700;">REQ-${String(req.reqNumber).padStart(3,'0')} · Apertura: ${escapeHtml(fmtDate(req.applicationDate ?? req.createdAt))}</div>
               <div style="margin-top:2px;font-size:12px;font-weight:700;color:white;line-height:1.3;">${escapeHtml(req.jobTitle)}</div>
             </div>
-            <div style="padding:14px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;">
+            <div style="padding:10px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;">
               <div style="font-size:9px;color:#60708b;font-weight:700;text-transform:uppercase;letter-spacing:.12em;">Enviados</div>
-              <div style="font-size:52px;font-weight:900;color:${color};line-height:1;">${req.candidatesSent}</div>
+              <div style="font-size:36px;font-weight:900;color:${color};line-height:1;">${req.candidatesSent}</div>
             </div>
           </div>`
       }).join('')
 
       return `
-        <section class="section" style="margin-top:28px;">
-          <div style="background:${clientColor};color:white;padding:10px 18px;border-radius:12px 12px 0 0;display:flex;align-items:center;gap:12px;">
-            <span style="font-weight:800;font-size:15px;">${escapeHtml(client.clientName)}</span>
-            <span style="font-size:17px;background:rgba(255,255,255,.2);padding:3px 18px;border-radius:999px;font-weight:700;">${client.requirements.length} posiciones · ${client.requirements.reduce((s,r)=>s+r.candidatesSent,0)} enviados</span>
+        <section class="section" style="margin-top:20px;">
+          <div style="background:${clientColor};color:white;padding:8px 14px;border-radius:10px 10px 0 0;display:flex;align-items:center;gap:10px;">
+            <span style="font-weight:800;font-size:13px;">${escapeHtml(client.clientName)}</span>
+            <span style="font-size:12px;background:rgba(255,255,255,.2);padding:2px 12px;border-radius:999px;font-weight:700;">${client.requirements.length} posiciones · ${client.requirements.reduce((s,r)=>s+r.candidatesSent,0)} enviados</span>
           </div>
-          <div style="border:1px solid #d6dce5;border-top:none;border-radius:0 0 12px 12px;padding:14px;">
-            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;">${posCards}</div>
+          <div style="border:1px solid #d6dce5;border-top:none;border-radius:0 0 10px 10px;padding:10px;">
+            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;">${posCards}</div>
           </div>
         </section>`
     }).join('')
@@ -589,19 +589,19 @@ const clientDetailSections = data.clients.map((client) => {
     // ── KPI Banner ──────────────────────────────────────────────────────
     const kpiBanner = `
       <section class="section">
-        <div style="background:linear-gradient(135deg,#10213d 0%,#143b7a 100%);border-radius:18px;padding:28px 32px;color:white;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:0;">
-          <div style="padding-right:24px;">
-            <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Cliente</div>
-            <div style="margin-top:8px;font-size:22px;font-weight:800;line-height:1.1;">${escapeHtml(data.clientName)}</div>
-            <div style="margin-top:4px;font-size:15px;font-weight:600;color:rgba(255,255,255,.6);">${escapeHtml(monthLabel)}</div>
+        <div style="background:linear-gradient(135deg,#10213d 0%,#143b7a 100%);border-radius:14px;padding:18px 22px;color:white;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:0;">
+          <div style="padding-right:18px;">
+            <div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Cliente</div>
+            <div style="margin-top:6px;font-size:17px;font-weight:800;line-height:1.1;">${escapeHtml(data.clientName)}</div>
+            <div style="margin-top:3px;font-size:12px;font-weight:600;color:rgba(255,255,255,.6);">${escapeHtml(monthLabel)}</div>
           </div>
-          <div style="padding:0 24px;border-left:1px solid rgba(255,255,255,.15);">
-            <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Posiciones</div>
-            <div style="margin-top:6px;font-size:42px;font-weight:800;line-height:1;color:#a78bfa;">${data.requirements.length}</div>
+          <div style="padding:0 18px;border-left:1px solid rgba(255,255,255,.15);">
+            <div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Posiciones</div>
+            <div style="margin-top:4px;font-size:30px;font-weight:800;line-height:1;color:#a78bfa;">${data.requirements.length}</div>
           </div>
-          <div style="padding:0 24px;border-left:1px solid rgba(255,255,255,.15);">
-            <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Enviados</div>
-            <div style="margin-top:6px;font-size:42px;font-weight:800;line-height:1;color:#60a5fa;">${totalSent}</div>
+          <div style="padding:0 18px;border-left:1px solid rgba(255,255,255,.15);">
+            <div style="font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Enviados</div>
+            <div style="margin-top:4px;font-size:30px;font-weight:800;line-height:1;color:#60a5fa;">${totalSent}</div>
           </div>
         </div>
       </section>`
@@ -614,16 +614,16 @@ const clientDetailSections = data.clients.map((client) => {
             <div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:700;">REQ-${String(req.reqNumber).padStart(3,'0')} · Apertura: ${escapeHtml(fmtDate(req.applicationDate ?? req.createdAt))}</div>
             <div style="margin-top:2px;font-size:12px;font-weight:700;color:white;line-height:1.3;">${escapeHtml(req.jobTitle)}</div>
           </div>
-          <div style="padding:14px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;">
+          <div style="padding:10px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;">
             <div style="font-size:9px;color:#60708b;font-weight:700;text-transform:uppercase;letter-spacing:.12em;">Enviados</div>
-            <div style="font-size:52px;font-weight:900;color:${POS_COLOR};line-height:1;">${req.candidatesSent}</div>
+            <div style="font-size:36px;font-weight:900;color:${POS_COLOR};line-height:1;">${req.candidatesSent}</div>
           </div>
         </div>`
     }).join('')
 
     const posSection = `
       <section class="section">
-        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;">${posCards}</div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;">${posCards}</div>
       </section>`
 
     // ── Candidate list (page 2) ─────────────────────────────────────────

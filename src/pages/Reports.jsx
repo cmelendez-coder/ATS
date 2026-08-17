@@ -417,33 +417,108 @@ export default function Reports() {
   }
 
   function buildClientMonthlyBody(data) {
-    const totalFTE  = data.requirements.reduce((sum, r) => sum + r.fteCount, 0)
-    const totalSent = data.requirements.reduce((sum, r) => sum + r.candidatesSent, 0)
+    const totalFTE   = data.requirements.reduce((sum, r) => sum + r.fteCount, 0)
+    const totalSent  = data.requirements.reduce((sum, r) => sum + r.candidatesSent, 0)
     const monthLabel = `${MESES[data.month - 1]} ${data.year}`
+    const maxCand    = Math.max(...data.requirements.map(r => r.candidatesSent), 1)
 
-    return [
-      renderMetricCards([
-        { label: 'Cliente',              value: data.clientName },
-        { label: 'Mes',                  value: monthLabel },
-        { label: 'Posiciones abiertas',  value: String(data.requirements.length) },
-        { label: 'FTEs totales',         value: String(totalFTE) },
-      ]),
-      renderMetricCards([
-        { label: 'Candidatos enviados',  value: String(totalSent) },
-      ]),
-      renderTable(
-        `Posiciones abiertas en ${monthLabel}`,
-        ['Folio', 'Posición', 'FTEs', 'Candidatos enviados', 'Status', 'Apertura'],
-        data.requirements.map(req => [
-          escapeHtml(`REQ-${String(req.reqNumber).padStart(3, '0')}`),
-          escapeHtml(req.jobTitle),
-          escapeHtml(req.fteCount),
-          escapeHtml(req.candidatesSent),
-          `<span class="pill">${escapeHtml(req.statusName)}</span>`,
-          escapeHtml(fmtDate(req.applicationDate ?? req.createdAt)),
-        ]),
-      ),
-    ].join('')
+    const POS_COLORS = ['#143b7a','#166534','#9a3412','#581c87','#0c4a6e','#7c2d12','#064e3b','#1e1b4b']
+
+    // ── KPI Banner ──────────────────────────────────────────────────────
+    const kpiBanner = `
+      <section class="section">
+        <div style="background:linear-gradient(135deg,#10213d 0%,#143b7a 100%);border-radius:18px;padding:28px 32px;color:white;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;">
+          <div style="padding-right:24px;">
+            <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Cliente</div>
+            <div style="margin-top:8px;font-size:20px;font-weight:800;line-height:1.1;">${escapeHtml(data.clientName)}</div>
+          </div>
+          <div style="padding:0 24px;border-left:1px solid rgba(255,255,255,.15);">
+            <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Periodo</div>
+            <div style="margin-top:8px;font-size:20px;font-weight:800;line-height:1.1;">${escapeHtml(monthLabel)}</div>
+          </div>
+          <div style="padding:0 24px;border-left:1px solid rgba(255,255,255,.15);">
+            <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Posiciones / FTEs</div>
+            <div style="margin-top:6px;font-size:44px;font-weight:800;line-height:1;color:#4ade80;">${data.requirements.length}<span style="font-size:20px;color:rgba(255,255,255,.4);margin-left:6px;">/ ${totalFTE}</span></div>
+          </div>
+          <div style="padding:0 24px;border-left:1px solid rgba(255,255,255,.15);">
+            <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Candidatos enviados</div>
+            <div style="margin-top:6px;font-size:44px;font-weight:800;line-height:1;color:#60a5fa;">${totalSent}</div>
+          </div>
+        </div>
+      </section>`
+
+    // ── Position cards with bar ─────────────────────────────────────────
+    const posCards = data.requirements.map((req, i) => {
+      const color  = POS_COLORS[i % POS_COLORS.length]
+      const barPct = Math.round((req.candidatesSent / maxCand) * 100)
+      return `
+        <div style="border:1px solid #d6dce5;border-radius:16px;overflow:hidden;background:white;">
+          <div style="background:${color};padding:14px 16px;">
+            <div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:700;">REQ-${String(req.reqNumber).padStart(3,'0')}</div>
+            <div style="margin-top:4px;font-size:15px;font-weight:700;color:white;line-height:1.25;">${escapeHtml(req.jobTitle)}</div>
+          </div>
+          <div style="padding:14px 16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <span style="font-size:11px;color:#60708b;font-weight:600;text-transform:uppercase;letter-spacing:.1em;">FTEs</span>
+              <span style="font-size:20px;font-weight:800;color:${color};">${req.fteCount}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <span style="font-size:11px;color:#60708b;font-weight:600;text-transform:uppercase;letter-spacing:.1em;">Candidatos enviados</span>
+              <span style="font-size:20px;font-weight:800;color:${color};">${req.candidatesSent}</span>
+            </div>
+            <div style="height:7px;background:#e9eef8;border-radius:999px;overflow:hidden;">
+              <div style="height:100%;width:${barPct}%;background:${color};border-radius:999px;"></div>
+            </div>
+            <div style="margin-top:8px;font-size:11px;color:#60708b;">
+              Apertura: <strong>${escapeHtml(fmtDate(req.applicationDate ?? req.createdAt))}</strong>
+              &nbsp;·&nbsp; Status: <strong style="color:${color};">${escapeHtml(req.statusName)}</strong>
+            </div>
+          </div>
+        </div>`
+    }).join('')
+
+    const posSection = `
+      <section class="section">
+        <h2 style="font-size:17px;margin:0 0 14px;color:#10213d;">Desglose por posición</h2>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;">${posCards}</div>
+      </section>`
+
+    // ── Candidate list (page 2) ─────────────────────────────────────────
+    const candGroups = data.requirements.map((req, i) => {
+      const color = POS_COLORS[i % POS_COLORS.length]
+      const bodyRows = req.candidates?.length
+        ? req.candidates.map((c, j) => `
+            <tr style="background:${j % 2 === 0 ? 'white' : '#f8fafc'};">
+              <td style="padding:8px 14px;border-bottom:1px solid #e9eef8;font-size:13px;font-weight:600;">${escapeHtml(c.name)}</td>
+              <td style="padding:8px 14px;border-bottom:1px solid #e9eef8;font-size:12px;color:#60708b;">${escapeHtml(fmtDate(c.sentAt))}</td>
+            </tr>`).join('')
+        : `<tr><td colspan="2" style="padding:12px 14px;color:#60708b;font-size:13px;">Sin candidatos registrados.</td></tr>`
+
+      return `
+        <div style="margin-bottom:24px;break-inside:avoid;">
+          <div style="background:${color};color:white;padding:11px 16px;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-weight:700;font-size:14px;">REQ-${String(req.reqNumber).padStart(3,'0')} — ${escapeHtml(req.jobTitle)}</span>
+            <span style="font-size:12px;background:rgba(255,255,255,.2);padding:3px 11px;border-radius:999px;font-weight:700;">${req.candidatesSent} candidatos</span>
+          </div>
+          <table style="width:100%;border-collapse:collapse;border:1px solid #d6dce5;border-top:none;border-radius:0 0 12px 12px;overflow:hidden;">
+            <thead>
+              <tr style="background:#f0f4fa;">
+                <th style="padding:8px 14px;text-align:left;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#60708b;font-weight:700;border-bottom:1px solid #d6dce5;">Candidato</th>
+                <th style="padding:8px 14px;text-align:left;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#60708b;font-weight:700;border-bottom:1px solid #d6dce5;">Fecha enviado</th>
+              </tr>
+            </thead>
+            <tbody>${bodyRows}</tbody>
+          </table>
+        </div>`
+    }).join('')
+
+    const candSection = `
+      <section class="section" style="page-break-before:always;padding-top:8px;">
+        <h2 style="font-size:17px;margin:0 0 18px;color:#10213d;">Candidatos enviados — ${escapeHtml(monthLabel)}</h2>
+        ${candGroups}
+      </section>`
+
+    return kpiBanner + posSection + candSection
   }
 
   async function handleClientMonthlyPreview() {

@@ -271,7 +271,11 @@ export async function getClientMonthlyReportData(clientId, year, month) {
     supabase.from('client').select('name').eq('id', clientId).single(),
     supabase
       .from('requirement')
-      .select('id, req_number, job_title, fte_count, application_date, created_at, status:status_id(name), requirement_candidate(id)')
+      .select(`
+        id, req_number, job_title, fte_count, application_date, created_at,
+        status:status_id(name),
+        requirement_candidate(id, submitted_at, candidate:candidate_id(full_name))
+      `)
       .eq('client_id', clientId)
       .gte('created_at', `${monthStart}T00:00:00.000Z`)
       .lte('created_at', `${monthEnd}T23:59:59.999Z`)
@@ -285,16 +289,25 @@ export async function getClientMonthlyReportData(clientId, year, month) {
     clientName: clientData.name,
     year,
     month,
-    requirements: (requirements ?? []).map(req => ({
-      id: req.id,
-      reqNumber: req.req_number,
-      jobTitle: req.job_title,
-      fteCount: req.fte_count ?? 1,
-      applicationDate: req.application_date,
-      createdAt: req.created_at,
-      statusName: req.status?.name ?? '',
-      candidatesSent: (req.requirement_candidate ?? []).length,
-    })),
+    requirements: (requirements ?? []).map(req => {
+      const rcs = (req.requirement_candidate ?? [])
+        .slice()
+        .sort((a, b) => new Date(a.submitted_at) - new Date(b.submitted_at))
+      return {
+        id: req.id,
+        reqNumber: req.req_number,
+        jobTitle: req.job_title,
+        fteCount: req.fte_count ?? 1,
+        applicationDate: req.application_date,
+        createdAt: req.created_at,
+        statusName: req.status?.name ?? '',
+        candidatesSent: rcs.length,
+        candidates: rcs.map(rc => ({
+          name: rc.candidate?.full_name ?? 'Sin nombre',
+          sentAt: rc.submitted_at,
+        })),
+      }
+    }),
   }
 }
 

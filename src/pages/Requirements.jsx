@@ -1376,7 +1376,35 @@ function ReqBoardTable() {
           </tr>
         </thead>
         <tbody>
-          {(() => {
+          {(selWeek.year < 2026 || (selWeek.year === 2026 && selWeek.week < 33)) ? (
+            <tr>
+              <td colSpan={COLS.length}>
+                <style>{`
+                  @keyframes priorGlow {
+                    0%   { box-shadow: 0 0 12px 4px #ffe033, 0 0 32px 10px #ffb700; }
+                    50%  { box-shadow: 0 0 32px 14px #ffe033, 0 0 72px 28px #ffb700; }
+                    100% { box-shadow: 0 0 12px 4px #ffe033, 0 0 32px 10px #ffb700; }
+                  }
+                `}</style>
+                <div style={{
+                  backgroundColor: '#ffe033',
+                  color: '#000',
+                  fontStyle: 'italic',
+                  fontSize: '2rem',
+                  fontWeight: '700',
+                  textAlign: 'center',
+                  padding: '3.5rem 2rem',
+                  lineHeight: 1.4,
+                  animation: 'priorGlow 2s ease-in-out infinite',
+                }}>
+                  No información encontrada:<br />
+                  <span style={{ fontSize: '1.4rem', fontWeight: '500' }}>
+                    Esta sección se implementó a partir de la semana 33
+                  </span>
+                </div>
+              </td>
+            </tr>
+          ) : (() => {
             const CLIENT_LAST = ['LogicMonitor', 'PacVue']
             const clientKey = c => {
               const i = CLIENT_LAST.findIndex(n => n.toLowerCase() === (c ?? '').toLowerCase())
@@ -1522,7 +1550,7 @@ function ReqBoardTable() {
             )
           })
           ])
-        })()}
+        })() }
         </tbody>
       </table>
     </div>

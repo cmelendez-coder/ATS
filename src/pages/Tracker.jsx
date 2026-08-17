@@ -226,7 +226,7 @@ function RejectedFeedbackModal({ onConfirm, onCancel }) {
 }
 
 function playSentSound() {
-  try { new Audio('/sounds/sent.wav').play() } catch {}
+  try { new Audio('/sounds/Sent.mp3').play() } catch {}
 }
 
 // Two-step confirmation modal for "Sent" status

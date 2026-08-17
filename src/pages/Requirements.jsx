@@ -973,7 +973,7 @@ const PRI_TABLE = {
 
 /* ── Save chime (Web Audio API, no external files) ── */
 function playChime() {
-  try { new Audio('/sounds/prioridades.wav').play() } catch {}
+  try { new Audio('/sounds/Prioridades.mp3').play() } catch {}
 }
 
 /* ── Inline editable cell ── */

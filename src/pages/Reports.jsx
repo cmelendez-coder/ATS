@@ -425,8 +425,8 @@ export default function Reports() {
     const totalFTE       = data.clients.reduce((s, c) => s + c.requirements.reduce((s2, r) => s2 + r.fteCount, 0), 0)
     const totalSent      = data.clients.reduce((s, c) => s + c.requirements.reduce((s2, r) => s2 + r.candidatesSent, 0), 0)
 
-    const POS_COLORS    = ['#143b7a','#166534','#9a3412','#581c87','#0c4a6e','#7c2d12','#064e3b','#1e1b4b']
-    const CLIENT_COLORS = ['#1e3a5f','#14532d','#431407','#2e1065','#0c2340','#451a03','#022c22','#0f0a1e']
+    const POS_COLOR    = '#c2410c'
+    const CLIENT_COLOR = '#1e3a5f'
 
     const kpiBanner = `
       <section class="section">
@@ -482,11 +482,11 @@ export default function Reports() {
         </table>
       </section>`
 
-    const clientDetailSections = data.clients.map((client, ci) => {
-      const clientColor = CLIENT_COLORS[ci % CLIENT_COLORS.length]
+    const clientDetailSections = data.clients.map((client) => {
+      const clientColor = CLIENT_COLOR
       const maxCand = Math.max(...client.requirements.map(r => r.candidatesSent), 1)
-      const posCards = client.requirements.map((req, i) => {
-        const color  = POS_COLORS[i % POS_COLORS.length]
+      const posCards = client.requirements.map((req) => {
+        const color  = POS_COLOR
         const barPct = Math.round((req.candidatesSent / maxCand) * 100)
         return `
           <div style="border:1px solid #d6dce5;border-radius:14px;overflow:hidden;background:white;">
@@ -522,10 +522,10 @@ export default function Reports() {
         </section>`
     }).join('')
 
-    const candGroups = data.clients.map((client, ci) => {
-      const clientColor = CLIENT_COLORS[ci % CLIENT_COLORS.length]
-      const reqBlocks = client.requirements.map((req, i) => {
-        const color = POS_COLORS[i % POS_COLORS.length]
+    const candGroups = data.clients.map((client) => {
+      const clientColor = CLIENT_COLOR
+      const reqBlocks = client.requirements.map((req) => {
+        const color = POS_COLOR
         const bodyRows = req.candidates?.length
           ? req.candidates.map((c, j) => `
               <tr style="background:${j % 2 === 0 ? 'white' : '#f8fafc'};">

@@ -595,8 +595,8 @@ const clientDetailSections = data.clients.map((client) => {
     const totalSent  = data.requirements.reduce((sum, r) => sum + r.candidatesSent, 0)
     const monthLabel = `${MESES[data.month - 1]} ${data.year}`
 
-    const POS_COLOR       = '#c2410c'
-    const CAND_POS_COLOR  = '#d9652a'
+    const POS_COLOR       = '#4a5568'
+    const CAND_POS_COLOR  = '#606876'
 
     // ── KPI Banner ──────────────────────────────────────────────────────
     const kpiBanner = `

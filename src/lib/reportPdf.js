@@ -210,8 +210,15 @@ function loadHtml2Pdf() {
 export async function downloadReportPdf({ filename, title, subtitle = '', bodyHtml = '' }) {
   const html2pdf = await loadHtml2Pdf()
 
+  // Overlay visible mientras se genera — cubre la app para que el usuario no vea el flash
+  const overlay = document.createElement('div')
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(16,33,61,0.75);z-index:99999;display:flex;align-items:center;justify-content:center;'
+  overlay.innerHTML = '<div style="color:white;font-family:Arial,sans-serif;font-size:15px;font-weight:600;letter-spacing:0.04em;">Generando PDF…</div>'
+  document.body.appendChild(overlay)
+
+  // El wrap va en top:0 left:0 para que html2canvas lo pueda capturar
   const wrap = document.createElement('div')
-  wrap.style.cssText = 'position:absolute;left:-9999px;top:0;width:794px;background:white;font-family:Arial,Helvetica,sans-serif;color:#10213d;'
+  wrap.style.cssText = 'position:absolute;top:0;left:0;width:794px;background:white;font-family:Arial,Helvetica,sans-serif;color:#10213d;'
 
   const style = document.createElement('style')
   style.textContent = `
@@ -245,13 +252,16 @@ export async function downloadReportPdf({ filename, title, subtitle = '', bodyHt
     ${bodyHtml}
   `
   wrap.appendChild(page)
+
+  const prevScroll = window.scrollY
+  window.scrollTo(0, 0)
   document.body.appendChild(wrap)
 
   const opt = {
     margin: 0,
     filename,
     image: { type: 'jpeg', quality: 0.95 },
-    html2canvas: { scale: 2, useCORS: true, logging: false, allowTaint: true },
+    html2canvas: { scale: 2, useCORS: true, logging: false },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
     pagebreak: { mode: ['css', 'legacy'] },
   }
@@ -260,6 +270,8 @@ export async function downloadReportPdf({ filename, title, subtitle = '', bodyHt
     await html2pdf().set(opt).from(wrap).save()
   } finally {
     document.body.removeChild(wrap)
+    document.body.removeChild(overlay)
+    window.scrollTo(0, prevScroll)
   }
 }
 

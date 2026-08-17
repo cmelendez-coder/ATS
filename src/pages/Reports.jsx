@@ -506,10 +506,13 @@ export default function Reports() {
         </section>`
     }).join('')
 
+    const CAND_CLIENT_COLOR = '#3a6fa8'
+    const CAND_POS_COLOR    = '#d9652a'
+
     const candGroups = data.clients.map((client) => {
-      const clientColor = CLIENT_COLOR
+      const clientColor = CAND_CLIENT_COLOR
       const reqBlocks = client.requirements.map((req) => {
-        const color = POS_COLOR
+        const color = CAND_POS_COLOR
         const bodyRows = req.candidates?.length
           ? req.candidates.map((c, j) => `
               <tr style="background:${j % 2 === 0 ? 'white' : '#f8fafc'};">

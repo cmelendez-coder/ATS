@@ -422,7 +422,6 @@ export default function Reports() {
     const monthLabel     = `${MESES[data.month - 1]} ${data.year}`
     const totalClients   = data.clients.length
     const totalPositions = data.clients.reduce((s, c) => s + c.requirements.length, 0)
-    const totalFTE       = data.clients.reduce((s, c) => s + c.requirements.reduce((s2, r) => s2 + r.fteCount, 0), 0)
     const totalSent      = data.clients.reduce((s, c) => s + c.requirements.reduce((s2, r) => s2 + r.candidatesSent, 0), 0)
 
     const POS_COLOR    = '#c2410c'
@@ -430,7 +429,7 @@ export default function Reports() {
 
     const kpiBanner = `
       <section class="section">
-        <div style="background:linear-gradient(135deg,#10213d 0%,#143b7a 100%);border-radius:18px;padding:28px 32px;color:white;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:0;">
+        <div style="background:linear-gradient(135deg,#10213d 0%,#143b7a 100%);border-radius:18px;padding:28px 32px;color:white;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:0;">
           <div style="padding-right:20px;">
             <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Periodo</div>
             <div style="margin-top:8px;font-size:22px;font-weight:800;line-height:1.1;">${escapeHtml(monthLabel)}</div>
@@ -444,10 +443,6 @@ export default function Reports() {
             <div style="margin-top:6px;font-size:42px;font-weight:800;line-height:1;color:#a78bfa;">${totalPositions}</div>
           </div>
           <div style="padding:0 16px;border-left:1px solid rgba(255,255,255,.15);">
-            <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">FTEs totales</div>
-            <div style="margin-top:6px;font-size:42px;font-weight:800;line-height:1;color:#34d399;">${totalFTE}</div>
-          </div>
-          <div style="padding:0 16px;border-left:1px solid rgba(255,255,255,.15);">
             <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Enviados</div>
             <div style="margin-top:6px;font-size:42px;font-weight:800;line-height:1;color:#60a5fa;">${totalSent}</div>
           </div>
@@ -455,13 +450,11 @@ export default function Reports() {
       </section>`
 
     const summaryRows = data.clients.map(c => {
-      const fte  = c.requirements.reduce((s, r) => s + r.fteCount, 0)
       const sent = c.requirements.reduce((s, r) => s + r.candidatesSent, 0)
       return `
         <tr>
           <td style="padding:9px 12px;border-bottom:1px solid #e9eef8;font-weight:700;font-size:13px;">${escapeHtml(c.clientName)}</td>
           <td style="padding:9px 12px;border-bottom:1px solid #e9eef8;font-size:13px;">${c.requirements.length}</td>
-          <td style="padding:9px 12px;border-bottom:1px solid #e9eef8;font-size:13px;">${fte}</td>
           <td style="padding:9px 12px;border-bottom:1px solid #e9eef8;font-size:13px;font-weight:700;color:#143b7a;">${sent}</td>
         </tr>`
     }).join('')
@@ -474,7 +467,6 @@ export default function Reports() {
             <tr style="background:#10213d;color:white;">
               <th style="padding:10px 12px;text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;">Cliente</th>
               <th style="padding:10px 12px;text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;">Posiciones</th>
-              <th style="padding:10px 12px;text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;">FTEs</th>
               <th style="padding:10px 12px;text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;">Candidatos enviados</th>
             </tr>
           </thead>
@@ -491,14 +483,10 @@ export default function Reports() {
         return `
           <div style="border:1px solid #d6dce5;border-radius:14px;overflow:hidden;background:white;">
             <div style="background:${color};padding:10px 12px;">
-              <div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:700;">REQ-${String(req.reqNumber).padStart(3,'0')}</div>
+              <div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:700;">REQ-${String(req.reqNumber).padStart(3,'0')} · Apertura: ${escapeHtml(fmtDate(req.applicationDate ?? req.createdAt))}</div>
               <div style="margin-top:2px;font-size:12px;font-weight:700;color:white;line-height:1.3;">${escapeHtml(req.jobTitle)}</div>
             </div>
             <div style="padding:10px 12px;">
-              <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
-                <span style="font-size:10px;color:#60708b;font-weight:600;text-transform:uppercase;">FTEs</span>
-                <span style="font-size:16px;font-weight:800;color:${color};">${req.fteCount}</span>
-              </div>
               <div style="display:flex;justify-content:space-between;margin-bottom:7px;">
                 <span style="font-size:10px;color:#60708b;font-weight:600;text-transform:uppercase;">Enviados</span>
                 <span style="font-size:16px;font-weight:800;color:${color};">${req.candidatesSent}</span>
@@ -605,7 +593,6 @@ export default function Reports() {
   }
 
   function buildClientMonthlyBody(data) {
-    const totalFTE   = data.requirements.reduce((sum, r) => sum + r.fteCount, 0)
     const totalSent  = data.requirements.reduce((sum, r) => sum + r.candidatesSent, 0)
     const monthLabel = `${MESES[data.month - 1]} ${data.year}`
     const maxCand    = Math.max(...data.requirements.map(r => r.candidatesSent), 1)
@@ -615,18 +602,15 @@ export default function Reports() {
     // ── KPI Banner ──────────────────────────────────────────────────────
     const kpiBanner = `
       <section class="section">
-        <div style="background:linear-gradient(135deg,#10213d 0%,#143b7a 100%);border-radius:18px;padding:28px 32px;color:white;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;">
+        <div style="background:linear-gradient(135deg,#10213d 0%,#143b7a 100%);border-radius:18px;padding:28px 32px;color:white;display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;">
           <div style="padding-right:24px;">
             <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Cliente</div>
             <div style="margin-top:8px;font-size:20px;font-weight:800;line-height:1.1;">${escapeHtml(data.clientName)}</div>
+            <div style="margin-top:4px;font-size:15px;font-weight:600;color:rgba(255,255,255,.6);">${escapeHtml(monthLabel)}</div>
           </div>
           <div style="padding:0 24px;border-left:1px solid rgba(255,255,255,.15);">
-            <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Periodo</div>
-            <div style="margin-top:8px;font-size:20px;font-weight:800;line-height:1.1;">${escapeHtml(monthLabel)}</div>
-          </div>
-          <div style="padding:0 24px;border-left:1px solid rgba(255,255,255,.15);">
-            <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Posiciones / FTEs</div>
-            <div style="margin-top:6px;font-size:44px;font-weight:800;line-height:1;color:#4ade80;">${data.requirements.length}<span style="font-size:20px;color:rgba(255,255,255,.4);margin-left:6px;">/ ${totalFTE}</span></div>
+            <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Posiciones activas</div>
+            <div style="margin-top:6px;font-size:44px;font-weight:800;line-height:1;color:#4ade80;">${data.requirements.length}</div>
           </div>
           <div style="padding:0 24px;border-left:1px solid rgba(255,255,255,.15);">
             <div style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700;">Candidatos enviados</div>
@@ -642,24 +626,16 @@ export default function Reports() {
       return `
         <div style="border:1px solid #d6dce5;border-radius:16px;overflow:hidden;background:white;">
           <div style="background:${color};padding:14px 16px;">
-            <div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:700;">REQ-${String(req.reqNumber).padStart(3,'0')}</div>
+            <div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:700;">REQ-${String(req.reqNumber).padStart(3,'0')} · Apertura: ${escapeHtml(fmtDate(req.applicationDate ?? req.createdAt))}</div>
             <div style="margin-top:4px;font-size:15px;font-weight:700;color:white;line-height:1.25;">${escapeHtml(req.jobTitle)}</div>
           </div>
           <div style="padding:14px 16px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-              <span style="font-size:11px;color:#60708b;font-weight:600;text-transform:uppercase;letter-spacing:.1em;">FTEs</span>
-              <span style="font-size:20px;font-weight:800;color:${color};">${req.fteCount}</span>
-            </div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
               <span style="font-size:11px;color:#60708b;font-weight:600;text-transform:uppercase;letter-spacing:.1em;">Candidatos enviados</span>
               <span style="font-size:20px;font-weight:800;color:${color};">${req.candidatesSent}</span>
             </div>
             <div style="height:7px;background:#e9eef8;border-radius:999px;overflow:hidden;">
               <div style="height:100%;width:${barPct}%;background:${color};border-radius:999px;"></div>
-            </div>
-            <div style="margin-top:8px;font-size:11px;color:#60708b;">
-              Apertura: <strong>${escapeHtml(fmtDate(req.applicationDate ?? req.createdAt))}</strong>
-              &nbsp;·&nbsp; Status: <strong style="color:${color};">${escapeHtml(req.statusName)}</strong>
             </div>
           </div>
         </div>`

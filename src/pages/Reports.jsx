@@ -495,9 +495,9 @@ export default function Reports() {
 
       return `
         <section class="section" style="margin-top:28px;">
-          <div style="background:${clientColor};color:white;padding:10px 18px;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:space-between;">
+          <div style="background:${clientColor};color:white;padding:10px 18px;border-radius:12px 12px 0 0;display:flex;align-items:center;gap:12px;">
             <span style="font-weight:800;font-size:15px;">${escapeHtml(client.clientName)}</span>
-            <span style="font-size:11px;background:rgba(255,255,255,.2);padding:2px 12px;border-radius:999px;font-weight:700;">${client.requirements.length} posiciones · ${client.requirements.reduce((s,r)=>s+r.candidatesSent,0)} enviados</span>
+            <span style="font-size:17px;background:rgba(255,255,255,.2);padding:3px 18px;border-radius:999px;font-weight:700;">${client.requirements.length} posiciones · ${client.requirements.reduce((s,r)=>s+r.candidatesSent,0)} enviados</span>
           </div>
           <div style="border:1px solid #d6dce5;border-top:none;border-radius:0 0 12px 12px;padding:14px;">
             <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;">${posCards}</div>

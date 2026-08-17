@@ -262,20 +262,21 @@ export async function getWeeklySubmittalsData(weekStart, weekEnd) {
 }
 
 export async function getClientMonthlyReportData(clientId, year, month) {
-  const monthStr   = String(month).padStart(2, '0')
-  const monthStart = `${year}-${monthStr}-01T00:00:00.000Z`
-  const lastDay    = new Date(year, month, 0).getDate()
-  const monthEnd   = `${year}-${monthStr}-${String(lastDay).padStart(2, '0')}T23:59:59.999Z`
+  const monthStr    = String(month).padStart(2, '0')
+  const monthStart  = `${year}-${monthStr}-01T00:00:00.000Z`
+  const lastDay     = new Date(year, month, 0).getDate()
+  const monthEndDay = `${year}-${monthStr}-${String(lastDay).padStart(2, '0')}`
+  const monthEnd    = `${monthEndDay}T23:59:59.999Z`
 
-  // 1. All requirements for this client that existed by end of the month (open or closed)
+  // 1. All requirements whose Requisition Open Date (application_date) falls on or before end of month
   const [{ data: clientData, error: clientError }, { data: requirements, error: reqError }] = await Promise.all([
     supabase.from('client').select('name').eq('id', clientId).single(),
     supabase
       .from('requirement')
       .select('id, req_number, job_title, fte_count, application_date, created_at, status:status_id(name)')
       .eq('client_id', clientId)
-      .lte('created_at', monthEnd)
-      .order('created_at', { ascending: true }),
+      .lte('application_date', monthEndDay)
+      .order('application_date', { ascending: true }),
   ])
   if (clientError) throw clientError
   if (reqError) throw reqError
@@ -326,16 +327,18 @@ export async function getClientMonthlyReportData(clientId, year, month) {
 }
 
 export async function getAllClientsMonthlyReportData(year, month) {
-  const monthStr   = String(month).padStart(2, '0')
-  const monthStart = `${year}-${monthStr}-01T00:00:00.000Z`
-  const lastDay    = new Date(year, month, 0).getDate()
-  const monthEnd   = `${year}-${monthStr}-${String(lastDay).padStart(2, '0')}T23:59:59.999Z`
+  const monthStr    = String(month).padStart(2, '0')
+  const monthStart  = `${year}-${monthStr}-01T00:00:00.000Z`
+  const lastDay     = new Date(year, month, 0).getDate()
+  const monthEndDay = `${year}-${monthStr}-${String(lastDay).padStart(2, '0')}`
+  const monthEnd    = `${monthEndDay}T23:59:59.999Z`
 
+  // Requirements whose Requisition Open Date (application_date) falls on or before end of month
   const { data: requirements, error: reqError } = await supabase
     .from('requirement')
     .select('id, req_number, job_title, fte_count, application_date, created_at, status:status_id(name), client:client_id(id, name)')
-    .lte('created_at', monthEnd)
-    .order('created_at', { ascending: true })
+    .lte('application_date', monthEndDay)
+    .order('application_date', { ascending: true })
   if (reqError) throw reqError
 
   const reqIds = (requirements ?? []).map(r => r.id)

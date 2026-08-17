@@ -466,9 +466,9 @@ export default function Reports() {
         <table style="width:100%;border-collapse:collapse;border-radius:12px;overflow:hidden;">
           <thead>
             <tr style="background:#10213d;color:white;">
-              <th style="padding:10px 12px;text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;">Cliente</th>
-              <th style="padding:10px 12px;text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;">Posiciones</th>
-              <th style="padding:10px 12px;text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;">Candidatos enviados</th>
+              <th style="padding:10px 12px;text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:white;">Cliente</th>
+              <th style="padding:10px 12px;text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:white;">Posiciones</th>
+              <th style="padding:10px 12px;text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:white;">Candidatos enviados</th>
             </tr>
           </thead>
           <tbody>${summaryRows}</tbody>
@@ -558,7 +558,7 @@ const clientDetailSections = data.clients.map((client) => {
     try {
       const data = await getAllClientsMonthlyReportData(2026, generalMonthlyMonth)
       const monthLabel = `${MESES[data.month - 1]} ${data.year}`
-      const title    = `Reporte General Mensual — ${monthLabel}`
+      const title    = `Reporte General Mensual - ${monthLabel} - By EverTrack`
       const subtitle = `Posiciones activas y candidatos enviados por todos los clientes en ${monthLabel}`
       const bodyHtml = buildAllClientsMonthlyBody(data)
       openPreview(title, subtitle, bodyHtml, () => downloadReportHtml({
@@ -572,7 +572,7 @@ const clientDetailSections = data.clients.map((client) => {
     try {
       const data = await getAllClientsMonthlyReportData(2026, generalMonthlyMonth)
       const monthLabel = `${MESES[data.month - 1]} ${data.year}`
-      const title    = `Reporte General Mensual — ${monthLabel}`
+      const title    = `Reporte General Mensual - ${monthLabel} - By EverTrack`
       const subtitle = `Posiciones activas y candidatos enviados por todos los clientes en ${monthLabel}`
       const bodyHtml = buildAllClientsMonthlyBody(data)
       downloadReportHtml({ filename: `${slugify(`reporte-general-${monthLabel}`)}.html`, title, subtitle, bodyHtml })
@@ -584,7 +584,7 @@ const clientDetailSections = data.clients.map((client) => {
     try {
       const data = await getAllClientsMonthlyReportData(2026, generalMonthlyMonth)
       const monthLabel = `${MESES[data.month - 1]} ${data.year}`
-      const title    = `Reporte General Mensual — ${monthLabel}`
+      const title    = `Reporte General Mensual - ${monthLabel} - By EverTrack`
       const subtitle = `Posiciones activas y candidatos enviados por todos los clientes en ${monthLabel}`
       const bodyHtml = buildAllClientsMonthlyBody(data)
       openPrintableReport({ title, subtitle, bodyHtml })

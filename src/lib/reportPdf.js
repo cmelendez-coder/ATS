@@ -10,13 +10,6 @@ function escapeHtml(value) {
 export function buildReportHtml({ title, subtitle = '', bodyHtml = '' }) {
   const svgLogoUrl = `${window.location.origin}/${encodeURIComponent('Recurso 1.svg')}`
   const fallbackLogoUrl = `${window.location.origin}/logo-prt.png`
-  const generatedAt = new Date().toLocaleString('es-MX', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
 
   return `<!doctype html>
 <html lang="es">
@@ -50,7 +43,7 @@ export function buildReportHtml({ title, subtitle = '', bodyHtml = '' }) {
       }
       .header-copy { flex: 1 1 auto; min-width: 0; }
       .header-logo { flex: 0 0 auto; }
-      .header-logo img { width: 120px; height: auto; display: block; }
+      .header-logo img { width: 180px; height: auto; display: block; }
       .eyebrow {
         font-size: 11px;
         letter-spacing: 0.18em;
@@ -132,10 +125,8 @@ export function buildReportHtml({ title, subtitle = '', bodyHtml = '' }) {
     <div class="page">
       <div class="header">
         <div class="header-copy">
-          <div class="eyebrow">PRT Suite Report</div>
           <h1>${escapeHtml(title)}</h1>
           ${subtitle ? `<p class="subtitle">${escapeHtml(subtitle)}</p>` : ''}
-          <div class="timestamp">Generado: ${escapeHtml(generatedAt)}</div>
         </div>
         <div class="header-logo">
           <img

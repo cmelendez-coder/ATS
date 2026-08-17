@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { usePermissions } from '../hooks/usePermissions'
 import { useRequirementAlerts } from '../hooks/useRequirementAlerts'
-import { getDashboardStats } from '../api/dashboard'
+import { getDashboardStats, getMonthlySentCount } from '../api/dashboard'
 import RequirementAlertBell from '../components/RequirementAlertBell'
 import PortalButtons from '../components/PortalButtons'
 
@@ -97,12 +97,26 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [divisor, setDivisor] = useState('')
 
+  const now = new Date()
+  const [talentMonth, setTalentMonth] = useState({ year: now.getFullYear(), month: now.getMonth() })
+  const [talentCount, setTalentCount] = useState(null)
+  const [talentLoading, setTalentLoading] = useState(false)
+
+  const MESES_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
+
   useEffect(() => {
     setCurrentDate(new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }))
     getDashboardStats()
       .then(setStats)
       .finally(() => setLoading(false))
   }, [])
+
+  useEffect(() => {
+    setTalentLoading(true)
+    getMonthlySentCount(talentMonth.year, talentMonth.month)
+      .then(setTalentCount)
+      .finally(() => setTalentLoading(false))
+  }, [talentMonth.year, talentMonth.month])
 
   // ─── Derived chart data ───────────────────────────────────────────
   const statusSegments = stats
@@ -251,23 +265,39 @@ export default function Dashboard() {
               </p>
             </Link>
 
-            {/* Agregados al Talent Pool este mes */}
-            <Link
-              to="/talent"
-              className="block bg-[#81b927] rounded-2xl p-5 shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden border border-white/[0.12] hover:shadow-[0_4px_24px_rgba(129,185,39,0.35)] transition-shadow"
-            >
+            {/* Agregados al Talent Pool — mes navegable */}
+            <div className="bg-[#81b927] rounded-2xl p-5 shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden border border-white/[0.12]">
               <div className="absolute inset-0 bg-gradient-to-br from-white/[0.08] to-transparent pointer-events-none" />
-              <div className="flex items-start justify-between mb-2">
+              <div className="relative flex items-start justify-between mb-2">
                 <h3 className="text-xs uppercase tracking-[0.08em] font-bold text-white/70">Este mes</h3>
-                <span className="material-symbols-outlined text-[18px] text-white/50">person_add</span>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setTalentMonth(p => {
+                      const d = new Date(p.year, p.month - 1, 1)
+                      return { year: d.getFullYear(), month: d.getMonth() }
+                    })}
+                    className="w-6 h-6 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/35 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[14px] text-white">chevron_left</span>
+                  </button>
+                  <button
+                    onClick={() => setTalentMonth(p => {
+                      const d = new Date(p.year, p.month + 1, 1)
+                      return { year: d.getFullYear(), month: d.getMonth() }
+                    })}
+                    className="w-6 h-6 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/35 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[14px] text-white">chevron_right</span>
+                  </button>
+                </div>
               </div>
-              <p className="text-5xl tracking-tighter font-light text-white">
-                {loading ? '…' : `+${stats?.monthlySent ?? 0}`}
+              <p className="relative text-5xl tracking-tighter font-light text-white">
+                {talentLoading ? '…' : `+${talentCount ?? 0}`}
               </p>
-              <p className="text-[11px] text-white/80 mt-2 font-medium">
-                Agregados al Talent Pool en {new Date().toLocaleDateString('es-MX', { month: 'long' }).replace(/^\w/, c => c.toUpperCase())}
+              <p className="relative text-[11px] text-white/80 mt-2 font-medium">
+                Agregados al Talent Pool en {MESES_ES[talentMonth.month]} {talentMonth.year}
               </p>
-            </Link>
+            </div>
 
           </div>
 

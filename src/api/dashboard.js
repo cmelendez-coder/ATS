@@ -90,3 +90,15 @@ export async function getDashboardStats() {
     recentRequirements:   reqs.slice(0, 5),
   }
 }
+
+export async function getMonthlySentCount(year, month) {
+  const monthStart = new Date(year, month, 1).toISOString()
+  const monthEnd   = new Date(year, month + 1, 1).toISOString()
+  const { count } = await supabase
+    .from('tracker_entry')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'Sent')
+    .gte('created_at', monthStart)
+    .lt('created_at', monthEnd)
+  return count ?? 0
+}

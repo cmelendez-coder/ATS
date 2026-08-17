@@ -475,30 +475,7 @@ export default function Reports() {
         </table>
       </section>`
 
-    const detailRows = data.clients.flatMap(c =>
-      c.requirements.map(req => `
-        <tr>
-          <td style="padding:9px 12px;border-bottom:1px solid #e9eef8;font-size:13px;">${escapeHtml(c.clientName)}</td>
-          <td style="padding:9px 12px;border-bottom:1px solid #e9eef8;font-size:13px;">${escapeHtml(req.jobTitle)}</td>
-          <td style="padding:9px 12px;border-bottom:1px solid #e9eef8;font-size:13px;font-weight:700;color:#143b7a;">${req.candidatesSent}</td>
-        </tr>`)
-    ).join('')
-
-    const detailSection = `
-      <section class="section">
-        <table style="width:100%;border-collapse:collapse;border-radius:12px;overflow:hidden;">
-          <thead>
-            <tr style="background:#10213d;color:white;">
-              <th style="padding:10px 12px;text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:white;">Cliente</th>
-              <th style="padding:10px 12px;text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:white;">Posición</th>
-              <th style="padding:10px 12px;text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:white;">Enviados</th>
-            </tr>
-          </thead>
-          <tbody>${detailRows}</tbody>
-        </table>
-      </section>`
-
-    const clientDetailSections = data.clients.map((client) => {
+const clientDetailSections = data.clients.map((client) => {
       const clientColor = CLIENT_COLOR
       const maxCand = Math.max(...client.requirements.map(r => r.candidatesSent), 1)
       const posCards = client.requirements.map((req) => {
@@ -573,7 +550,7 @@ export default function Reports() {
         ${candGroups}
       </section>`
 
-    return kpiBanner + summarySection + detailSection + clientDetailSections + candSection
+    return kpiBanner + summarySection + clientDetailSections + candSection
   }
 
   async function handleGeneralMonthlyPreview() {

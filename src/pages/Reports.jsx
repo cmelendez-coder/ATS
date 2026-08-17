@@ -12,7 +12,6 @@ import {
 import {
   buildReportHtml,
   downloadReportHtml,
-  downloadReportPdf,
   openPrintableReport,
   renderMetricCards,
   renderStageList,
@@ -576,18 +575,6 @@ const clientDetailSections = data.clients.map((client) => {
       const title    = `Reporte General Mensual - ${monthLabel} - By EverTrack`
       const subtitle = `Posiciones activas y candidatos enviados por todos los clientes en ${monthLabel}`
       const bodyHtml = buildAllClientsMonthlyBody(data)
-      await downloadReportPdf({ filename: `${slugify(`reporte-general-${monthLabel}`)}.pdf`, title, subtitle, bodyHtml })
-    } finally { setBusy('') }
-  }
-
-  async function handleGeneralMonthlyPrint() {
-    setBusy('gen-monthly-print')
-    try {
-      const data = await getAllClientsMonthlyReportData(2026, generalMonthlyMonth)
-      const monthLabel = `${MESES[data.month - 1]} ${data.year}`
-      const title    = `Reporte General Mensual - ${monthLabel} - By EverTrack`
-      const subtitle = `Posiciones activas y candidatos enviados por todos los clientes en ${monthLabel}`
-      const bodyHtml = buildAllClientsMonthlyBody(data)
       openPrintableReport({ title, subtitle, bodyHtml })
     } finally { setBusy('') }
   }
@@ -693,22 +680,6 @@ const clientDetailSections = data.clients.map((client) => {
   async function handleClientMonthlyDownload() {
     if (!selectedClientId || selectedClientId === 'all') return
     setBusy('client-monthly-download')
-    try {
-      const data  = await getClientMonthlyReportData(Number(selectedClientId), 2026, clientReportMonth)
-      const monthLabel = `${MESES[data.month - 1]} ${data.year}`
-      const title    = `Reporte Mensual — ${data.clientName}`
-      const subtitle = `Posiciones abiertas y candidatos enviados en ${monthLabel}`
-      const bodyHtml = buildClientMonthlyBody(data)
-      await downloadReportPdf({
-        filename: `${slugify(`reporte-mensual-${data.clientName}-${monthLabel}`)}.pdf`,
-        title, subtitle, bodyHtml,
-      })
-    } finally { setBusy('') }
-  }
-
-  async function handleClientMonthlyPrint() {
-    if (!selectedClientId || selectedClientId === 'all') return
-    setBusy('client-monthly-print')
     try {
       const data  = await getClientMonthlyReportData(Number(selectedClientId), 2026, clientReportMonth)
       const monthLabel = `${MESES[data.month - 1]} ${data.year}`
@@ -990,13 +961,9 @@ const clientDetailSections = data.clients.map((client) => {
                       <span className="material-symbols-outlined text-[16px]">visibility</span>
                       Vista previa
                     </button>
-                    <button onClick={handleClientMonthlyDownload} disabled={!selectedClientId || selectedClientId === 'all' || !!busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
-                      <span className="material-symbols-outlined text-[16px]">download</span>
-                      Descargar
-                    </button>
-                    <button onClick={handleClientMonthlyPrint} disabled={!selectedClientId || selectedClientId === 'all' || !!busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-tertiary to-tertiary-container text-on-tertiary-container text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
+                    <button onClick={handleClientMonthlyDownload} disabled={!selectedClientId || selectedClientId === 'all' || !!busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-tertiary to-tertiary-container text-on-tertiary-container text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
                       <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
-                      Imprimir PDF
+                      Descargar PDF
                     </button>
                   </div>
                 </section>
@@ -1016,13 +983,9 @@ const clientDetailSections = data.clients.map((client) => {
                       <span className="material-symbols-outlined text-[16px]">visibility</span>
                       Vista previa
                     </button>
-                    <button onClick={handleGeneralMonthlyDownload} disabled={!!busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
-                      <span className="material-symbols-outlined text-[16px]">download</span>
-                      Descargar
-                    </button>
-                    <button onClick={handleGeneralMonthlyPrint} disabled={!!busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
+                    <button onClick={handleGeneralMonthlyDownload} disabled={!!busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
                       <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
-                      Imprimir PDF
+                      Descargar PDF
                     </button>
                   </div>
                 </section>

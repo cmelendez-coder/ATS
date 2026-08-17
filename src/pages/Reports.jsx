@@ -481,19 +481,14 @@ export default function Reports() {
         const color  = POS_COLOR
         const barPct = Math.round((req.candidatesSent / maxCand) * 100)
         return `
-          <div style="border:1px solid #d6dce5;border-radius:14px;overflow:hidden;background:white;">
+          <div style="border:1px solid #d6dce5;border-radius:14px;overflow:hidden;background:white;display:flex;flex-direction:column;">
             <div style="background:${color};padding:10px 12px;">
               <div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:700;">REQ-${String(req.reqNumber).padStart(3,'0')} · Apertura: ${escapeHtml(fmtDate(req.applicationDate ?? req.createdAt))}</div>
               <div style="margin-top:2px;font-size:12px;font-weight:700;color:white;line-height:1.3;">${escapeHtml(req.jobTitle)}</div>
             </div>
-            <div style="padding:10px 12px;">
-              <div style="display:flex;justify-content:space-between;margin-bottom:7px;">
-                <span style="font-size:10px;color:#60708b;font-weight:600;text-transform:uppercase;">Enviados</span>
-                <span style="font-size:16px;font-weight:800;color:${color};">${req.candidatesSent}</span>
-              </div>
-              <div style="height:5px;background:#e9eef8;border-radius:999px;overflow:hidden;">
-                <div style="height:100%;width:${barPct}%;background:${color};border-radius:999px;"></div>
-              </div>
+            <div style="padding:14px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;">
+              <div style="font-size:9px;color:#60708b;font-weight:700;text-transform:uppercase;letter-spacing:.12em;">Enviados</div>
+              <div style="font-size:52px;font-weight:900;color:${color};line-height:1;">${req.candidatesSent}</div>
             </div>
           </div>`
       }).join('')
@@ -629,14 +624,9 @@ export default function Reports() {
             <div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:700;">REQ-${String(req.reqNumber).padStart(3,'0')} · Apertura: ${escapeHtml(fmtDate(req.applicationDate ?? req.createdAt))}</div>
             <div style="margin-top:4px;font-size:15px;font-weight:700;color:white;line-height:1.25;">${escapeHtml(req.jobTitle)}</div>
           </div>
-          <div style="padding:14px 16px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-              <span style="font-size:11px;color:#60708b;font-weight:600;text-transform:uppercase;letter-spacing:.1em;">Candidatos enviados</span>
-              <span style="font-size:20px;font-weight:800;color:${color};">${req.candidatesSent}</span>
-            </div>
-            <div style="height:7px;background:#e9eef8;border-radius:999px;overflow:hidden;">
-              <div style="height:100%;width:${barPct}%;background:${color};border-radius:999px;"></div>
-            </div>
+          <div style="padding:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <div style="font-size:10px;color:#60708b;font-weight:700;text-transform:uppercase;letter-spacing:.12em;">Candidatos enviados</div>
+            <div style="font-size:56px;font-weight:900;color:${color};line-height:1.05;">${req.candidatesSent}</div>
           </div>
         </div>`
     }).join('')

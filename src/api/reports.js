@@ -261,6 +261,43 @@ export async function getWeeklySubmittalsData(weekStart, weekEnd) {
   }))
 }
 
+export async function getClientMonthlyReportData(clientId, year, month) {
+  const monthStr  = String(month).padStart(2, '0')
+  const monthStart = `${year}-${monthStr}-01`
+  const lastDay    = new Date(year, month, 0).getDate()
+  const monthEnd   = `${year}-${monthStr}-${String(lastDay).padStart(2, '0')}`
+
+  const [{ data: clientData, error: clientError }, { data: requirements, error: reqError }] = await Promise.all([
+    supabase.from('client').select('name').eq('id', clientId).single(),
+    supabase
+      .from('requirement')
+      .select('id, req_number, job_title, fte_count, application_date, created_at, status:status_id(name), requirement_candidate(id)')
+      .eq('client_id', clientId)
+      .gte('created_at', `${monthStart}T00:00:00.000Z`)
+      .lte('created_at', `${monthEnd}T23:59:59.999Z`)
+      .order('created_at', { ascending: true }),
+  ])
+
+  if (clientError) throw clientError
+  if (reqError) throw reqError
+
+  return {
+    clientName: clientData.name,
+    year,
+    month,
+    requirements: (requirements ?? []).map(req => ({
+      id: req.id,
+      reqNumber: req.req_number,
+      jobTitle: req.job_title,
+      fteCount: req.fte_count ?? 1,
+      applicationDate: req.application_date,
+      createdAt: req.created_at,
+      statusName: req.status?.name ?? '',
+      candidatesSent: (req.requirement_candidate ?? []).length,
+    })),
+  }
+}
+
 export async function getRequirementReportPdfData(requirementId) {
   const { data, error } = await supabase
     .from('requirement')

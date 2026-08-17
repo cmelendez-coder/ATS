@@ -4,6 +4,7 @@ import {
   getReportsSummary,
   listOpenRequirementsForReports,
   getClientReportPdfData,
+  getClientMonthlyReportData,
   getRequirementReportPdfData,
   getWeeklySubmittalsData,
 } from '../api/reports'
@@ -95,6 +96,7 @@ export default function Reports() {
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [selectedClientId, setSelectedClientId] = useState('all')
+  const [clientReportMonth, setClientReportMonth] = useState(() => new Date().getMonth() + 1)
   const [selectedRequirementId, setSelectedRequirementId] = useState('')
   const [preview, setPreview] = useState(null)
   const [busy, setBusy] = useState('')
@@ -414,6 +416,81 @@ export default function Reports() {
     openPrintableReport({ title, subtitle, bodyHtml })
   }
 
+  function buildClientMonthlyBody(data) {
+    const totalFTE  = data.requirements.reduce((sum, r) => sum + r.fteCount, 0)
+    const totalSent = data.requirements.reduce((sum, r) => sum + r.candidatesSent, 0)
+    const monthLabel = `${MESES[data.month - 1]} ${data.year}`
+
+    return [
+      renderMetricCards([
+        { label: 'Cliente',              value: data.clientName },
+        { label: 'Mes',                  value: monthLabel },
+        { label: 'Posiciones abiertas',  value: String(data.requirements.length) },
+        { label: 'FTEs totales',         value: String(totalFTE) },
+      ]),
+      renderMetricCards([
+        { label: 'Candidatos enviados',  value: String(totalSent) },
+      ]),
+      renderTable(
+        `Posiciones abiertas en ${monthLabel}`,
+        ['Folio', 'Posición', 'FTEs', 'Candidatos enviados', 'Status', 'Apertura'],
+        data.requirements.map(req => [
+          escapeHtml(`REQ-${String(req.reqNumber).padStart(3, '0')}`),
+          escapeHtml(req.jobTitle),
+          escapeHtml(req.fteCount),
+          escapeHtml(req.candidatesSent),
+          `<span class="pill">${escapeHtml(req.statusName)}</span>`,
+          escapeHtml(fmtDate(req.applicationDate ?? req.createdAt)),
+        ]),
+      ),
+    ].join('')
+  }
+
+  async function handleClientMonthlyPreview() {
+    if (!selectedClientId || selectedClientId === 'all') return
+    setBusy('client-monthly-preview')
+    try {
+      const data  = await getClientMonthlyReportData(Number(selectedClientId), 2026, clientReportMonth)
+      const monthLabel = `${MESES[data.month - 1]} ${data.year}`
+      const title    = `Reporte Mensual — ${data.clientName}`
+      const subtitle = `Posiciones abiertas y candidatos enviados en ${monthLabel}`
+      const bodyHtml = buildClientMonthlyBody(data)
+      openPreview(title, subtitle, bodyHtml, () => downloadReportHtml({
+        filename: `${slugify(`reporte-mensual-${data.clientName}-${monthLabel}`)}.html`,
+        title, subtitle, bodyHtml,
+      }))
+    } finally { setBusy('') }
+  }
+
+  async function handleClientMonthlyDownload() {
+    if (!selectedClientId || selectedClientId === 'all') return
+    setBusy('client-monthly-download')
+    try {
+      const data  = await getClientMonthlyReportData(Number(selectedClientId), 2026, clientReportMonth)
+      const monthLabel = `${MESES[data.month - 1]} ${data.year}`
+      const title    = `Reporte Mensual — ${data.clientName}`
+      const subtitle = `Posiciones abiertas y candidatos enviados en ${monthLabel}`
+      const bodyHtml = buildClientMonthlyBody(data)
+      downloadReportHtml({
+        filename: `${slugify(`reporte-mensual-${data.clientName}-${monthLabel}`)}.html`,
+        title, subtitle, bodyHtml,
+      })
+    } finally { setBusy('') }
+  }
+
+  async function handleClientMonthlyPrint() {
+    if (!selectedClientId || selectedClientId === 'all') return
+    setBusy('client-monthly-print')
+    try {
+      const data  = await getClientMonthlyReportData(Number(selectedClientId), 2026, clientReportMonth)
+      const monthLabel = `${MESES[data.month - 1]} ${data.year}`
+      const title    = `Reporte Mensual — ${data.clientName}`
+      const subtitle = `Posiciones abiertas y candidatos enviados en ${monthLabel}`
+      const bodyHtml = buildClientMonthlyBody(data)
+      openPrintableReport({ title, subtitle, bodyHtml })
+    } finally { setBusy('') }
+  }
+
   function clearFilters() {
     setDateFrom('')
     setDateTo('')
@@ -729,24 +806,31 @@ export default function Reports() {
                 <section className="bg-surface-container-lowest rounded-3xl border border-outline-variant/10 shadow-[0_2px_18px_rgba(24,28,30,0.06)] p-6 md:p-7 space-y-5">
                   <div>
                     <h2 className="text-xl font-bold text-primary">Por cliente</h2>
-                    <p className="text-sm text-on-surface-variant mt-1">Selecciona un cliente para ver su reporte individual.</p>
+                    <p className="text-sm text-on-surface-variant mt-1">Selecciona un cliente y mes para ver posiciones abiertas, FTEs y candidatos enviados.</p>
                   </div>
-                  <select className="w-full px-3 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer" value={selectedClientId} onChange={e => setSelectedClientId(e.target.value)}>
-                    <option value="all">Selecciona un cliente</option>
-                    {report.clients.map(client => (
-                      <option key={client.clientId} value={client.clientId}>{client.clientName}</option>
-                    ))}
-                  </select>
+                  <div className="flex flex-col gap-2">
+                    <select className="w-full px-3 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer" value={selectedClientId} onChange={e => setSelectedClientId(e.target.value)}>
+                      <option value="all">Selecciona un cliente</option>
+                      {report.clients.map(client => (
+                        <option key={client.clientId} value={client.clientId}>{client.clientName}</option>
+                      ))}
+                    </select>
+                    <select className="w-full px-3 py-2.5 bg-surface-container-high border border-outline-variant/20 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer" value={clientReportMonth} onChange={e => setClientReportMonth(Number(e.target.value))}>
+                      {MESES.map((mes, i) => (
+                        <option key={i + 1} value={i + 1}>{mes} 2026</option>
+                      ))}
+                    </select>
+                  </div>
                   <div className="flex flex-wrap gap-2">
-                    <button onClick={handleClientPreview} disabled={!selectedClientId || selectedClientId === 'all' || busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
+                    <button onClick={handleClientMonthlyPreview} disabled={!selectedClientId || selectedClientId === 'all' || !!busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
                       <span className="material-symbols-outlined text-[16px]">visibility</span>
                       Vista previa
                     </button>
-                    <button onClick={handleClientDownload} disabled={!selectedClientId || selectedClientId === 'all' || busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
+                    <button onClick={handleClientMonthlyDownload} disabled={!selectedClientId || selectedClientId === 'all' || !!busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
                       <span className="material-symbols-outlined text-[16px]">download</span>
                       Descargar
                     </button>
-                    <button onClick={handleClientPrint} disabled={!selectedClientId || selectedClientId === 'all' || busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-tertiary to-tertiary-container text-on-tertiary-container text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
+                    <button onClick={handleClientMonthlyPrint} disabled={!selectedClientId || selectedClientId === 'all' || !!busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-tertiary to-tertiary-container text-on-tertiary-container text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
                       <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
                       Imprimir PDF
                     </button>

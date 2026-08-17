@@ -196,6 +196,54 @@ export function downloadReportHtml({ filename, title, subtitle = '', bodyHtml = 
   setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
+function loadHtml2Pdf() {
+  if (window.html2pdf) return Promise.resolve(window.html2pdf)
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script')
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'
+    script.onload = () => resolve(window.html2pdf)
+    script.onerror = () => reject(new Error('No se pudo cargar el generador de PDF'))
+    document.head.appendChild(script)
+  })
+}
+
+export async function downloadReportPdf({ filename, title, subtitle = '', bodyHtml = '' }) {
+  const html2pdf = await loadHtml2Pdf()
+  const reportHtml = buildReportHtml({ title, subtitle, bodyHtml })
+
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(reportHtml, 'text/html')
+
+  const container = document.createElement('div')
+  container.style.cssText = 'position:fixed;top:-9999px;left:0;width:794px;background:white;'
+
+  doc.querySelectorAll('style').forEach(s => {
+    const el = document.createElement('style')
+    el.textContent = s.textContent
+    container.appendChild(el)
+  })
+
+  const page = doc.querySelector('.page')
+  if (page) container.appendChild(page.cloneNode(true))
+
+  document.body.appendChild(container)
+
+  const opt = {
+    margin: 0,
+    filename: filename.replace(/\.html$/, '.pdf'),
+    image: { type: 'jpeg', quality: 0.95 },
+    html2canvas: { scale: 2, useCORS: true, logging: false },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['css', 'legacy'] },
+  }
+
+  try {
+    await html2pdf().set(opt).from(container).save()
+  } finally {
+    document.body.removeChild(container)
+  }
+}
+
 export function renderMetricCards(metrics) {
   return `
     <section class="section">

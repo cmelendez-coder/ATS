@@ -12,6 +12,7 @@ import {
 import {
   buildReportHtml,
   downloadReportHtml,
+  downloadReportPdf,
   openPrintableReport,
   renderMetricCards,
   renderStageList,
@@ -575,7 +576,7 @@ const clientDetailSections = data.clients.map((client) => {
       const title    = `Reporte General Mensual - ${monthLabel} - By EverTrack`
       const subtitle = `Posiciones activas y candidatos enviados por todos los clientes en ${monthLabel}`
       const bodyHtml = buildAllClientsMonthlyBody(data)
-      downloadReportHtml({ filename: `${slugify(`reporte-general-${monthLabel}`)}.html`, title, subtitle, bodyHtml })
+      await downloadReportPdf({ filename: `${slugify(`reporte-general-${monthLabel}`)}.pdf`, title, subtitle, bodyHtml })
     } finally { setBusy('') }
   }
 
@@ -698,8 +699,8 @@ const clientDetailSections = data.clients.map((client) => {
       const title    = `Reporte Mensual — ${data.clientName}`
       const subtitle = `Posiciones abiertas y candidatos enviados en ${monthLabel}`
       const bodyHtml = buildClientMonthlyBody(data)
-      downloadReportHtml({
-        filename: `${slugify(`reporte-mensual-${data.clientName}-${monthLabel}`)}.html`,
+      await downloadReportPdf({
+        filename: `${slugify(`reporte-mensual-${data.clientName}-${monthLabel}`)}.pdf`,
         title, subtitle, bodyHtml,
       })
     } finally { setBusy('') }

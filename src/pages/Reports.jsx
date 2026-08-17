@@ -427,24 +427,6 @@ export default function Reports() {
     const POS_COLOR    = '#c2410c'
     const CLIENT_COLOR = '#1e3a5f'
 
-    const CLIENT_LOGOS = {
-      'LogicMonitor':    '/logos/logicmonitor.webp',
-      'Bahwan Cybertek': '/logos/bahwan.png',
-      'HTC':             '/logos/htc.png',
-      'Yash':            '/logos/yash.png',
-      'PacVue':          '/logos/pacvue.png',
-      'BlueConic':       '/logos/blueconic.png',
-      'Mygo':            '/logos/mygo.png',
-      'Numen':           '/logos/numen.png',
-    }
-
-    const clientNameOrLogo = (name) => {
-      const src = CLIENT_LOGOS[name]
-      if (src) {
-        return `<div style="background:white;border-radius:7px;padding:4px 10px;display:inline-flex;align-items:center;"><img src="${src}" alt="${escapeHtml(name)}" style="height:22px;object-fit:contain;display:block;"></div>`
-      }
-      return `<span style="font-weight:800;font-size:15px;">${escapeHtml(name)}</span>`
-    }
 
     const kpiBanner = `
       <section class="section">
@@ -515,7 +497,7 @@ export default function Reports() {
       return `
         <section class="section" style="margin-top:28px;">
           <div style="background:${clientColor};color:white;padding:10px 18px;border-radius:12px 12px 0 0;display:flex;align-items:center;gap:12px;">
-            ${clientNameOrLogo(client.clientName)}
+            <span style="font-weight:800;font-size:15px;">${escapeHtml(client.clientName)}</span>
             <span style="font-size:17px;background:rgba(255,255,255,.2);padding:3px 18px;border-radius:999px;font-weight:700;">${client.requirements.length} posiciones · ${client.requirements.reduce((s,r)=>s+r.candidatesSent,0)} enviados</span>
           </div>
           <div style="border:1px solid #d6dce5;border-top:none;border-radius:0 0 12px 12px;padding:14px;">

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import UserAvatar from '../components/UserAvatar'
 import { Link, useNavigate, useParams, useLocation } from 'react-router-dom'
-import { getCandidate, updateCandidate } from '../api/talent'
+import { getCandidate, updateCandidate, getCandidateTrackerHistory } from '../api/talent'
 
 function getInitials(name = '') {
   return name.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase() || '?'
@@ -44,6 +44,9 @@ export default function EditTalent() {
   const [saving, setSaving]         = useState(false)
   const [saveError, setSaveError]   = useState(null)
 
+  const [trackerHistory, setTrackerHistory] = useState([])
+  const [trackerLoading, setTrackerLoading] = useState(false)
+
   useEffect(() => {
     if (!code) return
     async function load() {
@@ -63,6 +66,15 @@ export default function EditTalent() {
     }
     load()
   }, [code])
+
+  useEffect(() => {
+    if (!talent?.candidate_id) return
+    setTrackerLoading(true)
+    getCandidateTrackerHistory(talent.candidate_id)
+      .then(setTrackerHistory)
+      .catch(() => {})
+      .finally(() => setTrackerLoading(false))
+  }, [talent?.candidate_id])
 
   function removeTech(t) {
     setStack(prev => prev.filter(x => x !== t))
@@ -460,6 +472,62 @@ export default function EditTalent() {
               </div>
             </div>
           </form>
+
+          {/* ── Historial en Tracker ──────────────────────────── */}
+          <section className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-[0_2px_16px_rgba(24,28,30,0.05)] overflow-hidden">
+            <div className="px-6 py-4 border-b border-outline-variant/10 flex items-center gap-3">
+              <span className="material-symbols-outlined text-primary text-[20px]">history</span>
+              <h2 className="text-base font-bold text-on-surface">Historial en Tracker</h2>
+              {trackerHistory.length > 0 && (
+                <span className="ml-auto text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary">
+                  {trackerHistory.length} {trackerHistory.length === 1 ? 'entrada' : 'entradas'}
+                </span>
+              )}
+            </div>
+
+            {trackerLoading ? (
+              <div className="px-6 py-8 text-center text-on-surface-variant text-sm">Cargando historial…</div>
+            ) : trackerHistory.length === 0 ? (
+              <div className="px-6 py-8 text-center text-on-surface-variant text-sm">Este candidato no aparece en el tracker aún.</div>
+            ) : (
+              <div className="divide-y divide-outline-variant/10">
+                {trackerHistory.map(entry => {
+                  const req = entry.requirement
+                  const statusColors = {
+                    Sent:        { bg: 'bg-blue-500/10',   text: 'text-blue-400',   dot: 'bg-blue-400' },
+                    Rejected:    { bg: 'bg-red-500/10',    text: 'text-red-400',    dot: 'bg-red-400' },
+                    'Backed Out':{ bg: 'bg-orange-500/10', text: 'text-orange-400', dot: 'bg-orange-400' },
+                    HSE:         { bg: 'bg-yellow-500/10', text: 'text-yellow-400', dot: 'bg-yellow-400' },
+                    Screening:   { bg: 'bg-purple-500/10', text: 'text-purple-400', dot: 'bg-purple-400' },
+                  }
+                  const sc = statusColors[entry.status] ?? { bg: 'bg-surface-container', text: 'text-on-surface-variant', dot: 'bg-on-surface-variant' }
+                  const date = entry.created_at
+                    ? new Date(entry.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })
+                    : '—'
+                  return (
+                    <div key={entry.id} className="px-6 py-4 flex items-center gap-4 hover:bg-surface-container/40 transition-colors">
+                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${sc.dot}`} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-on-surface truncate">
+                          {req ? `REQ-${String(req.req_number).padStart(3,'0')} — ${req.job_title}` : 'Requerimiento no disponible'}
+                        </p>
+                        <p className="text-xs text-on-surface-variant mt-0.5">
+                          {req?.client?.name ?? '—'} · Semana {entry.week_number}/{entry.week_year} · {date}
+                        </p>
+                        {entry.notes && (
+                          <p className="text-xs text-on-surface-variant/70 mt-1 italic truncate">{entry.notes}</p>
+                        )}
+                      </div>
+                      <span className={`text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0 ${sc.bg} ${sc.text}`}>
+                        {entry.status}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </section>
+
         </div>
       </div>
     </>

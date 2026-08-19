@@ -377,3 +377,19 @@ export async function updateCandidate(code, form) {
     }
   }
 }
+
+export async function getCandidateTrackerHistory(candidateId) {
+  const { data, error } = await supabase
+    .from('tracker_entry')
+    .select(`
+      id, status, created_at, week_number, week_year, notes,
+      requirement:requirement_id(
+        req_number, job_title,
+        client:client_id(name)
+      )
+    `)
+    .eq('candidate_id', candidateId)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data ?? []
+}

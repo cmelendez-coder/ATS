@@ -780,6 +780,15 @@ function PipelinePanel({ reqId, clientId, clientName, canDrag, canManage }) {
                           Cliente
                         </span>
                       )}
+                      {rc.submitted_at && (() => {
+                        const days = Math.floor((Date.now() - new Date(rc.submitted_at).getTime()) / 86400000)
+                        const color = days <= 25 ? '#16a34a' : days <= 40 ? '#ea580c' : '#dc2626'
+                        return (
+                          <p className="text-[10px] font-semibold mt-1" style={{ color }}>
+                            {days} {days === 1 ? 'día' : 'días'} en proceso
+                          </p>
+                        )
+                      })()}
                     </div>
                   </div>
                 ))}

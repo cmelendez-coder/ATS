@@ -2071,6 +2071,11 @@ return (
                               {/* Title */}
                               <div className={isClosed ? 'lg:col-span-3' : 'lg:col-span-4'}>
                                 <p className="font-semibold text-white text-sm leading-snug group-hover:text-[#81b927] transition-colors">{req.job_title}</p>
+                                {req.application_date && (
+                                  <p className="text-[10px] text-white/40 mt-0.5">
+                                    Requerimiento abierto desde el {new Date(req.application_date + 'T12:00:00').toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                  </p>
+                                )}
                               </div>
 
                               {/* Closed-only: Nota + Cubierta por Everscale */}

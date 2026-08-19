@@ -199,8 +199,9 @@ export default function EditRequirement() {
                     <p className="text-xs text-on-surface-variant mt-1">Auto-generated.</p>
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Requisition Open Date <span className="text-error">*</span></label>
-                    <input className="form-field" type="date" value={form.application_date} onChange={e => set('application_date', e.target.value)} required />
+                    <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Requisition Open Date</label>
+                    <input className="form-field font-mono opacity-70 cursor-not-allowed" type="date" value={form.application_date} readOnly />
+                    <p className="text-xs text-on-surface-variant mt-1">No editable una vez creado.</p>
                   </div>
                   <div>
                     <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Priority <span className="text-error">*</span></label>

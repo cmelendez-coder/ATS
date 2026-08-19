@@ -2072,7 +2072,7 @@ return (
                               <div className={isClosed ? 'lg:col-span-3' : 'lg:col-span-4'}>
                                 <p className="font-semibold text-white text-sm leading-snug group-hover:text-[#81b927] transition-colors">{req.job_title}</p>
                                 {req.application_date && (
-                                  <p className="text-[13px] text-white font-semibold mt-0.5 animate-glow">
+                                  <p className="text-[10px] text-white font-semibold mt-0.5 animate-glow">
                                     Requerimiento abierto el {new Date(req.application_date + 'T12:00:00').toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}
                                   </p>
                                 )}

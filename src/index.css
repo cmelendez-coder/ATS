@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes text-glow {
+  0%, 100% { opacity: 1; text-shadow: 0 0 6px currentColor, 0 0 12px currentColor; }
+  50%       { opacity: 0.55; text-shadow: none; }
+}
+.animate-glow {
+  animation: text-glow 2s ease-in-out infinite;
+}
+
 body {
   font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
   background-color: #f7f9fb;

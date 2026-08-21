@@ -1176,7 +1176,6 @@ function ReqBoardTable() {
   const [rows, setRows]                 = useState([])
   const [loading, setLoading]           = useState(true)
   const [kpi, setKpi]                   = useState(null)
-  const [selectedReqId, setSelectedReqId] = useState(null)
 
   const isCurrentWeek = selWeek.week === currentWeek.week && selWeek.year === currentWeek.year
   const isPastWeek = selWeek.year < currentWeek.year ||
@@ -1431,7 +1430,7 @@ function ReqBoardTable() {
               return a.localeCompare(b)
             })
             return sortedClients.flatMap(cliente => [
-              <tr key={`group-${cliente}`} onClick={() => setSelectedReqId(null)} className="cursor-default">
+              <tr key={`group-${cliente}`}>
                 <td colSpan={COLS.length} className="px-4 py-2 text-[14px] font-bold uppercase tracking-widest" style={{ backgroundColor: '#10284d', color: '#fff' }}>
                   {cliente}
                 </td>
@@ -1446,22 +1445,12 @@ function ReqBoardTable() {
               ? 'rgba(80,177,82,0.20)'
               : 'rgba(234,88,12,0.15)'
 
-            const isSelected = selectedReqId === row.requirement_id
-            const isDimmed   = selectedReqId !== null && !isSelected
-
             return (
               <tr
                 key={row.requirement_id}
-                onClick={() => setSelectedReqId(id => id === row.requirement_id ? null : row.requirement_id)}
-                className="cursor-pointer"
                 style={{
-                  backgroundColor: isSelected
-                    ? (activo ? 'rgba(80,177,82,0.22)' : 'rgba(234,88,12,0.16)')
-                    : rowBg,
+                  backgroundColor: rowBg,
                   borderBottom: `1px solid ${rowBorder}`,
-                  boxShadow: isSelected ? 'inset 4px 0 0 #81b927' : 'none',
-                  opacity: isDimmed ? 0.38 : 1,
-                  transition: 'opacity 0.25s ease, background-color 0.25s ease, box-shadow 0.2s ease',
                 }}
               >
                 {/* Toggle búsqueda */}

@@ -230,7 +230,7 @@ export async function saveTrackerEntry(entry) {
     amount_type:    entry.amount_type || null,
     ote:            entry.ote != null && entry.ote !== '' ? Number(entry.ote) : null,
     notes:          entry.notes || null,
-    synced_to_req:  entry.synced_to_req ?? false,
+    synced_to_req:  entry.synced_to_req === true,
     recruiter:      entry.recruiter,
     updated_at:     new Date().toISOString(),
   }

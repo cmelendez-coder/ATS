@@ -1176,6 +1176,7 @@ function ReqBoardTable() {
   const [rows, setRows]                 = useState([])
   const [loading, setLoading]           = useState(true)
   const [kpi, setKpi]                   = useState(null)
+  const [pipelineModal, setPipelineModal] = useState(null) // { reqId, clientId, clientName, position }
 
   const isCurrentWeek = selWeek.week === currentWeek.week && selWeek.year === currentWeek.year
   const isPastWeek = selWeek.year < currentWeek.year ||
@@ -1235,6 +1236,7 @@ function ReqBoardTable() {
     { label: 'Búsqueda',       width: '80px'  },
     { label: 'Recruiter',      width: '150px' },
     { label: 'Prioridad',      width: '80px'  },
+    { label: 'Pipeline',       width: '50px'  },
     { label: 'Cliente',        width: '130px' },
     { label: 'Position',       width: '210px' },
     { label: "FTE's",          width: '55px'  },
@@ -1251,6 +1253,37 @@ function ReqBoardTable() {
   )
 
   return (
+    <>
+    {pipelineModal && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setPipelineModal(null)}>
+        <div
+          className="relative bg-[#0b1e3d] rounded-2xl shadow-2xl border border-white/10 w-full max-w-5xl mx-4 max-h-[85vh] flex flex-col overflow-hidden"
+          onClick={e => e.stopPropagation()}
+        >
+          <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 shrink-0">
+            <div>
+              <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-0.5">{pipelineModal.clientName ?? '—'}</p>
+              <h2 className="text-base font-bold text-white">{pipelineModal.position ?? 'Pipeline'}</h2>
+            </div>
+            <button
+              onClick={() => setPipelineModal(null)}
+              className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <span className="material-symbols-outlined text-[20px]">close</span>
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto px-6 py-4">
+            <PipelinePanel
+              reqId={pipelineModal.reqId}
+              clientId={pipelineModal.clientId}
+              clientName={pipelineModal.clientName}
+              canDrag={false}
+              canManage={false}
+            />
+          </div>
+        </div>
+      </div>
+    )}
     <div className="space-y-5">
       <style>{`
         @keyframes cellGlow {
@@ -1499,6 +1532,17 @@ function ReqBoardTable() {
                   </select>
                 </td>
 
+                {/* Eye button — open pipeline modal */}
+                <td className="px-2 py-2 text-center" style={{ borderBottom: `1px solid ${rowBorder}` }}>
+                  <button
+                    title="Ver pipeline"
+                    onClick={() => setPipelineModal({ reqId: row.requirement_id, clientId: row.client_id, clientName: row.cliente, position: row.position })}
+                    className="inline-flex items-center justify-center w-7 h-7 rounded-lg transition-colors hover:bg-white/10"
+                  >
+                    <span className="material-symbols-outlined text-[18px] animate-glow" style={{ color: '#81b927' }}>visibility</span>
+                  </button>
+                </td>
+
                 {/* Cliente (read-only) */}
                 <td className="px-3 py-2 text-center text-sm font-bold text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   {row.cliente ?? '—'}
@@ -1554,6 +1598,7 @@ function ReqBoardTable() {
     </div>
 
     </div>
+    </>
   )
 }
 

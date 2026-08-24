@@ -282,7 +282,7 @@ export async function getOpenRequirementsForBoard(weekNumber, weekYear) {
   ] = await Promise.all([
     supabase
       .from('requirement')
-      .select('id, job_title, priority, fte_count, client:client_id(name)')
+      .select('id, job_title, priority, fte_count, client_id, client:client_id(id, name)')
       .eq('status_id', 2)
       .order('priority', { ascending: true }),
     supabase
@@ -331,6 +331,7 @@ export async function getOpenRequirementsForBoard(weekNumber, weekYear) {
       requirement_id: req.id,
       position:       req.job_title,
       cliente:        req.client?.name    ?? null,
+      client_id:      req.client_id       ?? null,
       ftes:           req.fte_count ?? null,
       prioridad:      req.priority ?? board?.prioridad ?? latest?.prioridad ?? null,
       recruiter:      board?.recruiter    ?? latest?.recruiter ?? null,

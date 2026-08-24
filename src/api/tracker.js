@@ -230,27 +230,31 @@ export async function saveTrackerEntry(entry) {
     amount_type:    entry.amount_type || null,
     ote:            entry.ote != null && entry.ote !== '' ? Number(entry.ote) : null,
     notes:          entry.notes || null,
-    synced_to_req:  willSync || (entry.synced_to_req ?? false),
+    synced_to_req:  entry.synced_to_req ?? false,
     recruiter:      entry.recruiter,
     updated_at:     new Date().toISOString(),
   }
 
-  // 3. Save tracker entry + willSync in parallel (independent operations)
+  // 3. Save tracker entry first, then sync to pipeline atomically
   let entryId = entry.id ?? null
   let newEntryId = null
 
-  const saveEntryPromise = entryId
-    ? supabase.from('tracker_entry').update(payload).eq('id', entryId)
-        .then(({ error }) => { if (error) throw error })
-    : supabase.from('tracker_entry').insert(payload).select('id').single()
-        .then(({ data, error }) => { if (error) throw error; newEntryId = data.id })
-
-  await Promise.all([
-    saveEntryPromise,
-    willSync ? syncCandidateToRequirement(candidateId, entry.requirement_id) : null,
-  ].filter(Boolean))
+  if (entryId) {
+    const { error } = await supabase.from('tracker_entry').update(payload).eq('id', entryId)
+    if (error) throw error
+  } else {
+    const { data, error } = await supabase.from('tracker_entry').insert(payload).select('id').single()
+    if (error) throw error
+    newEntryId = data.id
+  }
 
   if (newEntryId) entryId = newEntryId
+
+  // Sync to pipeline AFTER entry is saved — mark synced_to_req only on success
+  if (willSync) {
+    await syncCandidateToRequirement(candidateId, entry.requirement_id)
+    await supabase.from('tracker_entry').update({ synced_to_req: true }).eq('id', entryId)
+  }
 
   // 4. Sync candidate profile to Talent Directory in the background — does not block save UX
   if (candidateId) {

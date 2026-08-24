@@ -512,15 +512,20 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
 
   async function quickUpdateStatus(newStatus, extraFields = {}) {
     if (!data.id) return
-    const alreadySynced = data.synced_to_req ?? false
-    const willSync = newStatus === 'Sent' && data.candidate_id && data.requirement_id && !alreadySynced
+    // syncCandidateToRequirement is idempotent — always attempt sync when conditions are met
+    const willSync = newStatus === 'Sent' && data.candidate_id && data.requirement_id
     // PATCH only status-related fields — never touch email/phone/salary/english_score
     // from stale local state, which could overwrite values set in another session.
-    const patch = { status: newStatus, synced_to_req: alreadySynced || willSync, ...extraFields }
+    const patch = { status: newStatus, ...extraFields }
     setData(prev => ({ ...prev, ...patch }))
     try {
       await patchTrackerEntry(data.id, patch)
-      if (willSync) await syncCandidateToRequirement(data.candidate_id, data.requirement_id)
+      if (willSync) {
+        // Sync first, then mark as synced — avoid setting flag before sync completes
+        await syncCandidateToRequirement(data.candidate_id, data.requirement_id)
+        await patchTrackerEntry(data.id, { synced_to_req: true })
+        setData(prev => ({ ...prev, synced_to_req: true }))
+      }
       if (newStatus === 'Screening' && extraFields.screening_datetime) {
         const req = requirements.find(r => r.id === data.requirement_id)
         createScreeningEvent({

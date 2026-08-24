@@ -203,8 +203,8 @@ export async function saveTrackerEntry(entry) {
   }
 
   // 2. Save tracker entry
-  const alreadySynced = entry.synced_to_req ?? false
-  const willSync = entry.status === 'Sent' && candidateId && entry.requirement_id && !alreadySynced
+  // syncCandidateToRequirement is idempotent — always call it when conditions are met
+  const willSync = entry.status === 'Sent' && candidateId && entry.requirement_id
 
   const payload = {
     week_number:    entry.week_number,
@@ -230,7 +230,7 @@ export async function saveTrackerEntry(entry) {
     amount_type:    entry.amount_type || null,
     ote:            entry.ote != null && entry.ote !== '' ? Number(entry.ote) : null,
     notes:          entry.notes || null,
-    synced_to_req:  alreadySynced || willSync,
+    synced_to_req:  willSync || (entry.synced_to_req ?? false),
     recruiter:      entry.recruiter,
     updated_at:     new Date().toISOString(),
   }

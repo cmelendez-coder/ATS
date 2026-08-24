@@ -1171,6 +1171,7 @@ function shiftWeek({ week, year }, delta) {
 
 /* ── Standalone Board Table (reads/writes only req_board) ── */
 function ReqBoardTable() {
+  const { can }                         = usePermissions()
   const currentWeek                     = getISOWeekReq()
   const [selWeek, setSelWeek]           = useState(currentWeek)
   const [rows, setRows]                 = useState([])
@@ -1277,8 +1278,8 @@ function ReqBoardTable() {
               reqId={pipelineModal.reqId}
               clientId={pipelineModal.clientId}
               clientName={pipelineModal.clientName}
-              canDrag={false}
-              canManage={false}
+              canDrag={can('requirements.pipeline')}
+              canManage={can('requirements.edit')}
             />
           </div>
         </div>

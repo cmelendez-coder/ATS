@@ -1178,6 +1178,7 @@ function ReqBoardTable() {
   const [loading, setLoading]           = useState(true)
   const [kpi, setKpi]                   = useState(null)
   const [pipelineModal, setPipelineModal] = useState(null) // { reqId, clientId, clientName, position }
+  const [closeConfirm, setCloseConfirm]   = useState(null) // { requirementId, position }
 
   const isCurrentWeek = selWeek.week === currentWeek.week && selWeek.year === currentWeek.year
   const isPastWeek = selWeek.year < currentWeek.year ||
@@ -1253,8 +1254,47 @@ function ReqBoardTable() {
     </div>
   )
 
+  async function handleCloseRequirement() {
+    if (!closeConfirm) return
+    const { requirementId } = closeConfirm
+    setCloseConfirm(null)
+    try {
+      await updateRequirementStatus(requirementId, 5) // 5 = Closed - Not Covered
+      setRows(prev => prev.filter(r => r.requirement_id !== requirementId))
+    } catch (err) {
+      alert(err.message)
+    }
+  }
+
   return (
     <>
+    {closeConfirm && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div className="bg-[#0b1e3d] rounded-2xl shadow-2xl border border-white/10 w-full max-w-sm mx-4 p-6 flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <span className="material-symbols-outlined text-[28px] text-red-400">warning</span>
+            <h2 className="text-base font-bold text-white">Cerrar posición</h2>
+          </div>
+          <p className="text-sm text-white/70 leading-relaxed">
+            Esta posición se cerrará y se quitará del tablero de prioridades semanales.
+          </p>
+          <div className="flex gap-3 justify-end pt-1">
+            <button
+              onClick={() => setCloseConfirm(null)}
+              className="px-5 py-2 rounded-xl text-sm font-semibold text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              No
+            </button>
+            <button
+              onClick={handleCloseRequirement}
+              className="px-5 py-2 rounded-xl text-sm font-bold bg-red-600 hover:bg-red-500 text-white transition-colors"
+            >
+              Sí, cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
     {pipelineModal && (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setPipelineModal(null)}>
         <div
@@ -1514,7 +1554,14 @@ function ReqBoardTable() {
                 <td className="px-2 py-2 text-center" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   <select
                     value={row.prioridad ?? ''}
-                    onChange={e => handleUpdate(row.requirement_id, { prioridad: e.target.value === '' ? null : Number(e.target.value) })}
+                    onChange={e => {
+                      if (e.target.value === 'cerrada') {
+                        setCloseConfirm({ requirementId: row.requirement_id, position: row.position })
+                        e.target.value = row.prioridad ?? ''
+                      } else {
+                        handleUpdate(row.requirement_id, { prioridad: e.target.value === '' ? null : Number(e.target.value) })
+                      }
+                    }}
                     disabled={isPastWeek}
                     className="rounded-lg text-sm font-bold text-center cursor-pointer outline-none border-none appearance-none px-2 py-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ backgroundColor: pri.bg, color: pri.text, width: row.prioridad === 3 ? 78 : 52 }}
@@ -1530,6 +1577,7 @@ function ReqBoardTable() {
                         style={{ backgroundColor: PRI_TABLE[value].bg, color: PRI_TABLE[value].text }}
                       >{label}</option>
                     ))}
+                    <option value="cerrada" style={{ backgroundColor: '#450a0a', color: '#fca5a5' }}>Cerrada</option>
                   </select>
                 </td>
 

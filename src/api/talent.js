@@ -93,12 +93,20 @@ export async function searchCandidates({ q = '', englishMin = '', englishMax = '
     ])
   }
 
-  // Fetch matches for each term in parallel, then intersect (AND)
-  const termSets = await Promise.all(terms.map(getIdsForTerm))
-  let allIds = [...termSets[0]]
+  // Run word-by-word AND search in parallel with a full-phrase name search
+  const [termSets, fullNameResult] = await Promise.all([
+    Promise.all(terms.map(getIdsForTerm)),
+    supabase.from('candidate').select('candidate_id').ilike('full_name', `%${q.trim()}%`),
+  ])
+
+  let andIds = [...termSets[0]]
   for (let i = 1; i < termSets.length; i++) {
-    allIds = allIds.filter(id => termSets[i].has(id))
+    andIds = andIds.filter(id => termSets[i].has(id))
   }
+
+  // Union: word-AND results + direct full-name phrase match
+  const fullNameIds = (fullNameResult.data ?? []).map(r => r.candidate_id)
+  const allIds = [...new Set([...andIds, ...fullNameIds])]
 
   if (!allIds.length) return []
 

@@ -539,6 +539,14 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
           screeningNote:     extraFields.screening_note || undefined,
         }).catch(() => {})
       }
+      if (newStatus === 'Contacted') {
+        await new Promise(resolve => {
+          const a = new Audio('/sounds/Prioridades.mp3')
+          a.onended = resolve
+          a.onerror = resolve
+          a.play().catch(resolve)
+        })
+      }
       onSave()
     } catch (e) {
       setData(prev => ({ ...prev, status: data.status }))
@@ -641,7 +649,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
                       if (s === 'Sent') setShowSentModal(true)
                       else if (s === 'Screening') setShowScreeningModal(true)
                       else if (s === 'Rejected') setShowRejectedModal(true)
-                      else { if (s === 'Contacted') playContactedSound(); quickUpdateStatus(s) }
+                      else quickUpdateStatus(s)
                     }}
                   >
                     <span className={`w-2 h-2 rounded-full shrink-0 ${STATUS_DOT[s] ?? 'bg-gray-400'}`}></span>

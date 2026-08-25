@@ -229,6 +229,10 @@ function playSentSound() {
   try { new Audio('/sounds/Sent.mp3').play() } catch {}
 }
 
+function playContactedSound() {
+  try { new Audio('/sounds/Prioridades.mp3').play() } catch {}
+}
+
 // Two-step confirmation modal for "Sent" status
 function SentConfirmModal({ onConfirm, onCancel }) {
   const [step, setStep] = useState(1)
@@ -637,7 +641,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
                       if (s === 'Sent') setShowSentModal(true)
                       else if (s === 'Screening') setShowScreeningModal(true)
                       else if (s === 'Rejected') setShowRejectedModal(true)
-                      else quickUpdateStatus(s)
+                      else { if (s === 'Contacted') playContactedSound(); quickUpdateStatus(s) }
                     }}
                   >
                     <span className={`w-2 h-2 rounded-full shrink-0 ${STATUS_DOT[s] ?? 'bg-gray-400'}`}></span>

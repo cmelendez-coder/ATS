@@ -370,6 +370,7 @@ export default function TalentDirectory() {
   const [hasSearched, setHasSearched] = useState(!!restored)
   const [fCity,   setFCity]         = useState(new Set())
   const [fRole,   setFRole]         = useState(new Set())
+  const [fTech,   setFTech]         = useState(new Set())
   const [fModule, setFModule]       = useState(new Set())
   const [fEngMin, setFEngMin]       = useState('')
   const [fEngMax, setFEngMax]       = useState('')
@@ -414,11 +415,13 @@ export default function TalentDirectory() {
 
   const uniqueCities  = [...new Set(candidates.map(c => c.location?.name).filter(Boolean))].sort()
   const uniqueRoles   = [...new Set(candidates.map(c => c.role?.name).filter(Boolean))].sort()
+  const uniqueTechs   = [...new Set(candidates.flatMap(c => (c.candidate_stack ?? []).map(s => s.technology?.ct_name_tech)).filter(Boolean))].sort()
   const uniqueModules = [...new Set(candidates.map(c => c.bdd_module).filter(Boolean))].sort()
 
   const displayed = candidates.filter(c => {
     if (fCity.size   > 0 && !fCity.has(c.location?.name))  return false
     if (fRole.size   > 0 && !fRole.has(c.role?.name))       return false
+    if (fTech.size   > 0 && !(c.candidate_stack ?? []).some(s => fTech.has(s.technology?.ct_name_tech))) return false
     if (fModule.size > 0 && !fModule.has(c.bdd_module))     return false
     if (fEngMin !== '' && (c.english_score ?? 0) < Number(fEngMin)) return false
     if (fEngMax !== '' && (c.english_score ?? 0) > Number(fEngMax)) return false
@@ -427,7 +430,7 @@ export default function TalentDirectory() {
     return true
   })
 
-  const hasColumnFilters = fCity.size > 0 || fRole.size > 0 || fModule.size > 0 || fEngMin || fEngMax || fYoeMin || fYoeMax
+  const hasColumnFilters = fCity.size > 0 || fRole.size > 0 || fTech.size > 0 || fModule.size > 0 || fEngMin || fEngMax || fYoeMin || fYoeMax
 
   const total = displayed.length
 
@@ -602,8 +605,10 @@ export default function TalentDirectory() {
                       <td className="px-5 pb-2 pt-1">
                         <MultiSelectFilter options={uniqueRoles} selected={fRole} onChange={setFRole} placeholder="Todos los roles" />
                       </td>
-                      {/* Technology — no filter */}
-                      <td className="px-5 pb-2 pt-1" />
+                      {/* Technology filter */}
+                      <td className="px-5 pb-2 pt-1">
+                        <MultiSelectFilter options={uniqueTechs} selected={fTech} onChange={setFTech} placeholder="Todas las techs" />
+                      </td>
                       {/* Module filter */}
                       <td className="px-5 pb-2 pt-1">
                         <MultiSelectFilter options={uniqueModules} selected={fModule} onChange={setFModule} placeholder="Todos los módulos" />
@@ -635,7 +640,7 @@ export default function TalentDirectory() {
                       {/* Clear filters */}
                       <td className="px-4 pb-2 pt-1 sticky right-0 bg-surface-container-low z-10 shadow-[-8px_0_16px_rgba(0,0,0,0.25)]">
                         {hasColumnFilters && (
-                          <button onClick={() => { setFCity(new Set()); setFRole(new Set()); setFModule(new Set()); setFEngMin(''); setFEngMax(''); setFYoeMin(''); setFYoeMax('') }}
+                          <button onClick={() => { setFCity(new Set()); setFRole(new Set()); setFTech(new Set()); setFModule(new Set()); setFEngMin(''); setFEngMax(''); setFYoeMin(''); setFYoeMax('') }}
                             className="text-[10px] text-primary hover:underline whitespace-nowrap font-semibold">
                             Limpiar
                           </button>

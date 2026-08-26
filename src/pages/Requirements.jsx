@@ -1178,7 +1178,8 @@ function ReqBoardTable() {
   const [loading, setLoading]           = useState(true)
   const [kpi, setKpi]                   = useState(null)
   const [pipelineModal, setPipelineModal] = useState(null) // { reqId, clientId, clientName, position }
-  const [closeConfirm, setCloseConfirm]   = useState(null) // { requirementId, position }
+  const [closeConfirm, setCloseConfirm]       = useState(null) // { requirementId, position }
+  const [closeReasonModal, setCloseReasonModal] = useState(null) // { requirementId } | null
 
   const isCurrentWeek = selWeek.week === currentWeek.week && selWeek.year === currentWeek.year
   const isPastWeek = selWeek.year < currentWeek.year ||
@@ -1254,12 +1255,23 @@ function ReqBoardTable() {
     </div>
   )
 
-  async function handleCloseRequirement() {
+  function handleCloseRequirement() {
     if (!closeConfirm) return
     const { requirementId } = closeConfirm
     setCloseConfirm(null)
+    setCloseReasonModal({ requirementId })
+  }
+
+  async function handleCloseReasonConfirm({ closeReason, coveredByEverscale }) {
+    if (!closeReasonModal) return
+    const { requirementId } = closeReasonModal
+    setCloseReasonModal(null)
     try {
-      await updateRequirementStatus(requirementId, 5) // 5 = Closed - Not Covered
+      await saveRequirementClosure({ requirementId, closeReason, coveredByEverscale })
+    } catch (_) {}
+    try {
+      const statusId = coveredByEverscale ? 4 : 5 // 4 = Covered, 5 = Not Covered
+      await updateRequirementStatus(requirementId, statusId)
       setRows(prev => prev.filter(r => r.requirement_id !== requirementId))
     } catch (err) {
       alert(err.message)
@@ -1294,6 +1306,12 @@ function ReqBoardTable() {
           </div>
         </div>
       </div>
+    )}
+    {closeReasonModal && (
+      <CloseRequirementModal
+        onConfirm={handleCloseReasonConfirm}
+        onCancel={() => setCloseReasonModal(null)}
+      />
     )}
     {pipelineModal && (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setPipelineModal(null)}>

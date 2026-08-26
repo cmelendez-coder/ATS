@@ -715,68 +715,60 @@ export default function TalentDirectory() {
                           </td>
 
                           {/* Actions — sticky right */}
-                          <td className={`py-4 px-4 ${rowBg} group-hover:bg-primary/5`}>
-                            <div className="flex items-center gap-1.5">
-                              {c.linkedin_url && (
-                                <a
-                                  href={c.linkedin_url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  title="Ver LinkedIn"
-                                  className="p-1.5 rounded-lg hover:bg-blue-500/10 transition-colors"
-                                  style={{ color: '#0077B5' }}
-                                >
-                                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                                  </svg>
-                                </a>
-                              )}
-                              {c.cv_url && (
-                                <a
-                                  href={c.cv_url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  title="Ver CV en Google Drive"
-                                  className="p-1.5 rounded-lg hover:bg-surface-container-high transition-colors"
-                                >
-                                  <svg viewBox="0 0 24 24" className="w-4 h-4">
-                                    <path d="M12 2L2 21l10-8z" fill="#00AC47"/>
-                                    <path d="M12 2l10 19-10-8z" fill="#FBBC04"/>
-                                    <path d="M2 21h20l-10-8z" fill="#4285F4"/>
-                                  </svg>
-                                </a>
-                              )}
-                              {c.phone && (
-                                <a
-                                  href={`https://wa.me/${c.phone.replace(/\D/g, '')}`}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  title="Abrir en WhatsApp"
-                                  className="p-1.5 rounded-lg hover:bg-green-500/10 transition-colors text-green-500 hover:text-green-400"
-                                >
-                                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-                                    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.855L.057 23.552a.75.75 0 0 0 .92.92l5.697-1.475A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.854 0-3.6-.5-5.1-1.373l-.364-.215-3.38.875.893-3.257-.235-.376A9.96 9.96 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
-                                  </svg>
-                                </a>
-                              )}
-                              {can('talent.edit') && (
-                                <Link
-                                  to={`/talent/edit/${c.candidate_code}`}
-                                  state={{ backSearch: { q: query, englishMin, englishMax } }}
-                                  className="p-1.5 rounded-lg hover:bg-surface-container-high transition-colors text-on-surface-variant hover:text-surface-tint"
-                                  title="Editar"
-                                >
-                                  <span className="material-symbols-outlined text-[16px]">edit</span>
+                          <td className={`py-4 px-4 ${rowBg} group-hover:bg-primary/5 whitespace-nowrap`}>
+                            <div className="flex items-center" style={{ gap: 0 }}>
+                              {/* LinkedIn — fixed slot */}
+                              <div className="w-8 flex justify-center">
+                                {c.linkedin_url ? (
+                                  <a href={c.linkedin_url} target="_blank" rel="noreferrer" title="Ver LinkedIn"
+                                    className="p-1.5 rounded-lg hover:bg-blue-500/10 transition-colors" style={{ color: '#0077B5' }}>
+                                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                                    </svg>
+                                  </a>
+                                ) : null}
+                              </div>
+                              {/* Drive (CV) — fixed slot */}
+                              <div className="w-8 flex justify-center">
+                                {c.cv_url ? (
+                                  <a href={c.cv_url} target="_blank" rel="noreferrer" title="Ver CV en Google Drive"
+                                    className="p-1.5 rounded-lg hover:bg-surface-container-high transition-colors">
+                                    <svg viewBox="0 0 24 24" className="w-4 h-4">
+                                      <path d="M12 2L2 21l10-8z" fill="#00AC47"/>
+                                      <path d="M12 2l10 19-10-8z" fill="#FBBC04"/>
+                                      <path d="M2 21h20l-10-8z" fill="#4285F4"/>
+                                    </svg>
+                                  </a>
+                                ) : null}
+                              </div>
+                              {/* WhatsApp — fixed slot */}
+                              <div className="w-8 flex justify-center">
+                                {c.phone ? (
+                                  <a href={`https://wa.me/${c.phone.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" title="Abrir en WhatsApp"
+                                    className="p-1.5 rounded-lg hover:bg-green-500/10 transition-colors text-green-500 hover:text-green-400">
+                                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                                      <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.855L.057 23.552a.75.75 0 0 0 .92.92l5.697-1.475A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.854 0-3.6-.5-5.1-1.373l-.364-.215-3.38.875.893-3.257-.235-.376A9.96 9.96 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                                    </svg>
+                                  </a>
+                                ) : null}
+                              </div>
+                              {/* Edit — fixed slot */}
+                              <div className="w-8 flex justify-center">
+                                {can('talent.edit') ? (
+                                  <Link to={`/talent/edit/${c.candidate_code}`} state={{ backSearch: { q: query, englishMin, englishMax } }}
+                                    className="p-1.5 rounded-lg hover:bg-surface-container-high transition-colors text-on-surface-variant hover:text-surface-tint" title="Editar">
+                                    <span className="material-symbols-outlined text-[16px]">edit</span>
+                                  </Link>
+                                ) : null}
+                              </div>
+                              {/* Ver button */}
+                              <div className="ml-2">
+                                <Link to={`/talent/edit/${c.candidate_code}`} state={{ backSearch: { q: query, englishMin, englishMax } }}
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-on-primary text-xs font-semibold hover:opacity-90 transition-opacity whitespace-nowrap">
+                                  Ver <span className="material-symbols-outlined text-[13px]">arrow_forward</span>
                                 </Link>
-                              )}
-                              <Link
-                                to={`/talent/edit/${c.candidate_code}`}
-                                state={{ backSearch: { q: query, englishMin, englishMax } }}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-on-primary text-xs font-semibold hover:opacity-90 transition-opacity whitespace-nowrap"
-                              >
-                                Ver <span className="material-symbols-outlined text-[13px]">arrow_forward</span>
-                              </Link>
+                              </div>
                             </div>
                           </td>
                         </tr>

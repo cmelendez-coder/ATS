@@ -659,7 +659,7 @@ export default function TalentDirectory() {
                       )].slice(0, 3)
 
                       return (
-                        <tr key={c.candidate_code} className="hover:bg-surface-container/40 transition-colors group cursor-pointer">
+                        <tr key={c.candidate_code} className="odd:bg-surface-container-lowest even:bg-surface-container/30 hover:bg-surface-container/60 transition-colors group cursor-pointer">
 
                           {/* Name */}
                           <td className="py-4 px-5">
@@ -714,7 +714,7 @@ export default function TalentDirectory() {
                           </td>
 
                           {/* Actions — sticky right */}
-                          <td className="py-4 px-4 sticky right-0 bg-surface-container-lowest z-10 shadow-[-8px_0_12px_rgba(0,0,0,0.15)] group-hover:bg-surface-container/80">
+                          <td className="py-4 px-4 sticky right-0 z-10 shadow-[-8px_0_12px_rgba(0,0,0,0.15)] group-odd:bg-surface-container-lowest group-even:bg-surface-container/30 group-hover:bg-surface-container/60">
                             <div className="flex items-center gap-1.5">
                               {c.linkedin_url && (
                                 <a

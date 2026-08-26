@@ -569,7 +569,7 @@ export default function TalentDirectory() {
           )}
 
           {/* Table */}
-          <div className="bg-surface-container-lowest rounded-2xl shadow-[0_2px_16px_rgba(24,28,30,0.04)] overflow-hidden border border-outline-variant/10">
+          <div className="-mx-6 md:-mx-10 bg-surface-container-lowest shadow-[0_2px_16px_rgba(24,28,30,0.04)] overflow-hidden border-y border-outline-variant/10">
             {!hasSearched ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <span className="material-symbols-outlined text-on-surface-variant/20 mb-4" style={{ fontSize: 56 }}>manage_search</span>
@@ -649,7 +649,7 @@ export default function TalentDirectory() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-outline-variant/10">
-                    {displayed.map(c => {
+                    {displayed.map((c, idx) => {
                       const statusName   = c.status?.name    ?? '—'
                       const seniorityName = c.seniority?.name ?? '—'
                       const sc = STATUS_CLS[statusName]     ?? STATUS_CLS['Inactive']
@@ -657,9 +657,10 @@ export default function TalentDirectory() {
                       const techs = [...new Set(
                         (c.candidate_stack ?? []).map(s => s.technology?.ct_name_tech).filter(Boolean)
                       )].slice(0, 3)
+                      const rowBg = idx % 2 === 0 ? 'bg-surface-container-lowest' : 'bg-surface-container/40'
 
                       return (
-                        <tr key={c.candidate_code} className="odd:bg-surface-container-lowest even:bg-surface-container/30 hover:bg-surface-container/60 transition-colors group cursor-pointer">
+                        <tr key={c.candidate_code} className={`${rowBg} hover:bg-primary/5 transition-colors group cursor-pointer`}>
 
                           {/* Name */}
                           <td className="py-4 px-5">
@@ -714,7 +715,7 @@ export default function TalentDirectory() {
                           </td>
 
                           {/* Actions — sticky right */}
-                          <td className="py-4 px-4 sticky right-0 z-10 shadow-[-8px_0_12px_rgba(0,0,0,0.15)] group-odd:bg-surface-container-lowest group-even:bg-surface-container/30 group-hover:bg-surface-container/60">
+                          <td className={`py-4 px-4 sticky right-0 z-10 shadow-[-8px_0_12px_rgba(0,0,0,0.15)] ${rowBg} group-hover:bg-primary/5`}>
                             <div className="flex items-center gap-1.5">
                               {c.linkedin_url && (
                                 <a

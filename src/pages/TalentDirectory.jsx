@@ -331,6 +331,8 @@ export default function TalentDirectory() {
   const [fEngMax, setFEngMax]       = useState('')
   const [fYoeMin, setFYoeMin]       = useState('')
   const [fYoeMax, setFYoeMax]       = useState('')
+  const [fRole,   setFRole]         = useState('')
+  const [fModule, setFModule]       = useState('')
 
   const load = useCallback(async (q = '', eMin = '', eMax = '', forceSearch = false) => {
     if (!forceSearch && !q.trim() && eMin === '' && eMax === '') return
@@ -368,12 +370,14 @@ export default function TalentDirectory() {
     setCandidates([])
   }
 
-  const uniqueCities = [...new Set(
-    candidates.map(c => c.location?.name).filter(Boolean)
-  )].sort()
+  const uniqueCities  = [...new Set(candidates.map(c => c.location?.name).filter(Boolean))].sort()
+  const uniqueRoles   = [...new Set(candidates.map(c => c.role?.name).filter(Boolean))].sort()
+  const uniqueModules = [...new Set(candidates.map(c => c.bdd_module).filter(Boolean))].sort()
 
   const displayed = candidates.filter(c => {
-    if (fCity && c.location?.name !== fCity) return false
+    if (fCity   && c.location?.name !== fCity) return false
+    if (fRole   && c.role?.name     !== fRole) return false
+    if (fModule && c.bdd_module     !== fModule) return false
     if (fEngMin !== '' && (c.english_score ?? 0) < Number(fEngMin)) return false
     if (fEngMax !== '' && (c.english_score ?? 0) > Number(fEngMax)) return false
     if (fYoeMin !== '' && (c.years_experience ?? 0) < Number(fYoeMin)) return false
@@ -381,7 +385,7 @@ export default function TalentDirectory() {
     return true
   })
 
-  const hasColumnFilters = fCity || fEngMin || fEngMax || fYoeMin || fYoeMax
+  const hasColumnFilters = fCity || fRole || fModule || fEngMin || fEngMax || fYoeMin || fYoeMax
 
   const total = displayed.length
 
@@ -552,12 +556,24 @@ export default function TalentDirectory() {
                     <tr className="bg-surface-container-low border-t border-outline-variant/10">
                       {/* Name — no filter */}
                       <td className="px-5 pb-2 pt-1" />
-                      {/* Role — no filter */}
-                      <td className="px-5 pb-2 pt-1" />
+                      {/* Role filter */}
+                      <td className="px-5 pb-2 pt-1">
+                        <select value={fRole} onChange={e => setFRole(e.target.value)}
+                          className="text-xs px-2 py-1 rounded border border-outline-variant/30 bg-surface-container text-on-surface focus:outline-none focus:border-primary/50 max-w-[140px] w-full">
+                          <option value="">Todos los roles</option>
+                          {uniqueRoles.map(r => <option key={r} value={r}>{r}</option>)}
+                        </select>
+                      </td>
                       {/* Technology — no filter */}
                       <td className="px-5 pb-2 pt-1" />
-                      {/* Module — no filter */}
-                      <td className="px-5 pb-2 pt-1" />
+                      {/* Module filter */}
+                      <td className="px-5 pb-2 pt-1">
+                        <select value={fModule} onChange={e => setFModule(e.target.value)}
+                          className="text-xs px-2 py-1 rounded border border-outline-variant/30 bg-surface-container text-on-surface focus:outline-none focus:border-primary/50 max-w-[140px] w-full">
+                          <option value="">Todos los módulos</option>
+                          {uniqueModules.map(m => <option key={m} value={m}>{m}</option>)}
+                        </select>
+                      </td>
                       {/* English filter */}
                       <td className="px-5 pb-2 pt-1">
                         <div className="flex items-center gap-1">
@@ -589,7 +605,7 @@ export default function TalentDirectory() {
                       {/* Clear filters */}
                       <td className="px-4 pb-2 pt-1 sticky right-0 bg-surface-container-low z-10 shadow-[-8px_0_16px_rgba(0,0,0,0.25)]">
                         {hasColumnFilters && (
-                          <button onClick={() => { setFCity(''); setFEngMin(''); setFEngMax(''); setFYoeMin(''); setFYoeMax('') }}
+                          <button onClick={() => { setFCity(''); setFRole(''); setFModule(''); setFEngMin(''); setFEngMax(''); setFYoeMin(''); setFYoeMax('') }}
                             className="text-[10px] text-primary hover:underline whitespace-nowrap font-semibold">
                             Limpiar
                           </button>

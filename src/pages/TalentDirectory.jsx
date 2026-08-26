@@ -548,7 +548,7 @@ export default function TalentDirectory() {
                   <thead>
                     <tr className="bg-surface-container-low">
                       {['Name', 'Role', 'Technology', 'Module', 'English', 'YoE', 'Location'].map(h => (
-                        <th key={h} className="py-3.5 px-5 text-[11px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">{h}</th>
+                        <th key={h} className="py-3.5 px-5 text-[11px] font-bold text-white uppercase tracking-widest whitespace-nowrap">{h}</th>
                       ))}
                       <th className="py-3.5 px-4 sticky right-0 bg-surface-container-low z-10 shadow-[-8px_0_16px_rgba(0,0,0,0.25)]"></th>
                     </tr>

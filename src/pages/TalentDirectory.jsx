@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { searchCandidates } from '../api/talent'
 import { usePermissions } from '../hooks/usePermissions'
@@ -313,6 +313,48 @@ ${strings.map(s => `<si><t xml:space="preserve">${esc(s)}</t></si>`).join('\n')}
   URL.revokeObjectURL(url)
 }
 
+function MultiSelectFilter({ options, selected, onChange, placeholder, maxWidth = '150px' }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    function handler(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  function toggle(val) {
+    const next = new Set(selected)
+    next.has(val) ? next.delete(val) : next.add(val)
+    onChange(next)
+  }
+
+  const label = selected.size === 0 ? placeholder : `${selected.size} seleccionado${selected.size !== 1 ? 's' : ''}`
+
+  return (
+    <div ref={ref} className="relative" style={{ maxWidth }}>
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="w-full text-xs px-2 py-1 rounded border border-outline-variant/30 bg-surface-container text-on-surface focus:outline-none focus:border-primary/50 flex items-center justify-between gap-1"
+      >
+        <span className={`truncate ${selected.size === 0 ? 'text-on-surface-variant/60' : ''}`}>{label}</span>
+        <span className="material-symbols-outlined flex-shrink-0" style={{ fontSize: 13 }}>{open ? 'expand_less' : 'expand_more'}</span>
+      </button>
+      {open && (
+        <div className="absolute top-full left-0 mt-1 z-50 bg-surface-container border border-outline-variant/20 rounded-lg shadow-xl py-1 min-w-[170px] max-h-52 overflow-y-auto">
+          {options.map(opt => (
+            <label key={opt} className="flex items-center gap-2 px-3 py-1.5 hover:bg-surface-container-high cursor-pointer text-xs text-on-surface select-none">
+              <input type="checkbox" checked={selected.has(opt)} onChange={() => toggle(opt)} className="accent-primary" />
+              {opt}
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function TalentDirectory() {
   const { can } = usePermissions()
   const location = useLocation()
@@ -326,13 +368,13 @@ export default function TalentDirectory() {
   const [englishMax, setEnglishMax] = useState(restored?.englishMax ?? '')
   const [searching, setSearching]   = useState(false)
   const [hasSearched, setHasSearched] = useState(!!restored)
-  const [fCity, setFCity]           = useState('')
+  const [fCity,   setFCity]         = useState(new Set())
+  const [fRole,   setFRole]         = useState(new Set())
+  const [fModule, setFModule]       = useState(new Set())
   const [fEngMin, setFEngMin]       = useState('')
   const [fEngMax, setFEngMax]       = useState('')
   const [fYoeMin, setFYoeMin]       = useState('')
   const [fYoeMax, setFYoeMax]       = useState('')
-  const [fRole,   setFRole]         = useState('')
-  const [fModule, setFModule]       = useState('')
 
   const load = useCallback(async (q = '', eMin = '', eMax = '', forceSearch = false) => {
     if (!forceSearch && !q.trim() && eMin === '' && eMax === '') return
@@ -375,9 +417,9 @@ export default function TalentDirectory() {
   const uniqueModules = [...new Set(candidates.map(c => c.bdd_module).filter(Boolean))].sort()
 
   const displayed = candidates.filter(c => {
-    if (fCity   && c.location?.name !== fCity) return false
-    if (fRole   && c.role?.name     !== fRole) return false
-    if (fModule && c.bdd_module     !== fModule) return false
+    if (fCity.size   > 0 && !fCity.has(c.location?.name))  return false
+    if (fRole.size   > 0 && !fRole.has(c.role?.name))       return false
+    if (fModule.size > 0 && !fModule.has(c.bdd_module))     return false
     if (fEngMin !== '' && (c.english_score ?? 0) < Number(fEngMin)) return false
     if (fEngMax !== '' && (c.english_score ?? 0) > Number(fEngMax)) return false
     if (fYoeMin !== '' && (c.years_experience ?? 0) < Number(fYoeMin)) return false
@@ -385,7 +427,7 @@ export default function TalentDirectory() {
     return true
   })
 
-  const hasColumnFilters = fCity || fRole || fModule || fEngMin || fEngMax || fYoeMin || fYoeMax
+  const hasColumnFilters = fCity.size > 0 || fRole.size > 0 || fModule.size > 0 || fEngMin || fEngMax || fYoeMin || fYoeMax
 
   const total = displayed.length
 
@@ -558,21 +600,13 @@ export default function TalentDirectory() {
                       <td className="px-5 pb-2 pt-1" />
                       {/* Role filter */}
                       <td className="px-5 pb-2 pt-1">
-                        <select value={fRole} onChange={e => setFRole(e.target.value)}
-                          className="text-xs px-2 py-1 rounded border border-outline-variant/30 bg-surface-container text-on-surface focus:outline-none focus:border-primary/50 max-w-[140px] w-full">
-                          <option value="">Todos los roles</option>
-                          {uniqueRoles.map(r => <option key={r} value={r}>{r}</option>)}
-                        </select>
+                        <MultiSelectFilter options={uniqueRoles} selected={fRole} onChange={setFRole} placeholder="Todos los roles" />
                       </td>
                       {/* Technology — no filter */}
                       <td className="px-5 pb-2 pt-1" />
                       {/* Module filter */}
                       <td className="px-5 pb-2 pt-1">
-                        <select value={fModule} onChange={e => setFModule(e.target.value)}
-                          className="text-xs px-2 py-1 rounded border border-outline-variant/30 bg-surface-container text-on-surface focus:outline-none focus:border-primary/50 max-w-[140px] w-full">
-                          <option value="">Todos los módulos</option>
-                          {uniqueModules.map(m => <option key={m} value={m}>{m}</option>)}
-                        </select>
+                        <MultiSelectFilter options={uniqueModules} selected={fModule} onChange={setFModule} placeholder="Todos los módulos" />
                       </td>
                       {/* English filter */}
                       <td className="px-5 pb-2 pt-1">
@@ -596,16 +630,12 @@ export default function TalentDirectory() {
                       </td>
                       {/* City filter */}
                       <td className="px-5 pb-2 pt-1">
-                        <select value={fCity} onChange={e => setFCity(e.target.value)}
-                          className="text-xs px-2 py-1 rounded border border-outline-variant/30 bg-surface-container text-on-surface focus:outline-none focus:border-primary/50 max-w-[160px] w-full">
-                          <option value="">Todas las ciudades</option>
-                          {uniqueCities.map(city => <option key={city} value={city}>{city}</option>)}
-                        </select>
+                        <MultiSelectFilter options={uniqueCities} selected={fCity} onChange={setFCity} placeholder="Todas las ciudades" maxWidth="160px" />
                       </td>
                       {/* Clear filters */}
                       <td className="px-4 pb-2 pt-1 sticky right-0 bg-surface-container-low z-10 shadow-[-8px_0_16px_rgba(0,0,0,0.25)]">
                         {hasColumnFilters && (
-                          <button onClick={() => { setFCity(''); setFRole(''); setFModule(''); setFEngMin(''); setFEngMax(''); setFYoeMin(''); setFYoeMax('') }}
+                          <button onClick={() => { setFCity(new Set()); setFRole(new Set()); setFModule(new Set()); setFEngMin(''); setFEngMax(''); setFYoeMin(''); setFYoeMax('') }}
                             className="text-[10px] text-primary hover:underline whitespace-nowrap font-semibold">
                             Limpiar
                           </button>

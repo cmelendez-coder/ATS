@@ -595,7 +595,7 @@ export default function TalentDirectory() {
                       {['Name', 'Role', 'Technology', 'Module', 'English', 'YoE', 'Location'].map(h => (
                         <th key={h} className="py-3.5 px-5 text-[11px] font-bold text-white uppercase tracking-widest whitespace-nowrap">{h}</th>
                       ))}
-                      <th className="py-3.5 px-4 sticky right-0 bg-surface-container-low z-10 shadow-[-8px_0_16px_rgba(0,0,0,0.25)]"></th>
+                      <th className="py-3.5 px-4 bg-surface-container-low"></th>
                     </tr>
                     {/* Column filters row */}
                     <tr className="bg-surface-container-low border-t border-outline-variant/10">
@@ -638,7 +638,7 @@ export default function TalentDirectory() {
                         <MultiSelectFilter options={uniqueCities} selected={fCity} onChange={setFCity} placeholder="Todas las ciudades" maxWidth="160px" />
                       </td>
                       {/* Clear filters */}
-                      <td className="px-4 pb-2 pt-1 sticky right-0 bg-surface-container-low z-10 shadow-[-8px_0_16px_rgba(0,0,0,0.25)]">
+                      <td className="px-4 pb-2 pt-1 bg-surface-container-low">
                         {hasColumnFilters && (
                           <button onClick={() => { setFCity(new Set()); setFRole(new Set()); setFTech(new Set()); setFModule(new Set()); setFEngMin(''); setFEngMax(''); setFYoeMin(''); setFYoeMax('') }}
                             className="text-[10px] text-primary hover:underline whitespace-nowrap font-semibold">
@@ -715,7 +715,7 @@ export default function TalentDirectory() {
                           </td>
 
                           {/* Actions — sticky right */}
-                          <td className={`py-4 px-4 sticky right-0 z-10 shadow-[-8px_0_12px_rgba(0,0,0,0.15)] ${rowBg} group-hover:bg-primary/5`}>
+                          <td className={`py-4 px-4 ${rowBg} group-hover:bg-primary/5`}>
                             <div className="flex items-center gap-1.5">
                               {c.linkedin_url && (
                                 <a

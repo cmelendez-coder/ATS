@@ -276,6 +276,42 @@ export async function patchTrackerEntry(entryId, patch) {
   if (error) throw error
 }
 
+// Creates a candidate record from a tracker entry (if missing) then syncs to pipeline.
+// Returns the candidate_id (existing or newly created).
+export async function createCandidateAndSync(entry) {
+  let candidateId = entry.candidate_id ?? null
+
+  if (!candidateId && entry.candidate_name?.trim()) {
+    const { data: statusRow } = await supabase
+      .from('catalog_status').select('status_id').eq('name', 'Available').single()
+    const code = `CAND-${Date.now().toString(36).toUpperCase()}`
+    const { data: newCand, error } = await supabase
+      .from('candidate')
+      .insert({
+        candidate_code:   code,
+        full_name:        entry.candidate_name.trim(),
+        cv_url:           entry.cv_url || null,
+        linkedin_url:     entry.linkedin_url || null,
+        email:            entry.email || null,
+        phone:            entry.phone || null,
+        english_score:    entry.english_score ?? null,
+        years_experience: entry.yoe != null && entry.yoe !== '' ? Number(entry.yoe) : null,
+        status_id:        statusRow?.status_id ?? null,
+      })
+      .select('candidate_id').single()
+    if (error) throw error
+    candidateId = newCand.candidate_id
+    await supabase.from('tracker_entry').update({ candidate_id: candidateId }).eq('id', entry.id)
+  }
+
+  if (candidateId && entry.requirement_id) {
+    await syncCandidateToRequirement(candidateId, entry.requirement_id)
+    await supabase.from('tracker_entry').update({ synced_to_req: true }).eq('id', entry.id)
+  }
+
+  return candidateId
+}
+
 // Syncs a Sent candidate into requirement_candidate (called from quickUpdateStatus).
 export async function syncCandidateToRequirement(candidateId, requirementId) {
   const now = new Date().toISOString()
@@ -287,13 +323,23 @@ export async function syncCandidateToRequirement(candidateId, requirementId) {
     .maybeSingle()
   if (existing) return
 
+  // Look up the client's actual first stage name so it matches the kanban columns
+  let firstStage = 'Submitted to Client'
+  const { data: req } = await supabase
+    .from('requirement').select('client_id').eq('id', requirementId).single()
+  if (req?.client_id) {
+    const { data: stages } = await supabase.rpc('get_client_stages', { p_client_id: req.client_id })
+    const first = (stages ?? []).sort((a, b) => a.stage_position - b.stage_position)[0]
+    if (first?.stage_name) firstStage = first.stage_name
+  }
+
   const { data: rc, error: rcError } = await supabase
     .from('requirement_candidate')
     .insert({
       requirement_id:   requirementId,
       candidate_id:     candidateId,
       submitted_at:     now,
-      submittal_status: 'Submitted to Client',
+      submittal_status: firstStage,
       stage_updated_at: now,
     })
     .select('id')
@@ -304,7 +350,7 @@ export async function syncCandidateToRequirement(candidateId, requirementId) {
     rc_id:          rc.id,
     candidate_id:   candidateId,
     requirement_id: requirementId,
-    stage_name:     'Submitted to Client',
+    stage_name:     firstStage,
     entered_at:     now,
   })
 }

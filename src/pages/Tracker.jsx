@@ -12,6 +12,7 @@ import {
   saveTrackerEntry,
   patchTrackerEntry,
   syncCandidateToRequirement,
+  createCandidateAndSync,
   deleteTrackerEntry,
   uploadCVFile,
   extractCVInfo,
@@ -516,8 +517,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
 
   async function quickUpdateStatus(newStatus, extraFields = {}) {
     if (!data.id) return
-    // syncCandidateToRequirement is idempotent — always attempt sync when conditions are met
-    const willSync = newStatus === 'Sent' && data.candidate_id && data.requirement_id
+    const willSync = newStatus === 'Sent' && data.requirement_id
     // PATCH only status-related fields — never touch email/phone/salary/english_score
     // from stale local state, which could overwrite values set in another session.
     const patch = { status: newStatus, ...extraFields }
@@ -525,10 +525,15 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
     try {
       await patchTrackerEntry(data.id, patch)
       if (willSync) {
-        // Sync first, then mark as synced — avoid setting flag before sync completes
-        await syncCandidateToRequirement(data.candidate_id, data.requirement_id)
-        await patchTrackerEntry(data.id, { synced_to_req: true })
-        setData(prev => ({ ...prev, synced_to_req: true }))
+        if (data.candidate_id) {
+          await syncCandidateToRequirement(data.candidate_id, data.requirement_id)
+          await patchTrackerEntry(data.id, { synced_to_req: true })
+          setData(prev => ({ ...prev, synced_to_req: true }))
+        } else {
+          // candidate_id missing — create candidate record first, then sync
+          const candidateId = await createCandidateAndSync({ ...data, status: newStatus, ...extraFields })
+          if (candidateId) setData(prev => ({ ...prev, candidate_id: candidateId, synced_to_req: true }))
+        }
       }
       if (newStatus === 'Screening' && extraFields.screening_datetime) {
         const req = requirements.find(r => r.id === data.requirement_id)

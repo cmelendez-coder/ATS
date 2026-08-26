@@ -780,8 +780,9 @@ function PipelinePanel({ reqId, clientId, clientName, canDrag, canManage }) {
                           Cliente
                         </span>
                       )}
-                      {rc.submitted_at && (() => {
-                        const days = Math.floor((Date.now() - new Date(rc.submitted_at).getTime()) / 86400000)
+                      {(rc.submitted_at || rc.stage_updated_at) && (() => {
+                        const since = rc.submitted_at ?? rc.stage_updated_at
+                        const days = Math.floor((Date.now() - new Date(since).getTime()) / 86400000)
                         const color = days <= 25 ? '#16a34a' : days <= 40 ? '#ea580c' : '#dc2626'
                         return (
                           <p className="text-[13px] font-semibold mt-1 animate-glow" style={{ color }}>

@@ -116,7 +116,7 @@ export async function getRequirementCandidates(requirementId) {
   const { data, error } = await supabase
     .from('requirement_candidate')
     .select(`
-      id, submitted_at, submittal_status, notes,
+      id, submitted_at, stage_updated_at, submittal_status, notes,
       candidate:candidate_id(
         candidate_id, full_name, email, source,
         role:role_id(name),

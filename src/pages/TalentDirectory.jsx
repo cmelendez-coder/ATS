@@ -540,10 +540,10 @@ export default function TalentDirectory() {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="min-w-[1140px] w-full text-left border-collapse">
+                <table className="min-w-[1400px] w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-surface-container-low">
-                      {['Name', 'Technology', 'English', 'YoE', 'Location'].map(h => (
+                      {['Name', 'Role', 'Technology', 'Module', 'English', 'YoE', 'Location'].map(h => (
                         <th key={h} className="py-3.5 px-5 text-[11px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">{h}</th>
                       ))}
                       <th className="py-3.5 px-4 sticky right-0 bg-surface-container-low z-10 shadow-[-8px_0_16px_rgba(0,0,0,0.25)]"></th>
@@ -552,7 +552,11 @@ export default function TalentDirectory() {
                     <tr className="bg-surface-container-low border-t border-outline-variant/10">
                       {/* Name — no filter */}
                       <td className="px-5 pb-2 pt-1" />
+                      {/* Role — no filter */}
+                      <td className="px-5 pb-2 pt-1" />
                       {/* Technology — no filter */}
+                      <td className="px-5 pb-2 pt-1" />
+                      {/* Module — no filter */}
                       <td className="px-5 pb-2 pt-1" />
                       {/* English filter */}
                       <td className="px-5 pb-2 pt-1">
@@ -606,17 +610,20 @@ export default function TalentDirectory() {
                       return (
                         <tr key={c.candidate_code} className="hover:bg-surface-container/40 transition-colors group cursor-pointer">
 
-                          {/* Name + Role + Email */}
+                          {/* Name */}
                           <td className="py-4 px-5">
                             <p className="font-semibold text-primary text-sm group-hover:text-surface-tint transition-colors whitespace-nowrap">{c.full_name}</p>
-                            {c.source === 'client' ? (
+                            {c.source === 'client' && (
                               <span className="inline-flex items-center gap-1 text-[9px] font-bold text-amber-600 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded-full mt-0.5">
                                 <span className="material-symbols-outlined text-[10px]">business</span>
                                 Candidato de cliente
                               </span>
-                            ) : (
-                              <p className="text-xs text-on-surface-variant">{c.role?.name ?? '—'}</p>
                             )}
+                          </td>
+
+                          {/* Role */}
+                          <td className="py-4 px-5 text-sm text-on-surface-variant whitespace-nowrap">
+                            {c.role?.name ?? <span className="text-on-surface-variant/40">—</span>}
                           </td>
 
                           {/* Technologies */}
@@ -628,6 +635,11 @@ export default function TalentDirectory() {
                                 ))
                                 : <span className="text-xs text-on-surface-variant/40">—</span>}
                             </div>
+                          </td>
+
+                          {/* Module */}
+                          <td className="py-4 px-5 text-sm text-on-surface-variant whitespace-nowrap">
+                            {c.bdd_module ?? <span className="text-on-surface-variant/40">—</span>}
                           </td>
 
                           {/* English */}

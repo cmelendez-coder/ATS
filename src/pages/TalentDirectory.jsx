@@ -314,8 +314,14 @@ ${strings.map(s => `<si><t xml:space="preserve">${esc(s)}</t></si>`).join('\n')}
 }
 
 function MultiSelectFilter({ options, selected, onChange, placeholder, maxWidth = '150px' }) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen]       = useState(false)
+  const [pending, setPending] = useState(new Set(selected))
   const ref = useRef(null)
+
+  function handleOpen() {
+    setPending(new Set(selected))
+    setOpen(true)
+  }
 
   useEffect(() => {
     function handler(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
@@ -324,9 +330,16 @@ function MultiSelectFilter({ options, selected, onChange, placeholder, maxWidth 
   }, [])
 
   function toggle(val) {
-    const next = new Set(selected)
-    next.has(val) ? next.delete(val) : next.add(val)
-    onChange(next)
+    setPending(prev => {
+      const next = new Set(prev)
+      next.has(val) ? next.delete(val) : next.add(val)
+      return next
+    })
+  }
+
+  function apply() {
+    onChange(new Set(pending))
+    setOpen(false)
   }
 
   const label = selected.size === 0 ? placeholder : `${selected.size} seleccionado${selected.size !== 1 ? 's' : ''}`
@@ -335,20 +348,31 @@ function MultiSelectFilter({ options, selected, onChange, placeholder, maxWidth 
     <div ref={ref} className="relative" style={{ maxWidth }}>
       <button
         type="button"
-        onClick={() => setOpen(o => !o)}
+        onClick={() => open ? setOpen(false) : handleOpen()}
         className="w-full text-xs px-2 py-1 rounded border border-outline-variant/30 bg-surface-container text-on-surface focus:outline-none focus:border-primary/50 flex items-center justify-between gap-1"
       >
         <span className={`truncate ${selected.size === 0 ? 'text-on-surface-variant/60' : ''}`}>{label}</span>
         <span className="material-symbols-outlined flex-shrink-0" style={{ fontSize: 13 }}>{open ? 'expand_less' : 'expand_more'}</span>
       </button>
       {open && (
-        <div className="absolute top-full left-0 mt-1 z-50 bg-surface-container border border-outline-variant/20 rounded-lg shadow-xl py-1 min-w-[170px] max-h-52 overflow-y-auto">
-          {options.map(opt => (
-            <label key={opt} className="flex items-center gap-2 px-3 py-1.5 hover:bg-surface-container-high cursor-pointer text-xs text-on-surface select-none">
-              <input type="checkbox" checked={selected.has(opt)} onChange={() => toggle(opt)} className="accent-primary" />
-              {opt}
-            </label>
-          ))}
+        <div className="absolute top-full left-0 mt-1 z-50 bg-surface-container border border-outline-variant/20 rounded-lg shadow-xl min-w-[180px]">
+          <div className="max-h-48 overflow-y-auto py-1">
+            {options.map(opt => (
+              <label key={opt} className="flex items-center gap-2 px-3 py-1.5 hover:bg-surface-container-high cursor-pointer text-xs text-on-surface select-none">
+                <input type="checkbox" checked={pending.has(opt)} onChange={() => toggle(opt)} className="accent-primary" />
+                {opt}
+              </label>
+            ))}
+          </div>
+          <div className="border-t border-outline-variant/20 px-3 py-2">
+            <button
+              type="button"
+              onClick={apply}
+              className="w-full text-xs font-semibold bg-primary text-on-primary rounded-md py-1.5 hover:opacity-90 transition-opacity"
+            >
+              Aplicar filtros
+            </button>
+          </div>
         </div>
       )}
     </div>

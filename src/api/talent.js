@@ -12,6 +12,27 @@ async function upsertCatalog(table, nameCol, idCol, value) {
   return data[idCol]
 }
 
+export async function fetchCandidatesByIds(ids) {
+  if (!ids?.length) return []
+  const { data, error } = await supabase
+    .from('candidate')
+    .select(`
+      candidate_id, candidate_code, full_name, email, phone, source,
+      english_score, years_experience, cv_url, linkedin_url,
+      bdd_technology, bdd_skills, bdd_module,
+      status:catalog_status!status_id(name),
+      seniority:catalog_seniority!seniority_id(name),
+      location:catalog_location!location_id(name),
+      role:catalog_role!role_id(name),
+      candidate_availability(availability_id, last_contact_date, recorded_at),
+      candidate_stack(technology:catalog_technology!technology_id(ct_name_tech)),
+      candidate_note(note_type, note_text)
+    `)
+    .in('candidate_id', ids)
+  if (error) throw error
+  return data ?? []
+}
+
 // ─── Search / list candidates ─────────────────────────────────────
 // Searches across: full_name, bdd_role, bdd_technology, bdd_module, bdd_skills, role catalog, tech stack, and skillset notes. Email is intentionally excluded.
 export async function searchCandidates({ q = '', englishMin = '', englishMax = '' } = {}) {

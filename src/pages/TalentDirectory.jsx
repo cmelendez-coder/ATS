@@ -1,6 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { searchCandidates } from '../api/talent'
+import { searchCandidates, fetchCandidatesByIds } from '../api/talent'
+
+// Hardcoded admin searches — each entry is a labeled set of candidate_ids
+const ADMIN_SEARCHES = [
+  {
+    label: 'Integration Platform Engineer',
+    description: 'DevOps + Azure, CI/CD, OAuth2 — candidatos para posición de integración',
+    ids: [14823, 11720, 11722, 11719, 11717],
+  },
+]
 import { usePermissions } from '../hooks/usePermissions'
 import PortalButtons from '../components/PortalButtons'
 import UserAvatar from '../components/UserAvatar'
@@ -417,6 +426,7 @@ export default function TalentDirectory() {
   const [englishMax, setEnglishMax] = useState(restored?.englishMax ?? '')
   const [searching, setSearching]   = useState(false)
   const [hasSearched, setHasSearched] = useState(!!restored)
+  const [adminModal, setAdminModal]   = useState(false)
   const [fCity,   setFCity]         = useState(new Set())
   const [fRole,   setFRole]         = useState(new Set())
   const [fTech,   setFTech]         = useState(new Set())
@@ -458,6 +468,23 @@ export default function TalentDirectory() {
     setEnglishMax('')
     setHasSearched(false)
     setCandidates([])
+  }
+
+  async function runAdminSearch(search) {
+    setAdminModal(false)
+    setQuery(search.label)
+    setHasSearched(true)
+    setSearching(true)
+    try {
+      const data = await fetchCandidatesByIds(search.ids)
+      setCandidates(data)
+      setError(null)
+    } catch {
+      setError('Error al cargar candidatos.')
+    } finally {
+      setSearching(false)
+      setLoading(false)
+    }
   }
 
   const uniqueCities  = [...new Set(candidates.map(c => c.location?.name).filter(Boolean))].sort()
@@ -542,6 +569,15 @@ export default function TalentDirectory() {
                   Exportar Excel
                 </button>
               )}
+              <button
+                type="button"
+                onClick={() => setAdminModal(true)}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors"
+                style={{ backgroundColor: '#000', color: '#4ade80', border: '1px solid #166534' }}
+              >
+                <span className="material-symbols-outlined text-[18px]" style={{ color: '#4ade80' }}>manage_search</span>
+                Admin-Search
+              </button>
               {can('talent.create') && (
                 <Link to="/talent/new">
                   <button className="flex items-center gap-2 bg-gradient-to-br from-primary to-primary-container text-on-primary px-4 py-2.5 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity">
@@ -826,6 +862,37 @@ export default function TalentDirectory() {
 
         </div>
       </div>
+
+      {/* Admin-Search modal */}
+      {adminModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="rounded-2xl border shadow-2xl w-full max-w-md mx-4 p-6 flex flex-col gap-4"
+            style={{ backgroundColor: '#0a0a0a', borderColor: '#166534' }}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[20px]" style={{ color: '#4ade80' }}>manage_search</span>
+                <h2 className="text-base font-bold" style={{ color: '#4ade80' }}>Admin-Search</h2>
+              </div>
+              <button onClick={() => setAdminModal(false)}
+                className="text-white/40 hover:text-white/80 transition-colors">
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </div>
+            <p className="text-xs" style={{ color: '#86efac' }}>Búsquedas predefinidas por posición</p>
+            <div className="flex flex-col gap-2">
+              {ADMIN_SEARCHES.map((s, i) => (
+                <button key={i} onClick={() => runAdminSearch(s)}
+                  className="text-left rounded-xl p-4 border transition-colors hover:brightness-110"
+                  style={{ backgroundColor: '#0f1f0f', borderColor: '#166834' }}>
+                  <p className="text-sm font-bold" style={{ color: '#4ade80' }}>{s.label}</p>
+                  <p className="text-xs mt-0.5" style={{ color: '#86efac80' }}>{s.description}</p>
+                  <p className="text-[10px] mt-1.5" style={{ color: '#166834' }}>{s.ids.length} candidatos · IDs: {s.ids.join(', ')}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

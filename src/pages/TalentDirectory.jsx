@@ -9,6 +9,11 @@ const ADMIN_SEARCHES = [
     description: 'DevOps + Azure, CI/CD, OAuth2 — candidatos para posición de integración',
     ids: [14823, 11720, 11722, 11719, 11717],
   },
+  {
+    label: 'Developer Experience / Platform Engineer',
+    description: 'MuleSoft / Anypoint — candidatos para posición de integración y ETL',
+    ids: [12096, 14460, 12095, 14589, 12094, 12099, 12093, 12100, 12098, 12097],
+  },
 ]
 import { usePermissions } from '../hooks/usePermissions'
 import PortalButtons from '../components/PortalButtons'

@@ -356,7 +356,18 @@ function MultiSelectFilter({ options, selected, onChange, placeholder, maxWidth 
       </button>
       {open && (
         <div className="absolute top-full left-0 mt-1 z-50 bg-surface-container border border-outline-variant/20 rounded-lg shadow-xl min-w-[180px]">
-          <div className="max-h-48 overflow-y-auto py-1">
+          <div className="border-b border-outline-variant/20 px-3 py-1.5 flex items-center justify-between">
+            <label className="flex items-center gap-2 cursor-pointer text-xs text-on-surface-variant font-semibold select-none">
+              <input
+                type="checkbox"
+                checked={pending.size === options.length && options.length > 0}
+                onChange={() => setPending(pending.size === options.length ? new Set() : new Set(options))}
+                className="accent-primary"
+              />
+              Seleccionar todo
+            </label>
+          </div>
+          <div className="max-h-44 overflow-y-auto py-1">
             {options.map(opt => (
               <label key={opt} className="flex items-center gap-2 px-3 py-1.5 hover:bg-surface-container-high cursor-pointer text-xs text-on-surface select-none">
                 <input type="checkbox" checked={pending.has(opt)} onChange={() => toggle(opt)} className="accent-primary" />

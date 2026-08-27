@@ -313,13 +313,15 @@ ${strings.map(s => `<si><t xml:space="preserve">${esc(s)}</t></si>`).join('\n')}
   URL.revokeObjectURL(url)
 }
 
-function MultiSelectFilter({ options, selected, onChange, placeholder, maxWidth = '150px' }) {
+function MultiSelectFilter({ options, selected, onChange, placeholder, maxWidth = '150px', searchable = false }) {
   const [open, setOpen]       = useState(false)
   const [pending, setPending] = useState(new Set(selected))
+  const [search, setSearch]   = useState('')
   const ref = useRef(null)
 
   function handleOpen() {
     setPending(new Set(selected))
+    setSearch('')
     setOpen(true)
   }
 
@@ -355,8 +357,20 @@ function MultiSelectFilter({ options, selected, onChange, placeholder, maxWidth 
         <span className="material-symbols-outlined flex-shrink-0" style={{ fontSize: 13 }}>{open ? 'expand_less' : 'expand_more'}</span>
       </button>
       {open && (
-        <div className="absolute top-full left-0 mt-1 z-50 bg-surface-container border border-outline-variant/20 rounded-lg shadow-xl min-w-[180px]">
-          <div className="border-b border-outline-variant/20 px-3 py-1.5 flex items-center justify-between">
+        <div className="absolute top-full left-0 mt-1 z-50 bg-surface-container border border-outline-variant/20 rounded-lg shadow-xl min-w-[190px]">
+          {searchable && (
+            <div className="px-3 pt-2 pb-1">
+              <input
+                autoFocus
+                type="text"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Buscar…"
+                className="w-full text-xs px-2 py-1 rounded border border-outline-variant/30 bg-surface-container-high text-on-surface focus:outline-none focus:border-primary/50 placeholder:text-on-surface-variant/50"
+              />
+            </div>
+          )}
+          <div className="border-b border-outline-variant/20 px-3 py-1.5">
             <label className="flex items-center gap-2 cursor-pointer text-xs text-on-surface-variant font-semibold select-none">
               <input
                 type="checkbox"
@@ -368,7 +382,7 @@ function MultiSelectFilter({ options, selected, onChange, placeholder, maxWidth 
             </label>
           </div>
           <div className="max-h-44 overflow-y-auto py-1">
-            {options.map(opt => (
+            {options.filter(o => !search || o.toLowerCase().includes(search.toLowerCase())).map(opt => (
               <label key={opt} className="flex items-center gap-2 px-3 py-1.5 hover:bg-surface-container-high cursor-pointer text-xs text-on-surface select-none">
                 <input type="checkbox" checked={pending.has(opt)} onChange={() => toggle(opt)} className="accent-primary" />
                 {opt}
@@ -636,15 +650,15 @@ export default function TalentDirectory() {
                       <td className="px-5 pb-2 pt-1" />
                       {/* Role filter */}
                       <td className="px-5 pb-2 pt-1">
-                        <MultiSelectFilter options={uniqueRoles} selected={fRole} onChange={setFRole} placeholder="Todos los roles" />
+                        <MultiSelectFilter options={uniqueRoles} selected={fRole} onChange={setFRole} placeholder="Todos los roles" searchable />
                       </td>
                       {/* Technology filter */}
                       <td className="px-5 pb-2 pt-1">
-                        <MultiSelectFilter options={uniqueTechs} selected={fTech} onChange={setFTech} placeholder="Todas las techs" />
+                        <MultiSelectFilter options={uniqueTechs} selected={fTech} onChange={setFTech} placeholder="Todas las techs" searchable />
                       </td>
                       {/* Module filter */}
                       <td className="px-5 pb-2 pt-1">
-                        <MultiSelectFilter options={uniqueModules} selected={fModule} onChange={setFModule} placeholder="Todos los módulos" />
+                        <MultiSelectFilter options={uniqueModules} selected={fModule} onChange={setFModule} placeholder="Todos los módulos" searchable />
                       </td>
                       {/* English filter */}
                       <td className="px-5 pb-2 pt-1">
@@ -656,7 +670,7 @@ export default function TalentDirectory() {
                       </td>
                       {/* City filter */}
                       <td className="px-5 pb-2 pt-1">
-                        <MultiSelectFilter options={uniqueCities} selected={fCity} onChange={setFCity} placeholder="Todas las ciudades" maxWidth="160px" />
+                        <MultiSelectFilter options={uniqueCities} selected={fCity} onChange={setFCity} placeholder="Todas las ciudades" maxWidth="160px" searchable />
                       </td>
                       {/* Clear filters */}
                       <td className="px-4 pb-2 pt-1 bg-surface-container-low">

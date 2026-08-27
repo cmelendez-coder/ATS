@@ -5,34 +5,22 @@ import { searchCandidates, fetchCandidatesByIds } from '../api/talent'
 // Hardcoded admin searches — each entry is a labeled set of candidate_ids
 const ADMIN_SEARCHES = [
   {
-    label: 'Integration Platform Engineer',
-    description: 'DevOps + Azure, CI/CD, OAuth2 — candidatos para posición de integración',
-    ids: [14823, 11720, 11722, 11719, 11717],
-  },
-  {
-    label: 'Developer Experience / Platform Engineer',
-    description: 'MuleSoft / Anypoint — candidatos para posición de integración y ETL',
-    ids: [12096, 14460, 12095, 14589, 12094, 12099, 12093, 12100, 12098, 12097],
-  },
-  {
-    label: 'API Governance & Standards Specialist',
-    description: 'Master Data Governance (SAP MDG) — closest match ~50% · lado organizacional/proceso',
-    ids: [12499, 12704, 12709, 12498, 12496],
-  },
-  {
-    label: 'Application Support & Dev Engineer',
-    description: 'SNOW/ServiceNow, ITIL, incident management + Java/Azure — soporte enterprise con dev skills',
-    ids: [12913, 12923, 14159, 11750, 14027, 13179, 11933, 11834, 13053, 14823, 14721, 14772, 14725, 14056, 14047],
+    label: 'DevSecOps / QA Automation Engineer',
+    description: 'QA Automation IT — API testing, automated testing, quality gates · ~50% match · ordenados por English y experiencia',
+    ids: [11850, 11847, 11873, 11852, 12849, 11841, 11848, 13756, 11877, 11867, 11855, 11865, 11874, 11872, 11871, 11861, 11860, 11866, 11854, 11845],
+    createdAt: '2026-08-27T14:00:00.000Z',
   },
   {
     label: 'eComm Backend Engineer (PHP)',
     description: 'Closest match ~30-40% · Backend developers con skills afines: Ruby/Rails, Java/Spring, microservices, AWS — sin Magento directo',
     ids: [12236, 13072, 13067],
+    createdAt: '2026-08-27T15:00:00.000Z',
   },
   {
-    label: 'DevSecOps / QA Automation Engineer',
-    description: 'QA Automation IT — API testing, automated testing, quality gates · ~50% match · ordenados por English y experiencia',
-    ids: [11850, 11847, 11873, 11852, 12849, 11841, 11848, 13756, 11877, 11867, 11855, 11865, 11874, 11872, 11871, 11861, 11860, 11866, 11854, 11845],
+    label: 'Application Support & Dev Engineer',
+    description: 'SNOW/ServiceNow, ITIL, incident management + Java/Azure — soporte enterprise con dev skills',
+    ids: [12913, 12923, 14159, 11750, 14027, 13179, 11933, 11834, 13053, 14823, 14721, 14772, 14725, 14056, 14047],
+    createdAt: '2026-08-27T16:00:00.000Z',
   },
 ]
 import { usePermissions } from '../hooks/usePermissions'
@@ -909,15 +897,23 @@ export default function TalentDirectory() {
             </div>
             <p className="text-xs" style={{ color: '#86efac' }}>Búsquedas predefinidas por posición</p>
             <div className="flex flex-col gap-2">
-              {ADMIN_SEARCHES.map((s, i) => (
-                <button key={i} onClick={() => runAdminSearch(s)}
-                  className="text-left rounded-xl p-4 border transition-colors hover:brightness-110"
-                  style={{ backgroundColor: '#0f1f0f', borderColor: '#166834' }}>
-                  <p className="text-sm font-bold" style={{ color: '#4ade80' }}>{s.label}</p>
-                  <p className="text-xs mt-0.5" style={{ color: '#86efac80' }}>{s.description}</p>
-                  <p className="text-[10px] mt-1.5" style={{ color: '#166834' }}>{s.ids.length} candidatos · IDs: {s.ids.join(', ')}</p>
-                </button>
-              ))}
+              {[...ADMIN_SEARCHES]
+                .filter(s => !s.createdAt || (Date.now() - new Date(s.createdAt).getTime()) < 12 * 60 * 60 * 1000)
+                .sort((a, b) => new Date(b.createdAt ?? 0) - new Date(a.createdAt ?? 0))
+                .map((s, i) => {
+                  const hoursAgo = s.createdAt ? Math.floor((Date.now() - new Date(s.createdAt).getTime()) / 3600000) : null
+                  return (
+                    <button key={i} onClick={() => runAdminSearch(s)}
+                      className="text-left rounded-xl p-4 border transition-colors hover:brightness-110"
+                      style={{ backgroundColor: '#0f1f0f', borderColor: '#166834' }}>
+                      <p className="text-sm font-bold" style={{ color: '#4ade80' }}>{s.label}</p>
+                      <p className="text-xs mt-0.5" style={{ color: '#86efac80' }}>{s.description}</p>
+                      <p className="text-[10px] mt-1.5" style={{ color: '#166834' }}>
+                        {s.ids.length} candidatos{hoursAgo !== null ? ` · hace ${hoursAgo}h` : ''}
+                      </p>
+                    </button>
+                  )
+                })}
             </div>
           </div>
         </div>

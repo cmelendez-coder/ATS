@@ -14,6 +14,11 @@ const ADMIN_SEARCHES = [
     description: 'MuleSoft / Anypoint — candidatos para posición de integración y ETL',
     ids: [12096, 14460, 12095, 14589, 12094, 12099, 12093, 12100, 12098, 12097],
   },
+  {
+    label: 'API Governance & Standards Specialist',
+    description: 'Master Data Governance (SAP MDG) — closest match ~50% · lado organizacional/proceso',
+    ids: [12499, 12704, 12709, 12498, 12496],
+  },
 ]
 import { usePermissions } from '../hooks/usePermissions'
 import PortalButtons from '../components/PortalButtons'

@@ -407,10 +407,8 @@ export default function TalentDirectory() {
   const [fRole,   setFRole]         = useState(new Set())
   const [fTech,   setFTech]         = useState(new Set())
   const [fModule, setFModule]       = useState(new Set())
-  const [fEngMin, setFEngMin]       = useState('')
-  const [fEngMax, setFEngMax]       = useState('')
-  const [fYoeMin, setFYoeMin]       = useState('')
-  const [fYoeMax, setFYoeMax]       = useState('')
+  const [fEng,    setFEng]          = useState(new Set())
+  const [fYoe,    setFYoe]          = useState(new Set())
 
   const load = useCallback(async (q = '', eMin = '', eMax = '', forceSearch = false) => {
     if (!forceSearch && !q.trim() && eMin === '' && eMax === '') return
@@ -452,20 +450,20 @@ export default function TalentDirectory() {
   const uniqueRoles   = [...new Set(candidates.map(c => c.role?.name).filter(Boolean))].sort()
   const uniqueTechs   = [...new Set(candidates.flatMap(c => (c.candidate_stack ?? []).map(s => s.technology?.ct_name_tech)).filter(Boolean))].sort()
   const uniqueModules = [...new Set(candidates.map(c => c.bdd_module).filter(Boolean))].sort()
+  const uniqueEnglish = [...new Set(candidates.map(c => c.english_score).filter(v => v != null))].sort((a, b) => a - b).map(v => `${v}%`)
+  const uniqueYoe     = [...new Set(candidates.map(c => c.years_experience).filter(v => v != null))].sort((a, b) => a - b).map(v => `${v}y`)
 
   const displayed = candidates.filter(c => {
     if (fCity.size   > 0 && !fCity.has(c.location?.name))  return false
     if (fRole.size   > 0 && !fRole.has(c.role?.name))       return false
     if (fTech.size   > 0 && !(c.candidate_stack ?? []).some(s => fTech.has(s.technology?.ct_name_tech))) return false
     if (fModule.size > 0 && !fModule.has(c.bdd_module))     return false
-    if (fEngMin !== '' && (c.english_score ?? 0) < Number(fEngMin)) return false
-    if (fEngMax !== '' && (c.english_score ?? 0) > Number(fEngMax)) return false
-    if (fYoeMin !== '' && (c.years_experience ?? 0) < Number(fYoeMin)) return false
-    if (fYoeMax !== '' && (c.years_experience ?? 0) > Number(fYoeMax)) return false
+    if (fEng.size    > 0 && !fEng.has(`${c.english_score}%`)) return false
+    if (fYoe.size    > 0 && !fYoe.has(`${c.years_experience}y`)) return false
     return true
   })
 
-  const hasColumnFilters = fCity.size > 0 || fRole.size > 0 || fTech.size > 0 || fModule.size > 0 || fEngMin || fEngMax || fYoeMin || fYoeMax
+  const hasColumnFilters = fCity.size > 0 || fRole.size > 0 || fTech.size > 0 || fModule.size > 0 || fEng.size > 0 || fYoe.size > 0
 
   const total = displayed.length
 
@@ -650,23 +648,11 @@ export default function TalentDirectory() {
                       </td>
                       {/* English filter */}
                       <td className="px-5 pb-2 pt-1">
-                        <div className="flex items-center gap-1">
-                          <input type="number" placeholder="Min" value={fEngMin} onChange={e => setFEngMin(e.target.value)}
-                            className="w-14 text-xs px-1.5 py-1 rounded border border-outline-variant/30 bg-surface-container text-on-surface focus:outline-none focus:border-primary/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none" />
-                          <span className="text-on-surface-variant/40 text-xs">–</span>
-                          <input type="number" placeholder="Max" value={fEngMax} onChange={e => setFEngMax(e.target.value)}
-                            className="w-14 text-xs px-1.5 py-1 rounded border border-outline-variant/30 bg-surface-container text-on-surface focus:outline-none focus:border-primary/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none" />
-                        </div>
+                        <MultiSelectFilter options={uniqueEnglish} selected={fEng} onChange={setFEng} placeholder="English" />
                       </td>
                       {/* YoE filter */}
                       <td className="px-5 pb-2 pt-1">
-                        <div className="flex items-center gap-1">
-                          <input type="number" placeholder="Min" value={fYoeMin} onChange={e => setFYoeMin(e.target.value)}
-                            className="w-14 text-xs px-1.5 py-1 rounded border border-outline-variant/30 bg-surface-container text-on-surface focus:outline-none focus:border-primary/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none" />
-                          <span className="text-on-surface-variant/40 text-xs">–</span>
-                          <input type="number" placeholder="Max" value={fYoeMax} onChange={e => setFYoeMax(e.target.value)}
-                            className="w-14 text-xs px-1.5 py-1 rounded border border-outline-variant/30 bg-surface-container text-on-surface focus:outline-none focus:border-primary/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none" />
-                        </div>
+                        <MultiSelectFilter options={uniqueYoe} selected={fYoe} onChange={setFYoe} placeholder="YoE" />
                       </td>
                       {/* City filter */}
                       <td className="px-5 pb-2 pt-1">
@@ -675,7 +661,7 @@ export default function TalentDirectory() {
                       {/* Clear filters */}
                       <td className="px-4 pb-2 pt-1 bg-surface-container-low">
                         {hasColumnFilters && (
-                          <button onClick={() => { setFCity(new Set()); setFRole(new Set()); setFTech(new Set()); setFModule(new Set()); setFEngMin(''); setFEngMax(''); setFYoeMin(''); setFYoeMax('') }}
+                          <button onClick={() => { setFCity(new Set()); setFRole(new Set()); setFTech(new Set()); setFModule(new Set()); setFEng(new Set()); setFYoe(new Set()) }}
                             className="text-[10px] text-primary hover:underline whitespace-nowrap font-semibold">
                             Limpiar
                           </button>

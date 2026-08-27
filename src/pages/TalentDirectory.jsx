@@ -120,7 +120,7 @@ function exportToExcel(candidates, searchQuery) {
     const lastContact = (c.candidate_availability ?? [])
       .sort((a, b) => new Date(b.last_contact_date) - new Date(a.last_contact_date))[0]?.last_contact_date ?? ''
     const salary      = (c.candidate_compensation ?? [])
-      .sort((a, b) => new Date(b.recorded_at) - new Date(a.recorded_at))[0]?.cost_text ?? ''
+      .sort((a, b) => new Date(b.comp_at) - new Date(a.comp_at))[0]?.cost_text ?? ''
     return [
       c.full_name,
       c.email ?? '',

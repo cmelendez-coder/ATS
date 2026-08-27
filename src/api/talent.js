@@ -25,7 +25,7 @@ export async function fetchCandidatesByIds(ids) {
       location:catalog_location!location_id(name),
       role:catalog_role!role_id(name),
       candidate_availability(availability_id, last_contact_date, recorded_at),
-      candidate_compensation(comp_id, cost_text, recorded_at),
+      candidate_compensation(comp_id, cost_text, comp_at:recorded_at),
       candidate_stack(technology:catalog_technology!technology_id(ct_name_tech)),
       candidate_note(note_type, note_text)
     `)
@@ -60,7 +60,7 @@ export async function searchCandidates({ q = '', englishMin = '', englishMax = '
       location:catalog_location!location_id(name),
       role:catalog_role!role_id(name),
       candidate_availability(availability_id, last_contact_date, recorded_at),
-      candidate_compensation(comp_id, cost_text, recorded_at),
+      candidate_compensation(comp_id, cost_text, comp_at:recorded_at),
       candidate_stack(technology:catalog_technology!technology_id(ct_name_tech)),
       candidate_note(note_type, note_text)
     `)

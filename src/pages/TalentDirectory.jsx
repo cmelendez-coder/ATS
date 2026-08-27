@@ -20,6 +20,11 @@ const ADMIN_SEARCHES = [
     ids: [12499, 12704, 12709, 12498, 12496],
   },
   {
+    label: 'eComm Backend Engineer (PHP)',
+    description: 'Closest match ~30-40% · Backend developers con skills afines: Ruby/Rails, Java/Spring, microservices, AWS — sin Magento directo',
+    ids: [12236, 13072, 13067],
+  },
+  {
     label: 'DevSecOps / QA Automation Engineer',
     description: 'QA Automation IT — API testing, automated testing, quality gates · ~50% match · ordenados por English y experiencia',
     ids: [11850, 11847, 11873, 11852, 12849, 11841, 11848, 13756, 11877, 11867, 11855, 11865, 11874, 11872, 11871, 11861, 11860, 11866, 11854, 11845],

@@ -95,8 +95,8 @@ function exportToExcel(candidates, searchQuery) {
   const date = new Date().toISOString().slice(0, 10)
   const esc  = v => String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
 
-  const COLS = ['Nombre','Email','Teléfono','Rol','English %','Años Exp.','Ciudad','Status','Tecnologías','Skillset (notas)','BDD Tecnología','BDD Skills','LinkedIn','CV']
-  const COL_WIDTHS = [22,26,17,16,10,10,16,13,24,32,22,22,30,34]
+  const COLS = ['Nombre','Email','Teléfono','Rol','English %','Años Exp.','Ciudad','Status','Tecnologías','Skillset (notas)','BDD Tecnología','BDD Skills','Último Contacto','Salario','LinkedIn','CV']
+  const COL_WIDTHS = [22,26,17,16,10,10,16,13,24,32,22,22,16,18,30,34]
 
   // Map col index → letter(s)
   const colLetter = i => i < 26 ? String.fromCharCode(65+i) : String.fromCharCode(64+Math.floor(i/26)) + String.fromCharCode(65+(i%26))
@@ -113,10 +113,14 @@ function exportToExcel(candidates, searchQuery) {
   // Pre-register all values
   COLS.forEach(h => si(h))
   const rows = candidates.map(c => {
-    const techs    = [...new Set((c.candidate_stack ?? []).map(t => t.technology?.ct_name_tech).filter(Boolean))].join(', ')
-    const skillset = (c.candidate_note ?? []).find(n => n.note_type === 'skillset')?.note_text ?? ''
-    const bddTech  = c.bdd_technology ?? ''
-    const bddSkill = [c.bdd_skills, c.bdd_module].filter(Boolean).join(' | ')
+    const techs       = [...new Set((c.candidate_stack ?? []).map(t => t.technology?.ct_name_tech).filter(Boolean))].join(', ')
+    const skillset    = (c.candidate_note ?? []).find(n => n.note_type === 'skillset')?.note_text ?? ''
+    const bddTech     = c.bdd_technology ?? ''
+    const bddSkill    = [c.bdd_skills, c.bdd_module].filter(Boolean).join(' | ')
+    const lastContact = (c.candidate_availability ?? [])
+      .sort((a, b) => new Date(b.last_contact_date) - new Date(a.last_contact_date))[0]?.last_contact_date ?? ''
+    const salary      = (c.candidate_compensation ?? [])
+      .sort((a, b) => new Date(b.recorded_at) - new Date(a.recorded_at))[0]?.cost_text ?? ''
     return [
       c.full_name,
       c.email ?? '',
@@ -127,6 +131,7 @@ function exportToExcel(candidates, searchQuery) {
       c.location?.name   ?? '',
       c.status?.name     ?? '',
       techs, skillset, bddTech, bddSkill,
+      lastContact, salary,
       c.linkedin_url ?? '',
       c.cv_url       ?? '',
     ].map(v => { si(v); return v })

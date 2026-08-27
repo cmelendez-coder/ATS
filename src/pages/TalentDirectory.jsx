@@ -20,6 +20,11 @@ const ADMIN_SEARCHES = [
     ids: [12499, 12704, 12709, 12498, 12496],
   },
   {
+    label: 'Application Support & Dev Engineer',
+    description: 'SNOW/ServiceNow, ITIL, incident management + Java/Azure — soporte enterprise con dev skills',
+    ids: [12913, 12923, 14159, 11750, 14027, 13179, 11933, 11834, 13053, 14823, 14721, 14772, 14725, 14056, 14047],
+  },
+  {
     label: 'eComm Backend Engineer (PHP)',
     description: 'Closest match ~30-40% · Backend developers con skills afines: Ruby/Rails, Java/Spring, microservices, AWS — sin Magento directo',
     ids: [12236, 13072, 13067],

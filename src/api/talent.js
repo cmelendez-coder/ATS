@@ -12,6 +12,20 @@ async function upsertCatalog(table, nameCol, idCol, value) {
   return data[idCol]
 }
 
+async function attachCompensation(candidates) {
+  if (!candidates.length) return candidates
+  const ids = candidates.map(c => c.candidate_id)
+  const { data: comps } = await supabase
+    .from('candidate_compensation')
+    .select('candidate_id, cost_text')
+    .in('candidate_id', ids)
+  const compMap = {}
+  for (const row of comps ?? []) {
+    if (!compMap[row.candidate_id]) compMap[row.candidate_id] = row.cost_text
+  }
+  return candidates.map(c => ({ ...c, _cost_text: compMap[c.candidate_id] ?? '' }))
+}
+
 export async function fetchCandidatesByIds(ids) {
   if (!ids?.length) return []
   const { data, error } = await supabase
@@ -25,13 +39,12 @@ export async function fetchCandidatesByIds(ids) {
       location:catalog_location!location_id(name),
       role:catalog_role!role_id(name),
       candidate_availability(availability_id, last_contact_date, recorded_at),
-      candidate_compensation(comp_id, cost_text, comp_at:recorded_at),
       candidate_stack(technology:catalog_technology!technology_id(ct_name_tech)),
       candidate_note(note_type, note_text)
     `)
     .in('candidate_id', ids)
   if (error) throw error
-  return data ?? []
+  return attachCompensation(data ?? [])
 }
 
 // ─── Search / list candidates ─────────────────────────────────────
@@ -60,7 +73,6 @@ export async function searchCandidates({ q = '', englishMin = '', englishMax = '
       location:catalog_location!location_id(name),
       role:catalog_role!role_id(name),
       candidate_availability(availability_id, last_contact_date, recorded_at),
-      candidate_compensation(comp_id, cost_text, comp_at:recorded_at),
       candidate_stack(technology:catalog_technology!technology_id(ct_name_tech)),
       candidate_note(note_type, note_text)
     `)
@@ -77,7 +89,7 @@ export async function searchCandidates({ q = '', englishMin = '', englishMax = '
   if (!q.trim()) {
     const { data, error } = await baseQuery
     if (error) throw error
-    return data ?? []
+    return attachCompensation(data ?? [])
   }
 
   // Split query into individual words — AND logic: candidate must match every word
@@ -135,7 +147,7 @@ export async function searchCandidates({ q = '', englishMin = '', englishMax = '
 
   const { data, error } = await baseQuery.in('candidate_id', allIds)
   if (error) throw error
-  return data ?? []
+  return attachCompensation(data ?? [])
 }
 
 // ─── Get a single candidate with all related data ─────────────────

@@ -15,10 +15,7 @@ async function upsertCatalog(table, nameCol, idCol, value) {
 async function attachCompensation(candidates) {
   if (!candidates.length) return candidates
   const ids = candidates.map(c => c.candidate_id)
-  const { data: comps } = await supabase
-    .from('candidate_compensation')
-    .select('candidate_id, cost_text')
-    .in('candidate_id', ids)
+  const { data: comps } = await supabase.rpc('get_candidate_compensations', { p_ids: ids })
   const compMap = {}
   for (const row of comps ?? []) {
     if (!compMap[row.candidate_id]) compMap[row.candidate_id] = row.cost_text

@@ -22,6 +22,12 @@ const ADMIN_SEARCHES = [
     ids: [12913, 12923, 14159, 11750, 14027, 13179, 11933, 11834, 13053, 14823, 14721, 14772, 14725, 14056, 14047],
     createdAt: '2026-08-27T16:00:00.000Z',
   },
+  {
+    label: 'Data Scientist / Applied Scientist',
+    description: 'Python, ML, causal inference — 1 Data Scientist con 5y, 2 con 3y + Data Analysts y Databricks/Snowflake Architects adyacentes',
+    ids: [11708, 11710, 11709, 13404, 13399, 13418, 12909, 12910],
+    createdAt: '2026-08-28T14:00:00.000Z',
+  },
 ]
 import { usePermissions } from '../hooks/usePermissions'
 import PortalButtons from '../components/PortalButtons'

@@ -436,6 +436,14 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
   const [showDeleteConfirm, setShowDeleteConfirm]   = useState(false)
   const [showStatusMenu, setShowStatusMenu]         = useState(false)
   const [copied, setCopied]                         = useState(null) // 'email' | 'phone' | null
+  const [cvPreviewUrl, setCvPreviewUrl]             = useState(null)
+
+  function toEmbedUrl(url) {
+    if (!url) return url
+    const driveMatch = url.match(/\/file\/d\/([^/?\s]+)/)
+    if (driveMatch) return `https://drive.google.com/file/d/${driveMatch[1]}/preview`
+    return url
+  }
 
   function copyToClipboard(field, value) {
     if (!value) return
@@ -622,7 +630,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
         </td>
         <td className="px-3 py-2 text-xs">
           {data.cv_url
-            ? <a href={data.cv_url} target="_blank" rel="noreferrer" className="text-[#81b927] hover:underline flex items-center gap-1"><span className="material-symbols-outlined text-[13px]">open_in_new</span>CV</a>
+            ? <button type="button" onClick={() => setCvPreviewUrl(data.cv_url)} className="text-[#81b927] hover:underline flex items-center gap-1"><span className="material-symbols-outlined text-[13px]">picture_as_pdf</span>CV</button>
             : <span className="text-[#8ab0d0]/30">—</span>}
         </td>
         <td className="px-3 py-2 text-xs">
@@ -1083,6 +1091,25 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
           </div>
         )}
       </td>
+      {cvPreviewUrl && createPortal(
+        <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setCvPreviewUrl(null)}>
+          <div className="relative bg-[#071d47] rounded-2xl shadow-2xl border border-white/10 w-[90vw] max-w-4xl h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+              <span className="text-sm font-semibold text-white/80">{data.candidate_name} — CV</span>
+              <div className="flex items-center gap-2">
+                <a href={cvPreviewUrl} target="_blank" rel="noreferrer" className="text-[#81b927] text-xs hover:underline flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[13px]">open_in_new</span>Abrir en Drive
+                </a>
+                <button type="button" onClick={() => setCvPreviewUrl(null)} className="text-white/50 hover:text-white transition-colors ml-2">
+                  <span className="material-symbols-outlined text-[20px]">close</span>
+                </button>
+              </div>
+            </div>
+            <iframe src={toEmbedUrl(cvPreviewUrl)} className="flex-1 w-full rounded-b-2xl" allow="autoplay" />
+          </div>
+        </div>,
+        document.body
+      )}
     </tr>
   )
 }

@@ -756,6 +756,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
   }
 
   return (
+    <>
     <tr
       className="bg-[#0b2a58] border-b border-[#81b927]/20"
       onKeyDown={e => {
@@ -1091,26 +1092,27 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
           </div>
         )}
       </td>
-      {cvPreviewUrl && createPortal(
-        <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setCvPreviewUrl(null)}>
-          <div className="relative bg-[#071d47] rounded-2xl shadow-2xl border border-white/10 w-[90vw] max-w-4xl h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-              <span className="text-sm font-semibold text-white/80">{data.candidate_name} — CV</span>
-              <div className="flex items-center gap-2">
-                <a href={cvPreviewUrl} target="_blank" rel="noreferrer" className="text-[#81b927] text-xs hover:underline flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[13px]">open_in_new</span>Abrir en Drive
-                </a>
-                <button type="button" onClick={() => setCvPreviewUrl(null)} className="text-white/50 hover:text-white transition-colors ml-2">
-                  <span className="material-symbols-outlined text-[20px]">close</span>
-                </button>
-              </div>
-            </div>
-            <iframe src={toEmbedUrl(cvPreviewUrl)} className="flex-1 w-full rounded-b-2xl" allow="autoplay" />
-          </div>
-        </div>,
-        document.body
-      )}
     </tr>
+    {cvPreviewUrl && createPortal(
+      <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setCvPreviewUrl(null)}>
+        <div className="relative bg-[#071d47] rounded-2xl shadow-2xl border border-white/10 w-[90vw] max-w-4xl h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+          <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+            <span className="text-sm font-semibold text-white/80">{data.candidate_name} — CV</span>
+            <div className="flex items-center gap-2">
+              <a href={cvPreviewUrl} target="_blank" rel="noreferrer" className="text-[#81b927] text-xs hover:underline flex items-center gap-1">
+                <span className="material-symbols-outlined text-[13px]">open_in_new</span>Abrir en Drive
+              </a>
+              <button type="button" onClick={() => setCvPreviewUrl(null)} className="text-white/50 hover:text-white transition-colors ml-2">
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </div>
+          </div>
+          <iframe src={toEmbedUrl(cvPreviewUrl)} className="flex-1 w-full rounded-b-2xl" allow="autoplay" />
+        </div>
+      </div>,
+      document.body
+    )}
+    </>
   )
 }
 

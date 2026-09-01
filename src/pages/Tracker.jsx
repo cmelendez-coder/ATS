@@ -445,6 +445,22 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
     return url
   }
 
+  async function downloadCV(url, name) {
+    if (!url) return
+    try {
+      const res = await fetch(url)
+      const blob = await res.blob()
+      const ext = url.split('.').pop().split('?')[0] || 'pdf'
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(blob)
+      a.download = `${name || 'CV'}.${ext}`
+      a.click()
+      URL.revokeObjectURL(a.href)
+    } catch {
+      window.open(url, '_blank')
+    }
+  }
+
   function copyToClipboard(field, value) {
     if (!value) return
     navigator.clipboard.writeText(value).then(() => {
@@ -628,6 +644,13 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
         </td>
         <td className="px-3 py-2 text-xs text-[#8ab0d0] whitespace-nowrap">
           {req ? <span>{req.job_title} <span className="text-[#8ab0d0]/50">· {req.client?.name}</span></span> : '—'}
+        </td>
+        <td className="px-2 py-2 text-xs">
+          {data.cv_url
+            ? <button type="button" onClick={e => { e.stopPropagation(); downloadCV(data.cv_url, data.candidate_name) }} title="Descargar CV" className="text-[#8ab0d0]/60 hover:text-[#81b927] transition-colors flex items-center justify-center">
+                <span className="material-symbols-outlined text-[16px]">download</span>
+              </button>
+            : <span className="text-[#8ab0d0]/20">—</span>}
         </td>
         <td className="px-3 py-2 text-xs">
           {data.cv_url
@@ -831,6 +854,15 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
           currentReq={data.requirement}
           onSelect={id => set('requirement_id', id)}
         />
+      </td>
+
+      {/* Descarga rápida CV */}
+      <td className="px-2 py-1.5 w-8">
+        {data.cv_url
+          ? <button type="button" onClick={() => downloadCV(data.cv_url, data.candidate_name)} title="Descargar CV" className="text-[#8ab0d0]/60 hover:text-[#81b927] transition-colors flex items-center justify-center">
+              <span className="material-symbols-outlined text-[16px]">download</span>
+            </button>
+          : <span className="text-[#8ab0d0]/20">—</span>}
       </td>
 
       {/* CV — file upload */}
@@ -1329,7 +1361,7 @@ export default function Tracker() {
                           )}
                         </div>
                       </th>
-                      {['Requerimiento/Cliente', 'CV', 'LinkedIn', 'Status', 'Notas', 'English', 'Salario', 'OTE', 'Email', 'Phone', 'Estado', 'YoE', 'Target Role', 'Technologies', 'Skills', 'Modules', ''].map(h => (
+                      {['Requerimiento/Cliente', '', 'CV', 'LinkedIn', 'Status', 'Notas', 'English', 'Salario', 'OTE', 'Email', 'Phone', 'Estado', 'YoE', 'Target Role', 'Technologies', 'Skills', 'Modules', ''].map(h => (
                         <th
                           key={h}
                           className={`px-3 py-3 text-[10px] font-bold text-[#81b927]/70 uppercase tracking-widest whitespace-nowrap${h === 'Status' ? ' sticky left-[200px] z-20 bg-[#0b2a58]' : ''}`}

@@ -58,6 +58,12 @@ const ADMIN_SEARCHES = [
     ids: [14399, 12240, 12274, 12277, 12242, 12280],
     createdAt: '2026-09-01T16:30:00.000Z',
   },
+  {
+    label: 'Data Scientists (solo 3)',
+    description: 'Únicos 3 candidatos con título Data Scientist en BDD — Juan Luis (5y), Kleanthis (3y), Erick Morales (3y)',
+    ids: [11708, 11710, 11709],
+    createdAt: '2026-09-01T17:00:00.000Z',
+  },
 ]
 import { usePermissions } from '../hooks/usePermissions'
 import PortalButtons from '../components/PortalButtons'

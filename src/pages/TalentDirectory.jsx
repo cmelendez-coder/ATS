@@ -34,6 +34,30 @@ const ADMIN_SEARCHES = [
     ids: [13338, 12913, 12853, 12567, 12553, 11795, 11927, 14171, 11787, 12565, 12551, 12560, 12114, 12288, 11789, 14179],
     createdAt: '2026-09-01T14:00:00.000Z',
   },
+  {
+    label: 'SAP ABAP – Order-to-Cash (OTC)',
+    description: '~40% match · ABAP devs con módulos SD, FI, MM y S/4HANA — OTC: Order Mgmt, Billing, AR, Collections, Credit Mgmt',
+    ids: [12277, 12271, 12796, 12240, 14405, 12274, 12242, 12280, 12278],
+    createdAt: '2026-09-01T15:00:00.000Z',
+  },
+  {
+    label: 'SAP ABAP – Procure-to-Pay (PTP)',
+    description: '~40% match · ABAP devs con módulos MM/PP y S/4HANA — PTP: Purchase Orders, Goods Receipts, Invoice Verification, Vendor Master',
+    ids: [12509, 12576, 12277, 12271, 12242, 12280, 12240, 12278],
+    createdAt: '2026-09-01T15:30:00.000Z',
+  },
+  {
+    label: 'SAP ABAP – Record-to-Report (RTR)',
+    description: '~40% match · ABAP devs con módulos FI/CO y S/4HANA — RTR: GL, Journal Postings, AP, AR, Revenue Recognition, Payment Runs',
+    ids: [12402, 12271, 12796, 12240, 14405, 12242, 12277, 12278],
+    createdAt: '2026-09-01T16:00:00.000Z',
+  },
+  {
+    label: 'SAP Data Migration – S/4HANA',
+    description: '~40% match · ABAP devs con experiencia en migración, HANA y S/4HANA — Migration Cockpit, LTMOM, ETL, cutover',
+    ids: [14399, 12240, 12274, 12277, 12242, 12280],
+    createdAt: '2026-09-01T16:30:00.000Z',
+  },
 ]
 import { usePermissions } from '../hooks/usePermissions'
 import PortalButtons from '../components/PortalButtons'

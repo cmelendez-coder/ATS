@@ -46,3 +46,39 @@ export async function fetchClients() {
   if (error) throw error
   return data ?? []
 }
+
+export async function fetchEquipment() {
+  const { data, error } = await supabase
+    .from('equipment')
+    .select('*')
+    .order('nombre')
+  if (error) throw error
+  return data ?? []
+}
+
+export async function saveEquipment(item) {
+  const payload = { ...item }
+  if (payload.id) {
+    const { data, error } = await supabase
+      .from('equipment')
+      .update(payload)
+      .eq('id', payload.id)
+      .select('*')
+      .single()
+    if (error) throw error
+    return data
+  }
+  delete payload.id
+  const { data, error } = await supabase
+    .from('equipment')
+    .insert(payload)
+    .select('*')
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function deleteEquipment(id) {
+  const { error } = await supabase.from('equipment').delete().eq('id', id)
+  if (error) throw error
+}

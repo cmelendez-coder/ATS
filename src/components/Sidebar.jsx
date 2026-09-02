@@ -93,6 +93,13 @@ export default function Sidebar({ collapsed = false, onToggle }) {
             {can('talent.create') && <NavItem to="/talent/new" icon="person_add" label="Add Talent" collapsed={collapsed} />}
           </div>
         </div>
+        <div>
+          {!collapsed && <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest px-3 mb-1.5">People</p>}
+          <div className="space-y-0.5">
+            <NavItem to="/employees" icon="badge" label="Employees" collapsed={collapsed} />
+            <NavItem to="/equipment" icon="laptop_mac" label="Equipos" collapsed={collapsed} />
+          </div>
+        </div>
       </div>
 
       {/* Footer */}

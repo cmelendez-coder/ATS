@@ -155,7 +155,7 @@ function StageForm({ initial = EMPTY_STAGE_FORM, onSave, onCancel, saving }) {
   )
 }
 
-export default function Clients() {
+export default function Clients({ embedded = false }) {
   const { can } = usePermissions()
   const [clients, setClients] = useState([])
   const [loading, setLoading] = useState(true)
@@ -317,7 +317,8 @@ export default function Clients() {
 
   return (
     <>
-      {/* TOP HEADER */}
+      {/* TOP HEADER — hidden when embedded */}
+      {!embedded && (
       <header className="flex justify-between items-center h-16 px-8 w-full sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10 shrink-0">
         <div className="flex items-center gap-4">
           <span className="md:hidden text-lg font-bold tracking-tight text-primary">EverTrack</span>
@@ -328,24 +329,27 @@ export default function Clients() {
           </Link>
         </div>
       </header>
+      )}
 
       {/* CONTENT */}
-      <div className="flex-1 overflow-y-auto bg-surface p-6 md:p-10 pb-24">
+      <div className={embedded ? 'w-full space-y-6 mt-4' : 'flex-1 overflow-y-auto bg-surface p-6 md:p-10 pb-24'}>
         <div className="max-w-7xl mx-auto space-y-8">
 
           {/* Page header */}
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div className="space-y-1.5">
+              {!embedded && (
               <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
                 <Link to="/" className="hover:text-primary transition-colors">Dashboard</Link>
                 <span className="material-symbols-outlined text-[14px]">chevron_right</span>
                 <span className="text-primary font-medium">Clients</span>
               </div>
-              <h1 className="text-[2.25rem] leading-none tracking-[-0.02em] font-extrabold text-primary">Clients</h1>
-              <p className="text-on-surface-variant text-base">Oficinas, zonas horarias, sector y detalles operativos de cada cliente.</p>
+              )}
+              {!embedded && <h1 className="text-[2.25rem] leading-none tracking-[-0.02em] font-extrabold text-primary">Clients</h1>}
+              {!embedded && <p className="text-on-surface-variant text-base">Oficinas, zonas horarias, sector y detalles operativos de cada cliente.</p>}
             </div>
             <div className="flex flex-col items-end gap-3 shrink-0">
-              <PortalButtons />
+              {!embedded && <PortalButtons />}
               <div className="flex flex-wrap items-center gap-3">
               {!loading && (
                 <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-surface-container text-on-surface-variant text-sm font-semibold shrink-0">

@@ -16,6 +16,7 @@ import {
   saveRequirementClosure,
 } from '../api/requirements'
 import { createClientCandidate } from '../api/talent'
+import ClientsView from './Clients'
 
 /* ── helpers ── */
 const PRIORITY = {
@@ -1989,6 +1990,15 @@ return (
                     <span className="material-symbols-outlined text-[14px]">table_view</span>
                     Prioridades
                   </button>
+                  <button
+                    onClick={() => setViewMode('clientes')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      viewMode === 'clientes' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[14px]">domain</span>
+                    Clientes
+                  </button>
                 </div>
                 {can('requirements.create') && (
                   <Link to="/requirements/new">
@@ -2044,6 +2054,9 @@ return (
 
           {/* ── TABLA VIEW ── */}
           {viewMode === 'tabla' && <ReqBoardTable />}
+
+          {/* ── CLIENTES VIEW ── */}
+          {viewMode === 'clientes' && <ClientsView embedded />}
 
           {/* ── PIPELINE VIEW ── */}
           {viewMode === 'pipeline' && <>

@@ -5,6 +5,12 @@ import { searchCandidates, fetchCandidatesByIds } from '../api/talent'
 // Hardcoded admin searches — each entry is a labeled set of candidate_ids
 const ADMIN_SEARCHES = [
   {
+    label: 'OCM Consultant (SAP / S4HANA)',
+    description: 'Organizational Change Management + SAP/S4HANA · preferencia Mexicali · target <10 YOE · ordenados por relevancia y experiencia',
+    ids: [14711, 14717, 14715, 14719, 14712, 14714, 14777, 15338, 14713, 14605, 14716, 14718, 14778, 15339, 15334, 14643, 14649, 15006],
+    createdAt: '2026-09-04T18:00:00.000Z',
+  },
+  {
     label: 'DevSecOps / QA Automation Engineer',
     description: 'QA Automation IT — API testing, automated testing, quality gates · ~50% match · ordenados por English y experiencia',
     ids: [11850, 11847, 11873, 11852, 12849, 11841, 11848, 13756, 11877, 11867, 11855, 11865, 11874, 11872, 11871, 11861, 11860, 11866, 11854, 11845],

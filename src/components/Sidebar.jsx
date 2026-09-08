@@ -78,6 +78,12 @@ export default function Sidebar({ collapsed = false, onToggle }) {
             <NavItem to="/requirements" icon="list_alt" label="Requirements" collapsed={collapsed} />
           </div>
         </div>
+        <div>
+          {!collapsed && <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest px-3 mb-1.5">Talent</p>}
+          <div className="space-y-0.5">
+            <NavItem to="/talent" end icon="group" label="Talent Directory" collapsed={collapsed} />
+          </div>
+        </div>
       </div>
 
       {/* Footer */}

@@ -145,43 +145,133 @@ function groupByClient(list) {
   })
 }
 
-// Requirement dropdown — native select (renders outside overflow:hidden containers)
+// Requirement dropdown — searchable custom dropdown, rendered via portal (fixed position)
+// so it isn't clipped by the table's overflow-x/y-auto scroll container.
 function RequirementSearch({ value, requirements, closedRequirements = [], currentReq, onSelect, disabled }) {
+  const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState('')
+  const [pos, setPos] = useState(null)
+  const btnRef   = useRef(null)
+  const panelRef = useRef(null)
+
+  useEffect(() => {
+    if (!open) return
+    function onClick(e) {
+      if (btnRef.current?.contains(e.target)) return
+      if (panelRef.current?.contains(e.target)) return
+      setOpen(false)
+    }
+    function onScrollOrResize() { setOpen(false) }
+    document.addEventListener('mousedown', onClick)
+    window.addEventListener('scroll', onScrollOrResize, true)
+    window.addEventListener('resize', onScrollOrResize)
+    return () => {
+      document.removeEventListener('mousedown', onClick)
+      window.removeEventListener('scroll', onScrollOrResize, true)
+      window.removeEventListener('resize', onScrollOrResize)
+    }
+  }, [open])
+
+  useEffect(() => { if (!open) setQuery('') }, [open])
+
+  function handleToggle() {
+    if (disabled) return
+    if (!open && btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect()
+      setPos({ top: r.bottom + 4, left: r.left, width: Math.max(r.width, 260) })
+    }
+    setOpen(o => !o)
+  }
+
   // If currentReq is not in open or closed lists (deleted req), add it as orphan
   const allKnown = [...requirements, ...closedRequirements]
   const orphan = currentReq && !allKnown.find(r => r.id === currentReq.id) ? currentReq : null
+  const openList   = orphan ? [orphan, ...requirements] : requirements
 
-  const openGroups   = groupByClient(orphan ? [orphan, ...requirements] : requirements)
-  const closedGroups = groupByClient(closedRequirements)
+  const q = query.trim().toLowerCase()
+  const matches = r => !q || r.job_title.toLowerCase().includes(q) || (r.client?.name ?? '').toLowerCase().includes(q)
+
+  const openGroups   = groupByClient(openList.filter(matches))
+  const closedGroups = groupByClient(closedRequirements.filter(matches))
+
+  const selectedReq = allKnown.find(r => r.id === value) ?? orphan
+  const label = selectedReq ? selectedReq.job_title : 'Seleccionar posición…'
 
   return (
-    <select
-      className="w-full bg-[#071d47] text-white text-xs px-2 py-1.5 rounded focus:outline-none cursor-pointer border border-white/10"
-      value={value ?? ''}
-      disabled={disabled}
-      onChange={e => onSelect(e.target.value ? Number(e.target.value) : null)}
-    >
-      <option value="">Seleccionar posición…</option>
-      {openGroups.map(([client, reqs]) => (
-        <optgroup key={client} label={client}>
-          {reqs.map(r => <option key={r.id} value={r.id}>{r.job_title}</option>)}
-        </optgroup>
-      ))}
-      {closedGroups.length > 0 && (
-        <>
-          <option disabled style={{ color: '#6b7280', fontStyle: 'italic' }}>── Cerradas ──</option>
-          {closedGroups.map(([client, reqs]) => (
-            <optgroup key={`closed-${client}`} label={client}>
-              {reqs.map(r => (
-                <option key={r.id} value={r.id} style={{ color: '#6b7280' }}>
-                  {r.job_title}
-                </option>
-              ))}
-            </optgroup>
-          ))}
-        </>
+    <>
+      <button
+        ref={btnRef}
+        type="button"
+        disabled={disabled}
+        onClick={handleToggle}
+        className="w-full flex items-center justify-between gap-2 bg-[#071d47] text-white text-xs px-2 py-1.5 rounded border border-white/10 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <span className="truncate text-left">{label}</span>
+        <span className={`material-symbols-outlined text-[14px] text-white/40 transition-transform duration-200 shrink-0 ${open ? 'rotate-180' : ''}`}>expand_more</span>
+      </button>
+      {open && !disabled && pos && createPortal(
+        <div
+          ref={panelRef}
+          className="fixed z-[500] bg-[#0b2a58] border border-white/10 rounded-lg shadow-2xl overflow-hidden"
+          style={{ top: pos.top, left: pos.left, width: pos.width, maxWidth: 360 }}
+        >
+          <div className="p-2 border-b border-white/10">
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-[14px] text-white/40">search</span>
+              <input
+                type="text"
+                autoFocus
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder="Buscar posición o cliente…"
+                className="w-full bg-[#071d47] text-white text-xs pl-7 pr-2 py-1.5 rounded focus:outline-none border border-white/10 placeholder:text-white/30"
+              />
+            </div>
+          </div>
+          <div className="max-h-64 overflow-y-auto py-1">
+            {openGroups.length === 0 && closedGroups.length === 0 && (
+              <p className="px-3 py-3 text-xs text-white/40 text-center">Sin resultados</p>
+            )}
+            {openGroups.map(([client, reqs]) => (
+              <div key={client}>
+                <p className="px-3 pt-2 pb-1 text-[10px] font-bold text-white/40 uppercase tracking-wider">{client}</p>
+                {reqs.map(r => (
+                  <button
+                    key={r.id}
+                    type="button"
+                    onClick={() => { onSelect(r.id); setOpen(false) }}
+                    className={`w-full text-left px-3 py-1.5 text-xs hover:bg-[#071d47] transition-colors ${r.id === value ? 'text-[#81b927] font-bold' : 'text-white/80'}`}
+                  >
+                    {r.job_title}
+                  </button>
+                ))}
+              </div>
+            ))}
+            {closedGroups.length > 0 && (
+              <>
+                <p className="px-3 pt-2 pb-0.5 text-[10px] font-bold text-white/25 uppercase tracking-wider italic">── Cerradas ──</p>
+                {closedGroups.map(([client, reqs]) => (
+                  <div key={`closed-${client}`}>
+                    <p className="px-3 pt-1 pb-0.5 text-[10px] font-bold text-white/25 uppercase tracking-wider">{client}</p>
+                    {reqs.map(r => (
+                      <button
+                        key={r.id}
+                        type="button"
+                        onClick={() => { onSelect(r.id); setOpen(false) }}
+                        className={`w-full text-left px-3 py-1.5 text-xs hover:bg-[#071d47] transition-colors ${r.id === value ? 'text-[#81b927] font-bold' : 'text-white/40'}`}
+                      >
+                        {r.job_title}
+                      </button>
+                    ))}
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+        </div>,
+        document.body
       )}
-    </select>
+    </>
   )
 }
 
@@ -1182,6 +1272,7 @@ export default function Tracker() {
   const [requirements, setRequirements] = useState([])
   const [closedRequirements, setClosedRequirements] = useState([])
   const [loading, setLoading]         = useState(true)
+  const [reqFilter, setReqFilter]     = useState('')
   const [refreshKey, setRefreshKey]   = useState(0)
   const [editingKey, setEditingKey]   = useState(null)
   const tableScrollRef                = useRef(null)
@@ -1208,6 +1299,7 @@ export default function Tracker() {
   useEffect(() => {
     setLoading(true)
     setEditingKey(null)
+    setReqFilter('')
     fetchTrackerEntries(week, year, activeTab)
       .then(rows => {
         setEntries(rows.map(r => ({ ...r, _editing: false, _key: r.id })))
@@ -1323,14 +1415,37 @@ export default function Tracker() {
             </div>
           </div>
 
-          {/* Summary chips */}
+          {/* Summary chips + filtro de requerimiento */}
           {entries.length > 0 && (
-            <div className="flex gap-3 flex-wrap">
+            <div className="flex items-center gap-3 flex-wrap">
               <span className="px-3 py-1 rounded-full bg-[#071d47]/10 text-[#071d47] text-xs font-bold border border-[#071d47]/10">{entries.length} candidatos</span>
               {review > 0 && <span className="px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-bold border border-amber-200">{review} In Review</span>}
               {sent > 0 && <span className="px-3 py-1 rounded-full bg-[#1f6d44]/10 text-[#1f6d44] text-xs font-bold border border-[#1f6d44]/20">{sent} Sent</span>}
               {rejected > 0 && <span className="px-3 py-1 rounded-full bg-red-50 text-red-700 text-xs font-bold border border-red-200">{rejected} Rejected/HSE/Backed Out</span>}
               {onHold > 0 && <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold border border-slate-200">{onHold} On Hold</span>}
+              {/* Filtro por requerimiento */}
+              <div className="ml-auto flex items-center gap-2">
+                <span className="material-symbols-outlined text-[16px] text-[#071d47]/50">filter_list</span>
+                <select
+                  value={reqFilter}
+                  onChange={e => setReqFilter(e.target.value)}
+                  className="text-xs bg-white border border-[#071d47]/15 text-[#071d47] rounded-xl px-3 py-1.5 shadow-sm focus:outline-none focus:border-[#071d47]/40 cursor-pointer font-medium"
+                >
+                  <option value=''>Todos los roles</option>
+                  {[...new Map(
+                    entries
+                      .filter(e => e.requirement?.id)
+                      .map(e => [e.requirement.id, e.requirement])
+                  ).values()]
+                    .sort((a, b) => (a.job_title ?? '').localeCompare(b.job_title ?? ''))
+                    .map(r => (
+                      <option key={r.id} value={r.id}>
+                        {r.job_title}{r.client?.name ? ` · ${r.client.name}` : ''}
+                      </option>
+                    ))
+                  }
+                </select>
+              </div>
             </div>
           )}
 
@@ -1361,9 +1476,9 @@ export default function Tracker() {
                           )}
                         </div>
                       </th>
-                      {['Requerimiento/Cliente', '', 'CV', 'LinkedIn', 'Status', 'Notas', 'English', 'Salario', 'OTE', 'Email', 'Phone', 'Estado', 'YoE', 'Target Role', 'Technologies', 'Skills', 'Modules', ''].map(h => (
+                      {['Requerimiento/Cliente', '', 'CV', 'LinkedIn', 'Status', 'Notas', 'English', 'Salario', 'OTE', 'Email', 'Phone', 'Estado', 'YoE', 'Target Role', 'Technologies', 'Skills', 'Modules', ''].map((h, i) => (
                         <th
-                          key={h}
+                          key={`${h}-${i}`}
                           className={`px-3 py-3 text-[10px] font-bold text-[#81b927]/70 uppercase tracking-widest whitespace-nowrap${h === 'Status' ? ' sticky left-[200px] z-20 bg-[#0b2a58]' : ''}`}
                         >{h}</th>
                       ))}
@@ -1378,6 +1493,7 @@ export default function Tracker() {
                       </tr>
                     )}
                     {[...entries]
+                      .filter(e => !reqFilter || String(e.requirement?.id) === reqFilter)
                       .sort((a, b) => {
                         if (a._editing && !b._editing) return -1
                         if (!a._editing && b._editing) return 1

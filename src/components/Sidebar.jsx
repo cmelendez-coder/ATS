@@ -1,6 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { usePermissions } from '../hooks/usePermissions'
 
 function NavItem({ to, end, icon, label, collapsed = false }) {
   return (
@@ -35,7 +34,6 @@ function NavItem({ to, end, icon, label, collapsed = false }) {
 export default function Sidebar({ collapsed = false, onToggle }) {
   const { session, clearSession } = useAuth()
   const navigate = useNavigate()
-  const { can } = usePermissions()
 
   function handleLogout() {
     clearSession()
@@ -78,26 +76,6 @@ export default function Sidebar({ collapsed = false, onToggle }) {
             <NavItem to="/reports" icon="analytics" label="Reports" collapsed={collapsed} />
             <NavItem to="/tracker" icon="table_view" label="Tracker" collapsed={collapsed} />
             <NavItem to="/requirements" icon="list_alt" label="Requirements" collapsed={collapsed} />
-          </div>
-        </div>
-        <div>
-          {!collapsed && <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest px-3 mb-1.5">Client&apos;s</p>}
-          <div className="space-y-0.5">
-            <NavItem to="/clients" icon="apartment" label="Client Directory" collapsed={collapsed} />
-          </div>
-        </div>
-        <div>
-          {!collapsed && <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest px-3 mb-1.5">Talent</p>}
-          <div className="space-y-0.5">
-            <NavItem to="/talent" end icon="group" label="Talent Directory" collapsed={collapsed} />
-            {can('talent.create') && <NavItem to="/talent/new" icon="person_add" label="Add Talent" collapsed={collapsed} />}
-          </div>
-        </div>
-        <div>
-          {!collapsed && <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest px-3 mb-1.5">People</p>}
-          <div className="space-y-0.5">
-            <NavItem to="/employees" icon="badge" label="Employees" collapsed={collapsed} />
-            <NavItem to="/equipment" icon="laptop_mac" label="Equipos" collapsed={collapsed} />
           </div>
         </div>
       </div>

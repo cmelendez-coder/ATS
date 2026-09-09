@@ -70,6 +70,12 @@ const ADMIN_SEARCHES = [
     ids: [11708, 11710, 11709],
     createdAt: '2026-09-01T17:00:00.000Z',
   },
+  {
+    label: 'Mobile App QA (Android/iOS)',
+    description: '5-8 YOE · rango ampliado 2-10 YOE · primeros 2 son QA reales con testing Web & Mobile; el resto son devs con background Android/iOS (posible reconversión a testing)',
+    ids: [14334, 11855, 13963, 12079, 13051, 13130, 13132, 13311, 12236, 13310, 13738],
+    createdAt: '2026-09-09T12:00:00.000Z',
+  },
 ]
 import { usePermissions } from '../hooks/usePermissions'
 import PortalButtons from '../components/PortalButtons'

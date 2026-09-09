@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { usePermissions } from '../hooks/usePermissions'
 import { useRequirementAlerts } from '../hooks/useRequirementAlerts'
 import RequirementAlertBell from '../components/RequirementAlertBell'
@@ -1172,14 +1172,20 @@ function shiftWeek({ week, year }, delta) {
 }
 
 /* ── Standalone Board Table (reads/writes only req_board) ── */
-function ReqBoardTable() {
+function ReqBoardTable({ initialPipeline } = {}) {
   const { can }                         = usePermissions()
   const currentWeek                     = getISOWeekReq()
   const [selWeek, setSelWeek]           = useState(currentWeek)
   const [rows, setRows]                 = useState([])
   const [loading, setLoading]           = useState(true)
   const [kpi, setKpi]                   = useState(null)
-  const [pipelineModal, setPipelineModal] = useState(null) // { reqId, clientId, clientName, position }
+  const [pipelineModal, setPipelineModal] = useState(initialPipeline ?? null) // { reqId, clientId, clientName, position }
+
+  // Auto-open the pipeline modal when arriving here with a specific requirement
+  // in mind (e.g. from the Tracker's "Ver en pipeline" icon on a Sent candidate).
+  useEffect(() => {
+    if (initialPipeline) setPipelineModal(initialPipeline)
+  }, [initialPipeline])
   const [closeConfirm, setCloseConfirm]       = useState(null) // { requirementId, position }
   const [closeReasonModal, setCloseReasonModal] = useState(null) // { requirementId } | null
 
@@ -1754,6 +1760,8 @@ function CloseRequirementModal({ onConfirm, onCancel }) {
 /* ── Main Page ── */
 export default function Requirements() {
   const { can } = usePermissions()
+  const location = useLocation()
+  const navigate = useNavigate()
   const { pendingCount, loading: alertsLoading, showAlerts } = useRequirementAlerts()
   const [requirements, setRequirements] = useState([])
   const [loading, setLoading]           = useState(true)
@@ -1763,7 +1771,14 @@ export default function Requirements() {
   const [filterStatus, setFilterStatus] = useState('')
   const [filterClient, setFilterClient] = useState('')
   const [activeTab, setActiveTab] = useState('open')
-  const [viewMode, setViewMode]   = useState('pipeline') // 'pipeline' | 'tabla'
+  const [openPipeline, setOpenPipeline] = useState(location.state?.openPipeline ?? null)
+  const [viewMode, setViewMode]   = useState(location.state?.openPipeline ? 'tabla' : 'pipeline') // 'pipeline' | 'tabla'
+
+  // Consumed once on arrival — clear the router state so a later back/forward
+  // navigation or refresh doesn't keep re-opening the same pipeline modal.
+  useEffect(() => {
+    if (location.state?.openPipeline) navigate(location.pathname, { replace: true, state: null })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const [statusPickerId, setStatusPickerId] = useState(null)
   const [statusPickerPos, setStatusPickerPos] = useState(null)
   const [priorityPickerId, setPriorityPickerId] = useState(null)
@@ -2053,7 +2068,7 @@ return (
           })()}
 
           {/* ── TABLA VIEW ── */}
-          {viewMode === 'tabla' && <ReqBoardTable />}
+          {viewMode === 'tabla' && <ReqBoardTable initialPipeline={openPipeline} />}
 
           {/* ── CLIENTES VIEW ── */}
           {viewMode === 'clientes' && <ClientsView embedded />}

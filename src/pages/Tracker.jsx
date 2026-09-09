@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useId } from 'react'
 import { createPortal } from 'react-dom'
 import PortalButtons from '../components/PortalButtons'
 import UserAvatar from '../components/UserAvatar'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import {
   fetchTrackerEntries,
@@ -655,7 +655,7 @@ function CellPopover({ text, limit = 55, wordLimit = null }) {
 }
 
 // Single editable row
-function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDelete, readOnly, isEditing, onStartEdit, onEndEdit }) {
+function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDelete, readOnly, isEditing, onStartEdit, onEndEdit, onOpenPipeline }) {
   const [data, setData]           = useState({ ...row })
   const [saving, setSaving]       = useState(false)
   const [error, setError]         = useState(null)
@@ -873,6 +873,18 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
         <td className="sticky left-0 z-10 w-[200px] group-odd:bg-[#071d47] group-even:bg-[#0b2a58] px-3 py-2 text-xs text-white font-bold whitespace-nowrap">
           <span>{data.candidate_name}</span>
         </td>
+        <td className="px-1 py-2 text-center w-8">
+          {data.status === 'Sent' && req && (
+            <button
+              type="button"
+              onClick={e => { e.stopPropagation(); onOpenPipeline(req) }}
+              title="Ver en pipeline"
+              className="text-[#81b927] hover:scale-125 hover:text-white transition-all inline-flex items-center justify-center"
+            >
+              <span className="material-symbols-outlined text-[16px]">search</span>
+            </button>
+          )}
+        </td>
         <td className="px-3 py-2 text-xs text-[#8ab0d0] whitespace-nowrap">
           {req ? <span>{req.job_title} <span className="text-[#8ab0d0]/50">· {req.client?.name}</span></span> : '—'}
         </td>
@@ -1075,6 +1087,9 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
         </div>
         {error && <p className="text-red-400 text-[10px] mt-1 px-2">{error}</p>}
       </td>
+
+      {/* Pipeline icon — spacer while editing */}
+      <td className="px-1 py-1.5 w-8"></td>
 
       {/* Requerimiento/Cliente */}
       <td className="px-2 py-1.5 min-w-[200px]">
@@ -1402,6 +1417,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
 
 export default function Tracker() {
   const { session }                   = useAuth()
+  const navigate                      = useNavigate()
   const myRecruiter                   = recruiterFromEmail(session?.user?.email ?? '')
   const userRole                      = String(session?.user?.role ?? '').toLowerCase()
   const { week: currentWeek, year: currentYear } = getISOWeek()
@@ -1463,6 +1479,22 @@ export default function Tracker() {
 
   function removeRow(key) {
     setEntries(prev => prev.filter(e => (e._key ?? e.id) !== key))
+  }
+
+  // Opens the requirement's pipeline (kanban) in the Requirements page, scrolled
+  // straight to the board with the modal open — used by the 🔍 icon on Sent rows.
+  function openPipeline(req) {
+    if (!req?.id) return
+    navigate('/requirements', {
+      state: {
+        openPipeline: {
+          reqId:      req.id,
+          clientId:   req.client?.id ?? null,
+          clientName: req.client?.name ?? null,
+          position:   req.job_title ?? null,
+        },
+      },
+    })
   }
 
   // Week navigation
@@ -1631,7 +1663,7 @@ export default function Tracker() {
                           )}
                         </div>
                       </th>
-                      {['Requerimiento/Cliente', '', 'CV', 'LinkedIn', 'Status', 'Notas', 'English', 'Salario', 'OTE', 'Email', 'Phone', 'Estado', 'YoE', 'Target Role', 'Technologies', 'Skills', 'Modules', ''].map((h, i) => (
+                      {['', 'Requerimiento/Cliente', '', 'CV', 'LinkedIn', 'Status', 'Notas', 'English', 'Salario', 'OTE', 'Email', 'Phone', 'Estado', 'YoE', 'Target Role', 'Technologies', 'Skills', 'Modules', ''].map((h, i) => (
                         <th
                           key={`${h}-${i}`}
                           className={`px-3 py-3 text-[10px] font-bold text-[#81b927]/70 uppercase tracking-widest whitespace-nowrap${h === 'Status' ? ' sticky left-[200px] z-20 bg-[#0b2a58]' : ''}`}
@@ -1672,6 +1704,7 @@ export default function Tracker() {
                           isEditing={editingKey === key}
                           onStartEdit={() => setEditingKey(key)}
                           onEndEdit={() => setEditingKey(null)}
+                          onOpenPipeline={openPipeline}
                         />
                       )
                     })}

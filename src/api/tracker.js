@@ -16,7 +16,7 @@ export async function fetchTrackerEntries(weekNumber, weekYear, recruiter) {
     .from('tracker_entry')
     .select(`
       *,
-      requirement:requirement_id(id, req_number, job_title, client:client_id(name))
+      requirement:requirement_id(id, req_number, job_title, client:client_id(id, name))
     `)
     .eq('week_number', weekNumber)
     .eq('week_year', weekYear)
@@ -64,7 +64,7 @@ function sortByClientThenTitle(list) {
 export async function fetchActiveRequirements() {
   const { data, error } = await supabase
     .from('requirement')
-    .select('id, req_number, job_title, client:client_id(name), status:status_id(name)')
+    .select('id, req_number, job_title, client:client_id(id, name), status:status_id(name)')
     .order('created_at', { ascending: false })
   if (error) throw error
   return sortByClientThenTitle(
@@ -75,7 +75,7 @@ export async function fetchActiveRequirements() {
 export async function fetchClosedRequirements() {
   const { data, error } = await supabase
     .from('requirement')
-    .select('id, req_number, job_title, client:client_id(name), status:status_id(name)')
+    .select('id, req_number, job_title, client:client_id(id, name), status:status_id(name)')
     .order('created_at', { ascending: false })
   if (error) throw error
   return sortByClientThenTitle(

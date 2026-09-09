@@ -76,6 +76,12 @@ const ADMIN_SEARCHES = [
     ids: [14334, 11855, 13963, 12079, 13051, 13130, 13132, 13311, 12236, 13310, 13738],
     createdAt: '2026-09-09T12:00:00.000Z',
   },
+  {
+    label: 'HCM (SAP / Workday / Oracle)',
+    description: 'Todos los que mencionan "HCM" en rol, módulo, tecnología o skills — 24 SAP HCM, 7 Workday HCM, 5 sin sistema claro (incluye el único con Oracle HCM real) — ordenados por experiencia',
+    ids: [15025, 12783, 12281, 12274, 12667, 12788, 12351, 12798, 12781, 12279, 12449, 12841, 12839, 13722, 14705, 12249, 12472, 13626, 12844, 12789, 13587, 14780, 13089, 13090, 13097, 12147, 11834, 12148, 13640, 13096, 13085, 13091, 13712, 12473, 12474, 12475, 15063],
+    createdAt: '2026-09-09T13:00:00.000Z',
+  },
 ]
 import { usePermissions } from '../hooks/usePermissions'
 import PortalButtons from '../components/PortalButtons'

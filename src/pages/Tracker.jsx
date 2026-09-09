@@ -162,7 +162,12 @@ function RequirementSearch({ value, requirements, closedRequirements = [], curre
       if (panelRef.current?.contains(e.target)) return
       setOpen(false)
     }
-    function onScrollOrResize() { setOpen(false) }
+    function onScrollOrResize(e) {
+      // Ignore scroll events that originate inside the dropdown's own list —
+      // only close when something OUTSIDE it (e.g. the table) scrolls.
+      if (e?.type === 'scroll' && panelRef.current?.contains(e.target)) return
+      setOpen(false)
+    }
     document.addEventListener('mousedown', onClick)
     window.addEventListener('scroll', onScrollOrResize, true)
     window.addEventListener('resize', onScrollOrResize)
@@ -296,7 +301,12 @@ function TrackerGlobalSearch({ recruiter, label, onSelect }) {
       if (panelRef.current?.contains(e.target)) return
       setOpen(false)
     }
-    function onScrollOrResize() { setOpen(false) }
+    function onScrollOrResize(e) {
+      // Ignore scroll events that originate inside the dropdown's own list —
+      // only close when something OUTSIDE it (e.g. the table) scrolls.
+      if (e?.type === 'scroll' && panelRef.current?.contains(e.target)) return
+      setOpen(false)
+    }
     document.addEventListener('mousedown', onClick)
     window.addEventListener('scroll', onScrollOrResize, true)
     window.addEventListener('resize', onScrollOrResize)

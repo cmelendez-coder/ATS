@@ -883,7 +883,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
               title="Ver en pipeline"
               className="text-[#81b927] hover:scale-125 hover:text-white transition-all inline-flex items-center justify-center"
             >
-              <span className="material-symbols-outlined text-[16px]">search</span>
+              <span className="material-symbols-outlined text-[16px] animate-glow">search</span>
             </button>
           )}
         </td>

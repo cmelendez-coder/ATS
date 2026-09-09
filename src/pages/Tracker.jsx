@@ -868,11 +868,11 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
     return (
       <>
       <tr
-        className={`odd:bg-transparent even:bg-[#0b2a58]/50 hover:bg-[#0b2a58]/80 transition-colors group border-b border-white/[0.05] ${!readOnly ? 'cursor-pointer' : ''}`}
+        className={`odd:bg-[#0c2249] even:bg-[#152f5e] hover:bg-[#1c3a70] transition-colors group border-b border-white/[0.05] ${!readOnly ? 'cursor-pointer' : ''}`}
         onDoubleClick={() => { if (!readOnly) onStartEdit() }}
         title={!readOnly ? 'Doble clic para editar' : undefined}
       >
-        <td className="sticky left-0 z-10 w-[200px] group-odd:bg-[#071d47] group-even:bg-[#0b2a58] px-3 py-2 text-xs text-white font-bold whitespace-nowrap">
+        <td className="sticky left-0 z-10 w-[200px] group-odd:bg-[#0c2249] group-even:bg-[#152f5e] px-3 py-2 text-xs text-white font-bold whitespace-nowrap">
           <span>{data.candidate_name}</span>
         </td>
         <td className="px-1 py-2 text-center w-8">
@@ -909,7 +909,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
               </a>
             : <span className="text-[#8ab0d0]/30">—</span>}
         </td>
-        <td className={`sticky left-[200px] ${showStatusMenu ? 'z-50' : 'z-10'} group-odd:bg-[#071d47] group-even:bg-[#0b2a58] px-3 py-2`}>
+        <td className={`sticky left-[200px] ${showStatusMenu ? 'z-50' : 'z-10'} group-odd:bg-[#0c2249] group-even:bg-[#152f5e] px-3 py-2`}>
           <div className="relative" ref={statusMenuRef}>
             <button
               type="button"

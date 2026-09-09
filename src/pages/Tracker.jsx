@@ -342,14 +342,22 @@ function TrackerGlobalSearch({ recruiter, label, onSelect }) {
 
   return (
     <>
+      <style>{`
+        @keyframes trackerSearchGlow {
+          0%, 100% { box-shadow: 0 0 0px 0px rgba(129,185,39,0.0), 0 2px 8px rgba(7,29,71,0.15); }
+          50%       { box-shadow: 0 0 16px 3px rgba(129,185,39,0.45), 0 0 28px 8px rgba(129,185,39,0.15), 0 2px 10px rgba(7,29,71,0.2); }
+        }
+        .tracker-search-glow { animation: trackerSearchGlow 2.6s ease-in-out infinite; }
+        .tracker-search-glow:hover { animation: none; box-shadow: 0 0 20px 5px rgba(129,185,39,0.6), 0 4px 14px rgba(7,29,71,0.25); transform: translateY(-1px) scale(1.03); }
+      `}</style>
       <button
         ref={btnRef}
         type="button"
         onClick={handleToggle}
-        className="flex items-center gap-1.5 text-xs bg-white border border-[#071d47]/15 text-[#071d47] rounded-xl px-3 py-1.5 shadow-sm hover:bg-[#071d47]/5 transition-colors font-medium"
+        className="tracker-search-glow flex items-center gap-1.5 text-xs bg-[#10284d] border border-[#81b927]/40 text-white rounded-xl px-3.5 py-1.5 font-semibold transition-all duration-200"
         title={`Buscar candidato en todas las semanas de ${label}`}
       >
-        <span className="material-symbols-outlined text-[16px] text-[#071d47]/50">search</span>
+        <span className="material-symbols-outlined text-[16px] text-[#81b927]">search</span>
         Buscar en {label}
       </button>
       {open && pos && createPortal(

@@ -238,10 +238,16 @@ export default function Dashboard() {
                     ]
                     const p = P[i % P.length]
                     return (
-                      <div key={client.name} className="rounded-xl p-3.5 min-w-[100px]" style={{ backgroundColor: p.bg }}>
+                      <Link
+                        key={client.name}
+                        to={client.id ? `/requirements?client=${client.id}` : '/requirements'}
+                        className="rounded-xl p-3.5 min-w-[100px] hover:scale-[1.03] hover:shadow-md transition-all duration-150 cursor-pointer"
+                        style={{ backgroundColor: p.bg }}
+                        title={`Ver requerimientos de ${client.name}`}
+                      >
                         <p className="text-[9px] font-bold uppercase tracking-widest mb-2 truncate" style={{ color: p.lbl }}>{client.name}</p>
                         <p className="text-[2rem] font-light leading-none" style={{ color: p.num }}>{client.count}</p>
-                      </div>
+                      </Link>
                     )
                   })}
                 </div>

@@ -31,7 +31,7 @@ export async function getDashboardStats() {
     supabase.from('requirement').select(`
       id, req_number, job_title, priority, target_fill_date, created_at,
       status:status_id(name),
-      client:client_id(name)
+      client:client_id(id, name)
     `).order('created_at', { ascending: false }),
     supabase.from('tracker_entry').select('*', { count: 'exact', head: true })
       .eq('status', 'Sent').eq('week_number', isoWeek).eq('week_year', isoYear),
@@ -64,12 +64,12 @@ export async function getDashboardStats() {
   // Open reqs per client (top 6)
   const clientMap = {}
   for (const r of openReqs) {
-    const name = r.client?.name ?? 'Sin cliente'
-    clientMap[name] = (clientMap[name] || 0) + 1
+    const key = r.client?.id ?? 'none'
+    if (!clientMap[key]) clientMap[key] = { id: r.client?.id ?? null, name: r.client?.name ?? 'Sin cliente', count: 0 }
+    clientMap[key].count += 1
   }
-  const topClients = Object.entries(clientMap)
-    .sort((a, b) => b[1] - a[1])
-    .map(([name, count]) => ({ name, count }))
+  const topClients = Object.values(clientMap)
+    .sort((a, b) => b.count - a.count)
 
   const weeklySent     = weeklySentCount     ?? 0
   const weeklyRejected = weeklyRejectedCount ?? 0

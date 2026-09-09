@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { usePermissions } from '../hooks/usePermissions'
 import { useRequirementAlerts } from '../hooks/useRequirementAlerts'
 import RequirementAlertBell from '../components/RequirementAlertBell'
@@ -978,6 +978,7 @@ function CloseRequirementModal({ onConfirm, onCancel }) {
 /* ── Main Page ── */
 export default function Requirements() {
   const { can } = usePermissions()
+  const [searchParams] = useSearchParams()
   const { pendingCount, loading: alertsLoading, showAlerts } = useRequirementAlerts()
   const [requirements, setRequirements] = useState([])
   const [loading, setLoading]           = useState(true)
@@ -985,7 +986,8 @@ export default function Requirements() {
   const [expanded, setExpanded]         = useState({})
   const [search, setSearch]             = useState('')
   const [filterStatus, setFilterStatus] = useState('')
-  const [filterClient, setFilterClient] = useState('')
+  // Pre-filled when arriving from a client's stat card on the Dashboard (?client=<id>)
+  const [filterClient, setFilterClient] = useState(searchParams.get('client') ?? '')
   const [activeTab, setActiveTab] = useState('open')
   const [viewMode, setViewMode]   = useState('pipeline') // 'pipeline' | 'tabla'
   const [statusPickerId, setStatusPickerId] = useState(null)
@@ -1189,6 +1191,17 @@ return (
               <div className="flex items-center gap-3">
                 <h1 className="text-[2.25rem] leading-none tracking-[-0.02em] font-extrabold text-primary">Requirements</h1>
                 <span className="px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant text-xs font-bold">{requirements.length}</span>
+                {filterClient && (
+                  <button
+                    type="button"
+                    onClick={() => setFilterClient('')}
+                    className="flex items-center gap-1.5 pl-3 pr-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/15 transition-colors"
+                    title="Quitar filtro de cliente"
+                  >
+                    {catalogs.clients.find(c => String(c.id) === String(filterClient))?.name ?? 'Cliente'}
+                    <span className="material-symbols-outlined text-[14px]">close</span>
+                  </button>
+                )}
               </div>
             </div>
             <div className="flex flex-col items-end gap-3 shrink-0">

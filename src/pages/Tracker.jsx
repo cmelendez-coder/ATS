@@ -2,8 +2,10 @@ import { useState, useEffect, useRef, useId } from 'react'
 import { createPortal } from 'react-dom'
 import PortalButtons from '../components/PortalButtons'
 import UserAvatar from '../components/UserAvatar'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { usePermissions } from '../hooks/usePermissions'
+import PipelinePanel from '../components/PipelinePanel'
 import {
   fetchTrackerEntries,
   fetchTrackerEntry,
@@ -1417,7 +1419,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
 
 export default function Tracker() {
   const { session }                   = useAuth()
-  const navigate                      = useNavigate()
+  const { can }                       = usePermissions()
   const myRecruiter                   = recruiterFromEmail(session?.user?.email ?? '')
   const userRole                      = String(session?.user?.role ?? '').toLowerCase()
   const { week: currentWeek, year: currentYear } = getISOWeek()
@@ -1432,6 +1434,7 @@ export default function Tracker() {
   const [reqFilter, setReqFilter]     = useState('')
   const [refreshKey, setRefreshKey]   = useState(0)
   const [editingKey, setEditingKey]   = useState(null)
+  const [pipelineModal, setPipelineModal] = useState(null) // { reqId, clientId, clientName, position }
   const tableScrollRef                = useRef(null)
 
   // Admins can edit any tab; recruiters can only edit their own
@@ -1481,19 +1484,15 @@ export default function Tracker() {
     setEntries(prev => prev.filter(e => (e._key ?? e.id) !== key))
   }
 
-  // Opens the requirement's pipeline (kanban) in the Requirements page, scrolled
-  // straight to the board with the modal open — used by the 🔍 icon on Sent rows.
+  // Opens the requirement's pipeline (kanban) right here in a modal — used by
+  // the 🔍 icon on Sent rows, no navigation away from the Tracker.
   function openPipeline(req) {
     if (!req?.id) return
-    navigate('/requirements', {
-      state: {
-        openPipeline: {
-          reqId:      req.id,
-          clientId:   req.client?.id ?? null,
-          clientName: req.client?.name ?? null,
-          position:   req.job_title ?? null,
-        },
-      },
+    setPipelineModal({
+      reqId:      req.id,
+      clientId:   req.client?.id ?? null,
+      clientName: req.client?.name ?? null,
+      position:   req.job_title ?? null,
     })
   }
 
@@ -1717,6 +1716,37 @@ export default function Tracker() {
 
         </div>
       </div>
+
+      {pipelineModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setPipelineModal(null)}>
+          <div
+            className="relative bg-[#0b1e3d] rounded-2xl shadow-2xl border border-white/10 w-full max-w-5xl mx-4 max-h-[85vh] flex flex-col overflow-hidden"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 shrink-0">
+              <div>
+                <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-0.5">{pipelineModal.clientName ?? '—'}</p>
+                <h2 className="text-base font-bold text-white">{pipelineModal.position ?? 'Pipeline'}</h2>
+              </div>
+              <button
+                onClick={() => setPipelineModal(null)}
+                className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-6 py-4">
+              <PipelinePanel
+                reqId={pipelineModal.reqId}
+                clientId={pipelineModal.clientId}
+                clientName={pipelineModal.clientName}
+                canDrag={can('requirements.pipeline')}
+                canManage={can('requirements.edit')}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

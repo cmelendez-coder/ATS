@@ -19,6 +19,7 @@ import {
   backfillSentCandidates,
   createScreeningEvent,
   recruiterFromEmail,
+  searchTrackerByRecruiter,
 } from '../api/tracker'
 
 const TABS = [
@@ -267,6 +268,128 @@ function RequirementSearch({ value, requirements, closedRequirements = [], curre
                 ))}
               </>
             )}
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
+  )
+}
+
+// Global candidate search scoped to a single recruiter — searches across ALL
+// weeks/years of that recruiter's tracker, not just the currently viewed week.
+// Rendered via portal (fixed position) for the same clipping reasons as
+// RequirementSearch above.
+function TrackerGlobalSearch({ recruiter, label, onSelect }) {
+  const [open, setOpen]       = useState(false)
+  const [query, setQuery]     = useState('')
+  const [results, setResults] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [pos, setPos]         = useState(null)
+  const btnRef   = useRef(null)
+  const panelRef = useRef(null)
+
+  useEffect(() => {
+    if (!open) return
+    function onClick(e) {
+      if (btnRef.current?.contains(e.target)) return
+      if (panelRef.current?.contains(e.target)) return
+      setOpen(false)
+    }
+    function onScrollOrResize() { setOpen(false) }
+    document.addEventListener('mousedown', onClick)
+    window.addEventListener('scroll', onScrollOrResize, true)
+    window.addEventListener('resize', onScrollOrResize)
+    return () => {
+      document.removeEventListener('mousedown', onClick)
+      window.removeEventListener('scroll', onScrollOrResize, true)
+      window.removeEventListener('resize', onScrollOrResize)
+    }
+  }, [open])
+
+  useEffect(() => { if (!open) { setQuery(''); setResults([]) } }, [open])
+
+  useEffect(() => {
+    const q = query.trim()
+    if (!q) { setResults([]); return }
+    setLoading(true)
+    const timer = setTimeout(() => {
+      searchTrackerByRecruiter(q, recruiter)
+        .then(setResults)
+        .catch(() => setResults([]))
+        .finally(() => setLoading(false))
+    }, 250)
+    return () => clearTimeout(timer)
+  }, [query, recruiter])
+
+  function handleToggle() {
+    if (!open && btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect()
+      setPos({ top: r.bottom + 6, left: Math.min(r.left, window.innerWidth - 340), width: 320 })
+    }
+    setOpen(o => !o)
+  }
+
+  return (
+    <>
+      <button
+        ref={btnRef}
+        type="button"
+        onClick={handleToggle}
+        className="flex items-center gap-1.5 text-xs bg-white border border-[#071d47]/15 text-[#071d47] rounded-xl px-3 py-1.5 shadow-sm hover:bg-[#071d47]/5 transition-colors font-medium"
+        title={`Buscar candidato en todas las semanas de ${label}`}
+      >
+        <span className="material-symbols-outlined text-[16px] text-[#071d47]/50">search</span>
+        Buscar en {label}
+      </button>
+      {open && pos && createPortal(
+        <div
+          ref={panelRef}
+          className="fixed z-[500] bg-[#0b2a58] border border-white/10 rounded-lg shadow-2xl overflow-hidden"
+          style={{ top: pos.top, left: pos.left, width: pos.width }}
+        >
+          <div className="p-2 border-b border-white/10">
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-[14px] text-white/40">search</span>
+              <input
+                type="text"
+                autoFocus
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder={`Buscar candidato de ${label}…`}
+                className="w-full bg-[#071d47] text-white text-xs pl-7 pr-2 py-1.5 rounded focus:outline-none border border-white/10 placeholder:text-white/30"
+              />
+            </div>
+          </div>
+          <div className="max-h-72 overflow-y-auto py-1">
+            {loading && (
+              <p className="px-3 py-3 text-xs text-white/40 text-center flex items-center justify-center gap-2">
+                <span className="material-symbols-outlined text-[14px] animate-spin">progress_activity</span>
+                Buscando…
+              </p>
+            )}
+            {!loading && query.trim() && results.length === 0 && (
+              <p className="px-3 py-3 text-xs text-white/40 text-center">Sin resultados</p>
+            )}
+            {!loading && results.map(r => (
+              <button
+                key={r.id}
+                type="button"
+                onClick={() => { onSelect(r.week_number, r.week_year); setOpen(false) }}
+                className="w-full text-left px-3 py-2 hover:bg-[#071d47] transition-colors border-b border-white/5 last:border-0"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-bold text-white truncate">{r.candidate_name}</span>
+                  <span className={`shrink-0 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${STATUS_STYLE[r.status] ?? 'bg-white/10 text-white/60'}`}>{r.status}</span>
+                </div>
+                <div className="flex items-center justify-between gap-2 mt-0.5">
+                  <span className="text-[10px] text-[#8ab0d0] truncate">
+                    {r.requirement ? <>{r.requirement.job_title} <span className="text-[#8ab0d0]/50">· {r.requirement.client?.name}</span></> : '—'}
+                  </span>
+                  <span className="text-[10px] text-[#81b927]/80 font-semibold shrink-0">{weekLabel(r.week_number, r.week_year)}</span>
+                </div>
+              </button>
+            ))}
           </div>
         </div>,
         document.body
@@ -1413,6 +1536,20 @@ export default function Tracker() {
               )}
             </div>
             </div>
+          </div>
+
+          {/* Buscadores globales — buscan en TODAS las semanas de cada reclutador */}
+          <div className="flex items-center gap-2">
+            <TrackerGlobalSearch
+              recruiter="cesar"
+              label="César"
+              onSelect={(w, y) => { setActiveTab('cesar'); setWeek(w); setYear(y) }}
+            />
+            <TrackerGlobalSearch
+              recruiter="enrique"
+              label="Enrique"
+              onSelect={(w, y) => { setActiveTab('enrique'); setWeek(w); setYear(y) }}
+            />
           </div>
 
           {/* Summary chips + filtro de requerimiento */}

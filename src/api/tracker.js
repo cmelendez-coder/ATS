@@ -26,6 +26,25 @@ export async function fetchTrackerEntries(weekNumber, weekYear, recruiter) {
   return data ?? []
 }
 
+// Searches a candidate name across ALL weeks/years of a single recruiter's tracker.
+export async function searchTrackerByRecruiter(query, recruiter) {
+  const q = query.trim()
+  if (!q) return []
+  const { data, error } = await supabase
+    .from('tracker_entry')
+    .select(`
+      id, candidate_name, week_number, week_year, status,
+      requirement:requirement_id(id, job_title, client:client_id(name))
+    `)
+    .eq('recruiter', recruiter)
+    .ilike('candidate_name', `%${q}%`)
+    .order('week_year', { ascending: false })
+    .order('week_number', { ascending: false })
+    .limit(30)
+  if (error) throw error
+  return data ?? []
+}
+
 export async function searchCandidatesSimple(q) {
   if (!q.trim()) return []
   const { data, error } = await supabase.rpc('search_candidates', { query: q.trim() })

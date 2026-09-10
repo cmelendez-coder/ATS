@@ -1586,6 +1586,7 @@ export default function Tracker() {
   const [refreshKey, setRefreshKey]   = useState(0)
   const [editingKey, setEditingKey]   = useState(null)
   const [pipelineModal, setPipelineModal] = useState(null) // { reqId, clientId, clientName, position }
+  const [frozenNoticeHidden, setFrozenNoticeHidden] = useState(false)
   const tableScrollRef                = useRef(null)
 
   // Past weeks are frozen — once a new ISO week starts, the previous week and
@@ -1615,6 +1616,7 @@ export default function Tracker() {
     setLoading(true)
     setEditingKey(null)
     setReqFilter('')
+    setFrozenNoticeHidden(false)
     fetchTrackerEntries(week, year, activeTab)
       .then(rows => {
         setEntries(rows.map(r => ({ ...r, _editing: false, _key: r.id })))
@@ -1905,6 +1907,26 @@ export default function Tracker() {
               />
             </div>
           </div>
+        </div>
+      )}
+
+      {isPastWeek && !frozenNoticeHidden && (
+        <div className="fixed bottom-5 right-5 z-[120] max-w-xs bg-[#fff8ec] border border-[#f0d9b0] rounded-2xl shadow-[0_8px_28px_rgba(0,0,0,0.18)] p-4 flex gap-3">
+          <span className="material-symbols-outlined text-[20px] text-[#a86a1f] shrink-0">lock</span>
+          <div className="min-w-0">
+            <p className="text-xs text-[#6b4d1f] leading-relaxed">
+              Para evitar problemas con la lógica de los datos en los reportes, no se pueden
+              cambiar los status que se declararon en esta <strong>semana {week}</strong>.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setFrozenNoticeHidden(true)}
+            className="shrink-0 -mt-1 -mr-1 h-6 w-6 rounded-full flex items-center justify-center text-[#a86a1f] hover:bg-[#f0d9b0]/50 transition-colors"
+            title="Ocultar"
+          >
+            <span className="material-symbols-outlined text-[16px]">close</span>
+          </button>
         </div>
       )}
     </>

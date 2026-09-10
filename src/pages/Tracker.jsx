@@ -1923,17 +1923,18 @@ export default function Tracker() {
                 0 4px 12px rgba(0,0,0,0.12),
                 inset 0 2px 0 rgba(255,255,255,0.95),
                 inset 0 -16px 26px rgba(31,109,68,0.05),
-                0 0 0 0 rgba(31,109,68,0); }
+                0 0 8px 1px rgba(31,109,68,0.15); }
               50%      { box-shadow:
                 0 20px 54px rgba(0,0,0,0.22),
                 0 4px 12px rgba(0,0,0,0.12),
                 inset 0 2px 0 rgba(255,255,255,0.95),
                 inset 0 -16px 26px rgba(31,109,68,0.05),
-                0 0 26px 6px rgba(31,109,68,0.38); }
+                0 0 42px 12px rgba(31,109,68,0.7),
+                0 0 70px 22px rgba(31,109,68,0.28); }
             }
             .frozen-notice {
               animation: frozenNoticeIn 0.38s cubic-bezier(0.2,0.8,0.2,1),
-                         frozenNoticeGlow 3.4s ease-in-out 0.38s infinite;
+                         frozenNoticeGlow 1.6s ease-in-out 0.38s infinite;
             }
             @media (prefers-reduced-motion: reduce) {
               .frozen-notice { animation: frozenNoticeIn 0.38s ease-out; }

@@ -53,13 +53,16 @@ export async function searchTalentDirectory(query) {
   if (q.length < 2) return []
   const { data, error } = await supabase
     .from('candidate')
-    .select('candidate_id, full_name, email, years_experience, status_id, role:catalog_role!role_id(name)')
+    .select('candidate_id, full_name, email, years_experience, status_id, role:catalog_role!role_id(name), candidate_blacklist!candidate_id(reason)')
     .ilike('full_name', `%${q}%`)
     .order('full_name', { ascending: true })
     .limit(20)
   if (error) throw error
   // status_id 6 = "Lista Negra"
-  return (data ?? []).map(c => ({ ...c, blacklisted: c.status_id === 6 }))
+  return (data ?? []).map(c => {
+    const bl = Array.isArray(c.candidate_blacklist) ? c.candidate_blacklist[0] : c.candidate_blacklist
+    return { ...c, blacklisted: c.status_id === 6, blacklist_reason: bl?.reason ?? '' }
+  })
 }
 
 export async function searchCandidatesSimple(q) {

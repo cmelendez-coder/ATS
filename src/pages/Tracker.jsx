@@ -427,7 +427,7 @@ function CandidateNameSearch({ value, linkedId, onType, onPick, onNormalize }) {
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [pos, setPos]         = useState(null)
-  const [blocked, setBlocked] = useState(null) // full_name of a blacklisted pick attempt
+  const [blocked, setBlocked] = useState(null) // { name, reason } of a blacklisted pick attempt
   const inputRef = useRef(null)
   const panelRef = useRef(null)
 
@@ -508,7 +508,7 @@ function CandidateNameSearch({ value, linkedId, onType, onPick, onNormalize }) {
                 key={c.candidate_id}
                 type="button"
                 onClick={() => {
-                  if (c.blacklisted) { setBlocked(c.full_name); return }
+                  if (c.blacklisted) { setBlocked({ name: c.full_name, reason: c.blacklist_reason }); return }
                   onPick(c); setOpen(false)
                 }}
                 className={`w-full text-left px-3 py-1.5 transition-colors border-b last:border-0 ${
@@ -534,25 +534,33 @@ function CandidateNameSearch({ value, linkedId, onType, onPick, onNormalize }) {
       {blocked && createPortal(
         <div className="fixed inset-0 z-[600] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setBlocked(null)}>
           <div
-            className="bg-[#1a0d0d] border-2 border-red-500/60 rounded-2xl shadow-[0_0_40px_rgba(220,38,38,0.35)] p-6 w-full max-w-sm mx-4 text-center"
+            className="bg-[#1a0d0d] border-2 border-red-500/60 rounded-2xl shadow-[0_0_40px_rgba(220,38,38,0.35)] p-8 w-full max-w-lg mx-4 text-center"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex justify-center mb-3">
-              <span className="w-14 h-14 rounded-full bg-red-600/25 border border-red-500/50 flex items-center justify-center">
-                <span className="material-symbols-outlined text-[30px] text-red-400">dangerous</span>
+            <div className="flex justify-center mb-4">
+              <span className="w-16 h-16 rounded-full bg-red-600/25 border border-red-500/50 flex items-center justify-center">
+                <span className="material-symbols-outlined text-[34px] text-red-400">dangerous</span>
               </span>
             </div>
-            <h3 className="text-base font-extrabold text-red-300 uppercase tracking-wide mb-1.5 flex items-center justify-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px]">warning</span>
+            <h3 className="text-lg font-extrabold text-red-300 uppercase tracking-wide mb-2 flex items-center justify-center gap-2">
+              <span className="material-symbols-outlined text-[18px]">warning</span>
               Candidato bloqueado
             </h3>
             <p className="text-sm text-white/90 leading-relaxed">
-              No puedes agregar a <strong className="text-red-300">{blocked}</strong> ya que está en <strong className="text-red-300">lista negra</strong>.
+              No puedes agregar a <strong className="text-red-300">{blocked.name}</strong> ya que está en <strong className="text-red-300">lista negra</strong>.
             </p>
+            <div className="mt-4 rounded-xl bg-red-950/40 border border-red-500/30 px-4 py-3">
+              <p className="text-[10px] font-bold text-red-300/70 uppercase tracking-widest mb-1">Razón</p>
+              <p className="text-sm text-white italic leading-relaxed">
+                {blocked.reason?.trim()
+                  ? `"${blocked.reason.trim()}"`
+                  : <span className="text-white/50 not-italic">Sin razón registrada.</span>}
+              </p>
+            </div>
             <button
               type="button"
               onClick={() => setBlocked(null)}
-              className="mt-5 px-6 py-2 rounded-lg bg-red-600 text-white text-sm font-bold hover:bg-red-500 transition-colors"
+              className="mt-6 px-8 py-2.5 rounded-lg bg-red-600 text-white text-sm font-bold hover:bg-red-500 transition-colors"
             >
               Entendido
             </button>

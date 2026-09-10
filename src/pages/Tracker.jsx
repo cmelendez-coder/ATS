@@ -1911,21 +1911,21 @@ export default function Tracker() {
       )}
 
       {isPastWeek && !frozenNoticeHidden && (
-        <div className="fixed bottom-5 right-5 z-[120] max-w-xs bg-[#fff8ec] border border-[#f0d9b0] rounded-2xl shadow-[0_8px_28px_rgba(0,0,0,0.18)] p-4 flex gap-3">
-          <span className="material-symbols-outlined text-[20px] text-[#a86a1f] shrink-0">lock</span>
+        <div className="fixed bottom-6 right-6 z-[120] max-w-[34rem] bg-white border border-slate-200 rounded-3xl shadow-[0_12px_44px_rgba(0,0,0,0.22)] p-7 flex gap-5">
+          <span className="material-symbols-outlined text-[34px] text-black/70 shrink-0">lock</span>
           <div className="min-w-0">
-            <p className="text-xs text-[#6b4d1f] leading-relaxed">
+            <p className="text-xl text-black leading-relaxed">
               Para evitar problemas con la lógica de los datos en los reportes, no se pueden
-              cambiar los status que se declararon en esta <strong>semana {week}</strong>.
+              cambiar los status que se declararon en esta <strong style={{ color: '#1f6d44' }}>semana {week}</strong>.
             </p>
           </div>
           <button
             type="button"
             onClick={() => setFrozenNoticeHidden(true)}
-            className="shrink-0 -mt-1 -mr-1 h-6 w-6 rounded-full flex items-center justify-center text-[#a86a1f] hover:bg-[#f0d9b0]/50 transition-colors"
+            className="shrink-0 -mt-2 -mr-2 h-10 w-10 rounded-full flex items-center justify-center text-black/50 hover:bg-black/5 transition-colors"
             title="Ocultar"
           >
-            <span className="material-symbols-outlined text-[16px]">close</span>
+            <span className="material-symbols-outlined text-[27px]">close</span>
           </button>
         </div>
       )}

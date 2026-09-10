@@ -1911,23 +1911,63 @@ export default function Tracker() {
       )}
 
       {isPastWeek && !frozenNoticeHidden && (
-        <div className="fixed bottom-6 right-6 z-[120] max-w-[34rem] bg-white border border-slate-200 rounded-3xl shadow-[0_12px_44px_rgba(0,0,0,0.22)] p-7 flex gap-5">
-          <span className="material-symbols-outlined text-[34px] text-black/70 shrink-0">lock</span>
-          <div className="min-w-0">
-            <p className="text-xl text-black leading-relaxed">
-              Para evitar problemas con la lógica de los datos en los reportes, no se pueden
-              cambiar los status que se declararon en esta <strong style={{ color: '#1f6d44' }}>semana {week}</strong>.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setFrozenNoticeHidden(true)}
-            className="shrink-0 -mt-2 -mr-2 h-10 w-10 rounded-full flex items-center justify-center text-black/50 hover:bg-black/5 transition-colors"
-            title="Ocultar"
+        <>
+          <style>{`
+            @keyframes frozenNoticeIn {
+              from { opacity: 0; transform: translateY(16px) scale(0.96); }
+              to   { opacity: 1; transform: none; }
+            }
+            @keyframes frozenNoticeGlow {
+              0%, 100% { box-shadow:
+                0 20px 54px rgba(0,0,0,0.22),
+                0 4px 12px rgba(0,0,0,0.12),
+                inset 0 2px 0 rgba(255,255,255,0.95),
+                inset 0 -16px 26px rgba(31,109,68,0.05),
+                0 0 0 0 rgba(31,109,68,0); }
+              50%      { box-shadow:
+                0 20px 54px rgba(0,0,0,0.22),
+                0 4px 12px rgba(0,0,0,0.12),
+                inset 0 2px 0 rgba(255,255,255,0.95),
+                inset 0 -16px 26px rgba(31,109,68,0.05),
+                0 0 26px 6px rgba(31,109,68,0.38); }
+            }
+            .frozen-notice {
+              animation: frozenNoticeIn 0.38s cubic-bezier(0.2,0.8,0.2,1),
+                         frozenNoticeGlow 3.4s ease-in-out 0.38s infinite;
+            }
+            @media (prefers-reduced-motion: reduce) {
+              .frozen-notice { animation: frozenNoticeIn 0.38s ease-out; }
+            }
+          `}</style>
+          <div
+            className="frozen-notice fixed bottom-6 right-6 z-[120] max-w-[34rem] rounded-3xl border border-slate-200 pl-9 pr-7 py-7 flex gap-5"
+            style={{ background: 'linear-gradient(180deg, #ffffff 0%, #f6f8f7 100%)' }}
           >
-            <span className="material-symbols-outlined text-[27px]">close</span>
-          </button>
-        </div>
+            {/* Green accent bar */}
+            <span className="absolute left-3 top-4 bottom-4 w-1.5 rounded-full" style={{ backgroundColor: '#1f6d44' }} />
+            {/* Raised icon chip */}
+            <span
+              className="shrink-0 h-12 w-12 rounded-2xl flex items-center justify-center text-white"
+              style={{ backgroundColor: '#1f6d44', boxShadow: '0 5px 12px rgba(31,109,68,0.45), inset 0 1px 0 rgba(255,255,255,0.25)' }}
+            >
+              <span className="material-symbols-outlined text-[26px]">lock</span>
+            </span>
+            <div className="min-w-0">
+              <p className="text-xl text-black leading-relaxed">
+                Para evitar problemas con la lógica de los datos en los reportes, no se pueden
+                cambiar los status que se declararon en esta <strong style={{ color: '#1f6d44' }}>semana {week}</strong>.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setFrozenNoticeHidden(true)}
+              className="shrink-0 -mt-2 -mr-2 h-10 w-10 rounded-full flex items-center justify-center text-black/50 hover:bg-black/5 transition-colors"
+              title="Ocultar"
+            >
+              <span className="material-symbols-outlined text-[27px]">close</span>
+            </button>
+          </div>
+        </>
       )}
     </>
   )

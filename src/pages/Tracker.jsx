@@ -1954,8 +1954,8 @@ export default function Tracker() {
             </span>
             <div className="min-w-0">
               <p className="text-xl text-black leading-relaxed">
-                Para evitar problemas con la lógica de los datos en los reportes, no se pueden
-                cambiar los status que se declararon en esta <strong style={{ color: '#1f6d44' }}>semana {week}</strong>.
+                Para evitar inconsistencias en la lógica de los reportes, los estatus registrados
+                durante la <strong style={{ color: '#1f6d44' }}>Semana {week}</strong> no podrán ser modificados.
               </p>
             </div>
             <button

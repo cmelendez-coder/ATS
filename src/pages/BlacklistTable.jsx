@@ -134,7 +134,7 @@ export default function BlacklistTable() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[720px]">
                   <thead>
-                    <tr className="bg-[#10284d] text-white">
+                    <tr className="bg-black" style={{ color: '#ef4444' }}>
                       <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-widest">Candidato</th>
                       <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-widest">Rol</th>
                       <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-center">Años</th>
@@ -143,7 +143,7 @@ export default function BlacklistTable() {
                   </thead>
                   <tbody>
                     {rows.map((r, i) => (
-                      <tr key={r.candidate_id} className={`${i % 2 === 1 ? 'bg-[#10284d]/10' : 'bg-white'} border-b border-outline-variant/10 align-top`}>
+                      <tr key={r.candidate_id} className={`${i % 2 === 1 ? 'bg-[#b9bdc4]' : 'bg-[#e4e6e9]'} border-b border-black/5 align-top`}>
                         <td className="px-4 py-3">
                           <Link
                             to={`/talent/edit/${r.candidate_code}`}

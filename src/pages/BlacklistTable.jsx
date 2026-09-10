@@ -137,7 +137,6 @@ export default function BlacklistTable() {
                     <tr className="bg-black" style={{ color: '#ef4444' }}>
                       <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-widest">Candidato</th>
                       <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-widest">Rol</th>
-                      <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-center">Años</th>
                       <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-widest w-[45%]">Detalles del porqué</th>
                     </tr>
                   </thead>
@@ -147,21 +146,18 @@ export default function BlacklistTable() {
                         <td className="px-4 py-3">
                           <Link
                             to={`/talent/edit/${r.candidate_code}`}
-                            className="text-sm font-semibold text-primary hover:underline"
+                            className="text-sm font-semibold text-black hover:underline"
                           >
                             {r.full_name}
                           </Link>
                           {r.blacklisted_at && (
-                            <p className="text-[10px] text-on-surface-variant mt-0.5">
+                            <p className="text-[10px] text-black/50 mt-0.5">
                               Agregado: {new Date(r.blacklisted_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}
                             </p>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-xs text-on-surface-variant whitespace-nowrap">
+                        <td className="px-4 py-3 text-xs font-bold text-black whitespace-nowrap">
                           {r.role?.name ?? '—'}{r.seniority?.name ? ` · ${r.seniority.name}` : ''}
-                        </td>
-                        <td className="px-4 py-3 text-xs text-on-surface-variant text-center">
-                          {r.years_experience != null ? `${r.years_experience}` : '—'}
                         </td>
                         <td className="px-4 py-3 pb-6">
                           <ReasonCell row={r} onSaved={handleReasonSaved} />

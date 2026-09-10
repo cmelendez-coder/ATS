@@ -9,6 +9,7 @@ import Requirements from './pages/Requirements'
 import NewRequirement from './pages/NewRequirement'
 import EditRequirement from './pages/EditRequirement'
 import TalentDirectory from './pages/TalentDirectory'
+import BlacklistTable from './pages/BlacklistTable'
 import AddTalent from './pages/AddTalent'
 import EditTalent from './pages/EditTalent'
 import Reports from './pages/Reports'
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="/requirements/new"    element={<Protected permission="requirements.create"><NewRequirement /></Protected>} />
           <Route path="/requirements/edit/:id" element={<Protected permission="requirements.edit"><EditRequirement /></Protected>} />
           <Route path="/talent"              element={<Protected><TalentDirectory /></Protected>} />
+          <Route path="/talent/blacklist"    element={<Protected><BlacklistTable /></Protected>} />
           <Route path="/talent/new"          element={<Protected permission="talent.create"><AddTalent /></Protected>} />
           <Route path="/talent/edit/:code"   element={<Protected><EditTalent /></Protected>} />
           <Route path="/employees"           element={<Protected><Employees /></Protected>} />

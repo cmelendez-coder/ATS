@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import UserAvatar from '../components/UserAvatar'
 import { Link, useNavigate, useParams, useLocation } from 'react-router-dom'
 import { getCandidate, updateCandidate, getCandidateTrackerHistory } from '../api/talent'
+import { addToBlacklist } from '../api/blacklist'
 
 function getInitials(name = '') {
   return name.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase() || '?'
@@ -43,6 +44,11 @@ export default function EditTalent() {
 
   const [saving, setSaving]         = useState(false)
   const [saveError, setSaveError]   = useState(null)
+
+  const [blModal, setBlModal]       = useState(false)
+  const [blReason, setBlReason]     = useState('')
+  const [blSaving, setBlSaving]     = useState(false)
+  const [blError, setBlError]       = useState(null)
 
   const [trackerHistory, setTrackerHistory] = useState([])
   const [trackerLoading, setTrackerLoading] = useState(false)
@@ -157,6 +163,20 @@ export default function EditTalent() {
       setSaveError('Error al actualizar el candidato. Intenta de nuevo.')
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function confirmBlacklist() {
+    if (!talent?.candidate_id) return
+    setBlSaving(true)
+    setBlError(null)
+    try {
+      await addToBlacklist(talent.candidate_id, blReason.trim())
+      if (draftKey) sessionStorage.removeItem(draftKey)
+      navigate('/talent/blacklist')
+    } catch {
+      setBlError('No se pudo agregar a la lista negra. Intenta de nuevo.')
+      setBlSaving(false)
     }
   }
 
@@ -441,7 +461,17 @@ export default function EditTalent() {
                   {lastUpdate && (
                     <p className="text-slate-500 text-sm italic">Última actualización: {lastUpdate}</p>
                   )}
-                  <div className="flex gap-4 ml-auto">
+                  <div className="flex items-center gap-3 ml-auto">
+                    <button
+                      type="button"
+                      onClick={() => { setBlReason(''); setBlError(null); setBlModal(true) }}
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-white hover:opacity-90 transition-opacity"
+                      style={{ backgroundColor: '#a12d2d' }}
+                      title="Enviar a la lista negra"
+                    >
+                      <span className="material-symbols-outlined text-[15px]">block</span>
+                      Lista negra
+                    </button>
                     <button
                       type="button"
                       onClick={() => navigate('/talent')}
@@ -472,6 +502,56 @@ export default function EditTalent() {
               </div>
             </div>
           </form>
+
+          {/* ── Lista negra: modal para pedir la razón ────────── */}
+          {blModal && (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => !blSaving && setBlModal(false)}>
+              <div
+                className="bg-surface-container-high rounded-2xl shadow-2xl border border-outline-variant/20 p-6 w-full max-w-md mx-4"
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: '#a12d2d22' }}>
+                    <span className="material-symbols-outlined text-[20px]" style={{ color: '#a12d2d' }}>block</span>
+                  </span>
+                  <div>
+                    <h3 className="text-sm font-bold text-on-surface">Enviar a lista negra</h3>
+                    <p className="text-xs text-on-surface-variant mt-0.5">{talent.full_name}</p>
+                  </div>
+                </div>
+                <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1.5">Razón</label>
+                <textarea
+                  autoFocus
+                  rows={4}
+                  value={blReason}
+                  onChange={e => setBlReason(e.target.value)}
+                  placeholder="¿Por qué se agrega a la lista negra?"
+                  className="w-full bg-surface text-on-surface text-sm px-3 py-2 rounded-lg border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-red-400/40 resize-none placeholder:text-on-surface-variant/40"
+                />
+                {blError && <p className="text-red-500 text-xs mt-2">{blError}</p>}
+                <div className="flex gap-3 justify-end mt-5">
+                  <button
+                    type="button"
+                    onClick={() => setBlModal(false)}
+                    disabled={blSaving}
+                    className="px-5 py-2 rounded-lg text-sm font-semibold bg-surface-container text-on-surface-variant hover:bg-surface-container-highest transition-colors disabled:opacity-50"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmBlacklist}
+                    disabled={blSaving}
+                    className="flex items-center gap-1.5 px-5 py-2 rounded-lg text-sm font-semibold text-white hover:opacity-90 transition-opacity disabled:opacity-50"
+                    style={{ backgroundColor: '#a12d2d' }}
+                  >
+                    {blSaving && <span className="material-symbols-outlined animate-spin text-[15px]">progress_activity</span>}
+                    {blSaving ? 'Agregando…' : 'Agregar a lista negra'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* ── Historial en Tracker ──────────────────────────── */}
           <section className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-[0_2px_16px_rgba(24,28,30,0.05)] overflow-hidden">

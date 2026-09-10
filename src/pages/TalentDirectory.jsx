@@ -655,6 +655,14 @@ export default function TalentDirectory() {
                 <span className="material-symbols-outlined text-[18px]" style={{ color: '#4ade80' }}>manage_search</span>
                 Admin-Search
               </button>
+              <Link
+                to="/talent/blacklist"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white transition-colors hover:opacity-90"
+                style={{ backgroundColor: '#a12d2d' }}
+              >
+                <span className="material-symbols-outlined text-[18px]">block</span>
+                Lista negra
+              </Link>
               {can('talent.create') && (
                 <Link to="/talent/new">
                   <button className="flex items-center gap-2 bg-gradient-to-br from-primary to-primary-container text-on-primary px-4 py-2.5 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity">

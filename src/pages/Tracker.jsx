@@ -22,6 +22,7 @@ import {
   createScreeningEvent,
   recruiterFromEmail,
   searchTrackerByRecruiter,
+  searchTalentDirectory,
 } from '../api/tracker'
 
 const TABS = [
@@ -408,6 +409,110 @@ function TrackerGlobalSearch({ recruiter, label, onSelect }) {
                   </span>
                   <span className="text-[10px] text-[#81b927]/80 font-semibold shrink-0">{weekLabel(r.week_number, r.week_year)}</span>
                 </div>
+              </button>
+            ))}
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
+  )
+}
+
+// Candidate name input with a Talent Directory autocomplete — lets a recruiter
+// LINK an existing candidate_id instead of accidentally creating a duplicate
+// profile. Typing a name that isn't picked from the list = new candidate.
+function CandidateNameSearch({ value, linkedId, onType, onPick, onNormalize }) {
+  const [open, setOpen]       = useState(false)
+  const [results, setResults] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [pos, setPos]         = useState(null)
+  const inputRef = useRef(null)
+  const panelRef = useRef(null)
+
+  useEffect(() => {
+    if (!open) return
+    function onClick(e) {
+      if (inputRef.current?.contains(e.target)) return
+      if (panelRef.current?.contains(e.target)) return
+      setOpen(false)
+    }
+    function onScrollOrResize(e) {
+      if (e?.type === 'scroll' && panelRef.current?.contains(e.target)) return
+      setOpen(false)
+    }
+    document.addEventListener('mousedown', onClick)
+    window.addEventListener('scroll', onScrollOrResize, true)
+    window.addEventListener('resize', onScrollOrResize)
+    return () => {
+      document.removeEventListener('mousedown', onClick)
+      window.removeEventListener('scroll', onScrollOrResize, true)
+      window.removeEventListener('resize', onScrollOrResize)
+    }
+  }, [open])
+
+  useEffect(() => {
+    const q = (value ?? '').trim()
+    if (linkedId || q.length < 2) { setResults([]); return }
+    setLoading(true)
+    const timer = setTimeout(() => {
+      searchTalentDirectory(q)
+        .then(rows => { setResults(rows); if (rows.length) openAt() })
+        .catch(() => setResults([]))
+        .finally(() => setLoading(false))
+    }, 250)
+    return () => clearTimeout(timer)
+  }, [value, linkedId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function openAt() {
+    if (!inputRef.current) return
+    const r = inputRef.current.getBoundingClientRect()
+    setPos({ top: r.bottom + 4, left: r.left, width: Math.max(r.width, 280) })
+    setOpen(true)
+  }
+
+  return (
+    <>
+      <div className="relative">
+        <input
+          ref={inputRef}
+          className="w-full bg-transparent text-white text-xs px-2 py-1.5 focus:outline-none placeholder:text-[#8ab0d0]/50"
+          placeholder="Nombre del candidato…"
+          value={value || ''}
+          onChange={e => onType(e.target.value)}
+          onFocus={() => { if (results.length) openAt() }}
+          onBlur={e => onNormalize(e.target.value)}
+        />
+        {linkedId && (
+          <span className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-0.5 text-[9px] font-bold text-[#81b927]" title="Vinculado a un perfil existente del Talent Directory">
+            <span className="material-symbols-outlined text-[12px]">link</span>
+          </span>
+        )}
+      </div>
+      {open && !linkedId && pos && createPortal(
+        <div
+          ref={panelRef}
+          className="fixed z-[500] bg-[#0b2a58] border border-white/10 rounded-lg shadow-2xl overflow-hidden"
+          style={{ top: pos.top, left: pos.left, width: pos.width, maxWidth: 360 }}
+        >
+          <p className="px-3 pt-2 pb-1 text-[9px] font-bold text-white/40 uppercase tracking-wider">
+            Talent Directory {loading && '· buscando…'}
+          </p>
+          <div className="max-h-60 overflow-y-auto pb-1">
+            {!loading && results.length === 0 && (
+              <p className="px-3 py-2 text-[11px] text-white/40">Sin coincidencias — se creará un candidato nuevo.</p>
+            )}
+            {results.map(c => (
+              <button
+                key={c.candidate_id}
+                type="button"
+                onClick={() => { onPick(c); setOpen(false) }}
+                className="w-full text-left px-3 py-1.5 hover:bg-[#071d47] transition-colors border-b border-white/5 last:border-0"
+              >
+                <p className="text-xs font-semibold text-white truncate">{c.full_name}</p>
+                <p className="text-[10px] text-[#8ab0d0] truncate">
+                  {[c.role?.name, c.years_experience != null ? `${c.years_experience} yrs` : null, c.email].filter(Boolean).join(' · ') || '—'}
+                </p>
               </button>
             ))}
           </div>
@@ -1057,17 +1162,14 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
     >
       {/* Candidato + Guardar */}
       <td className="sticky left-0 z-10 w-[200px] bg-[#0b2a58] backdrop-blur-sm px-2 py-1.5 min-w-[200px]">
-        <input
-          className="w-full bg-transparent text-white text-xs px-2 py-1.5 focus:outline-none placeholder:text-[#8ab0d0]/50"
-          placeholder="Nombre del candidato…"
-          value={data.candidate_name || ''}
-          onChange={e => {
-            const raw = e.target.value
-            setData(prev => ({ ...prev, candidate_name: raw, candidate_id: null }))
-          }}
-          onBlur={e => {
-            const normalized = toTitleCase(e.target.value)
-            if (normalized && normalized !== e.target.value)
+        <CandidateNameSearch
+          value={data.candidate_name}
+          linkedId={data.candidate_id}
+          onType={raw => setData(prev => ({ ...prev, candidate_name: raw, candidate_id: null }))}
+          onPick={c => setData(prev => ({ ...prev, candidate_name: c.full_name, candidate_id: c.candidate_id }))}
+          onNormalize={val => {
+            const normalized = toTitleCase(val)
+            if (normalized && normalized !== val)
               setData(prev => ({ ...prev, candidate_name: normalized }))
           }}
         />

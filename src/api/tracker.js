@@ -45,6 +45,22 @@ export async function searchTrackerByRecruiter(query, recruiter) {
   return data ?? []
 }
 
+// Autocomplete for the "add candidate" row — searches the Talent Directory by
+// name so a recruiter links an existing candidate_id instead of creating a
+// duplicate profile.
+export async function searchTalentDirectory(query) {
+  const q = query.trim()
+  if (q.length < 2) return []
+  const { data, error } = await supabase
+    .from('candidate')
+    .select('candidate_id, full_name, email, years_experience, role:catalog_role!role_id(name)')
+    .ilike('full_name', `%${q}%`)
+    .order('full_name', { ascending: true })
+    .limit(20)
+  if (error) throw error
+  return data ?? []
+}
+
 export async function searchCandidatesSimple(q) {
   if (!q.trim()) return []
   const { data, error } = await supabase.rpc('search_candidates', { query: q.trim() })

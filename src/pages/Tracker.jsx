@@ -1588,10 +1588,14 @@ export default function Tracker() {
   const [pipelineModal, setPipelineModal] = useState(null) // { reqId, clientId, clientName, position }
   const tableScrollRef                = useRef(null)
 
-  // Admins can edit any tab; recruiters can only edit their own
-  const canEdit = userRole === 'administrador'
+  // Past weeks are frozen — once a new ISO week starts, the previous week and
+  // all earlier ones become view-only (no add / edit / status change / delete).
+  const isPastWeek = year < currentYear || (year === currentYear && week < currentWeek)
+
+  // Admins can edit any tab; recruiters can only edit their own — but never a past week.
+  const canEdit = !isPastWeek && (userRole === 'administrador'
     ? myRecruiter != null
-    : myRecruiter != null && myRecruiter === activeTab
+    : myRecruiter != null && myRecruiter === activeTab)
 
   useEffect(() => {
     Promise.all([fetchActiveRequirements(), fetchClosedRequirements()])
@@ -1709,7 +1713,12 @@ export default function Tracker() {
                     )}
                   </button>
                 ))}
-                {!canEdit && (
+                {isPastWeek ? (
+                  <span className="flex items-center gap-1 text-xs font-semibold text-[#8a6030] bg-[#fef2e0] border border-[#f0d9b0] rounded-full px-2.5 py-1 ml-2">
+                    <span className="material-symbols-outlined text-[14px]">lock</span>
+                    Semana congelada — solo lectura
+                  </span>
+                ) : !canEdit && (
                   <span className="flex items-center gap-1 text-xs text-on-surface-variant/50 ml-2">
                     <span className="material-symbols-outlined text-[14px]">visibility</span>
                     Solo lectura

@@ -10,6 +10,16 @@
   animation: text-glow 2s ease-in-out infinite;
 }
 
+/* Smoother glow for big numbers — shadow layer count/opacity never changes
+   (only blur radius does), so there's no abrupt snap-to-"none" blur artifact. */
+@keyframes number-glow {
+  0%, 100% { text-shadow: 0 0 4px currentColor, 0 0 10px currentColor; }
+  50%       { text-shadow: 0 0 16px currentColor, 0 0 32px currentColor; }
+}
+.animate-glow-number {
+  animation: number-glow 2.2s ease-in-out infinite;
+}
+
 body {
   font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
   background-color: #f7f9fb;

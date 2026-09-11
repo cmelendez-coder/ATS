@@ -327,8 +327,8 @@ export default function Dashboard() {
                   {/* Current week */}
                   <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
                     <div className="flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">calendar_today</span>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Semana</span>
+                      <span className="material-symbols-outlined text-[24px] text-on-surface-variant/50">calendar_today</span>
+                      <span className="text-[15px] font-bold uppercase tracking-wider text-on-surface-variant">Semana</span>
                     </div>
                     <p className="text-5xl font-light tracking-tighter text-primary">{isoWeek}</p>
                   </div>
@@ -336,8 +336,8 @@ export default function Dashboard() {
                   {/* Sent this week */}
                   <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
                     <div className="flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-[16px]" style={{ color: '#50B152' }}>send</span>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Sent</span>
+                      <span className="material-symbols-outlined text-[24px]" style={{ color: '#50B152' }}>send</span>
+                      <span className="text-[15px] font-bold uppercase tracking-wider text-on-surface-variant">Sent</span>
                     </div>
                     <p className="animate-glow-number text-5xl font-light tracking-tighter" style={{ color: '#50B152' }}>{sent}</p>
                     <p className="text-sm font-semibold text-black">candidatos enviados al cliente</p>
@@ -346,8 +346,8 @@ export default function Dashboard() {
                   {/* Rejected this week */}
                   <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
                     <div className="flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-[16px]" style={{ color: '#ba1a1a' }}>cancel</span>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Rejected</span>
+                      <span className="material-symbols-outlined text-[24px]" style={{ color: '#ba1a1a' }}>cancel</span>
+                      <span className="text-[15px] font-bold uppercase tracking-wider text-on-surface-variant">Rejected</span>
                     </div>
                     <p className="animate-glow-number text-5xl font-light tracking-tighter" style={{ color: '#ba1a1a' }}>
                       {stats?.weeklyRejected ?? 0}

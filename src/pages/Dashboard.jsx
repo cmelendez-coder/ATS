@@ -158,9 +158,6 @@ export default function Dashboard() {
             <div className="col-span-2 bg-[#0b2a58] rounded-2xl p-5 shadow-[0_2px_16px_rgba(24,28,30,0.05)] border border-white/[0.08]">
               <div className="flex items-start justify-between mb-4">
                 <h3 className="text-xs uppercase tracking-[0.08em] font-bold text-white/60">Clients</h3>
-                <Link to="/clients" className="text-[10px] text-white/40 hover:text-white/80 transition-colors font-semibold">
-                  {!loading && `${stats?.totalClients ?? 0} total →`}
-                </Link>
               </div>
               {loading ? (
                 <div className="h-16 flex items-center text-white/30 text-sm">…</div>

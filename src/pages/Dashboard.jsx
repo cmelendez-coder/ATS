@@ -352,7 +352,7 @@ export default function Dashboard() {
             onClick={() => setPipelineModal(null)}
           >
             <div
-              className="rounded-2xl border border-white/10 shadow-2xl w-full max-w-3xl max-h-[82vh] flex flex-col overflow-hidden"
+              className="rounded-2xl border border-white/10 shadow-2xl w-full max-w-4xl max-h-[82vh] flex flex-col overflow-hidden"
               style={{ backgroundColor: '#0b1e3d' }}
               onClick={e => e.stopPropagation()}
             >
@@ -365,28 +365,47 @@ export default function Dashboard() {
                   <span className="material-symbols-outlined text-[22px]">close</span>
                 </button>
               </div>
-              <div className="overflow-y-auto flex-1">
-                <table className="min-w-full text-left border-collapse">
-                  <thead className="sticky top-0" style={{ backgroundColor: '#0b2a58' }}>
+              <div className="overflow-y-auto overflow-x-hidden flex-1">
+                <table className="w-full text-left border-collapse table-fixed">
+                  <colgroup>
+                    <col style={{ width: '32%' }} />
+                    <col style={{ width: '20%' }} />
+                    <col style={{ width: '30%' }} />
+                    <col style={{ width: '18%' }} />
+                  </colgroup>
+                  <thead className="sticky top-0 z-10" style={{ backgroundColor: '#0b2a58' }}>
                     <tr>
                       {['Nombre', 'Cliente', 'Posición', 'Stage'].map(h => (
-                        <th key={h} className="py-3 px-5 text-[11px] font-bold uppercase tracking-widest whitespace-nowrap" style={{ color: '#81b927' }}>{h}</th>
+                        <th key={h} className="py-3 px-5 text-[11px] font-bold uppercase tracking-widest truncate" style={{ color: '#81b927' }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {rows.length === 0 ? (
                       <tr><td colSpan={4} className="py-10 text-center text-white/40 text-sm">Sin candidatos</td></tr>
-                    ) : rows.map((r, i) => (
-                      <tr key={r.id} className={i % 2 === 1 ? 'bg-white/[0.03]' : ''}>
-                        <td className="py-3 px-5 text-sm font-semibold text-white whitespace-nowrap">{r.candidate}</td>
-                        <td className="py-3 px-5 text-sm text-white/70 whitespace-nowrap">{r.client}</td>
-                        <td className="py-3 px-5 text-sm text-white/70 whitespace-nowrap">{r.position}</td>
-                        <td className="py-3 px-5 whitespace-nowrap">
-                          <span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{ backgroundColor: '#81b9271c', color: '#81b927' }}>{r.stage}</span>
-                        </td>
-                      </tr>
-                    ))}
+                    ) : (() => {
+                      let groupIdx = -1
+                      let prevClient = null
+                      return rows.map((r, i) => {
+                        const isNewGroup = r.client !== prevClient
+                        if (isNewGroup) groupIdx++
+                        prevClient = r.client
+                        const zebra = groupIdx % 2 === 1
+                        return (
+                          <tr
+                            key={r.id}
+                            className={`${zebra ? 'bg-white/[0.07]' : ''} ${isNewGroup && i !== 0 ? 'border-t border-white/15' : ''}`}
+                          >
+                            <td className="py-3 px-5 text-sm font-semibold text-white truncate" title={r.candidate}>{r.candidate}</td>
+                            <td className="py-3 px-5 text-sm text-white/70 truncate" title={r.client}>{r.client}</td>
+                            <td className="py-3 px-5 text-sm text-white/70 truncate" title={r.position}>{r.position}</td>
+                            <td className="py-3 px-5 truncate">
+                              <span className="inline-block max-w-full truncate align-bottom px-2 py-0.5 rounded-full text-xs font-semibold" style={{ backgroundColor: '#81b9271c', color: '#81b927' }} title={r.stage}>{r.stage}</span>
+                            </td>
+                          </tr>
+                        )
+                      })
+                    })()}
                   </tbody>
                 </table>
               </div>

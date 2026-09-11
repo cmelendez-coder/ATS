@@ -21,24 +21,29 @@ import {
 import ReportPreviewModal from '../components/ReportPreviewModal'
 import PortalButtons from '../components/PortalButtons'
 
+// Same hero-tile look as the Dashboard's "Open Requirements" / "Talent Pool"
+// cards — solid navy with a bold accent-colored number — so Reports reads as
+// part of the same system instead of generic Material cards.
+const METRIC_TONE_COLOR = {
+  primary:   '#81b927', // lime — matches the Dashboard's default accent
+  secondary: '#4e90d0', // blue
+  tertiary:  '#a855f7', // purple
+  neutral:   '#f59e0b', // amber
+}
+
 function MetricCard({ label, value, icon, tone = 'primary', sublabel = '' }) {
-  const toneMap = {
-    primary: 'from-primary/10 to-primary-container/5 text-primary',
-    secondary: 'from-secondary/10 to-secondary-container/5 text-secondary',
-    tertiary: 'from-tertiary/10 to-tertiary-container/5 text-tertiary',
-    neutral: 'from-surface-container-high to-surface-container text-on-surface',
-  }
+  const accent = METRIC_TONE_COLOR[tone] ?? METRIC_TONE_COLOR.primary
 
   return (
-    <div className="rounded-2xl border border-outline-variant/10 bg-surface-container-lowest p-5 shadow-[0_2px_16px_rgba(24,28,30,0.05)] relative overflow-hidden">
-      <div className={`absolute inset-0 bg-gradient-to-br ${toneMap[tone] ?? toneMap.primary} opacity-60 pointer-events-none`} />
+    <div className="rounded-2xl p-5 relative overflow-hidden border border-white/[0.08]" style={{ backgroundColor: '#0b2a58' }}>
+      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent pointer-events-none" />
       <div className="relative flex items-start justify-between gap-3">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-on-surface-variant">{label}</p>
-          <p className="mt-3 text-4xl font-extrabold tracking-tight text-primary">{value}</p>
-          {sublabel && <p className="mt-2 text-xs text-on-surface-variant">{sublabel}</p>}
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/60">{label}</p>
+          <p className="mt-2 text-4xl font-extrabold tracking-tight" style={{ color: accent }}>{value}</p>
+          {sublabel && <p className="mt-2 text-xs text-white/40">{sublabel}</p>}
         </div>
-        <span className="material-symbols-outlined text-[22px] text-on-surface-variant/45">{icon}</span>
+        <span className="material-symbols-outlined text-[20px] text-white/30">{icon}</span>
       </div>
     </div>
   )
@@ -1056,7 +1061,10 @@ const clientDetailSections = data.clients.map((client) => {
                 )}
 
                 <div className="flex flex-wrap gap-2 pt-1">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant text-xs font-bold self-center">
+                  <span
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold self-center"
+                    style={{ backgroundColor: '#0b2a58', color: '#81b927' }}
+                  >
                     {weeklySubmittals.length} candidato{weeklySubmittals.length !== 1 ? 's' : ''}
                   </span>
                   <button onClick={handleWeeklyPreview} disabled={weeklyLoading} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50">
@@ -1090,30 +1098,29 @@ const clientDetailSections = data.clients.map((client) => {
                             <h3 className="mt-1 text-xl font-bold text-primary">{client.clientName}</h3>
                           </div>
                           <div className="flex gap-2">
-                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold" style={{ backgroundColor: '#81b9271a', color: '#5d8a12' }}>
                               {client.requirementCount} req
                             </span>
-                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-bold">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold" style={{ backgroundColor: '#4e90d01a', color: '#2f6bab' }}>
                               {client.candidateCount} cand
                             </span>
                           </div>
                         </div>
                       </div>
-                      <div className="p-6 space-y-3">
+                      <div className="p-6">
                         {client.stages.length === 0 ? (
                           <div className="rounded-2xl border border-dashed border-outline-variant/25 bg-surface-container/40 px-4 py-4 text-sm text-on-surface-variant">
                             Este cliente no tiene fases configuradas.
                           </div>
                         ) : (
-                          client.stages.map(stage => (
-                            <div key={stage.name} className="flex items-center justify-between gap-3 rounded-2xl border border-outline-variant/10 bg-surface-container px-4 py-3">
-                              <div className="flex items-center gap-2 min-w-0">
-                                <span className="inline-block w-3 h-3 rounded-full border border-white/60 shrink-0" style={{ backgroundColor: stage.color }}></span>
-                                <span className="text-sm font-semibold text-primary truncate">{stage.name}</span>
+                          <div className="flex flex-wrap gap-3">
+                            {client.stages.map(stage => (
+                              <div key={stage.name} className="rounded-xl p-3.5 min-w-[110px]" style={{ backgroundColor: stage.color + '1c' }}>
+                                <p className="text-[9px] font-bold uppercase tracking-widest mb-2 truncate" style={{ color: stage.color }}>{stage.name}</p>
+                                <p className="text-[2rem] font-light leading-none" style={{ color: stage.color }}>{stage.count}</p>
                               </div>
-                              <span className="text-sm font-bold text-on-surface-variant">{stage.count}</span>
-                            </div>
-                          ))
+                            ))}
+                          </div>
                         )}
                       </div>
                     </article>
@@ -1132,14 +1139,11 @@ const clientDetailSections = data.clients.map((client) => {
                     {totalClientCandidatesVisible} candidatos ligados a requerimientos
                   </span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+                <div className="flex flex-wrap gap-3">
                   {visibleStageTotals.map(stage => (
-                    <div key={stage.name} className="rounded-2xl border border-outline-variant/10 bg-surface-container p-4">
-                      <div className="flex items-center gap-2">
-                        <span className="inline-block w-3 h-3 rounded-full border border-white/60" style={{ backgroundColor: stage.color }}></span>
-                        <p className="text-sm font-semibold text-primary">{stage.name}</p>
-                      </div>
-                      <p className="mt-3 text-3xl font-extrabold tracking-tight text-primary">{stage.count}</p>
+                    <div key={stage.name} className="rounded-xl p-3.5 min-w-[110px]" style={{ backgroundColor: stage.color + '1c' }}>
+                      <p className="text-[9px] font-bold uppercase tracking-widest mb-2 truncate" style={{ color: stage.color }}>{stage.name}</p>
+                      <p className="text-[2rem] font-light leading-none" style={{ color: stage.color }}>{stage.count}</p>
                     </div>
                   ))}
                 </div>

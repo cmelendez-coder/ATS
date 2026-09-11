@@ -38,8 +38,8 @@ const MX_STATES = [
   'Tlaxcala','Veracruz','Yucatán','Zacatecas',
 ]
 
-const STATUS_OPTIONS  = ['Review', 'WA', 'Contacted', 'Screening', 'CV', 'Sent', 'Rejected', 'Backed Out', 'HSE', 'On Hold']
-const STATUS_ORDER    = { 'Review': 0, 'WA': 1, 'Contacted': 2, 'Screening': 3, 'CV': 4, 'Sent': 5, 'On Hold': 6, 'HSE': 7, 'Backed Out': 8, 'Rejected': 9 }
+const STATUS_OPTIONS  = ['Review', 'Contacted', 'Screening', 'CV', 'Sent', 'Rejected', 'Backed Out', 'HSE', 'On Hold']
+const STATUS_ORDER    = { 'Review': 0, 'Contacted': 1, 'Screening': 2, 'CV': 3, 'Sent': 4, 'On Hold': 5, 'HSE': 6, 'Backed Out': 7, 'Rejected': 8 }
 const ENGLISH_OPTIONS = [90, 85, 80, 75, 70, 60, 50, 40, 30]
 const AMOUNT_TYPES    = ['Gross', 'Net']
 
@@ -52,8 +52,7 @@ function toTitleCase(str) {
 
 const STATUS_DOT = {
   'Review':     'bg-orange-400',
-  'WA':         'bg-green-400',
-  'Contacted':  'bg-cyan-400',
+  'Contacted':  'bg-green-400',
   'CV':         'bg-purple-400',
   'Screening':  'bg-blue-400',
   'Sent':       'bg-pink-400',
@@ -65,8 +64,7 @@ const STATUS_DOT = {
 
 const STATUS_STYLE = {
   'Review':     'bg-amber-500/20 text-amber-300 border border-amber-400/40',
-  'WA':         'bg-emerald-600/20 text-emerald-300 border border-emerald-500/40',
-  'Contacted':  'bg-cyan-600/20 text-cyan-300 border border-cyan-500/40',
+  'Contacted':  'bg-emerald-600/20 text-emerald-300 border border-emerald-500/40',
   'CV':         'bg-purple-600/20 text-purple-300 border border-purple-500/40',
   'Screening':  'bg-blue-600/20 text-blue-300 border border-blue-500/40',
   'Sent':       'bg-pink-500/20 text-pink-300 border border-pink-400/40',

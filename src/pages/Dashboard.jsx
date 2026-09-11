@@ -281,7 +281,7 @@ export default function Dashboard() {
                       <span className="text-[15px] font-bold uppercase tracking-wider text-on-surface-variant">Sent</span>
                     </div>
                     <p className="animate-glow-number text-5xl font-light tracking-tighter" style={{ color: '#50B152' }}>{sent}</p>
-                    <p className="text-sm font-semibold text-black">candidatos enviados al cliente</p>
+                    <p className="text-sm font-semibold italic text-on-surface-variant">candidatos enviados al cliente</p>
                   </div>
 
                   {/* Rejected this week */}
@@ -293,7 +293,7 @@ export default function Dashboard() {
                     <p className="animate-glow-number text-5xl font-light tracking-tighter" style={{ color: '#ba1a1a' }}>
                       {stats?.weeklyRejected ?? 0}
                     </p>
-                    <p className="text-sm font-semibold text-black">candidatos rechazados</p>
+                    <p className="text-sm font-semibold italic text-on-surface-variant">candidatos rechazados</p>
                   </div>
                 </div>
               )

@@ -25,6 +25,8 @@ export async function getDashboardStats() {
     { count: weeklySentCount },
     { count: weeklyRejectedCount },
     { count: monthlySentCount },
+    { data: pipelineRows },
+    { data: stageRows },
   ] = await Promise.all([
     supabase.from('client').select('*', { count: 'exact', head: true }),
     supabase.from('candidate').select('*', { count: 'exact', head: true }),
@@ -39,6 +41,17 @@ export async function getDashboardStats() {
       .in('status', ['Rejected', 'HSE', 'Backed Out']).eq('week_number', isoWeek).eq('week_year', isoYear),
     supabase.from('tracker_entry').select('*', { count: 'exact', head: true })
       .eq('status', 'Sent').gte('created_at', monthStart),
+    // Active pipeline submittals — every requirement_candidate row not rejected, on an Open requirement
+    supabase.from('requirement_candidate')
+      .select('id, submittal_status, requirement:requirement_id!inner(client_id, status_id)')
+      .neq('submittal_status', 'Rejected')
+      .eq('requirement.status_id', 2),
+    // Per-client stage definitions (to find each client's last two funnel stages)
+    supabase.from('catalog_pipeline_stage')
+      .select('client_id, name, position')
+      .not('client_id', 'is', null)
+      .neq('name', 'Rejected')
+      .order('position', { ascending: true }),
   ])
 
   const reqs = allRequirements ?? []
@@ -74,6 +87,23 @@ export async function getDashboardStats() {
   const weeklySent     = weeklySentCount     ?? 0
   const weeklyRejected = weeklyRejectedCount ?? 0
 
+  // Last two funnel stages per client (by position), excluding "Rejected"
+  const stagesByClient = {}
+  for (const s of stageRows ?? []) {
+    if (!stagesByClient[s.client_id]) stagesByClient[s.client_id] = []
+    stagesByClient[s.client_id].push(s.name)
+  }
+  const lastTwoByClient = {}
+  for (const [clientId, names] of Object.entries(stagesByClient)) {
+    lastTwoByClient[clientId] = new Set(names.slice(-2))
+  }
+
+  const pipelineTotal = pipelineRows ?? []
+  const activePipelineCount = pipelineTotal.length
+  const finalStageCount = pipelineTotal.filter(r =>
+    lastTwoByClient[r.requirement?.client_id]?.has(r.submittal_status)
+  ).length
+
   return {
     totalRequirements:    reqs.length,
     totalClients:         totalClients ?? 0,
@@ -87,7 +117,8 @@ export async function getDashboardStats() {
     weeklySent,
     weeklyRejected,
     monthlySent: monthlySentCount ?? 0,
-    recentRequirements:   reqs.slice(0, 5),
+    activePipelineCount,
+    finalStageCount,
   }
 }
 

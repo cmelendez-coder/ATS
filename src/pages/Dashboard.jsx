@@ -22,16 +22,6 @@ const STATUS_COLORS = {
 }
 
 
-function fmt(dateStr) {
-  if (!dateStr) return '—'
-  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-}
-
-function reqLabel(num, date) {
-  const yr = date ? new Date(date).getFullYear() : new Date().getFullYear()
-  return `REQ-${yr}-${String(num ?? 0).padStart(3, '0')}`
-}
-
 function getISOWeek(date = new Date()) {
   const d = new Date(date)
   d.setHours(0, 0, 0, 0)
@@ -297,64 +287,45 @@ export default function Dashboard() {
             })()}
           </div>
 
-          {/* ── ACTIVE REQUIREMENTS LIST ── */}
-          <div className="bg-surface-container-low rounded-2xl p-7">
-            <div className="flex items-center justify-between mb-6">
+          {/* ── PIPELINE GENERAL ── */}
+          <div className="bg-surface-container-low rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-5">
               <div>
-                <h2 className="text-xl font-bold tracking-tight text-white">Active Requirements</h2>
-                <p className="text-xs text-white/60 mt-0.5">Most recent requisitions</p>
+                <h2 className="text-sm font-bold text-white">Pipeline General</h2>
+                <p className="text-[11px] text-white/60 mt-0.5">Candidatos activos en todos los requerimientos abiertos</p>
               </div>
-              <Link to="/requirements" className="text-sm font-medium text-white/70 hover:text-white transition-colors flex items-center gap-1">
-                View All <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-              </Link>
+              <span className="material-symbols-outlined text-[20px] text-white/30">groups</span>
             </div>
 
             {loading ? (
-              <div className="flex items-center justify-center py-10 gap-2 text-white/60">
+              <div className="flex items-center justify-center py-6 gap-2 text-white/60">
                 <span className="material-symbols-outlined animate-spin text-[22px]">progress_activity</span>
-                <span className="text-sm">Cargando…</span>
-              </div>
-            ) : !stats?.recentRequirements?.length ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <span className="material-symbols-outlined text-[44px] text-white/25 mb-3">assignment</span>
-                <p className="text-sm font-medium text-white/60">No requirements yet</p>
-                {can('requirements.create') && (
-                  <Link to="/requirements/new" className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity">
-                    <span className="material-symbols-outlined text-[15px]">add</span>Create one
-                  </Link>
-                )}
               </div>
             ) : (
-              <div className="space-y-3">
-                {stats.recentRequirements.map(req => {
-                  const pri = PRIORITY[req.priority] ?? PRIORITY[2]
-                  return (
-                    <Link
-                      key={req.id}
-                      to="/requirements"
-                      className="flex items-center gap-4 bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/10 hover:shadow-[0_4px_20px_rgba(24,28,30,0.07)] transition-all group"
-                    >
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${pri.bg}`}>
-                        <span className={`material-symbols-outlined text-[18px] ${pri.text}`}>assignment</span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <span className="text-[11px] font-mono text-on-surface-variant">{reqLabel(req.req_number, req.created_at)}</span>
-                          <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest ${pri.bg} ${pri.text}`}>{pri.label}</span>
-                        </div>
-                        <p className="font-semibold text-primary text-sm group-hover:text-surface-tint transition-colors truncate">{req.job_title}</p>
-                        <p className="text-xs text-on-surface-variant mt-0.5">{req.client?.name ?? '—'}</p>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Target</p>
-                        <p className="text-sm font-semibold text-primary mt-0.5">{fmt(req.target_fill_date)}</p>
-                        {req.status?.name && (
-                          <span className="text-[10px] font-medium text-on-surface-variant">{req.status.name}</span>
-                        )}
-                      </div>
-                    </Link>
-                  )
-                })}
+              <div className="grid grid-cols-2 gap-3">
+                {/* Total en pipeline */}
+                <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[24px]" style={{ color: '#4e90d0' }}>hub</span>
+                    <span className="text-[15px] font-bold uppercase tracking-wider text-on-surface-variant">Pipeline General</span>
+                  </div>
+                  <p className="animate-glow-number text-5xl font-light tracking-tighter" style={{ color: '#4e90d0' }}>
+                    {stats?.activePipelineCount ?? 0}
+                  </p>
+                  <p className="text-sm font-semibold italic text-on-surface-variant">candidatos en proceso activo con clientes</p>
+                </div>
+
+                {/* Candidatos en última etapa */}
+                <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[24px]" style={{ color: '#81b927' }}>bolt</span>
+                    <span className="text-[15px] font-bold uppercase tracking-wider text-on-surface-variant">Candidatos</span>
+                  </div>
+                  <p className="animate-glow-number text-5xl font-light tracking-tighter" style={{ color: '#81b927' }}>
+                    {stats?.finalStageCount ?? 0}
+                  </p>
+                  <p className="text-sm font-semibold italic text-on-surface-variant">en las últimas 2 etapas del pipeline</p>
+                </div>
               </div>
             )}
           </div>

@@ -32,55 +32,6 @@ function reqLabel(num, date) {
   return `REQ-${yr}-${String(num ?? 0).padStart(3, '0')}`
 }
 
-// ─── Donut chart via conic-gradient ──────────────────────────────────────────
-function DonutChart({ segments, total }) {
-  const parts = []
-  let cumPct = 0
-  for (const seg of segments) {
-    const pct = total > 0 ? (seg.count / total) * 100 : 0
-    if (pct > 0) {
-      parts.push(`${seg.color} ${cumPct.toFixed(1)}% ${(cumPct + pct).toFixed(1)}%`)
-    }
-    cumPct += pct
-  }
-  if (cumPct < 100) parts.push(`#1b3a78 ${cumPct.toFixed(1)}% 100%`)
-
-  return (
-    <div className="relative mx-auto shrink-0" style={{ width: 104, height: 104 }}>
-      <div
-        className="w-full h-full rounded-full"
-        style={{
-          background: `conic-gradient(from -90deg, ${parts.join(', ')})`,
-        }}
-      />
-      <div
-        className="absolute rounded-full bg-surface-container-low flex flex-col items-center justify-center"
-        style={{ inset: 20 }}
-      >
-        <span className="text-lg font-bold text-[#81b927] leading-none">{total}</span>
-        <span className="text-[8px] text-white/50 mt-0.5">total</span>
-      </div>
-    </div>
-  )
-}
-
-// ─── Horizontal bar chart row ─────────────────────────────────────────────────
-function HBar({ label, count, max, color }) {
-  const pct = max > 0 ? Math.max((count / max) * 100, 4) : 0
-  return (
-    <div className="flex items-center gap-2.5">
-      <span className="text-[11px] text-white/70 w-24 truncate shrink-0">{label}</span>
-      <div className="flex-1 h-1.5 bg-white/20 rounded-full overflow-hidden">
-        <div
-          className="h-full rounded-full transition-all duration-500"
-          style={{ width: `${pct}%`, backgroundColor: color }}
-        />
-      </div>
-      <span className="text-[11px] font-semibold text-white w-5 text-right shrink-0">{count}</span>
-    </div>
-  )
-}
-
 function getISOWeek(date = new Date()) {
   const d = new Date(date)
   d.setHours(0, 0, 0, 0)
@@ -123,22 +74,12 @@ export default function Dashboard() {
         .map(([name, count]) => ({ name, count, color: STATUS_COLORS[name] ?? '#25457f' }))
     : []
 
-  const CLIENT_COLORS = ['#81b927','#4e90d0','#f59e0b','#a855f7','#14b8a6','#f97316','#ef4444','#06b6d4']
-  const clientSegments = stats
-    ? (stats.topClients ?? []).map((c, i) => ({
-        name:  c.name,
-        count: c.count,
-        color: CLIENT_COLORS[i % CLIENT_COLORS.length],
-      }))
-    : []
-
   const priorityBars = stats
     ? Object.entries(stats.reqByPriority)
         .filter(([, c]) => c > 0)
         .map(([p, count]) => ({ label: PRIORITY[p]?.label ?? 'Otro', count, color: PRIORITY[p]?.color ?? '#c1cbe4' }))
     : []
 
-  const maxClientCount = stats?.topClients?.[0]?.count ?? 1
   const maxPriorityCount = Math.max(...(priorityBars.map(b => b.count)), 1)
 
   return (
@@ -357,56 +298,6 @@ export default function Dashboard() {
                 </div>
               )
             })()}
-          </div>
-
-          {/* ── CHARTS SECTION ── */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-            {/* Donut: Open requirements by client */}
-            <div className="bg-surface-container-low rounded-2xl p-6">
-              <h2 className="text-sm font-bold text-white mb-1">Open Requirements</h2>
-              <p className="text-[11px] text-white/60 mb-5">Por cliente</p>
-
-              {loading ? (
-                <div className="flex items-center justify-center h-28">
-                  <span className="material-symbols-outlined animate-spin text-[22px] text-white/40">progress_activity</span>
-                </div>
-              ) : (
-                <>
-                  <DonutChart segments={clientSegments} total={stats?.openCount ?? 0} />
-                  <div className="mt-5 space-y-2">
-                    {clientSegments.map(seg => (
-                      <div key={seg.name} className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: seg.color }} />
-                        <span className="text-[11px] text-white/70 flex-1 truncate">{seg.name}</span>
-                        <span className="text-[11px] font-semibold text-white">{seg.count}</span>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Bar chart: Open reqs by client */}
-            <div className="bg-surface-container-low rounded-2xl p-6">
-              <h2 className="text-sm font-bold text-white mb-1">Por Cliente</h2>
-              <p className="text-[11px] text-white/60 mb-5">Open requirements</p>
-
-              {loading ? (
-                <div className="flex items-center justify-center h-28">
-                  <span className="material-symbols-outlined animate-spin text-[22px] text-white/40">progress_activity</span>
-                </div>
-              ) : !stats?.topClients?.length ? (
-                <p className="text-[11px] text-white/50 text-center py-8">No open requirements</p>
-              ) : (
-                <div className="space-y-3 mt-2">
-                  {stats.topClients.map(c => (
-                    <HBar key={c.name} label={c.name} count={c.count} max={maxClientCount} color="#50B152" />
-                  ))}
-                </div>
-              )}
-            </div>
-
           </div>
 
           {/* ── ACTIVE REQUIREMENTS LIST ── */}

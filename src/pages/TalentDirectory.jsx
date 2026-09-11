@@ -87,21 +87,12 @@ import { usePermissions } from '../hooks/usePermissions'
 import PortalButtons from '../components/PortalButtons'
 import UserAvatar from '../components/UserAvatar'
 
-// Deterministic color per tech name
-const TECH_PALETTE = [
-  'bg-blue-50 text-blue-700 border-blue-100',
-  'bg-green-50 text-green-700 border-green-100',
-  'bg-yellow-50 text-yellow-700 border-yellow-100',
-  'bg-purple-50 text-purple-700 border-purple-100',
-  'bg-orange-50 text-orange-700 border-orange-100',
-  'bg-teal-50 text-teal-700 border-teal-100',
-  'bg-sky-50 text-sky-700 border-sky-100',
-  'bg-rose-50 text-rose-700 border-rose-100',
-]
+// Deterministic accent color per tech name — same navy/lime/blue/purple/amber palette as Dashboard/Reports
+const TECH_ACCENTS = ['#81b927', '#4e90d0', '#a855f7', '#f59e0b', '#67add2', '#1f6d44']
 function techColor(name = '') {
   let h = 0
   for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h)
-  return TECH_PALETTE[Math.abs(h) % TECH_PALETTE.length]
+  return TECH_ACCENTS[Math.abs(h) % TECH_ACCENTS.length]
 }
 
 const SENIORITY_CLS = {
@@ -628,7 +619,7 @@ export default function TalentDirectory() {
               <div className="flex items-center gap-3">
                 <h1 className="text-[2.25rem] leading-none tracking-[-0.02em] font-extrabold text-primary">Talent Directory</h1>
                 {hasSearched && (
-                  <span className="px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant text-xs font-bold">{total}</span>
+                  <span className="px-2.5 py-1 rounded-full text-xs font-bold" style={{ backgroundColor: '#0b2a58', color: '#81b927' }}>{total}</span>
                 )}
               </div>
             </div>
@@ -759,14 +750,14 @@ export default function TalentDirectory() {
               <div className="overflow-x-auto">
                 <table className="min-w-[1400px] w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-surface-container-low">
+                    <tr style={{ backgroundColor: '#0b2a58' }}>
                       {['Name', 'Role', 'Technology', 'Module', 'English', 'YoE', 'Location'].map(h => (
-                        <th key={h} className="py-3.5 px-5 text-[11px] font-bold text-white uppercase tracking-widest whitespace-nowrap">{h}</th>
+                        <th key={h} className="py-3.5 px-5 text-[11px] font-bold uppercase tracking-widest whitespace-nowrap" style={{ color: '#81b927' }}>{h}</th>
                       ))}
-                      <th className="py-3.5 px-4 bg-surface-container-low"></th>
+                      <th className="py-3.5 px-4" style={{ backgroundColor: '#0b2a58' }}></th>
                     </tr>
                     {/* Column filters row */}
-                    <tr className="bg-surface-container-low border-t border-outline-variant/10">
+                    <tr className="border-t border-outline-variant/10" style={{ backgroundColor: '#0b2a58' }}>
                       {/* Name — no filter */}
                       <td className="px-5 pb-2 pt-1" />
                       {/* Role filter */}
@@ -794,7 +785,7 @@ export default function TalentDirectory() {
                         <MultiSelectFilter options={uniqueCities} selected={fCity} onChange={setFCity} placeholder="Todas las ciudades" maxWidth="160px" searchable />
                       </td>
                       {/* Clear filters */}
-                      <td className="px-4 pb-2 pt-1 bg-surface-container-low">
+                      <td className="px-4 pb-2 pt-1" style={{ backgroundColor: '#0b2a58' }}>
                         {hasColumnFilters && (
                           <button onClick={() => { setFCity(new Set()); setFRole(new Set()); setFTech(new Set()); setFModule(new Set()); setFEng(new Set()); setFYoe(new Set()) }}
                             className="text-[10px] text-primary hover:underline whitespace-nowrap font-semibold">
@@ -838,9 +829,12 @@ export default function TalentDirectory() {
                           <td className="py-4 px-5">
                             <div className="flex flex-wrap gap-1">
                               {techs.length > 0
-                                ? techs.map(t => (
-                                  <span key={t} className={`${techColor(t)} px-2 py-0.5 rounded-full text-xs font-semibold border`}>{t}</span>
-                                ))
+                                ? techs.map(t => {
+                                  const accent = techColor(t)
+                                  return (
+                                    <span key={t} className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{ backgroundColor: accent + '1c', color: accent }}>{t}</span>
+                                  )
+                                })
                                 : <span className="text-xs text-on-surface-variant/40">—</span>}
                             </div>
                           </td>

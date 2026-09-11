@@ -40,6 +40,7 @@ export default function Dashboard() {
   const [talentMonth, setTalentMonth] = useState({ year: now.getFullYear(), month: now.getMonth() })
   const [talentCount, setTalentCount] = useState(null)
   const [talentLoading, setTalentLoading] = useState(false)
+  const [pipelineModal, setPipelineModal] = useState(null) // 'general' | 'final' | null
 
   const MESES_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
 
@@ -304,7 +305,11 @@ export default function Dashboard() {
             ) : (
               <div className="grid grid-cols-2 gap-3">
                 {/* Total en pipeline */}
-                <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPipelineModal('general')}
+                  className="text-left bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2 hover:shadow-[0_4px_20px_rgba(24,28,30,0.08)] hover:-translate-y-0.5 transition-all cursor-pointer"
+                >
                   <div className="flex items-center gap-1.5">
                     <span className="material-symbols-outlined text-[24px]" style={{ color: '#4e90d0' }}>hub</span>
                     <span className="text-[15px] font-bold uppercase tracking-wider text-on-surface-variant">Pipeline General</span>
@@ -313,10 +318,14 @@ export default function Dashboard() {
                     {stats?.activePipelineCount ?? 0}
                   </p>
                   <p className="text-sm font-semibold italic text-on-surface-variant">candidatos en proceso activo con clientes</p>
-                </div>
+                </button>
 
                 {/* Candidatos en última etapa */}
-                <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPipelineModal('final')}
+                  className="text-left bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2 hover:shadow-[0_4px_20px_rgba(24,28,30,0.08)] hover:-translate-y-0.5 transition-all cursor-pointer"
+                >
                   <div className="flex items-center gap-1.5">
                     <span className="material-symbols-outlined text-[24px]" style={{ color: '#81b927' }}>bolt</span>
                     <span className="text-[15px] font-bold uppercase tracking-wider text-on-surface-variant">Candidatos</span>
@@ -325,13 +334,66 @@ export default function Dashboard() {
                     {stats?.finalStageCount ?? 0}
                   </p>
                   <p className="text-sm font-semibold italic text-on-surface-variant">en las últimas 2 etapas del pipeline</p>
-                </div>
+                </button>
               </div>
             )}
           </div>
 
         </div>
       </div>
+
+      {/* Pipeline table modal — read-only */}
+      {pipelineModal && (() => {
+        const isGeneral = pipelineModal === 'general'
+        const rows = (isGeneral ? stats?.pipelineList : stats?.finalStageList) ?? []
+        return (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+            onClick={() => setPipelineModal(null)}
+          >
+            <div
+              className="rounded-2xl border border-white/10 shadow-2xl w-full max-w-3xl max-h-[82vh] flex flex-col overflow-hidden"
+              style={{ backgroundColor: '#0b1e3d' }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 shrink-0">
+                <div>
+                  <h2 className="text-base font-bold text-white">{isGeneral ? 'Pipeline General' : 'Candidatos — últimas etapas'}</h2>
+                  <p className="text-xs text-white/50 mt-0.5">{rows.length} candidato{rows.length !== 1 ? 's' : ''} · ordenado por cliente</p>
+                </div>
+                <button onClick={() => setPipelineModal(null)} className="text-white/40 hover:text-white/80 transition-colors">
+                  <span className="material-symbols-outlined text-[22px]">close</span>
+                </button>
+              </div>
+              <div className="overflow-y-auto flex-1">
+                <table className="min-w-full text-left border-collapse">
+                  <thead className="sticky top-0" style={{ backgroundColor: '#0b2a58' }}>
+                    <tr>
+                      {['Nombre', 'Cliente', 'Posición', 'Stage'].map(h => (
+                        <th key={h} className="py-3 px-5 text-[11px] font-bold uppercase tracking-widest whitespace-nowrap" style={{ color: '#81b927' }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.length === 0 ? (
+                      <tr><td colSpan={4} className="py-10 text-center text-white/40 text-sm">Sin candidatos</td></tr>
+                    ) : rows.map((r, i) => (
+                      <tr key={r.id} className={i % 2 === 1 ? 'bg-white/[0.03]' : ''}>
+                        <td className="py-3 px-5 text-sm font-semibold text-white whitespace-nowrap">{r.candidate}</td>
+                        <td className="py-3 px-5 text-sm text-white/70 whitespace-nowrap">{r.client}</td>
+                        <td className="py-3 px-5 text-sm text-white/70 whitespace-nowrap">{r.position}</td>
+                        <td className="py-3 px-5 whitespace-nowrap">
+                          <span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{ backgroundColor: '#81b9271c', color: '#81b927' }}>{r.stage}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
     </>
   )
 }

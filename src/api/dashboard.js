@@ -43,7 +43,11 @@ export async function getDashboardStats() {
       .eq('status', 'Sent').gte('created_at', monthStart),
     // Active pipeline submittals — every requirement_candidate row not rejected, on an Open requirement
     supabase.from('requirement_candidate')
-      .select('id, submittal_status, requirement:requirement_id!inner(client_id, status_id)')
+      .select(`
+        id, submittal_status,
+        candidate:candidate_id(full_name),
+        requirement:requirement_id!inner(job_title, client_id, status_id, client:client_id(name))
+      `)
       .neq('submittal_status', 'Rejected')
       .eq('requirement.status_id', 2),
     // Per-client stage definitions (to find each client's last two funnel stages)
@@ -98,11 +102,21 @@ export async function getDashboardStats() {
     lastTwoByClient[clientId] = new Set(names.slice(-2))
   }
 
-  const pipelineTotal = pipelineRows ?? []
-  const activePipelineCount = pipelineTotal.length
-  const finalStageCount = pipelineTotal.filter(r =>
-    lastTwoByClient[r.requirement?.client_id]?.has(r.submittal_status)
-  ).length
+  const pipelineList = (pipelineRows ?? [])
+    .map(r => ({
+      id:       r.id,
+      candidate: r.candidate?.full_name ?? '—',
+      client:    r.requirement?.client?.name ?? '—',
+      clientId:  r.requirement?.client_id ?? null,
+      position:  r.requirement?.job_title ?? '—',
+      stage:     r.submittal_status ?? '—',
+    }))
+    .sort((a, b) => a.client.localeCompare(b.client) || a.candidate.localeCompare(b.candidate))
+
+  const finalStageList = pipelineList.filter(row => lastTwoByClient[row.clientId]?.has(row.stage))
+
+  const activePipelineCount = pipelineList.length
+  const finalStageCount     = finalStageList.length
 
   return {
     totalRequirements:    reqs.length,
@@ -119,6 +133,8 @@ export async function getDashboardStats() {
     monthlySent: monthlySentCount ?? 0,
     activePipelineCount,
     finalStageCount,
+    pipelineList,
+    finalStageList,
   }
 }
 

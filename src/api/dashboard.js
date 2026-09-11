@@ -41,15 +41,17 @@ export async function getDashboardStats() {
       .in('status', ['Rejected', 'HSE', 'Backed Out']).eq('week_number', isoWeek).eq('week_year', isoYear),
     supabase.from('tracker_entry').select('*', { count: 'exact', head: true })
       .eq('status', 'Sent').gte('created_at', monthStart),
-    // Active pipeline submittals — every requirement_candidate row not rejected, on an Open requirement
+    // Active pipeline submittals — every requirement_candidate row not rejected, on an Open,
+    // non-paused requirement (excludes On Hold / Closed positions)
     supabase.from('requirement_candidate')
       .select(`
         id, submittal_status,
         candidate:candidate_id(full_name),
-        requirement:requirement_id!inner(job_title, client_id, status_id, client:client_id(name))
+        requirement:requirement_id!inner(job_title, client_id, status_id, priority, client:client_id(name))
       `)
       .neq('submittal_status', 'Rejected')
-      .eq('requirement.status_id', 2),
+      .eq('requirement.status_id', 2)
+      .neq('requirement.priority', 3),
     // Per-client stage definitions (to find each client's last two funnel stages)
     supabase.from('catalog_pipeline_stage')
       .select('client_id, name, position')

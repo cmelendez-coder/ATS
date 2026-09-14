@@ -1589,7 +1589,10 @@ export default function Tracker() {
 
   // Past weeks are frozen — once a new ISO week starts, the previous week and
   // all earlier ones become view-only (no add / edit / status change / delete).
-  const isPastWeek = year < currentYear || (year === currentYear && week < currentWeek)
+  // One-day exception requested by César: Semana 37/2026 unfreezes only for 2026-09-14
+  // local time, then this simply stops matching and the week re-freezes on its own.
+  const isTempUnfreeze37 = year === 2026 && week === 37 && new Date().toDateString() === new Date('2026-09-14').toDateString()
+  const isPastWeek = !isTempUnfreeze37 && (year < currentYear || (year === currentYear && week < currentWeek))
 
   // Admins can edit any tab; recruiters can only edit their own — but never a past week.
   const canEdit = !isPastWeek && (userRole === 'administrador'

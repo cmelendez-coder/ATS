@@ -1953,7 +1953,7 @@ export default function Tracker() {
             </span>
             <div className="min-w-0">
               <p className="text-xl text-black leading-relaxed">
-                Para evitar inconsistencias en la lógica de los reportes, los estatus registrados
+                Para evitar inconsistencias en la lógica de los reportes, los datos registrados
                 durante la <strong style={{ color: '#1f6d44' }}>Semana {week}</strong> no podrán ser modificados.
               </p>
             </div>

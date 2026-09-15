@@ -827,6 +827,12 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
     if (!url) return url
     const driveMatch = url.match(/\/file\/d\/([^/?\s]+)/)
     if (driveMatch) return `https://drive.google.com/file/d/${driveMatch[1]}/preview`
+    // Browsers can't render Office docs inline — they just download them.
+    // Route those through Office Online's viewer so the iframe can show them.
+    const ext = url.split('?')[0].split('.').pop()?.toLowerCase()
+    if (['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(ext)) {
+      return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`
+    }
     return url
   }
 

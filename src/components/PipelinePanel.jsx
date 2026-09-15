@@ -18,6 +18,10 @@ function toEmbedUrl(url) {
   if (!url) return url
   const driveMatch = url.match(/\/file\/d\/([^/?\s]+)/)
   if (driveMatch) return `https://drive.google.com/file/d/${driveMatch[1]}/preview`
+  const ext = url.split('?')[0].split('.').pop()?.toLowerCase()
+  if (['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(ext)) {
+    return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`
+  }
   return url
 }
 

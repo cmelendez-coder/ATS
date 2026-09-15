@@ -1073,26 +1073,6 @@ const clientDetailSections = data.clients.map((client) => {
                 </div>
               </section>
 
-              {/* 6. Distribución global por fase */}
-              <section className="bg-surface-container-lowest rounded-3xl border border-outline-variant/10 shadow-[0_2px_18px_rgba(24,28,30,0.06)] p-6 md:p-7 space-y-5">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <h2 className="text-xl font-bold text-primary">Distribucion global por fase</h2>
-                    <p className="text-sm text-on-surface-variant mt-1">Total de candidatos en las fases principales del pipeline para los clientes visibles.</p>
-                  </div>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant text-xs font-bold">
-                    {totalClientCandidatesVisible} candidatos ligados a requerimientos
-                  </span>
-                </div>
-                <div className="flex flex-wrap gap-3">
-                  {visibleStageTotals.map(stage => (
-                    <div key={stage.name} className="rounded-xl p-3.5 min-w-[110px]" style={{ backgroundColor: stage.color + '1c' }}>
-                      <p className="text-[9px] font-bold uppercase tracking-widest mb-2 truncate" style={{ color: stage.color }}>{stage.name}</p>
-                      <p className="text-[2rem] font-light leading-none" style={{ color: stage.color }}>{stage.count}</p>
-                    </div>
-                  ))}
-                </div>
-              </section>
             </>
           )}
         </div>

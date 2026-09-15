@@ -10,7 +10,8 @@ import { fetchTrackerInfoForCandidate } from '../api/tracker'
 
 function toAbsoluteUrl(url) {
   if (!url) return null
-  return /^https?:\/\//i.test(url) ? url : `https://${url}`
+  const trimmed = url.trim()
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`
 }
 
 function toEmbedUrl(url) {
@@ -391,32 +392,6 @@ function CardDetailModal({ rc, requirementId, stages, canManage, clientName, onC
               )}
             </div>
           )}
-
-          {/* Stage selector */}
-          <div>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2.5">Etapa</p>
-            <div className="flex flex-wrap gap-1.5">
-              {stages.filter(s => s.name !== 'Rejected').map(s => {
-                const active = s.name === rc.submittal_status
-                return (
-                  <button
-                    key={s.stage_id}
-                    disabled={!canManage}
-                    onClick={() => canManage && onStageChange(rc.id, s.name)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all
-                      ${active ? 'shadow-sm' : 'opacity-50 hover:opacity-80'}`}
-                    style={active
-                      ? { backgroundColor: s.color + '22', borderColor: s.color, color: s.color }
-                      : { backgroundColor: 'transparent', borderColor: s.color + '55', color: s.color }
-                    }
-                  >
-                    {active && <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: s.color }} />}
-                    {s.name}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
 
           {/* Notes */}
           <div>

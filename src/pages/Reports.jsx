@@ -1073,52 +1073,6 @@ const clientDetailSections = data.clients.map((client) => {
                 </div>
               </section>
 
-              {/* 5. Detalle por cliente */}
-              <section className="space-y-4">
-                <div>
-                  <h2 className="text-xl font-bold text-primary">Detalle por cliente</h2>
-                  <p className="text-sm text-on-surface-variant mt-1">Solo se muestran clientes con requerimientos abiertos y las fases principales.</p>
-                </div>
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                  {visibleClientsDetailed.map(client => (
-                    <article key={client.clientId} className="rounded-3xl border border-outline-variant/10 bg-surface-container-lowest shadow-[0_2px_18px_rgba(24,28,30,0.06)] overflow-hidden">
-                      <div className="px-6 py-5 border-b border-outline-variant/10 bg-gradient-to-r from-surface-container/60 to-transparent">
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
-                            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-on-surface-variant/70">Cliente</p>
-                            <h3 className="mt-1 text-xl font-bold text-primary">{client.clientName}</h3>
-                          </div>
-                          <div className="flex gap-2">
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold" style={{ backgroundColor: '#81b9271a', color: '#5d8a12' }}>
-                              {client.requirementCount} req
-                            </span>
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold" style={{ backgroundColor: '#4e90d01a', color: '#2f6bab' }}>
-                              {client.candidateCount} cand
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="p-6">
-                        {client.stages.length === 0 ? (
-                          <div className="rounded-2xl border border-dashed border-outline-variant/25 bg-surface-container/40 px-4 py-4 text-sm text-on-surface-variant">
-                            Este cliente no tiene fases configuradas.
-                          </div>
-                        ) : (
-                          <div className="flex flex-wrap gap-3">
-                            {client.stages.map(stage => (
-                              <div key={stage.name} className="rounded-xl p-3.5 min-w-[110px]" style={{ backgroundColor: stage.color + '1c' }}>
-                                <p className="text-[9px] font-bold uppercase tracking-widest mb-2 truncate" style={{ color: stage.color }}>{stage.name}</p>
-                                <p className="text-[2rem] font-light leading-none" style={{ color: stage.color }}>{stage.count}</p>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </section>
-
               {/* 6. Distribución global por fase */}
               <section className="bg-surface-container-lowest rounded-3xl border border-outline-variant/10 shadow-[0_2px_18px_rgba(24,28,30,0.06)] p-6 md:p-7 space-y-5">
                 <div className="flex items-center justify-between gap-4">

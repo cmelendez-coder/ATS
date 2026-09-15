@@ -347,17 +347,26 @@ function CardDetailModal({ rc, requirementId, stages, canManage, clientName, onC
           {trackerInfo && (trackerInfo.salary || trackerInfo.english_score != null) && (
             <div className="grid grid-cols-2 gap-3">
               {trackerInfo.salary && (
-                <div className="rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Salario</p>
-                  <p className="text-sm font-semibold text-slate-700 mt-0.5">
-                    ${trackerInfo.salary}{trackerInfo.amount_type ? ` · ${trackerInfo.amount_type}` : ''}
+                <div className="rounded-xl p-3.5 relative overflow-hidden" style={{ backgroundColor: '#1f6d441a' }}>
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent pointer-events-none" />
+                  <div className="relative flex items-center gap-1.5 mb-1">
+                    <span className="material-symbols-outlined text-[15px]" style={{ color: '#1f6d44' }}>payments</span>
+                    <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#1f6d44' }}>Salario</p>
+                  </div>
+                  <p className="relative text-xl font-extrabold tracking-tight" style={{ color: '#1f6d44' }}>
+                    ${Number(trackerInfo.salary).toLocaleString('en-US') || trackerInfo.salary}
+                    {trackerInfo.amount_type && <span className="text-[11px] font-semibold ml-1.5 opacity-70">{trackerInfo.amount_type}</span>}
                   </p>
                 </div>
               )}
               {trackerInfo.english_score != null && (
-                <div className="rounded-xl bg-slate-50 border border-slate-200 px-3 py-2.5">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">English</p>
-                  <p className="text-sm font-semibold text-slate-700 mt-0.5">{trackerInfo.english_score}%</p>
+                <div className="rounded-xl p-3.5 relative overflow-hidden" style={{ backgroundColor: '#4e90d01a' }}>
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent pointer-events-none" />
+                  <div className="relative flex items-center gap-1.5 mb-1">
+                    <span className="material-symbols-outlined text-[15px]" style={{ color: '#4e90d0' }}>language</span>
+                    <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#4e90d0' }}>English</p>
+                  </div>
+                  <p className="relative text-xl font-extrabold tracking-tight" style={{ color: '#4e90d0' }}>{trackerInfo.english_score}%</p>
                 </div>
               )}
             </div>

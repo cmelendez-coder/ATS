@@ -292,6 +292,7 @@ function TrackerGlobalSearch({ recruiter, label, onSelect }) {
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [pos, setPos]         = useState(null)
+  const [noteModal, setNoteModal] = useState(null) // { name, notes, week, year }
   const btnRef   = useRef(null)
   const panelRef = useRef(null)
 
@@ -391,11 +392,10 @@ function TrackerGlobalSearch({ recruiter, label, onSelect }) {
               <p className="px-3 py-3 text-xs text-white/40 text-center">Sin resultados</p>
             )}
             {!loading && results.map(r => (
-              <button
+              <div
                 key={r.id}
-                type="button"
                 onClick={() => { onSelect(r.week_number, r.week_year); setOpen(false) }}
-                className="w-full text-left px-3 py-2 hover:bg-[#071d47] transition-colors border-b border-white/5 last:border-0"
+                className="w-full text-left px-3 py-2 hover:bg-[#071d47] transition-colors border-b border-white/5 last:border-0 cursor-pointer"
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-bold text-white truncate">{r.candidate_name}</span>
@@ -407,8 +407,37 @@ function TrackerGlobalSearch({ recruiter, label, onSelect }) {
                   </span>
                   <span className="text-[10px] text-[#81b927]/80 font-semibold shrink-0">{weekLabel(r.week_number, r.week_year)}</span>
                 </div>
-              </button>
+                {r.notes && (
+                  <button
+                    type="button"
+                    onClick={e => { e.stopPropagation(); setNoteModal({ name: r.candidate_name, notes: r.notes, week: r.week_number, year: r.week_year }) }}
+                    className="w-full mt-1 flex items-start gap-1 text-left text-[10px] text-amber-300/70 hover:text-amber-200 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[12px] mt-[1px] shrink-0">sticky_note_2</span>
+                    <span className="truncate">{r.notes}</span>
+                  </button>
+                )}
+              </div>
             ))}
+          </div>
+        </div>,
+        document.body
+      )}
+      {noteModal && createPortal(
+        <div className="fixed inset-0 z-[600] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setNoteModal(null)}>
+          <div className="bg-[#0b2a58] border border-white/10 rounded-xl shadow-2xl w-full max-w-sm mx-4" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+              <div>
+                <p className="text-sm font-bold text-white">{noteModal.name}</p>
+                <p className="text-[10px] text-[#81b927]/80 font-semibold mt-0.5">{weekLabel(noteModal.week, noteModal.year)}</p>
+              </div>
+              <button onClick={() => setNoteModal(null)} className="text-white/50 hover:text-white transition-colors shrink-0 ml-3">
+                <span className="material-symbols-outlined text-[18px]">close</span>
+              </button>
+            </div>
+            <div className="px-4 py-3">
+              <p className="text-xs text-white/80 whitespace-pre-wrap leading-relaxed">{noteModal.notes}</p>
+            </div>
           </div>
         </div>,
         document.body

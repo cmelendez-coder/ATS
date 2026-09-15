@@ -33,7 +33,7 @@ export async function searchTrackerByRecruiter(query, recruiter) {
   const { data, error } = await supabase
     .from('tracker_entry')
     .select(`
-      id, candidate_name, week_number, week_year, status,
+      id, candidate_name, week_number, week_year, status, notes,
       requirement:requirement_id(id, job_title, client:client_id(name))
     `)
     .eq('recruiter', recruiter)

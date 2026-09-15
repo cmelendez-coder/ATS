@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import {
   getRequirementCandidates, addCandidateToRequirement,
   updateCandidateStage, updateRequirementCandidateNotes, updateCandidateSource, removeCandidateFromRequirement,
@@ -10,6 +11,13 @@ import { fetchTrackerInfoForCandidate } from '../api/tracker'
 function toAbsoluteUrl(url) {
   if (!url) return null
   return /^https?:\/\//i.test(url) ? url : `https://${url}`
+}
+
+function toEmbedUrl(url) {
+  if (!url) return url
+  const driveMatch = url.match(/\/file\/d\/([^/?\s]+)/)
+  if (driveMatch) return `https://drive.google.com/file/d/${driveMatch[1]}/preview`
+  return url
 }
 
 /* ── Add Candidate Modal ── */
@@ -217,6 +225,7 @@ function CardDetailModal({ rc, requirementId, stages, canManage, clientName, onC
   const [isClient, setIsClient]     = useState(rc.candidate?.source === 'client')
   const [togglingSource, setTogglingSource] = useState(false)
   const [trackerInfo, setTrackerInfo] = useState(null)
+  const [cvPreviewUrl, setCvPreviewUrl] = useState(null)
 
   const isDirty = notes !== (rc.notes ?? '')
   const stage   = stages.find(s => s.name === rc.submittal_status)
@@ -272,6 +281,7 @@ function CardDetailModal({ rc, requirementId, stages, canManage, clientName, onC
   }
 
   return (
+    <>
     <div
       className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 backdrop-blur-sm pt-12 pb-10 px-4 overflow-y-auto"
       onClick={onClose}
@@ -369,14 +379,15 @@ function CardDetailModal({ rc, requirementId, stages, canManage, clientName, onC
                 </a>
               )}
               {trackerInfo.cv_url && (
-                <a
-                  href={trackerInfo.cv_url}
-                  target="_blank" rel="noreferrer"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
+                <button
+                  type="button"
+                  onClick={() => setCvPreviewUrl(trackerInfo.cv_url)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
+                  style={{ backgroundColor: '#f973161a', color: '#f97316' }}
                 >
                   <span className="material-symbols-outlined text-[14px]">description</span>
                   CV
-                </a>
+                </button>
               )}
             </div>
           )}
@@ -485,6 +496,26 @@ function CardDetailModal({ rc, requirementId, stages, canManage, clientName, onC
         </div>
       </div>
     </div>
+    {cvPreviewUrl && createPortal(
+      <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={() => setCvPreviewUrl(null)}>
+        <div className="relative bg-[#071d47] rounded-2xl shadow-2xl border border-white/10 w-[90vw] max-w-4xl h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+          <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+            <span className="text-sm font-semibold text-white/80">{rc.candidate?.full_name ?? 'Candidato'} — CV</span>
+            <div className="flex items-center gap-2">
+              <a href={cvPreviewUrl} target="_blank" rel="noreferrer" className="text-[#81b927] text-xs hover:underline flex items-center gap-1">
+                <span className="material-symbols-outlined text-[13px]">open_in_new</span>Abrir
+              </a>
+              <button type="button" onClick={() => setCvPreviewUrl(null)} className="text-white/50 hover:text-white transition-colors ml-2">
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </div>
+          </div>
+          <iframe src={toEmbedUrl(cvPreviewUrl)} className="flex-1 w-full rounded-b-2xl" allow="autoplay" />
+        </div>
+      </div>,
+      document.body
+    )}
+    </>
   )
 }
 

@@ -226,7 +226,6 @@ export default function Reports() {
   const totalRequirementsVisible = visibleClientsDetailed.reduce((sum, client) => sum + client.requirementCount, 0)
   const totalClientCandidatesVisible = visibleClientsDetailed.reduce((sum, client) => sum + client.candidateCount, 0)
   const totalCandidatesGeneral = report?.totalCandidates ?? 0
-  const topStage = visibleStageTotals?.[0]
 
   function openPreview(title, subtitle, bodyHtml, onDownload) {
     setPreview({
@@ -928,17 +927,9 @@ const clientDetailSections = data.clients.map((client) => {
           ) : report && (
             <>
               {/* 1. Metric cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <MetricCard label="Candidatos totales" value={totalCandidatesGeneral.toLocaleString()} icon="group" tone="primary" />
                 <MetricCard label="Requerimientos abiertos" value={totalRequirementsVisible.toLocaleString()} icon="assignment" tone="secondary" />
-                <MetricCard label="Clientes visibles" value={visibleClientsDetailed.length.toLocaleString()} icon="apartment" tone="tertiary" />
-                <MetricCard
-                  label="Fase con mas candidatos"
-                  value={topStage?.count?.toLocaleString?.() ?? '0'}
-                  icon="insights"
-                  tone="neutral"
-                  sublabel={topStage ? topStage.name : 'Sin datos'}
-                />
               </div>
 
               {/* 3. Tipos de reporte: Por cliente, General mensual */}

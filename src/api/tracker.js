@@ -406,6 +406,23 @@ export async function deleteTrackerEntry(id) {
   if (error) throw error
 }
 
+// Salary/English/LinkedIn/CV for a candidate on a given requirement, pulled from
+// their tracker submission — used by the pipeline card modal, which otherwise
+// has no access to this data (it only lives on tracker_entry).
+export async function fetchTrackerInfoForCandidate(requirementId, candidateId) {
+  if (!requirementId || !candidateId) return null
+  const { data, error } = await supabase
+    .from('tracker_entry')
+    .select('salary, amount_type, ote, english_score, linkedin_url, cv_url')
+    .eq('requirement_id', requirementId)
+    .eq('candidate_id', candidateId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  if (error) throw error
+  return data
+}
+
 export async function createScreeningEvent({ candidateName, requirementTitle, screeningDatetime, screeningNote }) {
   const { data, error } = await supabase.functions.invoke('create-screening-event', {
     body: { candidateName, requirementTitle, screeningDatetime, screeningNote },

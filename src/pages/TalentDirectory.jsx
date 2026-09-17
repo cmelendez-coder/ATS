@@ -86,7 +86,7 @@ const ADMIN_SEARCHES = [
     label: 'Senior Coupa Administrator (SME P2P)',
     description: 'Coupa Administrator / SME Procure-to-Pay — 5 "Administrator" + 5 "Functional" con módulo Coupa, ordenados por relevancia, YOE e inglés. Ninguno tiene Oracle Fusion Payables registrado en el perfil.',
     ids: [12380, 12383, 12382, 12381, 12384, 12388, 12387, 12386, 12385, 14512],
-    createdAt: '2026-09-17T00:00:00.000Z',
+    createdAt: '2026-09-17T23:22:00.000Z',
   },
 ]
 import { usePermissions } from '../hooks/usePermissions'

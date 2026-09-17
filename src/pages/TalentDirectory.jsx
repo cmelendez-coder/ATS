@@ -82,6 +82,12 @@ const ADMIN_SEARCHES = [
     ids: [15025, 12783, 12281, 12274, 12667, 12788, 12351, 12798, 12781, 12279, 12449, 12841, 12839, 13722, 14705, 12249, 12472, 13626, 12844, 12789, 13587, 14780, 13089, 13090, 13097, 12147, 11834, 12148, 13640, 13096, 13085, 13091, 13712, 12473, 12474, 12475, 15063],
     createdAt: '2026-09-09T13:00:00.000Z',
   },
+  {
+    label: 'Senior Coupa Administrator (SME P2P)',
+    description: 'Coupa Administrator / SME Procure-to-Pay — 5 "Administrator" + 5 "Functional" con módulo Coupa, ordenados por relevancia, YOE e inglés. Ninguno tiene Oracle Fusion Payables registrado en el perfil.',
+    ids: [12380, 12383, 12382, 12381, 12384, 12388, 12387, 12386, 12385, 14512],
+    createdAt: '2026-09-17T00:00:00.000Z',
+  },
 ]
 import { usePermissions } from '../hooks/usePermissions'
 import PortalButtons from '../components/PortalButtons'

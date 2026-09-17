@@ -599,27 +599,41 @@ function CandidateNameSearch({ value, linkedId, onType, onPick, onNormalize }) {
   )
 }
 
-function RejectedFeedbackModal({ onConfirm, onCancel }) {
+function RejectedFeedbackModal({ onConfirm, onCancel, status = 'Rejected' }) {
   const [feedback, setFeedback] = useState('')
   const textareaRef = useRef(null)
   useEffect(() => { textareaRef.current?.focus() }, [])
+  const isBackedOut = status === 'Backed Out'
+  const theme = isBackedOut
+    ? {
+        iconBg: 'bg-zinc-500/20', iconColor: 'text-zinc-400', icon: 'person_remove',
+        ring: 'focus:ring-zinc-400/50', btn: 'bg-zinc-600 hover:bg-zinc-700',
+        subtitle: 'Agrega el motivo de la baja (opcional)',
+        placeholder: 'Motivo por el que se dio de baja…',
+      }
+    : {
+        iconBg: 'bg-red-500/20', iconColor: 'text-red-400', icon: 'thumb_down',
+        ring: 'focus:ring-red-400/50', btn: 'bg-red-500 hover:bg-red-600',
+        subtitle: 'Agrega el feedback del rechazo (opcional)',
+        placeholder: 'Motivo del rechazo…',
+      }
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
       <div className="bg-surface-container-high rounded-2xl shadow-2xl border border-outline-variant/20 p-6 w-full max-w-sm mx-4">
         <div className="flex items-center gap-3 mb-4">
-          <span className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center">
-            <span className="material-symbols-outlined text-red-400 text-[18px]">thumb_down</span>
+          <span className={`w-8 h-8 rounded-full ${theme.iconBg} flex items-center justify-center`}>
+            <span className={`material-symbols-outlined ${theme.iconColor} text-[18px]`}>{theme.icon}</span>
           </span>
           <div>
-            <h3 className="text-sm font-bold text-on-surface">Marcar como Rejected</h3>
-            <p className="text-xs text-on-surface-variant mt-0.5">Agrega el feedback del rechazo (opcional)</p>
+            <h3 className="text-sm font-bold text-on-surface">Marcar como {status}</h3>
+            <p className="text-xs text-on-surface-variant mt-0.5">{theme.subtitle}</p>
           </div>
         </div>
         <textarea
           ref={textareaRef}
-          className="w-full bg-surface-container text-on-surface text-xs px-3 py-2 rounded-lg border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-red-400/50 resize-none placeholder:text-on-surface-variant/40"
+          className={`w-full bg-surface-container text-on-surface text-xs px-3 py-2 rounded-lg border border-outline-variant/30 focus:outline-none focus:ring-1 ${theme.ring} resize-none placeholder:text-on-surface-variant/40`}
           rows={4}
-          placeholder="Motivo del rechazo…"
+          placeholder={theme.placeholder}
           value={feedback}
           onChange={e => setFeedback(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) onConfirm(feedback) }}
@@ -631,8 +645,8 @@ function RejectedFeedbackModal({ onConfirm, onCancel }) {
             Cancelar
           </button>
           <button type="button" onClick={() => onConfirm(feedback)}
-            className="px-4 py-1.5 text-xs rounded-lg bg-red-500 text-white font-semibold hover:bg-red-600 transition-colors">
-            Guardar Rejected
+            className={`px-4 py-1.5 text-xs rounded-lg ${theme.btn} text-white font-semibold transition-colors`}>
+            Guardar {status}
           </button>
         </div>
       </div>
@@ -846,6 +860,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
   const [showSentModal, setShowSentModal]           = useState(false)
   const [showScreeningModal, setShowScreeningModal] = useState(false)
   const [showRejectedModal, setShowRejectedModal]   = useState(false)
+  const [showBackedOutModal, setShowBackedOutModal] = useState(false)
   const [cvUploading, setCvUploading]               = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm]   = useState(false)
   const [showStatusMenu, setShowStatusMenu]         = useState(false)
@@ -1118,6 +1133,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
                       if (s === 'Sent') setShowSentModal(true)
                       else if (s === 'Screening') setShowScreeningModal(true)
                       else if (s === 'Rejected') setShowRejectedModal(true)
+                      else if (s === 'Backed Out') setShowBackedOutModal(true)
                       else quickUpdateStatus(s)
                     }}
                   >
@@ -1204,6 +1220,13 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
             <RejectedFeedbackModal
               onConfirm={(feedback) => { quickUpdateStatus('Rejected', { notes: feedback || data.notes }); setShowRejectedModal(false) }}
               onCancel={() => setShowRejectedModal(false)}
+            />
+          )}
+          {showBackedOutModal && !editing && (
+            <RejectedFeedbackModal
+              status="Backed Out"
+              onConfirm={(feedback) => { quickUpdateStatus('Backed Out', { notes: feedback || data.notes }); setShowBackedOutModal(false) }}
+              onCancel={() => setShowBackedOutModal(false)}
             />
           )}
         </td>
@@ -1384,6 +1407,8 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
               setShowScreeningModal(true)
             } else if (e.target.value === 'Rejected') {
               setShowRejectedModal(true)
+            } else if (e.target.value === 'Backed Out') {
+              setShowBackedOutModal(true)
             } else {
               set('status', e.target.value)
             }
@@ -1413,6 +1438,13 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
           <RejectedFeedbackModal
             onConfirm={(feedback) => { set('status', 'Rejected'); if (feedback) set('notes', feedback); setShowRejectedModal(false) }}
             onCancel={() => setShowRejectedModal(false)}
+          />, document.body
+        )}
+        {showBackedOutModal && createPortal(
+          <RejectedFeedbackModal
+            status="Backed Out"
+            onConfirm={(feedback) => { set('status', 'Backed Out'); if (feedback) set('notes', feedback); setShowBackedOutModal(false) }}
+            onCancel={() => setShowBackedOutModal(false)}
           />, document.body
         )}
       </td>

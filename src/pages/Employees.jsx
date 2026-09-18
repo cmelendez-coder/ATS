@@ -4,7 +4,7 @@ import { fetchEmployees, saveEmployee, deleteEmployee, fetchClients } from '../a
 
 const CLIENT_ORDER = [
   'LogicMonitor', 'BlueConic', 'PacVue',
-  'Birlasoft', 'Phoenix', 'YASH', 'HTC', 'Logic 20/20', 'Dexian', 'Numeritech', 'BCT',
+  'Birlasoft', 'Phoenix', 'YASH', 'HTC', 'Logic 20/20', 'Dexian', 'Numeritech', 'Bahwan Cybertek',
 ]
 
 const CLIENT_COLOR = {
@@ -58,7 +58,7 @@ const CLIENT_COLOR = {
     badge: 'bg-pink-400/10 text-pink-300 border border-pink-400/20',
     header: 'bg-pink-500/10 border border-pink-400/20',
   },
-  BCT: {
+  'Bahwan Cybertek': {
     text: 'text-lime-300', dot: 'bg-lime-400',
     badge: 'bg-lime-400/10 text-lime-300 border border-lime-400/20',
     header: 'bg-lime-500/10 border border-lime-400/20',

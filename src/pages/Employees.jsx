@@ -2,7 +2,10 @@ import { useState, useEffect, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { fetchEmployees, saveEmployee, deleteEmployee, fetchClients } from '../api/employees'
 
-const CLIENT_ORDER = ['LogicMonitor', 'BlueConic', 'PacVue']
+const CLIENT_ORDER = [
+  'LogicMonitor', 'BlueConic', 'PacVue',
+  'Birlasoft', 'Phoenix', 'YASH', 'HTC', 'Logic 20/20', 'Dexian', 'Numeritech', 'BCT',
+]
 
 const CLIENT_COLOR = {
   LogicMonitor: {
@@ -19,6 +22,46 @@ const CLIENT_COLOR = {
     text: 'text-orange-300', dot: 'bg-orange-400',
     badge: 'bg-orange-400/10 text-orange-300 border border-orange-400/20',
     header: 'bg-orange-500/10 border border-orange-400/20',
+  },
+  Birlasoft: {
+    text: 'text-purple-300', dot: 'bg-purple-400',
+    badge: 'bg-purple-400/10 text-purple-300 border border-purple-400/20',
+    header: 'bg-purple-500/10 border border-purple-400/20',
+  },
+  Phoenix: {
+    text: 'text-rose-300', dot: 'bg-rose-400',
+    badge: 'bg-rose-400/10 text-rose-300 border border-rose-400/20',
+    header: 'bg-rose-500/10 border border-rose-400/20',
+  },
+  YASH: {
+    text: 'text-cyan-300', dot: 'bg-cyan-400',
+    badge: 'bg-cyan-400/10 text-cyan-300 border border-cyan-400/20',
+    header: 'bg-cyan-500/10 border border-cyan-400/20',
+  },
+  HTC: {
+    text: 'text-amber-300', dot: 'bg-amber-400',
+    badge: 'bg-amber-400/10 text-amber-300 border border-amber-400/20',
+    header: 'bg-amber-500/10 border border-amber-400/20',
+  },
+  'Logic 20/20': {
+    text: 'text-indigo-300', dot: 'bg-indigo-400',
+    badge: 'bg-indigo-400/10 text-indigo-300 border border-indigo-400/20',
+    header: 'bg-indigo-500/10 border border-indigo-400/20',
+  },
+  Dexian: {
+    text: 'text-teal-300', dot: 'bg-teal-400',
+    badge: 'bg-teal-400/10 text-teal-300 border border-teal-400/20',
+    header: 'bg-teal-500/10 border border-teal-400/20',
+  },
+  Numeritech: {
+    text: 'text-pink-300', dot: 'bg-pink-400',
+    badge: 'bg-pink-400/10 text-pink-300 border border-pink-400/20',
+    header: 'bg-pink-500/10 border border-pink-400/20',
+  },
+  BCT: {
+    text: 'text-lime-300', dot: 'bg-lime-400',
+    badge: 'bg-lime-400/10 text-lime-300 border border-lime-400/20',
+    header: 'bg-lime-500/10 border border-lime-400/20',
   },
 }
 
@@ -423,7 +466,7 @@ export default function Employees() {
       </div>
 
       {/* Client breakdown — clickable to filter */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
         {CLIENT_ORDER.map(name => {
           const colors  = CLIENT_COLOR[name]
           const active  = employees.filter(e => e.status === 'active'  && e.client?.name === name).length

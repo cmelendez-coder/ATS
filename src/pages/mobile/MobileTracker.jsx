@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
-import { fetchTrackerEntries, recruiterFromEmail } from '../../api/tracker'
-import { useRefreshOnFocus } from './hooks'
-import { Skeleton, initials } from './ui'
+import { fetchTrackerEntries, recruiterFromEmail, searchTrackerByRecruiter } from '../../api/tracker'
+import { useRefreshOnFocus, useRouteSheet } from './hooks'
+import { Skeleton, Sheet, initials, weekLabel } from './ui'
+import { PipelineView, CandidateHistoryView } from './PipelineViews'
 
 const TABS = [
   { key: 'cesar',   label: 'César'   },
@@ -74,7 +75,9 @@ function Detail({ label, value }) {
   )
 }
 
-function CandidateCard({ row }) {
+const footerBtn = 'flex-1 min-w-0 flex items-center justify-center gap-1 h-9 rounded-xl text-xs font-semibold text-[#1f6d44] active:bg-[#dfeadd]'
+
+function CandidateCard({ row, onPipeline, onHistory }) {
   const [open, setOpen] = useState(false)
   const st = STATUS_STYLE[row.status] ?? DEFAULT_STYLE
   const req = row.requirement
@@ -136,32 +139,43 @@ function CandidateCard({ row }) {
         </div>
       )}
 
-      {hasDetails && (
-        <>
+      <div className="flex gap-1 border-t border-[#10284d]/8 pt-2">
+        {hasDetails && (
           <button
             type="button"
             onClick={() => setOpen(o => !o)}
             aria-expanded={open}
-            className="w-full flex items-center justify-center gap-1 h-9 rounded-xl text-xs font-semibold text-[#1f6d44] active:bg-[#dfeadd]"
+            className={footerBtn}
           >
-            {open ? 'Ocultar detalle' : 'Ver detalle'}
             <span className="material-symbols-outlined text-[1.125rem]">{open ? 'expand_less' : 'expand_more'}</span>
+            {open ? 'Ocultar' : 'Detalle'}
           </button>
-          {open && (
-            <div className="space-y-3 pt-3 border-t border-[#10284d]/8">
-              <Detail label="Screening" value={screening} />
-              <Detail label="Nota de screening" value={row.screening_note} />
-              <Detail label="Target role" value={row.target_role} />
-              <Detail label="Estado" value={row.state} />
-              <Detail label="Technologies" value={row.technologies} />
-              <Detail label="Skills" value={row.skills} />
-              <Detail label="Modules" value={row.modules && row.modules !== 'N/A' ? row.modules : null} />
-              <Detail label="Email" value={row.email} />
-              <Detail label="Teléfono" value={row.phone} />
-              <Detail label="Notas" value={row.notes} />
-            </div>
-          )}
-        </>
+        )}
+        {req?.id && (
+          <button type="button" onClick={() => onPipeline(row)} className={footerBtn}>
+            <span className="material-symbols-outlined text-[1.125rem]">account_tree</span>
+            Pipeline
+          </button>
+        )}
+        <button type="button" onClick={() => onHistory(row)} className={footerBtn}>
+          <span className="material-symbols-outlined text-[1.125rem]">history</span>
+          Historial
+        </button>
+      </div>
+
+      {open && (
+        <div className="space-y-3 pt-1">
+          <Detail label="Screening" value={screening} />
+          <Detail label="Nota de screening" value={row.screening_note} />
+          <Detail label="Target role" value={row.target_role} />
+          <Detail label="Estado" value={row.state} />
+          <Detail label="Technologies" value={row.technologies} />
+          <Detail label="Skills" value={row.skills} />
+          <Detail label="Modules" value={row.modules && row.modules !== 'N/A' ? row.modules : null} />
+          <Detail label="Email" value={row.email} />
+          <Detail label="Teléfono" value={row.phone} />
+          <Detail label="Notas" value={row.notes} />
+        </div>
       )}
     </article>
   )
@@ -199,7 +213,12 @@ export default function MobileTracker() {
   const [statusFilter, setStatusFilter] = useState('')
   const [reqFilter, setReqFilter] = useState('')
   const [query, setQuery]         = useState('')
+  const [scope, setScope]         = useState('week') // 'week' | 'all' (búsqueda en todas las semanas)
+  const [globalResults, setGlobalResults] = useState([])
+  const [globalLoading, setGlobalLoading] = useState(false)
+  const [globalError, setGlobalError]     = useState(false)
   const loadedKey = useRef(null)
+  const { sheet, openSheet, closeSheet } = useRouteSheet()
 
   useEffect(() => {
     const key = `${recruiter}|${week}|${year}`
@@ -216,6 +235,44 @@ export default function MobileTracker() {
   }, [week, year, recruiter, refreshKey])
 
   useRefreshOnFocus(() => setRefreshKey(k => k + 1))
+
+  // Búsqueda en todas las semanas del reclutador seleccionado
+  useEffect(() => {
+    const term = query.trim()
+    if (scope !== 'all' || !term) { setGlobalResults([]); setGlobalLoading(false); setGlobalError(false); return }
+    let cancelled = false
+    setGlobalLoading(true)
+    setGlobalError(false)
+    const timer = setTimeout(() => {
+      searchTrackerByRecruiter(term, recruiter)
+        .then(rows => { if (!cancelled) setGlobalResults(rows) })
+        .catch(() => { if (!cancelled) { setGlobalResults([]); setGlobalError(true) } })
+        .finally(() => { if (!cancelled) setGlobalLoading(false) })
+    }, 300)
+    return () => { cancelled = true; clearTimeout(timer) }
+  }, [query, scope, recruiter])
+
+  function jumpToWeek(r) {
+    setWeek(r.week_number)
+    setYear(r.week_year)
+    setScope('week')
+    setQuery('')
+    document.querySelector('main')?.scrollTo({ top: 0 })
+  }
+
+  function openPipeline(row) {
+    openSheet({
+      kind: 'pipeline',
+      reqId: row.requirement.id,
+      clientId: row.requirement.client?.id ?? null,
+      clientName: row.requirement.client?.name ?? null,
+      position: row.requirement.job_title ?? null,
+      highlightId: row.candidate_id ?? null,
+    })
+  }
+  function openHistory(row) {
+    openSheet({ kind: 'history', name: row.candidate_name, candidateId: row.candidate_id ?? null })
+  }
 
   function prevWeek() {
     if (week === 1) { setWeek(52); setYear(y => y - 1) } else setWeek(w => w - 1)
@@ -237,7 +294,7 @@ export default function MobileTracker() {
     entries.filter(e => e.requirement?.id).map(e => [e.requirement.id, e.requirement])
   ).values()].sort((a, b) => (a.job_title ?? '').localeCompare(b.job_title ?? '')), [entries])
 
-  const q = query.trim().toLowerCase()
+  const q = scope === 'week' ? query.trim().toLowerCase() : ''
   const visible = entries
     .filter(e => !statusFilter || e.status === statusFilter)
     .filter(e => !reqFilter || String(e.requirement?.id) === reqFilter)
@@ -299,7 +356,7 @@ export default function MobileTracker() {
             type="search"
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="Buscar candidato…"
+            placeholder={scope === 'all' ? `Buscar en todas las semanas de ${recruiter === 'cesar' ? 'César' : 'Enrique'}…` : 'Buscar candidato…'}
             className="w-full h-11 pl-10 pr-3 rounded-xl bg-white border border-[#10284d]/10 text-base placeholder:text-[#4e5c70]/70 focus:outline-none focus:border-[#1f6d44]"
           />
         </div>
@@ -314,7 +371,65 @@ export default function MobileTracker() {
         </button>
       </div>
 
-      {reqOptions.length > 1 && (
+      {/* Alcance de la búsqueda */}
+      <div className="grid grid-cols-2 gap-1 p-1 rounded-xl bg-[#10284d]/[0.06]">
+        {[{ key: 'week', label: 'Esta semana' }, { key: 'all', label: 'Todas las semanas' }].map(o => (
+          <button
+            key={o.key}
+            type="button"
+            onClick={() => setScope(o.key)}
+            className={`h-9 rounded-lg text-xs font-bold transition-colors ${scope === o.key ? 'bg-white text-[#10284d] shadow-sm' : 'text-[#4e5c70]'}`}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Resultados de la búsqueda en todas las semanas */}
+      {scope === 'all' && (
+        <div className="space-y-2">
+          {!query.trim() && (
+            <p className="py-10 text-center text-sm text-[#4e5c70]">Escribe un nombre para buscar en todas las semanas.</p>
+          )}
+          {globalLoading && query.trim() && (
+            <div className="space-y-2"><Skeleton className="h-16 w-full rounded-2xl" /><Skeleton className="h-16 w-full rounded-2xl" /></div>
+          )}
+          {globalError && (
+            <div role="alert" className="rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+              No se pudo buscar. Revisa tu conexión e inténtalo de nuevo.
+            </div>
+          )}
+          {!globalLoading && !globalError && query.trim() && globalResults.length === 0 && (
+            <p className="py-10 text-center text-sm text-[#4e5c70]">Sin resultados.</p>
+          )}
+          {!globalLoading && globalResults.map(r => {
+            const st = STATUS_STYLE[r.status] ?? DEFAULT_STYLE
+            return (
+              <button
+                key={r.id}
+                type="button"
+                onClick={() => jumpToWeek(r)}
+                className="w-full text-left rounded-2xl bg-white border border-[#10284d]/10 p-3.5 active:bg-[#eef3f7]"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <span className="text-sm font-bold text-[#10284d]">{r.candidate_name}</span>
+                  <span className="shrink-0 px-2 py-0.5 rounded-full text-[0.6875rem] font-bold" style={{ backgroundColor: st.bg, color: st.fg }}>{r.status}</span>
+                </div>
+                <p className="text-xs text-[#4e5c70] mt-0.5">
+                  {r.requirement ? `${r.requirement.job_title}${r.requirement.client?.name ? ` · ${r.requirement.client.name}` : ''}` : 'Sin requerimiento'}
+                </p>
+                <div className="flex items-center justify-between mt-1.5">
+                  <span className="text-xs font-semibold text-[#1f6d44]">{weekLabel(r.week_number, r.week_year)}</span>
+                  <span className="text-[0.6875rem] font-semibold text-[#4e5c70] flex items-center gap-0.5">Ir a esa semana<span className="material-symbols-outlined text-[1rem]">chevron_right</span></span>
+                </div>
+                {r.notes && <p className="text-xs text-amber-800/80 mt-1.5 line-clamp-2">{r.notes}</p>}
+              </button>
+            )
+          })}
+        </div>
+      )}
+
+      {scope === 'week' && reqOptions.length > 1 && (
         <select
           value={reqFilter}
           onChange={e => setReqFilter(e.target.value)}
@@ -328,7 +443,7 @@ export default function MobileTracker() {
       )}
 
       {/* Filtros por estado */}
-      {entries.length > 0 && (
+      {scope === 'week' && entries.length > 0 && (
         <div className="-mx-4 px-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <button
             type="button"
@@ -359,13 +474,13 @@ export default function MobileTracker() {
         </div>
       )}
 
-      {error && (
+      {scope === 'week' && error && (
         <div role="alert" className="rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
           No se pudo actualizar el tracker. Revisa tu conexión y toca el botón de actualizar.
         </div>
       )}
 
-      {loading && (
+      {scope === 'week' && loading && (
         <div className="space-y-2.5 pt-1">
           <Skeleton className="h-3 w-24" />
           <CardSkeleton />
@@ -374,15 +489,15 @@ export default function MobileTracker() {
         </div>
       )}
 
-      {!loading && !error && entries.length === 0 && (
+      {scope === 'week' && !loading && !error && entries.length === 0 && (
         <p className="py-12 text-center text-sm text-[#4e5c70]">Sin candidatos en esta semana.</p>
       )}
 
-      {!loading && entries.length > 0 && visible.length === 0 && (
+      {scope === 'week' && !loading && entries.length > 0 && visible.length === 0 && (
         <p className="py-12 text-center text-sm text-[#4e5c70]">Ningún candidato coincide con los filtros.</p>
       )}
 
-      {!loading && groups.map(([status, rows]) => {
+      {scope === 'week' && !loading && groups.map(([status, rows]) => {
         const st = STATUS_STYLE[status] ?? DEFAULT_STYLE
         return (
           <section key={status} className="space-y-2.5 pt-1">
@@ -391,10 +506,22 @@ export default function MobileTracker() {
               <h2 className="text-xs font-bold uppercase tracking-wider text-[#10284d]">{status}</h2>
               <span className="text-xs font-semibold text-[#4e5c70]">{rows.length}</span>
             </div>
-            {rows.map(row => <CandidateCard key={row.id} row={row} />)}
+            {rows.map(row => <CandidateCard key={row.id} row={row} onPipeline={openPipeline} onHistory={openHistory} />)}
           </section>
         )
       })}
+
+      {sheet?.kind === 'pipeline' && (
+        <Sheet title={sheet.position ?? 'Pipeline'} subtitle={sheet.clientName ?? undefined} onClose={closeSheet}>
+          <PipelineView reqId={sheet.reqId} clientId={sheet.clientId} highlightId={sheet.highlightId} />
+        </Sheet>
+      )}
+
+      {sheet?.kind === 'history' && (
+        <Sheet title={sheet.name || 'Candidato'} subtitle="Historial del candidato" onClose={closeSheet}>
+          <CandidateHistoryView candidateId={sheet.candidateId} name={sheet.name} />
+        </Sheet>
+      )}
     </div>
   )
 }

@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 /** true mientras el teléfono tenga conexión a internet */
 export function useOnline() {
@@ -71,4 +72,26 @@ export function useRefreshOnFocus(callback, minAgeMs = 5 * 60 * 1000) {
       window.removeEventListener('online', run)
     }
   }, [minAgeMs])
+}
+
+/**
+ * Hoja (panel inferior) ligada al historial de navegación: al abrirla se agrega una entrada,
+ * así el botón "atrás" del celular la cierra en lugar de salir de la app.
+ * `sheet` es el dato con el que se abrió (o null); se conserva aunque se recargue la página.
+ */
+export function useRouteSheet() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const sheet = location.state?.sheet ?? null
+
+  const openSheet = useCallback(
+    payload => navigate(location.pathname, { state: { sheet: payload } }),
+    [navigate, location.pathname]
+  )
+  const closeSheet = useCallback(() => {
+    if (location.key !== 'default') navigate(-1)
+    else navigate(location.pathname, { replace: true })
+  }, [navigate, location.key, location.pathname])
+
+  return { sheet, openSheet, closeSheet }
 }

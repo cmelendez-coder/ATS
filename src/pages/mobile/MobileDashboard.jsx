@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { getDashboardStats, getMonthlySentCount } from '../../api/dashboard'
-import { useRefreshOnFocus } from './hooks'
-import { Skeleton } from './ui'
+import { useRefreshOnFocus, useRouteSheet } from './hooks'
+import { Skeleton, Sheet } from './ui'
 
 const MESES_ES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
 
@@ -18,40 +17,6 @@ function getISOWeek(date = new Date()) {
 function greeting() {
   const h = new Date().getHours()
   return h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches'
-}
-
-/* ── Hoja inferior de solo lectura ── */
-function Sheet({ title, subtitle, onClose, children }) {
-  useEffect(() => {
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = prev }
-  }, [])
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-end bg-black/60" onClick={onClose}>
-      <div
-        className="sheet-up w-full max-h-[88dvh] flex flex-col rounded-t-3xl bg-[#0b1e3d] border-t border-white/10 pb-[env(safe-area-inset-bottom)]"
-        onClick={e => e.stopPropagation()}
-      >
-        <div className="shrink-0 flex items-start justify-between gap-3 px-5 pt-4 pb-3 border-b border-white/10">
-          <div>
-            <h2 className="text-base font-bold text-white">{title}</h2>
-            <p className="text-xs text-white/50 mt-0.5">{subtitle}</p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Cerrar"
-            className="w-10 h-10 -mr-2 -mt-1 flex items-center justify-center rounded-full text-white/50 active:bg-white/10"
-          >
-            <span className="material-symbols-outlined text-[1.375rem]">close</span>
-          </button>
-        </div>
-        <div className="flex-1 overflow-y-auto overscroll-contain">{children}</div>
-      </div>
-    </div>
-  )
 }
 
 function HeroStat({ icon, label, note, value, color, loading }) {
@@ -114,8 +79,6 @@ function PipelineTile({ icon, iconColor, label, value, note, onClick, loading })
 
 export default function MobileDashboard() {
   const { session } = useAuth()
-  const navigate = useNavigate()
-  const location = useLocation()
   const now = new Date()
 
   const [stats, setStats]           = useState(null)
@@ -126,12 +89,8 @@ export default function MobileDashboard() {
   const [monthTick, setMonthTick]   = useState(0)
 
   // La hoja se guarda en el historial de navegación: el botón "atrás" del celular la cierra
-  const sheet = stats ? (location.state?.sheet ?? null) : null
-  function openSheet(kind) { navigate(location.pathname, { state: { sheet: kind } }) }
-  function closeSheet() {
-    if (location.key !== 'default') navigate(-1)
-    else navigate(location.pathname, { replace: true })
-  }
+  const { sheet: rawSheet, openSheet, closeSheet } = useRouteSheet()
+  const sheet = stats ? rawSheet : null
 
   const loadStats = useCallback(() => {
     setRefreshing(true)

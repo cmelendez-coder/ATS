@@ -382,15 +382,6 @@ function PriorityBoard() {
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                       <PriorityChip p={r.prioridad} long />
-                      {r.prioridad === 5 && (
-                        <span
-                          className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[0.6875rem] font-extrabold uppercase tracking-wider"
-                          style={{ background: 'linear-gradient(90deg, #c4b5fd, #fde68a)', color: '#4c1d95' }}
-                        >
-                          <span className="material-symbols-outlined text-[0.875rem]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-                          Oferta aceptada
-                        </span>
-                      )}
                       <span className="text-xs font-semibold text-[#4e5c70]">{r.recruiter || 'Sin recruiter'}</span>
                     </div>
                     <div className="grid grid-cols-4 gap-1.5">

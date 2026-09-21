@@ -207,7 +207,7 @@ const PRI_TABLE = {
   2: { bg: '#93c5fd', text: '#1e3a5f' },
   3: { bg: '#d1d5db', text: '#374151' },
   4: { bg: '#fde68a', text: '#78350f' },
-  5: { bg: '#d8b4fe', text: '#4c1d95' },
+  5: { bg: '#a7f3d0', text: '#065f46' },
 }
 
 const PRIORITY_INFO = [
@@ -288,11 +288,7 @@ function playChime() {
 }
 
 /* ── Celebración al marcar una posición como 5 (oferta aceptada) ── */
-function playCelebration() {
-  try { new Audio('/sounds/Sent.mp3').play() } catch {}
-}
-
-const CONFETTI_COLORS = ['#c4b5fd', '#a78bfa', '#facc15', '#fde68a', '#86efac', '#f9a8d4']
+const CONFETTI_COLORS = ['#34d399', '#6ee7b7', '#a7f3d0', '#bef264', '#facc15', '#fde68a']
 
 function ConfettiBurst({ x, y }) {
   const pieces = useMemo(() => Array.from({ length: 30 }, (_, i) => {
@@ -530,7 +526,6 @@ function ReqBoardTable() {
   function celebrateOffer(el, reqId) {
     const r = el.getBoundingClientRect()
     setBurst({ id: Date.now(), x: r.left + r.width / 2, y: r.top + r.height / 2, reqId })
-    playCelebration()
     clearTimeout(burstTimer.current)
     burstTimer.current = setTimeout(() => setBurst(null), 1800)
   }
@@ -792,18 +787,18 @@ function ReqBoardTable() {
         .row-offer {
           background-image:
             linear-gradient(105deg, transparent 36%, rgba(255,255,255,0.95) 50%, transparent 64%),
-            linear-gradient(90deg, rgba(167,139,250,0.42) 0%, rgba(250,204,21,0.32) 100%);
+            linear-gradient(90deg, rgba(52,211,153,0.36) 0%, rgba(190,242,100,0.30) 100%);
           background-size: 260% 100%, 100% 100%;
           background-repeat: no-repeat;
           animation: offerSweep 6.5s ease-in-out infinite;
         }
         .row-offer td {
-          border-bottom-color: rgba(196,181,253,0.85) !important;
-          box-shadow: inset 0 0 16px rgba(196,181,253,0.45), inset 0 1px 0 rgba(250,204,21,0.55);
+          border-bottom-color: rgba(110,231,183,0.9) !important;
+          box-shadow: inset 0 0 16px rgba(52,211,153,0.40), inset 0 1px 0 rgba(250,204,21,0.55);
         }
         @keyframes offerBurst {
           0%   { box-shadow: inset 0 0 44px 10px rgba(250,204,21,0.95), inset 0 0 0 2px rgba(255,255,255,0.9); }
-          100% { box-shadow: inset 0 0 16px rgba(196,181,253,0.45), inset 0 1px 0 rgba(250,204,21,0.55); }
+          100% { box-shadow: inset 0 0 16px rgba(52,211,153,0.40), inset 0 1px 0 rgba(250,204,21,0.55); }
         }
         .row-offer-burst td { animation: offerBurst 1.6s ease-out; }
         .offer-check { filter: drop-shadow(0 0 5px rgba(250,204,21,0.9)); }
@@ -1017,8 +1012,8 @@ function ReqBoardTable() {
                 key={row.requirement_id}
                 className={isOffer ? `row-offer${burst?.reqId === row.requirement_id ? ' row-offer-burst' : ''}` : undefined}
                 style={{
-                  backgroundColor: isOffer ? 'rgba(139,92,246,0.10)' : rowBg,
-                  borderBottom: `1px solid ${isOffer ? 'rgba(196,181,253,0.85)' : rowBorder}`,
+                  backgroundColor: isOffer ? 'rgba(16,185,129,0.10)' : rowBg,
+                  borderBottom: `1px solid ${isOffer ? 'rgba(110,231,183,0.9)' : rowBorder}`,
                 }}
               >
                 {/* Toggle búsqueda */}
@@ -1063,7 +1058,7 @@ function ReqBoardTable() {
                     className="rounded-lg text-sm font-bold text-center cursor-pointer outline-none border-none appearance-none px-2 py-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{
                       backgroundColor: pri.bg, color: pri.text, width: 52, backgroundImage: 'none', paddingLeft: 0, paddingRight: 0, textAlignLast: 'center',
-                      ...(isOffer ? { boxShadow: '0 0 0 2px #fde68a, 0 0 14px rgba(196,181,253,0.95)' } : {}),
+                      ...(isOffer ? { boxShadow: '0 0 0 2px #fde68a, 0 0 14px rgba(52,211,153,0.9)' } : {}),
                     }}
                   >
                     <option value="" disabled>—</option>
@@ -1104,17 +1099,6 @@ function ReqBoardTable() {
                 {/* Position (read-only) */}
                 <td className="px-3 py-2 text-center text-sm font-bold text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   {row.position ?? '—'}
-                  {isOffer && (
-                    <div className="mt-1 flex justify-center">
-                      <span
-                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.625rem] font-extrabold uppercase tracking-wider"
-                        style={{ background: 'linear-gradient(90deg, #c4b5fd, #fde68a)', color: '#4c1d95' }}
-                      >
-                        <span className="material-symbols-outlined text-[0.75rem]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                        Oferta aceptada
-                      </span>
-                    </div>
-                  )}
                 </td>
 
                 {/* FTEs (editable, synced to requirement.fte_count) */}

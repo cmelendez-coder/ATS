@@ -242,7 +242,7 @@ function PriorityInfo() {
       <span
         onMouseEnter={show}
         onMouseLeave={() => { setAnchor(null); setTop(null) }}
-        className="pri-info-icon inline-flex items-center justify-center w-7 h-7 rounded-full cursor-help shrink-0 transition-transform hover:scale-110"
+        className="inline-flex items-center justify-center w-7 h-7 rounded-full cursor-help shrink-0 transition-transform hover:scale-110"
         style={{ backgroundColor: 'rgba(129,185,39,0.18)', border: '1px solid rgba(129,185,39,0.65)' }}
         aria-label="Significado de las prioridades"
       >
@@ -735,11 +735,6 @@ function ReqBoardTable() {
         .cell-saved { animation: savedFlash 2.5s ease-out forwards; }
         .cell-lime { background-color: #81b927 !important; color: #10284d !important; }
 
-        @keyframes priInfoPulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(129,185,39,0.55); }
-          50%      { box-shadow: 0 0 0 6px rgba(129,185,39,0); }
-        }
-        .pri-info-icon { animation: priInfoPulse 2.4s ease-out infinite; }
         @keyframes priTipIn {
           from { opacity: 0; transform: translateX(-8px) scale(0.97); }
           to   { opacity: 1; transform: translateX(0) scale(1); }

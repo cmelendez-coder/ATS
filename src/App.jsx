@@ -21,6 +21,7 @@ import MobileDashboard from './pages/mobile/MobileDashboard'
 import MobileTracker from './pages/mobile/MobileTracker'
 import MobileRequirements from './pages/mobile/MobileRequirements'
 import MobileTalent from './pages/mobile/MobileTalent'
+import MobileClients from './pages/mobile/MobileClients'
 
 function Protected({ children, permission }) {
   return <ProtectedRoute permission={permission}><Layout>{children}</Layout></ProtectedRoute>
@@ -47,6 +48,7 @@ export default function App() {
           <Route path="/m/tracker"           element={<MobileProtected title="Tracker"><MobileTracker /></MobileProtected>} />
           <Route path="/m/requirements"      element={<MobileProtected title="Requerimientos"><MobileRequirements /></MobileProtected>} />
           <Route path="/m/talent"            element={<MobileProtected title="Talent Directory"><MobileTalent /></MobileProtected>} />
+          <Route path="/m/clients"           element={<MobileProtected title="Clientes"><MobileClients /></MobileProtected>} />
           <Route path="/reports"             element={<Protected><Reports /></Protected>} />
           <Route path="/tracker"             element={<PhoneRedirect to="/m/tracker"><Protected><Tracker /></Protected></PhoneRedirect>} />
           <Route path="/clients"             element={<Protected><Clients /></Protected>} />

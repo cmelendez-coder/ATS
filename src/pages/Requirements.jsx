@@ -806,7 +806,6 @@ function ReqBoardTable() {
           100% { box-shadow: inset 0 0 16px rgba(52,211,153,0.40), inset 0 1px 0 rgba(250,204,21,0.55); }
         }
         .row-offer-burst td { animation: offerBurst 1.6s ease-out; }
-        .offer-check { filter: drop-shadow(0 0 5px rgba(250,204,21,0.9)); }
 
         @keyframes confettiFly {
           0%   { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(1); }
@@ -1074,13 +1073,6 @@ function ReqBoardTable() {
                     ))}
                     <option value="cerrada" style={{ backgroundColor: '#450a0a', color: '#fca5a5' }}>Cerrada</option>
                   </select>
-                  {isOffer && (
-                    <span
-                      className="offer-check material-symbols-outlined text-[1.25rem]"
-                      style={{ color: '#facc15', fontVariationSettings: "'FILL' 1" }}
-                      title="Oferta aceptada"
-                    >verified</span>
-                  )}
                   <PriorityInfo />
                   </div>
                 </td>

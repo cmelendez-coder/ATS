@@ -1,5 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthContext'
 import { getDashboardStats, getMonthlySentCount } from '../../api/dashboard'
+import { useRefreshOnFocus } from './hooks'
+import { Skeleton } from './ui'
 
 const MESES_ES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
 
@@ -9,6 +13,11 @@ function getISOWeek(date = new Date()) {
   d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7))
   const w1 = new Date(d.getFullYear(), 0, 4)
   return 1 + Math.round(((d - w1) / 86400000 - 3 + ((w1.getDay() + 6) % 7)) / 7)
+}
+
+function greeting() {
+  const h = new Date().getHours()
+  return h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches'
 }
 
 /* ── Hoja inferior de solo lectura ── */
@@ -45,55 +54,117 @@ function Sheet({ title, subtitle, onClose, children }) {
   )
 }
 
-function StatTile({ icon, label, value, color, note }) {
+function HeroStat({ icon, label, note, value, color, loading }) {
   return (
-    <div className="rounded-2xl bg-white border border-[#10284d]/10 p-4 flex flex-col gap-1">
-      <div className="flex items-center gap-1.5 text-[#4e5c70]">
+    <div className="rounded-2xl bg-white/[0.08] border border-white/10 p-3.5">
+      <div className="flex items-center gap-1.5 text-white/70">
         <span className="material-symbols-outlined text-[1.125rem]" style={{ color }}>{icon}</span>
         <span className="text-[0.6875rem] font-bold uppercase tracking-wider">{label}</span>
       </div>
-      <p className="text-[2.5rem] leading-none font-light tracking-tighter" style={{ color }}>{value}</p>
-      {note && <p className="text-[0.6875rem] font-medium italic text-[#4e5c70]">{note}</p>}
+      <div className="mt-1.5 h-10 flex items-center">
+        {loading
+          ? <Skeleton tone="dark" className="h-9 w-14" />
+          : <p className="text-[2.5rem] leading-none font-light tracking-tighter" style={{ color }}>{value}</p>}
+      </div>
+      <p className="text-[0.6875rem] text-white/60 mt-1">{note}</p>
     </div>
   )
 }
 
-export default function MobileDashboard() {
-  const now = new Date()
-  const [stats, setStats]       = useState(null)
-  const [loading, setLoading]   = useState(true)
-  const [error, setError]       = useState(false)
-  const [month, setMonth]       = useState({ year: now.getFullYear(), month: now.getMonth() })
-  const [monthCount, setMonthCount] = useState(null)
-  const [sheet, setSheet]       = useState(null) // 'general' | 'final' | null
+function NumberTile({ icon, label, value, loading }) {
+  return (
+    <div className="rounded-2xl bg-[#0b2a58] p-4 flex flex-col gap-1">
+      <div className="flex items-center gap-1.5 text-white/60">
+        <span className="material-symbols-outlined text-[1.125rem]">{icon}</span>
+        <span className="text-[0.6875rem] font-bold uppercase tracking-wider">{label}</span>
+      </div>
+      <div className="h-10 flex items-center">
+        {loading
+          ? <Skeleton tone="dark" className="h-9 w-16" />
+          : <p className="text-[2.5rem] leading-none font-light tracking-tighter text-[#81b927]">{value}</p>}
+      </div>
+    </div>
+  )
+}
 
-  const load = useCallback(() => {
-    setLoading(true)
+function PipelineTile({ icon, iconColor, label, value, note, onClick, loading }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={loading}
+      className="text-left rounded-2xl bg-white border border-[#10284d]/10 p-4 flex flex-col gap-1 active:bg-[#eef3f7] transition-colors"
+    >
+      <div className="flex items-center justify-between text-[#4e5c70]">
+        <span className="text-[0.6875rem] font-bold uppercase tracking-wider">{label}</span>
+        <span className="material-symbols-outlined text-[1.125rem]" style={{ color: iconColor }}>{icon}</span>
+      </div>
+      <div className="h-10 flex items-center">
+        {loading
+          ? <Skeleton className="h-9 w-14" />
+          : <p className="text-[2.5rem] leading-none font-light tracking-tighter" style={{ color: iconColor }}>{value}</p>}
+      </div>
+      <div className="flex items-center justify-between">
+        <p className="text-[0.6875rem] font-medium italic text-[#4e5c70]">{note}</p>
+        <span className="material-symbols-outlined text-[1rem] text-[#4e5c70]/60">chevron_right</span>
+      </div>
+    </button>
+  )
+}
+
+export default function MobileDashboard() {
+  const { session } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const now = new Date()
+
+  const [stats, setStats]           = useState(null)
+  const [error, setError]           = useState(false)
+  const [refreshing, setRefreshing] = useState(true)
+  const [month, setMonth]           = useState({ year: now.getFullYear(), month: now.getMonth() })
+  const [monthCount, setMonthCount] = useState(null)
+  const [monthTick, setMonthTick]   = useState(0)
+
+  // La hoja se guarda en el historial de navegación: el botón "atrás" del celular la cierra
+  const sheet = stats ? (location.state?.sheet ?? null) : null
+  function openSheet(kind) { navigate(location.pathname, { state: { sheet: kind } }) }
+  function closeSheet() {
+    if (location.key !== 'default') navigate(-1)
+    else navigate(location.pathname, { replace: true })
+  }
+
+  const loadStats = useCallback(() => {
+    setRefreshing(true)
     setError(false)
     getDashboardStats()
       .then(setStats)
       .catch(() => setError(true))
-      .finally(() => setLoading(false))
+      .finally(() => setRefreshing(false))
   }, [])
 
-  useEffect(() => { load() }, [load])
+  const refreshAll = useCallback(() => { loadStats(); setMonthTick(t => t + 1) }, [loadStats])
+
+  useEffect(() => { loadStats() }, [loadStats])
+  useRefreshOnFocus(refreshAll)
 
   useEffect(() => {
     let cancelled = false
-    setMonthCount(null)
     getMonthlySentCount(month.year, month.month)
       .then(n => { if (!cancelled) setMonthCount(n) })
       .catch(() => { if (!cancelled) setMonthCount(0) })
     return () => { cancelled = true }
-  }, [month.year, month.month])
+  }, [month.year, month.month, monthTick])
 
   function shiftMonth(delta) {
+    setMonthCount(null)
     setMonth(p => {
       const d = new Date(p.year, p.month + delta, 1)
       return { year: d.getFullYear(), month: d.getMonth() }
     })
   }
 
+  const first = !stats && !error // primera carga: se muestran esqueletos
+  const firstName = String(session?.user?.name ?? '').trim().split(/\s+/)[0]
   const today = now.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })
   const maxClient = Math.max(...(stats?.topClients ?? []).map(c => c.count), 1)
 
@@ -104,56 +175,48 @@ export default function MobileDashboard() {
 
   return (
     <div className="px-4 pt-4 pb-6 space-y-4">
-      {/* Fecha + actualizar */}
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-[#4e5c70]">Semana {getISOWeek()}</p>
-          <p className="text-sm font-medium text-[#10284d] first-letter:uppercase">{today}</p>
+      {/* Cabecera de la semana */}
+      <section
+        className="relative overflow-hidden rounded-3xl p-5"
+        style={{ background: 'linear-gradient(145deg, #0e3670 0%, #071d47 65%)' }}
+      >
+        <div
+          aria-hidden="true"
+          className="absolute -right-12 -top-12 w-44 h-44 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(129,185,39,0.32) 0%, rgba(129,185,39,0) 70%)' }}
+        />
+        <div className="relative flex items-start justify-between gap-3">
+          <div>
+            <p className="text-sm font-medium text-white/70">{greeting()}{firstName ? `, ${firstName}` : ''}</p>
+            <p className="text-[1.75rem] leading-tight font-extrabold tracking-tight text-white mt-0.5">Semana {getISOWeek()}</p>
+            <p className="text-xs font-medium text-white/60 first-letter:uppercase">{today}</p>
+          </div>
+          <button
+            type="button"
+            onClick={refreshAll}
+            disabled={refreshing}
+            aria-label="Actualizar"
+            className="w-11 h-11 shrink-0 flex items-center justify-center rounded-full bg-white/10 border border-white/15 text-[#81b927] active:bg-white/20 disabled:opacity-60"
+          >
+            <span className={`material-symbols-outlined text-[1.375rem] ${refreshing ? 'animate-spin' : ''}`}>refresh</span>
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={load}
-          disabled={loading}
-          aria-label="Actualizar"
-          className="w-11 h-11 flex items-center justify-center rounded-full bg-white border border-[#10284d]/10 text-[#1f6d44] active:bg-[#dfeadd] disabled:opacity-50"
-        >
-          <span className={`material-symbols-outlined text-[1.375rem] ${loading ? 'animate-spin' : ''}`}>refresh</span>
-        </button>
-      </div>
-
-      {error && (
-        <div className="rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-          No se pudo cargar la información. Revisa tu conexión y toca actualizar.
-        </div>
-      )}
-
-      {/* Esta semana */}
-      <section className="space-y-2">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-[#4e5c70] px-1">Esta semana</h2>
-        <div className="grid grid-cols-2 gap-3">
-          <StatTile icon="send"   label="Sent"     color="#1f6d44" value={loading ? '…' : stats?.weeklySent ?? 0}     note="enviados al cliente" />
-          <StatTile icon="cancel" label="Rejected" color="#ba1a1a" value={loading ? '…' : stats?.weeklyRejected ?? 0} note="rechazados" />
+        <div className="relative grid grid-cols-2 gap-3 mt-5">
+          <HeroStat icon="send"   label="Sent"     color="#81b927" note="enviados al cliente" value={stats?.weeklySent ?? 0}     loading={first} />
+          <HeroStat icon="cancel" label="Rejected" color="#ff8a80" note="rechazados"          value={stats?.weeklyRejected ?? 0} loading={first} />
         </div>
       </section>
 
+      {error && (
+        <div role="alert" className="rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+          No se pudo cargar la información. Revisa tu conexión y toca el botón de actualizar.
+        </div>
+      )}
+
       {/* Requerimientos y talento */}
       <section className="grid grid-cols-2 gap-3">
-        <div className="rounded-2xl bg-[#0b2a58] p-4 flex flex-col gap-1">
-          <div className="flex items-center gap-1.5 text-white/60">
-            <span className="material-symbols-outlined text-[1.125rem]">assignment</span>
-            <span className="text-[0.6875rem] font-bold uppercase tracking-wider">Open Req.</span>
-          </div>
-          <p className="text-[2.5rem] leading-none font-light tracking-tighter text-[#81b927]">{loading ? '…' : stats?.openCount ?? 0}</p>
-        </div>
-        <div className="rounded-2xl bg-[#0b2a58] p-4 flex flex-col gap-1">
-          <div className="flex items-center gap-1.5 text-white/60">
-            <span className="material-symbols-outlined text-[1.125rem]">people</span>
-            <span className="text-[0.6875rem] font-bold uppercase tracking-wider">Talent Pool</span>
-          </div>
-          <p className="text-[2.5rem] leading-none font-light tracking-tighter text-[#81b927]">
-            {loading ? '…' : (stats?.totalCandidates ?? 0).toLocaleString()}
-          </p>
-        </div>
+        <NumberTile icon="assignment" label="Open Req." value={stats?.openCount ?? 0} loading={first} />
+        <NumberTile icon="people" label="Talent Pool" value={(stats?.totalCandidates ?? 0).toLocaleString()} loading={first} />
       </section>
 
       {/* Agregados al Talent Pool — mes navegable */}
@@ -169,54 +232,42 @@ export default function MobileDashboard() {
             </button>
           </div>
         </div>
-        <p className="text-[3rem] leading-none font-light tracking-tighter text-white mt-1">
-          {monthCount === null ? '…' : `+${monthCount}`}
-        </p>
+        <div className="h-[3rem] flex items-center mt-1">
+          {monthCount === null
+            ? <div className="animate-pulse h-10 w-24 rounded-lg bg-white/30" />
+            : <p className="text-[3rem] leading-none font-light tracking-tighter text-white">+{monthCount}</p>}
+        </div>
         <p className="text-xs font-semibold text-[#10284d]/80 mt-1">
           Agregados al Talent Pool en {MESES_ES[month.month]} {month.year}
         </p>
       </section>
 
-      {/* Pipeline general */}
+      {/* Pipeline */}
       <section className="space-y-2">
         <h2 className="text-xs font-bold uppercase tracking-wider text-[#4e5c70] px-1">Pipeline de candidatos</h2>
         <div className="grid grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={() => setSheet('general')}
-            disabled={loading}
-            className="text-left rounded-2xl bg-white border border-[#10284d]/10 p-4 flex flex-col gap-1 active:bg-[#eef3f7]"
-          >
-            <div className="flex items-center justify-between text-[#4e5c70]">
-              <span className="text-[0.6875rem] font-bold uppercase tracking-wider">General</span>
-              <span className="material-symbols-outlined text-[1.125rem]" style={{ color: '#4e90d0' }}>hub</span>
-            </div>
-            <p className="text-[2.5rem] leading-none font-light tracking-tighter" style={{ color: '#4e90d0' }}>{loading ? '…' : stats?.activePipelineCount ?? 0}</p>
-            <p className="text-[0.6875rem] font-medium italic text-[#4e5c70]">en proceso con clientes</p>
-          </button>
-          <button
-            type="button"
-            onClick={() => setSheet('final')}
-            disabled={loading}
-            className="text-left rounded-2xl bg-white border border-[#10284d]/10 p-4 flex flex-col gap-1 active:bg-[#eef3f7]"
-          >
-            <div className="flex items-center justify-between text-[#4e5c70]">
-              <span className="text-[0.6875rem] font-bold uppercase tracking-wider">Últimas 2 etapas</span>
-              <span className="material-symbols-outlined text-[1.125rem]" style={{ color: '#1f6d44' }}>bolt</span>
-            </div>
-            <p className="text-[2.5rem] leading-none font-light tracking-tighter" style={{ color: '#1f6d44' }}>{loading ? '…' : stats?.finalStageCount ?? 0}</p>
-            <p className="text-[0.6875rem] font-medium italic text-[#4e5c70]">candidatos</p>
-          </button>
+          <PipelineTile
+            icon="hub" iconColor="#4e90d0" label="General" note="en proceso"
+            value={stats?.activePipelineCount ?? 0} loading={first} onClick={() => openSheet('general')}
+          />
+          <PipelineTile
+            icon="bolt" iconColor="#1f6d44" label="Últimas 2 etapas" note="candidatos"
+            value={stats?.finalStageCount ?? 0} loading={first} onClick={() => openSheet('final')}
+          />
         </div>
-        <p className="text-[0.6875rem] text-[#4e5c70] px-1">Toca un cuadro para ver el detalle por cliente.</p>
       </section>
 
       {/* Requerimientos abiertos por cliente */}
       <section className="space-y-2">
         <h2 className="text-xs font-bold uppercase tracking-wider text-[#4e5c70] px-1">Requerimientos abiertos por cliente</h2>
         <div className="rounded-2xl bg-white border border-[#10284d]/10 divide-y divide-[#10284d]/8">
-          {loading && <p className="px-4 py-6 text-center text-sm text-[#4e5c70]">Cargando…</p>}
-          {!loading && (stats?.topClients ?? []).length === 0 && (
+          {first && [0, 1, 2, 3].map(i => (
+            <div key={i} className="px-4 py-3 space-y-2">
+              <div className="flex items-center justify-between"><Skeleton className="h-4 w-28" /><Skeleton className="h-4 w-5" /></div>
+              <Skeleton className="h-1.5 w-full" />
+            </div>
+          ))}
+          {!first && (stats?.topClients ?? []).length === 0 && (
             <p className="px-4 py-6 text-center text-sm text-[#4e5c70]">Sin requerimientos abiertos.</p>
           )}
           {(stats?.topClients ?? []).map(c => (
@@ -237,7 +288,7 @@ export default function MobileDashboard() {
         <Sheet
           title={sheet === 'general' ? 'Pipeline General' : 'Candidatos — últimas etapas'}
           subtitle={`${sheetRows?.length ?? 0} candidato${(sheetRows?.length ?? 0) !== 1 ? 's' : ''} · por cliente`}
-          onClose={() => setSheet(null)}
+          onClose={closeSheet}
         >
           {sheetGroups.length === 0 && <p className="py-10 text-center text-sm text-white/40">Sin candidatos</p>}
           {sheetGroups.map(([client, rows]) => (

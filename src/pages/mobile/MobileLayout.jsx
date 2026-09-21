@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
+import { useOnline, useAppUpdate } from './hooks'
 
 const TABS = [
   { to: '/m',         label: 'Dashboard', icon: 'dashboard', end: true },
@@ -9,6 +10,8 @@ const TABS = [
 export default function MobileLayout({ title, children }) {
   const { clearSession } = useAuth()
   const navigate = useNavigate()
+  const online = useOnline()
+  const updateAvailable = useAppUpdate()
 
   async function handleLogout() {
     if (!confirm('¿Cerrar sesión?')) return
@@ -37,6 +40,24 @@ export default function MobileLayout({ title, children }) {
           </button>
         </div>
       </header>
+
+      {!online && (
+        <div role="status" className="shrink-0 flex items-center gap-2 bg-amber-100 px-4 py-2 text-xs font-semibold text-amber-900">
+          <span className="material-symbols-outlined text-[1.125rem]">cloud_off</span>
+          Sin conexión — lo que ves puede no estar actualizado.
+        </div>
+      )}
+
+      {updateAvailable && (
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="shrink-0 flex items-center justify-center gap-2 bg-[#81b927] px-4 py-2.5 text-xs font-bold text-[#10284d] active:brightness-95"
+        >
+          <span className="material-symbols-outlined text-[1.125rem]">system_update</span>
+          Hay una versión nueva · Toca para actualizar
+        </button>
+      )}
 
       <main className="flex-1 overflow-y-auto overscroll-contain">{children}</main>
 

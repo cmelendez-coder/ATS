@@ -1,6 +1,8 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { fetchTrackerEntries, recruiterFromEmail } from '../../api/tracker'
+import { useRefreshOnFocus } from './hooks'
+import { Skeleton, initials } from './ui'
 
 const TABS = [
   { key: 'cesar',   label: 'César'   },
@@ -92,20 +94,30 @@ function CandidateCard({ row }) {
   const linkedin = toAbsoluteUrl(row.linkedin_url)
 
   return (
-    <article className="rounded-2xl bg-white border border-[#10284d]/10 p-4 space-y-3">
-      <div className="flex items-start justify-between gap-3">
-        <h3 className="text-[0.9375rem] font-bold leading-snug text-[#10284d]">{row.candidate_name || 'Sin nombre'}</h3>
-        <span className="shrink-0 px-2.5 py-0.5 rounded-full text-[0.6875rem] font-bold" style={{ backgroundColor: st.bg, color: st.fg }}>
-          {row.status}
-        </span>
+    <article className="rounded-2xl bg-white border border-[#10284d]/10 p-4 space-y-3 shadow-[0_1px_2px_rgba(16,40,77,0.04)]">
+      <div className="flex items-start gap-3">
+        <div
+          aria-hidden="true"
+          className="w-10 h-10 shrink-0 rounded-full flex items-center justify-center text-sm font-bold"
+          style={{ backgroundColor: st.bg, color: st.fg }}
+        >
+          {initials(row.candidate_name)}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-[0.9375rem] font-bold leading-snug text-[#10284d]">{row.candidate_name || 'Sin nombre'}</h3>
+            <span className="shrink-0 px-2.5 py-0.5 rounded-full text-[0.6875rem] font-bold" style={{ backgroundColor: st.bg, color: st.fg }}>
+              {row.status}
+            </span>
+          </div>
+          {(req?.job_title || req?.client?.name) && (
+            <p className="text-xs text-[#4e5c70] mt-0.5">
+              <span className="font-semibold text-[#10284d]">{req?.job_title ?? '—'}</span>
+              {req?.client?.name ? ` · ${req.client.name}` : ''}
+            </p>
+          )}
+        </div>
       </div>
-
-      {(req?.job_title || req?.client?.name) && (
-        <p className="text-xs text-[#4e5c70] -mt-1.5">
-          <span className="font-semibold text-[#10284d]">{req?.job_title ?? '—'}</span>
-          {req?.client?.name ? ` · ${req.client.name}` : ''}
-        </p>
-      )}
 
       {chips.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
@@ -136,24 +148,38 @@ function CandidateCard({ row }) {
             <span className="material-symbols-outlined text-[1.125rem]">{open ? 'expand_less' : 'expand_more'}</span>
           </button>
           {open && (
-            <div className="space-y-3 pt-1 border-t border-[#10284d]/8">
-              <div className="pt-3 space-y-3">
-                <Detail label="Screening" value={screening} />
-                <Detail label="Nota de screening" value={row.screening_note} />
-                <Detail label="Target role" value={row.target_role} />
-                <Detail label="Estado" value={row.state} />
-                <Detail label="Technologies" value={row.technologies} />
-                <Detail label="Skills" value={row.skills} />
-                <Detail label="Modules" value={row.modules && row.modules !== 'N/A' ? row.modules : null} />
-                <Detail label="Email" value={row.email} />
-                <Detail label="Teléfono" value={row.phone} />
-                <Detail label="Notas" value={row.notes} />
-              </div>
+            <div className="space-y-3 pt-3 border-t border-[#10284d]/8">
+              <Detail label="Screening" value={screening} />
+              <Detail label="Nota de screening" value={row.screening_note} />
+              <Detail label="Target role" value={row.target_role} />
+              <Detail label="Estado" value={row.state} />
+              <Detail label="Technologies" value={row.technologies} />
+              <Detail label="Skills" value={row.skills} />
+              <Detail label="Modules" value={row.modules && row.modules !== 'N/A' ? row.modules : null} />
+              <Detail label="Email" value={row.email} />
+              <Detail label="Teléfono" value={row.phone} />
+              <Detail label="Notas" value={row.notes} />
             </div>
           )}
         </>
       )}
     </article>
+  )
+}
+
+function CardSkeleton() {
+  return (
+    <div className="rounded-2xl bg-white border border-[#10284d]/10 p-4 space-y-3">
+      <div className="flex items-start gap-3">
+        <Skeleton className="w-10 h-10 rounded-full" />
+        <div className="flex-1 space-y-2">
+          <Skeleton className="h-4 w-3/5" />
+          <Skeleton className="h-3 w-4/5" />
+        </div>
+      </div>
+      <div className="flex gap-1.5"><Skeleton className="h-5 w-16 rounded-full" /><Skeleton className="h-5 w-20 rounded-full" /></div>
+      <Skeleton className="h-10 w-full rounded-xl" />
+    </div>
   )
 }
 
@@ -166,25 +192,30 @@ export default function MobileTracker() {
   const [week, setWeek]           = useState(currentWeek)
   const [year, setYear]           = useState(currentYear)
   const [entries, setEntries]     = useState([])
-  const [loading, setLoading]     = useState(true)
+  const [loading, setLoading]     = useState(true)   // cambio de semana/reclutador: muestra esqueletos
+  const [refreshing, setRefreshing] = useState(true) // cualquier consulta en curso
   const [error, setError]         = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
   const [statusFilter, setStatusFilter] = useState('')
   const [reqFilter, setReqFilter] = useState('')
   const [query, setQuery]         = useState('')
+  const loadedKey = useRef(null)
 
   useEffect(() => {
+    const key = `${recruiter}|${week}|${year}`
+    const sameView = loadedKey.current === key // solo se actualiza: se conserva lo que ya se ve
     let cancelled = false
-    setLoading(true)
+    if (!sameView) { setLoading(true); setEntries([]); setStatusFilter(''); setReqFilter('') }
+    setRefreshing(true)
     setError(false)
-    setStatusFilter('')
-    setReqFilter('')
     fetchTrackerEntries(week, year, recruiter)
-      .then(rows => { if (!cancelled) setEntries(rows) })
-      .catch(() => { if (!cancelled) { setEntries([]); setError(true) } })
-      .finally(() => { if (!cancelled) setLoading(false) })
+      .then(rows => { if (!cancelled) { loadedKey.current = key; setEntries(rows) } })
+      .catch(() => { if (!cancelled) setError(true) })
+      .finally(() => { if (!cancelled) { setLoading(false); setRefreshing(false) } })
     return () => { cancelled = true }
   }, [week, year, recruiter, refreshKey])
+
+  useRefreshOnFocus(() => setRefreshKey(k => k + 1))
 
   function prevWeek() {
     if (week === 1) { setWeek(52); setYear(y => y - 1) } else setWeek(w => w - 1)
@@ -222,44 +253,45 @@ export default function MobileTracker() {
     .filter(([, rows]) => rows.length > 0)
 
   return (
-    <div className="px-4 pt-4 pb-6 space-y-3">
-      {/* Reclutador */}
-      <div className="grid grid-cols-2 gap-1 p-1 rounded-2xl bg-[#10284d]/[0.08]">
-        {TABS.map(t => (
-          <button
-            key={t.key}
-            type="button"
-            onClick={() => setRecruiter(t.key)}
-            className={`h-10 rounded-xl text-sm font-bold transition-colors ${
-              recruiter === t.key ? 'bg-[#071d47] text-white shadow-sm' : 'text-[#10284d]'
-            }`}
-          >
-            {t.label}{t.key === myRecruiter ? ' (yo)' : ''}
-          </button>
-        ))}
-      </div>
-
-      {/* Semana */}
-      <div className="flex items-center justify-between rounded-2xl bg-white border border-[#10284d]/10 px-2 py-1.5">
-        <button type="button" onClick={prevWeek} aria-label="Semana anterior" className="w-11 h-11 flex items-center justify-center rounded-full text-[#10284d] active:bg-[#10284d]/10">
-          <span className="material-symbols-outlined text-[1.5rem]">chevron_left</span>
-        </button>
-        <div className="text-center">
-          <p className="text-sm font-bold text-[#10284d]">Week {String(week).padStart(2, '0')} · {year}</p>
-          {!isCurrent ? (
-            <button type="button" onClick={() => { setWeek(currentWeek); setYear(currentYear) }} className="text-xs font-semibold text-[#1f6d44]">
-              Ir a esta semana
+    <div className="px-4 pb-6 space-y-3">
+      {/* Controles fijos: reclutador y semana */}
+      <div className="sticky top-0 z-10 -mx-4 px-4 pt-4 pb-2 space-y-2.5 bg-[#f2f5f9]/95 backdrop-blur border-b border-[#10284d]/5">
+        <div className="grid grid-cols-2 gap-1 p-1 rounded-2xl bg-[#10284d]/[0.08]">
+          {TABS.map(t => (
+            <button
+              key={t.key}
+              type="button"
+              onClick={() => setRecruiter(t.key)}
+              className={`h-10 rounded-xl text-sm font-bold transition-colors ${
+                recruiter === t.key ? 'bg-[#071d47] text-white shadow-sm' : 'text-[#10284d]'
+              }`}
+            >
+              {t.label}{t.key === myRecruiter ? ' (yo)' : ''}
             </button>
-          ) : (
-            <p className="text-xs text-[#4e5c70]">Semana actual</p>
-          )}
+          ))}
         </div>
-        <button type="button" onClick={nextWeek} aria-label="Semana siguiente" className="w-11 h-11 flex items-center justify-center rounded-full text-[#10284d] active:bg-[#10284d]/10">
-          <span className="material-symbols-outlined text-[1.5rem]">chevron_right</span>
-        </button>
+
+        <div className="flex items-center justify-between rounded-2xl bg-white border border-[#10284d]/10 px-2 py-1">
+          <button type="button" onClick={prevWeek} aria-label="Semana anterior" className="w-11 h-11 flex items-center justify-center rounded-full text-[#10284d] active:bg-[#10284d]/10">
+            <span className="material-symbols-outlined text-[1.5rem]">chevron_left</span>
+          </button>
+          <div className="text-center">
+            <p className="text-sm font-bold text-[#10284d]">Week {String(week).padStart(2, '0')} · {year}</p>
+            {!isCurrent ? (
+              <button type="button" onClick={() => { setWeek(currentWeek); setYear(currentYear) }} className="text-xs font-semibold text-[#1f6d44]">
+                Ir a esta semana
+              </button>
+            ) : (
+              <p className="text-xs text-[#4e5c70]">Semana actual</p>
+            )}
+          </div>
+          <button type="button" onClick={nextWeek} aria-label="Semana siguiente" className="w-11 h-11 flex items-center justify-center rounded-full text-[#10284d] active:bg-[#10284d]/10">
+            <span className="material-symbols-outlined text-[1.5rem]">chevron_right</span>
+          </button>
+        </div>
       </div>
 
-      {/* Buscar + filtro de rol + actualizar */}
+      {/* Buscar + actualizar */}
       <div className="flex gap-2">
         <div className="relative flex-1 min-w-0">
           <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[1.25rem] text-[#4e5c70] pointer-events-none">search</span>
@@ -274,11 +306,11 @@ export default function MobileTracker() {
         <button
           type="button"
           onClick={() => setRefreshKey(k => k + 1)}
-          disabled={loading}
+          disabled={refreshing}
           aria-label="Actualizar"
-          className="w-11 h-11 shrink-0 flex items-center justify-center rounded-xl bg-white border border-[#10284d]/10 text-[#1f6d44] active:bg-[#dfeadd] disabled:opacity-50"
+          className="w-11 h-11 shrink-0 flex items-center justify-center rounded-xl bg-white border border-[#10284d]/10 text-[#1f6d44] active:bg-[#dfeadd] disabled:opacity-60"
         >
-          <span className={`material-symbols-outlined text-[1.375rem] ${loading ? 'animate-spin' : ''}`}>refresh</span>
+          <span className={`material-symbols-outlined text-[1.375rem] ${refreshing ? 'animate-spin' : ''}`}>refresh</span>
         </button>
       </div>
 
@@ -328,15 +360,17 @@ export default function MobileTracker() {
       )}
 
       {error && (
-        <div className="rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-          No se pudo cargar el tracker. Revisa tu conexión y toca actualizar.
+        <div role="alert" className="rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+          No se pudo actualizar el tracker. Revisa tu conexión y toca el botón de actualizar.
         </div>
       )}
 
       {loading && (
-        <div className="flex items-center justify-center py-12 gap-2 text-[#4e5c70]">
-          <span className="material-symbols-outlined animate-spin text-[1.5rem]">progress_activity</span>
-          <span className="text-sm">Cargando…</span>
+        <div className="space-y-2.5 pt-1">
+          <Skeleton className="h-3 w-24" />
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
         </div>
       )}
 

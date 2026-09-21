@@ -912,7 +912,7 @@ function ReqBoardTable() {
             return sortedClients.flatMap(cliente => [
               <tr key={`group-${cliente}`}>
                 <td colSpan={COLS.length} className="px-4 py-2" style={{ backgroundColor: '#10284d', color: '#fff' }}>
-                  <div className="flex items-center justify-between gap-4 flex-wrap">
+                  <div className="flex items-center justify-start gap-x-10 gap-y-2 flex-wrap">
                     <span className="text-[14px] font-bold uppercase tracking-widest">{cliente}</span>
                     <div className="flex items-center gap-4 text-[11px] font-bold uppercase tracking-wider">
                       <span className="animate-glow text-white">

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
@@ -16,9 +16,22 @@ import Reports from './pages/Reports'
 import Tracker from './pages/Tracker'
 import Employees from './pages/Employees'
 import Equipment from './pages/Equipment'
+import MobileLayout from './pages/mobile/MobileLayout'
+import MobileDashboard from './pages/mobile/MobileDashboard'
+import MobileTracker from './pages/mobile/MobileTracker'
 
 function Protected({ children, permission }) {
   return <ProtectedRoute permission={permission}><Layout>{children}</Layout></ProtectedRoute>
+}
+
+function MobileProtected({ title, children }) {
+  return <ProtectedRoute><MobileLayout title={title}>{children}</MobileLayout></ProtectedRoute>
+}
+
+// En pantallas de celular, las rutas principales llevan a la versión móvil (solo consulta)
+function PhoneRedirect({ to, children }) {
+  const isPhone = typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches
+  return isPhone ? <Navigate to={to} replace /> : children
 }
 
 export default function App() {
@@ -27,9 +40,11 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login"               element={<Login />} />
-          <Route path="/"                    element={<Protected><Dashboard /></Protected>} />
+          <Route path="/"                    element={<PhoneRedirect to="/m"><Protected><Dashboard /></Protected></PhoneRedirect>} />
+          <Route path="/m"                   element={<MobileProtected title="Dashboard"><MobileDashboard /></MobileProtected>} />
+          <Route path="/m/tracker"           element={<MobileProtected title="Tracker"><MobileTracker /></MobileProtected>} />
           <Route path="/reports"             element={<Protected><Reports /></Protected>} />
-          <Route path="/tracker"             element={<Protected><Tracker /></Protected>} />
+          <Route path="/tracker"             element={<PhoneRedirect to="/m/tracker"><Protected><Tracker /></Protected></PhoneRedirect>} />
           <Route path="/clients"             element={<Protected><Clients /></Protected>} />
           <Route path="/requirements"        element={<Protected><Requirements /></Protected>} />
           <Route path="/requirements/new"    element={<Protected permission="requirements.create"><NewRequirement /></Protected>} />

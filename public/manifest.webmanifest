@@ -1,0 +1,17 @@
+{
+  "name": "EverTrack",
+  "short_name": "EverTrack",
+  "description": "EverTrack — consulta de Dashboard y Tracker",
+  "start_url": "/m",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#071d47",
+  "theme_color": "#071d47",
+  "lang": "es",
+  "icons": [
+    { "src": "/pwa-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/pwa-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/pwa-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

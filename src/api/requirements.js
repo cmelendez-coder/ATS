@@ -58,6 +58,11 @@ export async function updateRequirementPriority(id, priority) {
   if (error) throw error
 }
 
+export async function updateRequirementFte(id, fteCount) {
+  const { error } = await supabase.from('requirement').update({ fte_count: fteCount }).eq('id', id)
+  if (error) throw error
+}
+
 export async function getPendingRequirementAlertCount() {
   const { count, error } = await supabase
     .from('requirement')

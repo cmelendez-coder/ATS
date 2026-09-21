@@ -67,7 +67,7 @@ export async function getDashboardStats() {
   const overdueCount = openReqs.filter(r => r.target_fill_date && r.target_fill_date < today).length
 
   // Priority breakdown across all reqs
-  const byPriority = { 0: 0, 1: 0, 2: 0, 3: 0 }
+  const byPriority = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
   for (const r of reqs) {
     const p = r.priority ?? 2
     byPriority[p] = (byPriority[p] || 0) + 1

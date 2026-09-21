@@ -11,6 +11,8 @@ const PRIORITY = {
   1: { label: 'Media', color: '#50B152', bg: 'bg-secondary-container',    text: 'text-on-secondary-container' },
   2: { label: 'Baja',  color: '#c1cbe4', bg: 'bg-surface-variant',        text: 'text-on-surface-variant' },
   3: { label: 'Pausa', color: '#25457f', bg: 'bg-surface-container',      text: 'text-on-surface-variant/60' },
+  4: { label: 'Por definir', color: '#eab308', bg: 'bg-surface-container', text: 'text-on-surface-variant/60' },
+  5: { label: 'Oferta aceptada', color: '#8b5cf6', bg: 'bg-surface-container', text: 'text-on-surface-variant/60' },
 }
 
 const STATUS_COLORS = {

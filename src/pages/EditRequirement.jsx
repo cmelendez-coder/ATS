@@ -206,7 +206,7 @@ export default function EditRequirement() {
                   <div>
                     <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Priority <span className="text-error">*</span></label>
                     <div className="flex bg-surface-container p-1 rounded-xl">
-                      {[{ v: 0, l: '0' }, { v: 1, l: '1' }, { v: 2, l: '2' }, { v: 3, l: 'On hold' }].map(({ v, l }) => (
+                      {[{ v: 0, l: '0' }, { v: 1, l: '1' }, { v: 2, l: '2' }, { v: 3, l: '3' }, { v: 4, l: '4' }, { v: 5, l: '5' }].map(({ v, l }) => (
                         <button
                           key={v}
                           type="button"

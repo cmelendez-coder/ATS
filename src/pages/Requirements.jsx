@@ -9,7 +9,7 @@ import {
   listRequirements, deleteRequirement,
   getCatalogs,
   listPendingApprovals, approveRequirement, rejectRequirement,
-  updateRequirementStatus, updateRequirementPriority,
+  updateRequirementStatus, updateRequirementPriority, updateRequirementFte,
   getReqBoard, updateReqBoardRow, getWeeklyBoardStats, addReqBoardRow,
   getOpenRequirementsForBoard,
   saveRequirementClosure,
@@ -21,7 +21,9 @@ const PRIORITY = {
   0: { label: '0',       bg: 'bg-red-500/15',    text: 'text-red-400',    border: 'border-red-500/25' },
   1: { label: '1',       bg: 'bg-amber-500/15',  text: 'text-amber-300',  border: 'border-amber-500/25' },
   2: { label: '2',       bg: 'bg-blue-500/15',   text: 'text-blue-300',   border: 'border-blue-500/25' },
-  3: { label: 'On hold', bg: 'bg-surface-variant/50', text: 'text-on-surface-variant', border: 'border-outline-variant/30' },
+  3: { label: '3',       bg: 'bg-surface-variant/50', text: 'text-on-surface-variant', border: 'border-outline-variant/30' },
+  4: { label: '4',       bg: 'bg-yellow-500/15', text: 'text-yellow-300', border: 'border-yellow-500/25' },
+  5: { label: '5',       bg: 'bg-violet-500/15', text: 'text-violet-300', border: 'border-violet-500/25' },
 }
 
 const CLIENT_LOGOS = {
@@ -204,6 +206,46 @@ const PRI_TABLE = {
   1: { bg: '#86efac', text: '#14532d' },
   2: { bg: '#93c5fd', text: '#1e3a5f' },
   3: { bg: '#d1d5db', text: '#374151' },
+  4: { bg: '#fde68a', text: '#78350f' },
+  5: { bg: '#d8b4fe', text: '#4c1d95' },
+}
+
+const PRIORITY_INFO = [
+  '0 - Requerimiento nuevo o súper urgente.',
+  '1 - Ya se enviaron candidatos, pero se deben enviar más.',
+  '2 - Dejamos de hacer sourcing por que el cliente tiene buen pipeline. La posición sigue activa. Recibimos CVs o nos contactan candidatos previamente contactados y se envían al cliente.',
+  '3 - La posición está en hold.',
+  '4 - Jacobo: "Por definir".',
+  '5 - Oferta aceptada.',
+]
+
+/* ── Info icon with priority legend (fixed-position so the table scroll doesn't clip it) ── */
+function PriorityInfo() {
+  const [pos, setPos] = useState(null)
+  function show(e) {
+    const r = e.currentTarget.getBoundingClientRect()
+    setPos({ top: r.top + r.height / 2, left: r.right + 8 })
+  }
+  return (
+    <>
+      <span
+        onMouseEnter={show}
+        onMouseLeave={() => setPos(null)}
+        className="inline-flex items-center justify-center w-6 h-6 rounded-full cursor-help hover:bg-white/10 transition-colors shrink-0"
+        aria-label="Significado de las prioridades"
+      >
+        <span className="material-symbols-outlined text-[18px]" style={{ color: '#81b927' }}>info</span>
+      </span>
+      {pos && (
+        <div
+          className="fixed z-[70] w-80 rounded-xl border border-white/15 bg-[#0b1e3d] px-4 py-3 shadow-2xl text-left text-xs font-medium leading-relaxed text-white/90 space-y-1.5 pointer-events-none"
+          style={{ top: pos.top, left: pos.left, transform: 'translateY(-50%)' }}
+        >
+          {PRIORITY_INFO.map(line => <p key={line}>{line}</p>)}
+        </div>
+      )}
+    </>
+  )
 }
 
 /* ── Save chime (Web Audio API, no external files) ── */
@@ -212,7 +254,7 @@ function playChime() {
 }
 
 /* ── Inline editable cell ── */
-function EditableCell({ value, onChange, type = 'text', placeholder = '', disabled = false, glow = false, large = false }) {
+function EditableCell({ value, onChange, type = 'text', placeholder = '', disabled = false, glow = false, large = false, lime = false, min }) {
   const [draft, setDraft] = useState(value ?? '')
   const [saved, setSaved] = useState(false)
   const savedTimer = useRef(null)
@@ -220,6 +262,10 @@ function EditableCell({ value, onChange, type = 'text', placeholder = '', disabl
   useEffect(() => { setDraft(value ?? '') }, [value])
 
   function handleSave() {
+    if (min !== undefined && (draft === '' || Number(draft) < min)) {
+      setDraft(value ?? '')
+      return
+    }
     if (!disabled && draft !== (value ?? '')) {
       onChange(draft)
       playChime()
@@ -238,7 +284,7 @@ function EditableCell({ value, onChange, type = 'text', placeholder = '', disabl
       onChange={e => setDraft(e.target.value)}
       onBlur={handleSave}
       onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur() }}
-      className={`w-full bg-transparent text-center text-on-surface placeholder:text-on-surface-variant/30 outline-none focus:bg-surface-container rounded px-1 py-0.5 border border-[#81b927]/60 focus:border-[#81b927] disabled:opacity-50 disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none ${large ? 'text-xl font-bold' : 'text-sm'} ${saved ? 'cell-saved' : glow && !disabled ? 'cell-glow' : ''}`}
+      className={`w-full bg-transparent text-center text-on-surface placeholder:text-on-surface-variant/30 outline-none focus:bg-surface-container rounded px-1 py-0.5 border border-[#81b927]/60 focus:border-[#81b927] disabled:opacity-50 disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none ${large ? 'text-xl font-bold' : 'text-sm'} ${lime ? 'cell-lime' : ''} ${saved ? 'cell-saved' : glow && !disabled ? 'cell-glow' : ''}`}
     />
   )
 }
@@ -450,6 +496,13 @@ function ReqBoardTable() {
       if ('prioridad' in patch) {
         updateRequirementPriority(requirementId, patch.prioridad).catch(() => {})
       }
+      // Sync FTEs → requirement.fte_count (the board reads FTEs from the requirement)
+      if ('ftes' in patch) {
+        updateRequirementFte(requirementId, patch.ftes).catch(err => {
+          setRows(prev => prev.map(r => r.requirement_id === requirementId ? { ...r, ftes: row.ftes } : r))
+          alert(`No se pudo guardar el FTE: ${err.message}`)
+        })
+      }
       if ('activo' in patch) {
         getWeeklyBoardStats(selWeek.week, selWeek.year).then(setKpi)
       }
@@ -464,11 +517,11 @@ function ReqBoardTable() {
   const COLS = [
     { label: 'Búsqueda',       width: '80px'  },
     { label: 'Recruiter',      width: '150px' },
-    { label: 'Prioridad',      width: '80px'  },
+    { label: 'Prioridad',      width: '110px' },
     { label: 'Pipeline',       width: '50px'  },
     { label: 'Cliente',        width: '130px' },
     { label: 'Position',       width: '210px' },
-    { label: "FTE's",          width: '55px'  },
+    { label: "FTE's",          width: '80px'  },
     { label: 'Everscale Group',width: '115px' },
     { label: 'Interno',        width: '85px'  },
     { label: 'Enviados',       width: '85px'  },
@@ -583,6 +636,7 @@ function ReqBoardTable() {
           100% { background-color: transparent; color: inherit; border-color: rgba(129,185,39,0.6); box-shadow: none; transform: scale(1); }
         }
         .cell-saved { animation: savedFlash 2.5s ease-out forwards; }
+        .cell-lime { background-color: #81b927 !important; color: #10284d !important; }
       `}</style>
 
       {/* ── KPI bar ── */}
@@ -806,6 +860,7 @@ function ReqBoardTable() {
 
                 {/* Prioridad */}
                 <td className="px-2 py-2 text-center" style={{ borderBottom: `1px solid ${rowBorder}` }}>
+                  <div className="flex items-center justify-center gap-1.5">
                   <select
                     value={row.prioridad ?? ''}
                     onChange={e => {
@@ -818,21 +873,18 @@ function ReqBoardTable() {
                     }}
                     disabled={isPastWeek}
                     className="rounded-lg text-sm font-bold text-center cursor-pointer outline-none border-none appearance-none px-2 py-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ backgroundColor: pri.bg, color: pri.text, width: row.prioridad === 3 ? 78 : 52 }}
+                    style={{ backgroundColor: pri.bg, color: pri.text, width: 52 }}
                   >
                     <option value="" disabled>—</option>
-                    {[
-                      { value: 0, label: '0' },
-                      { value: 1, label: '1' },
-                      { value: 2, label: '2' },
-                      { value: 3, label: 'On hold' },
-                    ].map(({ value, label }) => (
+                    {[0, 1, 2, 3, 4, 5].map(value => (
                       <option key={value} value={value}
                         style={{ backgroundColor: PRI_TABLE[value].bg, color: PRI_TABLE[value].text }}
-                      >{label}</option>
+                      >{value}</option>
                     ))}
                     <option value="cerrada" style={{ backgroundColor: '#450a0a', color: '#fca5a5' }}>Cerrada</option>
                   </select>
+                  <PriorityInfo />
+                  </div>
                 </td>
 
                 {/* Eye button — open pipeline modal */}
@@ -856,9 +908,19 @@ function ReqBoardTable() {
                   {row.position ?? '—'}
                 </td>
 
-                {/* FTEs (read-only from requirement) */}
-                <td className="px-3 py-2 text-center text-sm font-bold text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
-                  {row.ftes ?? '—'}
+                {/* FTEs (editable, synced to requirement.fte_count) */}
+                <td className="px-2 py-2" style={{ borderBottom: `1px solid ${rowBorder}` }}>
+                  <EditableCell
+                    type="number"
+                    min={1}
+                    value={row.ftes != null ? String(row.ftes) : ''}
+                    placeholder="—"
+                    disabled={isPastWeek}
+                    glow={!isPastWeek}
+                    large
+                    lime
+                    onChange={val => handleUpdate(row.requirement_id, { ftes: Math.max(1, Math.round(Number(val))) })}
+                  />
                 </td>
 
                 {/* Everscale */}

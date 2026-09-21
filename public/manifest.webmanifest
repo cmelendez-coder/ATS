@@ -11,7 +11,8 @@
   "lang": "es",
   "shortcuts": [
     { "name": "Dashboard", "short_name": "Dashboard", "url": "/m", "icons": [{ "src": "/pwa-192.png", "sizes": "192x192", "type": "image/png" }] },
-    { "name": "Tracker", "short_name": "Tracker", "url": "/m/tracker", "icons": [{ "src": "/pwa-192.png", "sizes": "192x192", "type": "image/png" }] }
+    { "name": "Tracker", "short_name": "Tracker", "url": "/m/tracker", "icons": [{ "src": "/pwa-192.png", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "Requerimientos", "short_name": "Reqs", "url": "/m/requirements", "icons": [{ "src": "/pwa-192.png", "sizes": "192x192", "type": "image/png" }] }
   ],
   "icons": [
     { "src": "/pwa-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },

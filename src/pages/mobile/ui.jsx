@@ -14,6 +14,22 @@ export function initials(name = '') {
   return (parts[0][0] + (parts[1]?.[0] ?? '')).toUpperCase()
 }
 
+/** Semana ISO y año de una fecha */
+export function getISOWeek(date = new Date()) {
+  const d = new Date(date)
+  d.setHours(0, 0, 0, 0)
+  d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7))
+  const w1 = new Date(d.getFullYear(), 0, 4)
+  return { week: 1 + Math.round(((d - w1) / 86400000 - 3 + ((w1.getDay() + 6) % 7)) / 7), year: d.getFullYear() }
+}
+
+/** Fecha "YYYY-MM-DD" (sin hora) a texto, sin desfase de zona horaria */
+export function dateOnly(str) {
+  if (!str) return null
+  const d = new Date(`${String(str).slice(0, 10)}T12:00:00`)
+  return Number.isNaN(d.getTime()) ? null : d.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
 /** "Week 39 · 2026" */
 export function weekLabel(week, year) {
   return `Week ${String(week).padStart(2, '0')} · ${year}`

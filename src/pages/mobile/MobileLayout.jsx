@@ -3,8 +3,9 @@ import { useAuth } from '../../contexts/AuthContext'
 import { useOnline, useAppUpdate } from './hooks'
 
 const TABS = [
-  { to: '/m',         label: 'Dashboard', icon: 'dashboard', end: true },
-  { to: '/m/tracker', label: 'Tracker',   icon: 'fact_check' },
+  { to: '/m',              label: 'Dashboard', icon: 'dashboard', end: true },
+  { to: '/m/tracker',      label: 'Tracker',   icon: 'fact_check' },
+  { to: '/m/requirements', label: 'Reqs',      icon: 'assignment' },
 ]
 
 export default function MobileLayout({ title, children }) {
@@ -61,7 +62,10 @@ export default function MobileLayout({ title, children }) {
 
       <main className="flex-1 overflow-y-auto overscroll-contain">{children}</main>
 
-      <nav className="shrink-0 grid grid-cols-2 bg-[#071d47] border-t border-white/10 pb-[env(safe-area-inset-bottom)]">
+      <nav
+        className="shrink-0 grid bg-[#071d47] border-t border-white/10 pb-[env(safe-area-inset-bottom)]"
+        style={{ gridTemplateColumns: `repeat(${TABS.length}, minmax(0, 1fr))` }}
+      >
         {TABS.map(tab => (
           <NavLink
             key={tab.to}

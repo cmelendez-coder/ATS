@@ -6,6 +6,7 @@ const TABS = [
   { to: '/m',              label: 'Dashboard', icon: 'dashboard', end: true },
   { to: '/m/tracker',      label: 'Tracker',   icon: 'fact_check' },
   { to: '/m/requirements', label: 'Reqs',      icon: 'assignment' },
+  { to: '/m/talent',       label: 'Talent',    icon: 'groups' },
 ]
 
 export default function MobileLayout({ title, children }) {

@@ -288,6 +288,10 @@ function playChime() {
 }
 
 /* ── Celebración al marcar una posición como 5 (oferta aceptada) ── */
+function playCelebration() {
+  try { new Audio('/sounds/5.mp3').play() } catch {}
+}
+
 const CONFETTI_COLORS = ['#34d399', '#6ee7b7', '#a7f3d0', '#bef264', '#facc15', '#fde68a']
 
 function ConfettiBurst({ x, y }) {
@@ -526,6 +530,7 @@ function ReqBoardTable() {
   function celebrateOffer(el, reqId) {
     const r = el.getBoundingClientRect()
     setBurst({ id: Date.now(), x: r.left + r.width / 2, y: r.top + r.height / 2, reqId })
+    playCelebration()
     clearTimeout(burstTimer.current)
     burstTimer.current = setTimeout(() => setBurst(null), 1800)
   }

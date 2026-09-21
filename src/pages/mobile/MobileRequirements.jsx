@@ -368,15 +368,29 @@ function PriorityBoard() {
                   </p>
                 </div>
                 {sorted.map(r => (
-                  <article key={r.requirement_id} className={`rounded-2xl border p-4 space-y-3 ${r.activo ? 'bg-[#f3faf3] border-[#50b152]/25' : 'bg-[#fff6ee] border-[#ea580c]/20'}`}>
+                  <article
+                    key={r.requirement_id}
+                    className={`relative overflow-hidden rounded-2xl border p-4 space-y-3 ${
+                      r.prioridad === 5 ? 'offer-card' : r.activo ? 'bg-[#f3faf3] border-[#50b152]/25' : 'bg-[#fff6ee] border-[#ea580c]/20'
+                    }`}
+                  >
                     <div className="flex items-start justify-between gap-3">
                       <h3 className="text-[0.9375rem] font-bold leading-snug text-[#10284d]">{r.position}</h3>
                       <span className={`shrink-0 px-2.5 py-0.5 rounded-full text-[0.6875rem] font-bold ${r.activo ? 'bg-[#50b152]/20 text-[#1f6d44]' : 'bg-[#ea580c]/15 text-[#9a3412]'}`}>
                         {r.activo ? 'En búsqueda' : 'On hold'}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <PriorityChip p={r.prioridad} long />
+                      {r.prioridad === 5 && (
+                        <span
+                          className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[0.6875rem] font-extrabold uppercase tracking-wider"
+                          style={{ background: 'linear-gradient(90deg, #c4b5fd, #fde68a)', color: '#4c1d95' }}
+                        >
+                          <span className="material-symbols-outlined text-[0.875rem]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                          Oferta aceptada
+                        </span>
+                      )}
                       <span className="text-xs font-semibold text-[#4e5c70]">{r.recruiter || 'Sin recruiter'}</span>
                     </div>
                     <div className="grid grid-cols-4 gap-1.5">

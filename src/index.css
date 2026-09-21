@@ -20,6 +20,31 @@
   animation: number-glow 2.2s ease-in-out infinite;
 }
 
+/* Tarjeta "oferta aceptada" (prioridad 5) del tablero móvil */
+@keyframes offerCardSweep {
+  0%        { background-position: 97% 0; }
+  60%, 100% { background-position: 3% 0; }
+}
+.offer-card {
+  background: linear-gradient(135deg, #f1eaff 0%, #fff6d6 100%);
+  border-color: rgba(167, 139, 250, 0.7);
+  box-shadow: 0 0 0 1px rgba(196, 181, 253, 0.6), 0 8px 24px rgba(167, 139, 250, 0.35);
+}
+.offer-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(105deg, transparent 36%, rgba(255, 255, 255, 0.9) 50%, transparent 64%);
+  background-size: 250% 100%;
+  background-repeat: no-repeat;
+  background-position: 97% 0;
+  animation: offerCardSweep 6.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .offer-card::after { animation: none; opacity: 0; }
+}
+
 /* Hoja inferior de las vistas móviles */
 @keyframes sheetUp {
   from { transform: translateY(100%); }

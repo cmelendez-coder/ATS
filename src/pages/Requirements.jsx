@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useLayoutEffect, useCallback, useRef, useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { usePermissions } from '../hooks/usePermissions'
 import { useRequirementAlerts } from '../hooks/useRequirementAlerts'
@@ -287,6 +287,40 @@ function playChime() {
   try { new Audio('/sounds/Prioridades.mp3').play() } catch {}
 }
 
+/* ── Celebración al marcar una posición como 5 (oferta aceptada) ── */
+function playCelebration() {
+  try { new Audio('/sounds/Sent.mp3').play() } catch {}
+}
+
+const CONFETTI_COLORS = ['#c4b5fd', '#a78bfa', '#facc15', '#fde68a', '#86efac', '#f9a8d4']
+
+function ConfettiBurst({ x, y }) {
+  const pieces = useMemo(() => Array.from({ length: 30 }, (_, i) => {
+    const angle = (Math.PI * 2 * i) / 30 + Math.random() * 0.4
+    const dist = 60 + Math.random() * 100
+    return {
+      dx: Math.cos(angle) * dist,
+      dy: Math.sin(angle) * dist - 30,
+      rot: Math.random() * 540 - 270,
+      color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+      w: 5 + Math.random() * 5,
+      h: 8 + Math.random() * 6,
+      delay: Math.random() * 0.12,
+    }
+  }), [])
+  return (
+    <div className="confetti-burst fixed pointer-events-none z-[80]" style={{ left: x, top: y }} aria-hidden="true">
+      {pieces.map((p, i) => (
+        <span
+          key={i}
+          className="confetti-piece"
+          style={{ '--dx': `${p.dx}px`, '--dy': `${p.dy}px`, '--rot': `${p.rot}deg`, background: p.color, width: p.w, height: p.h, animationDelay: `${p.delay}s` }}
+        />
+      ))}
+    </div>
+  )
+}
+
 /* ── Inline editable cell ── */
 function EditableCell({ value, onChange, onRequestChange, type = 'text', placeholder = '', disabled = false, glow = false, large = false, lime = false, min }) {
   const [draft, setDraft] = useState(value ?? '')
@@ -490,6 +524,16 @@ function ReqBoardTable() {
   const [closeReasonModal, setCloseReasonModal] = useState(null) // { requirementId } | null
   const [fteConfirm, setFteConfirm]     = useState(null) // { requirementId, position, cliente, from, to } | null
   const [fteResetKey, setFteResetKey]   = useState(0)    // bumped to make FTE cells discard a cancelled edit
+  const [burst, setBurst]               = useState(null) // { id, x, y, reqId } — celebración de oferta aceptada (prioridad 5)
+  const burstTimer = useRef(null)
+
+  function celebrateOffer(el, reqId) {
+    const r = el.getBoundingClientRect()
+    setBurst({ id: Date.now(), x: r.left + r.width / 2, y: r.top + r.height / 2, reqId })
+    playCelebration()
+    clearTimeout(burstTimer.current)
+    burstTimer.current = setTimeout(() => setBurst(null), 1800)
+  }
 
   const isCurrentWeek = selWeek.week === currentWeek.week && selWeek.year === currentWeek.year
   const isPastWeek = selWeek.year < currentWeek.year ||
@@ -739,7 +783,44 @@ function ReqBoardTable() {
           to   { opacity: 1; transform: translateX(0) scale(1); }
         }
         .priority-tip { animation: priTipIn 0.16s ease-out; }
+
+        /* Prioridad 5 — oferta aceptada: fila iluminada con destello que la recorre */
+        @keyframes offerSweep {
+          0%        { background-position: 94% 0, 0 0; }
+          60%, 100% { background-position: -6% 0, 0 0; }
+        }
+        .row-offer {
+          background-image:
+            linear-gradient(105deg, transparent 36%, rgba(255,255,255,0.95) 50%, transparent 64%),
+            linear-gradient(90deg, rgba(167,139,250,0.42) 0%, rgba(250,204,21,0.32) 100%);
+          background-size: 260% 100%, 100% 100%;
+          background-repeat: no-repeat;
+          animation: offerSweep 6.5s ease-in-out infinite;
+        }
+        .row-offer td {
+          border-bottom-color: rgba(196,181,253,0.85) !important;
+          box-shadow: inset 0 0 16px rgba(196,181,253,0.45), inset 0 1px 0 rgba(250,204,21,0.55);
+        }
+        @keyframes offerBurst {
+          0%   { box-shadow: inset 0 0 44px 10px rgba(250,204,21,0.95), inset 0 0 0 2px rgba(255,255,255,0.9); }
+          100% { box-shadow: inset 0 0 16px rgba(196,181,253,0.45), inset 0 1px 0 rgba(250,204,21,0.55); }
+        }
+        .row-offer-burst td { animation: offerBurst 1.6s ease-out; }
+        .offer-check { filter: drop-shadow(0 0 5px rgba(250,204,21,0.9)); }
+
+        @keyframes confettiFly {
+          0%   { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(1); }
+          65%  { opacity: 1; }
+          100% { opacity: 0; transform: translate(var(--dx), calc(var(--dy) + 70px)) rotate(var(--rot)) scale(0.8); }
+        }
+        .confetti-piece { position: absolute; left: 0; top: 0; border-radius: 2px; opacity: 0; animation: confettiFly 1.4s cubic-bezier(0.15, 0.7, 0.3, 1) forwards; }
+        @media (prefers-reduced-motion: reduce) {
+          .row-offer, .row-offer-burst td { animation: none; }
+          .confetti-burst { display: none; }
+        }
       `}</style>
+
+      {burst && <ConfettiBurst key={burst.id} x={burst.x} y={burst.y} />}
 
       {/* ── KPI bar ── */}
       <div className="rounded-2xl p-6" style={{ backgroundColor: '#81b927' }}>
@@ -929,13 +1010,15 @@ function ReqBoardTable() {
             const rowBorder = activo
               ? 'rgba(80,177,82,0.20)'
               : 'rgba(234,88,12,0.15)'
+            const isOffer = row.prioridad === 5 // oferta aceptada
 
             return (
               <tr
                 key={row.requirement_id}
+                className={isOffer ? `row-offer${burst?.reqId === row.requirement_id ? ' row-offer-burst' : ''}` : undefined}
                 style={{
-                  backgroundColor: rowBg,
-                  borderBottom: `1px solid ${rowBorder}`,
+                  backgroundColor: isOffer ? 'rgba(139,92,246,0.10)' : rowBg,
+                  borderBottom: `1px solid ${isOffer ? 'rgba(196,181,253,0.85)' : rowBorder}`,
                 }}
               >
                 {/* Toggle búsqueda */}
@@ -971,12 +1054,17 @@ function ReqBoardTable() {
                         setCloseConfirm({ requirementId: row.requirement_id, position: row.position })
                         e.target.value = row.prioridad ?? ''
                       } else {
-                        handleUpdate(row.requirement_id, { prioridad: e.target.value === '' ? null : Number(e.target.value) })
+                        const val = e.target.value === '' ? null : Number(e.target.value)
+                        if (val === 5 && row.prioridad !== 5) celebrateOffer(e.currentTarget, row.requirement_id)
+                        handleUpdate(row.requirement_id, { prioridad: val })
                       }
                     }}
                     disabled={isPastWeek}
                     className="rounded-lg text-sm font-bold text-center cursor-pointer outline-none border-none appearance-none px-2 py-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ backgroundColor: pri.bg, color: pri.text, width: 52, backgroundImage: 'none', paddingLeft: 0, paddingRight: 0, textAlignLast: 'center' }}
+                    style={{
+                      backgroundColor: pri.bg, color: pri.text, width: 52, backgroundImage: 'none', paddingLeft: 0, paddingRight: 0, textAlignLast: 'center',
+                      ...(isOffer ? { boxShadow: '0 0 0 2px #fde68a, 0 0 14px rgba(196,181,253,0.95)' } : {}),
+                    }}
                   >
                     <option value="" disabled>—</option>
                     {[0, 1, 2, 3, 4, 5].map(value => (
@@ -986,6 +1074,13 @@ function ReqBoardTable() {
                     ))}
                     <option value="cerrada" style={{ backgroundColor: '#450a0a', color: '#fca5a5' }}>Cerrada</option>
                   </select>
+                  {isOffer && (
+                    <span
+                      className="offer-check material-symbols-outlined text-[1.25rem]"
+                      style={{ color: '#facc15', fontVariationSettings: "'FILL' 1" }}
+                      title="Oferta aceptada"
+                    >verified</span>
+                  )}
                   <PriorityInfo />
                   </div>
                 </td>
@@ -1009,6 +1104,17 @@ function ReqBoardTable() {
                 {/* Position (read-only) */}
                 <td className="px-3 py-2 text-center text-sm font-bold text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   {row.position ?? '—'}
+                  {isOffer && (
+                    <div className="mt-1 flex justify-center">
+                      <span
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.625rem] font-extrabold uppercase tracking-wider"
+                        style={{ background: 'linear-gradient(90deg, #c4b5fd, #fde68a)', color: '#4c1d95' }}
+                      >
+                        <span className="material-symbols-outlined text-[0.75rem]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                        Oferta aceptada
+                      </span>
+                    </div>
+                  )}
                 </td>
 
                 {/* FTEs (editable, synced to requirement.fte_count) */}

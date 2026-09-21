@@ -207,7 +207,7 @@ const PRI_TABLE = {
   2: { bg: '#93c5fd', text: '#1e3a5f' },
   3: { bg: '#d1d5db', text: '#374151' },
   4: { bg: '#fde68a', text: '#78350f' },
-  5: { bg: '#a7f3d0', text: '#065f46' },
+  5: { bg: '#bae6fd', text: '#0c4a6e' },
 }
 
 const PRIORITY_INFO = [
@@ -292,7 +292,7 @@ function playCelebration() {
   try { new Audio('/sounds/5.mp3').play() } catch {}
 }
 
-const CONFETTI_COLORS = ['#34d399', '#6ee7b7', '#a7f3d0', '#bef264', '#facc15', '#fde68a']
+const CONFETTI_COLORS = ['#38bdf8', '#7dd3fc', '#bae6fd', '#93c5fd', '#facc15', '#fde68a']
 
 function ConfettiBurst({ x, y }) {
   const pieces = useMemo(() => Array.from({ length: 30 }, (_, i) => {
@@ -792,18 +792,18 @@ function ReqBoardTable() {
         .row-offer {
           background-image:
             linear-gradient(105deg, transparent 36%, rgba(255,255,255,0.95) 50%, transparent 64%),
-            linear-gradient(90deg, rgba(52,211,153,0.36) 0%, rgba(190,242,100,0.30) 100%);
+            linear-gradient(90deg, rgba(56,189,248,0.34) 0%, rgba(147,197,253,0.32) 100%);
           background-size: 260% 100%, 100% 100%;
           background-repeat: no-repeat;
           animation: offerSweep 6.5s ease-in-out infinite;
         }
         .row-offer td {
-          border-bottom-color: rgba(110,231,183,0.9) !important;
-          box-shadow: inset 0 0 16px rgba(52,211,153,0.40), inset 0 1px 0 rgba(250,204,21,0.55);
+          border-bottom-color: rgba(125,211,252,0.9) !important;
+          box-shadow: inset 0 0 16px rgba(56,189,248,0.40), inset 0 1px 0 rgba(250,204,21,0.55);
         }
         @keyframes offerBurst {
           0%   { box-shadow: inset 0 0 44px 10px rgba(250,204,21,0.95), inset 0 0 0 2px rgba(255,255,255,0.9); }
-          100% { box-shadow: inset 0 0 16px rgba(52,211,153,0.40), inset 0 1px 0 rgba(250,204,21,0.55); }
+          100% { box-shadow: inset 0 0 16px rgba(56,189,248,0.40), inset 0 1px 0 rgba(250,204,21,0.55); }
         }
         .row-offer-burst td { animation: offerBurst 1.6s ease-out; }
 
@@ -1016,8 +1016,8 @@ function ReqBoardTable() {
                 key={row.requirement_id}
                 className={isOffer ? `row-offer${burst?.reqId === row.requirement_id ? ' row-offer-burst' : ''}` : undefined}
                 style={{
-                  backgroundColor: isOffer ? 'rgba(16,185,129,0.10)' : rowBg,
-                  borderBottom: `1px solid ${isOffer ? 'rgba(110,231,183,0.9)' : rowBorder}`,
+                  backgroundColor: isOffer ? 'rgba(14,165,233,0.10)' : rowBg,
+                  borderBottom: `1px solid ${isOffer ? 'rgba(125,211,252,0.9)' : rowBorder}`,
                 }}
               >
                 {/* Toggle búsqueda */}
@@ -1062,7 +1062,7 @@ function ReqBoardTable() {
                     className="rounded-lg text-sm font-bold text-center cursor-pointer outline-none border-none appearance-none px-2 py-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{
                       backgroundColor: pri.bg, color: pri.text, width: 52, backgroundImage: 'none', paddingLeft: 0, paddingRight: 0, textAlignLast: 'center',
-                      ...(isOffer ? { boxShadow: '0 0 0 2px #fde68a, 0 0 14px rgba(52,211,153,0.9)' } : {}),
+                      ...(isOffer ? { boxShadow: '0 0 0 2px #fde68a, 0 0 14px rgba(56,189,248,0.9)' } : {}),
                     }}
                   >
                     <option value="" disabled>—</option>

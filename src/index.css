@@ -26,9 +26,9 @@
   60%, 100% { background-position: 3% 0; }
 }
 .offer-card {
-  background: linear-gradient(135deg, #dcf7ea 0%, #f1fbd6 100%);
-  border-color: rgba(52, 211, 153, 0.7);
-  box-shadow: 0 0 0 1px rgba(110, 231, 183, 0.6), 0 8px 24px rgba(52, 211, 153, 0.35);
+  background: linear-gradient(135deg, #dff2fd 0%, #e6efff 100%);
+  border-color: rgba(56, 189, 248, 0.7);
+  box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.6), 0 8px 24px rgba(56, 189, 248, 0.35);
 }
 .offer-card::after {
   content: '';

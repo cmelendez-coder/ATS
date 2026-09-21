@@ -5,7 +5,7 @@ export const PRIORITY_STYLE = {
   2: { bg: '#93c5fd', fg: '#1e3a5f' },
   3: { bg: '#d1d5db', fg: '#374151' },
   4: { bg: '#fde68a', fg: '#78350f' },
-  5: { bg: '#a7f3d0', fg: '#065f46' },
+  5: { bg: '#bae6fd', fg: '#0c4a6e' },
 }
 
 export const PRIORITY_MEANING = {

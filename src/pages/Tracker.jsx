@@ -214,7 +214,7 @@ function RequirementSearch({ value, requirements, closedRequirements = [], curre
         className="w-full flex items-center justify-between gap-2 bg-[#071d47] text-white text-xs px-2 py-1.5 rounded border border-white/10 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <span className="truncate text-left">{label}</span>
-        <span className={`material-symbols-outlined text-[14px] text-white/40 transition-transform duration-200 shrink-0 ${open ? 'rotate-180' : ''}`}>expand_more</span>
+        <span className={`material-symbols-outlined text-[0.875rem] text-white/40 transition-transform duration-200 shrink-0 ${open ? 'rotate-180' : ''}`}>expand_more</span>
       </button>
       {open && !disabled && pos && createPortal(
         <div
@@ -224,7 +224,7 @@ function RequirementSearch({ value, requirements, closedRequirements = [], curre
         >
           <div className="p-2 border-b border-white/10">
             <div className="relative">
-              <span className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-[14px] text-white/40">search</span>
+              <span className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-[0.875rem] text-white/40">search</span>
               <input
                 type="text"
                 autoFocus
@@ -241,7 +241,7 @@ function RequirementSearch({ value, requirements, closedRequirements = [], curre
             )}
             {openGroups.map(([client, reqs]) => (
               <div key={client}>
-                <p className="px-3 pt-2 pb-1 text-[10px] font-bold text-white/40 uppercase tracking-wider">{client}</p>
+                <p className="px-3 pt-2 pb-1 text-[0.625rem] font-bold text-white/40 uppercase tracking-wider">{client}</p>
                 {reqs.map(r => (
                   <button
                     key={r.id}
@@ -256,10 +256,10 @@ function RequirementSearch({ value, requirements, closedRequirements = [], curre
             ))}
             {closedGroups.length > 0 && (
               <>
-                <p className="px-3 pt-2 pb-0.5 text-[10px] font-bold text-white/25 uppercase tracking-wider italic">── Cerradas ──</p>
+                <p className="px-3 pt-2 pb-0.5 text-[0.625rem] font-bold text-white/25 uppercase tracking-wider italic">── Cerradas ──</p>
                 {closedGroups.map(([client, reqs]) => (
                   <div key={`closed-${client}`}>
-                    <p className="px-3 pt-1 pb-0.5 text-[10px] font-bold text-white/25 uppercase tracking-wider">{client}</p>
+                    <p className="px-3 pt-1 pb-0.5 text-[0.625rem] font-bold text-white/25 uppercase tracking-wider">{client}</p>
                     {reqs.map(r => (
                       <button
                         key={r.id}
@@ -359,7 +359,7 @@ function TrackerGlobalSearch({ recruiter, label, onSelect }) {
         className="tracker-search-glow flex items-center gap-1.5 text-xs bg-[#10284d] border border-[#81b927]/40 text-white rounded-xl px-3.5 py-1.5 font-semibold transition-all duration-200"
         title={`Buscar candidato en todas las semanas de ${label}`}
       >
-        <span className="material-symbols-outlined text-[16px] text-[#81b927]">search</span>
+        <span className="material-symbols-outlined text-[1rem] text-[#81b927]">search</span>
         Buscar en {label}
       </button>
       {open && pos && createPortal(
@@ -370,7 +370,7 @@ function TrackerGlobalSearch({ recruiter, label, onSelect }) {
         >
           <div className="p-2 border-b border-white/10">
             <div className="relative">
-              <span className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-[14px] text-white/40">search</span>
+              <span className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-[0.875rem] text-white/40">search</span>
               <input
                 type="text"
                 autoFocus
@@ -384,7 +384,7 @@ function TrackerGlobalSearch({ recruiter, label, onSelect }) {
           <div className="max-h-72 overflow-y-auto py-1">
             {loading && (
               <p className="px-3 py-3 text-xs text-white/40 text-center flex items-center justify-center gap-2">
-                <span className="material-symbols-outlined text-[14px] animate-spin">progress_activity</span>
+                <span className="material-symbols-outlined text-[0.875rem] animate-spin">progress_activity</span>
                 Buscando…
               </p>
             )}
@@ -399,21 +399,21 @@ function TrackerGlobalSearch({ recruiter, label, onSelect }) {
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-bold text-white truncate">{r.candidate_name}</span>
-                  <span className={`shrink-0 px-1.5 py-0.5 rounded-full text-[10px] font-bold ${STATUS_STYLE[r.status] ?? 'bg-white/10 text-white/60'}`}>{r.status}</span>
+                  <span className={`shrink-0 px-1.5 py-0.5 rounded-full text-[0.625rem] font-bold ${STATUS_STYLE[r.status] ?? 'bg-white/10 text-white/60'}`}>{r.status}</span>
                 </div>
                 <div className="flex items-center justify-between gap-2 mt-0.5">
-                  <span className="text-[10px] text-[#8ab0d0] truncate">
+                  <span className="text-[0.625rem] text-[#8ab0d0] truncate">
                     {r.requirement ? <>{r.requirement.job_title} <span className="text-[#8ab0d0]/50">· {r.requirement.client?.name}</span></> : '—'}
                   </span>
-                  <span className="text-[10px] text-[#81b927]/80 font-semibold shrink-0">{weekLabel(r.week_number, r.week_year)}</span>
+                  <span className="text-[0.625rem] text-[#81b927]/80 font-semibold shrink-0">{weekLabel(r.week_number, r.week_year)}</span>
                 </div>
                 {r.notes && (
                   <button
                     type="button"
                     onClick={e => { e.stopPropagation(); setNoteModal({ name: r.candidate_name, notes: r.notes, week: r.week_number, year: r.week_year }) }}
-                    className="w-full mt-1 flex items-start gap-1 text-left text-[10px] text-amber-300/70 hover:text-amber-200 transition-colors"
+                    className="w-full mt-1 flex items-start gap-1 text-left text-[0.625rem] text-amber-300/70 hover:text-amber-200 transition-colors"
                   >
-                    <span className="material-symbols-outlined text-[12px] mt-[1px] shrink-0">sticky_note_2</span>
+                    <span className="material-symbols-outlined text-[0.75rem] mt-[1px] shrink-0">sticky_note_2</span>
                     <span className="truncate">{r.notes}</span>
                   </button>
                 )}
@@ -429,10 +429,10 @@ function TrackerGlobalSearch({ recruiter, label, onSelect }) {
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
               <div>
                 <p className="text-sm font-bold text-white">{noteModal.name}</p>
-                <p className="text-[10px] text-[#81b927]/80 font-semibold mt-0.5">{weekLabel(noteModal.week, noteModal.year)}</p>
+                <p className="text-[0.625rem] text-[#81b927]/80 font-semibold mt-0.5">{weekLabel(noteModal.week, noteModal.year)}</p>
               </div>
               <button onClick={() => setNoteModal(null)} className="text-white/50 hover:text-white transition-colors shrink-0 ml-3">
-                <span className="material-symbols-outlined text-[18px]">close</span>
+                <span className="material-symbols-outlined text-[1.125rem]">close</span>
               </button>
             </div>
             <div className="px-4 py-3">
@@ -512,8 +512,8 @@ function CandidateNameSearch({ value, linkedId, onType, onPick, onNormalize }) {
           onBlur={e => onNormalize(e.target.value)}
         />
         {linkedId && (
-          <span className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-0.5 text-[9px] font-bold text-[#81b927]" title="Vinculado a un perfil existente del Talent Directory">
-            <span className="material-symbols-outlined text-[12px]">link</span>
+          <span className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-0.5 text-[0.5625rem] font-bold text-[#81b927]" title="Vinculado a un perfil existente del Talent Directory">
+            <span className="material-symbols-outlined text-[0.75rem]">link</span>
           </span>
         )}
       </div>
@@ -523,12 +523,12 @@ function CandidateNameSearch({ value, linkedId, onType, onPick, onNormalize }) {
           className="fixed z-[500] bg-[#0b2a58] border border-white/10 rounded-lg shadow-2xl overflow-hidden"
           style={{ top: pos.top, left: pos.left, width: pos.width, maxWidth: 360 }}
         >
-          <p className="px-3 pt-2 pb-1 text-[9px] font-bold text-white/40 uppercase tracking-wider">
+          <p className="px-3 pt-2 pb-1 text-[0.5625rem] font-bold text-white/40 uppercase tracking-wider">
             Talent Directory {loading && '· buscando…'}
           </p>
           <div className="max-h-60 overflow-y-auto pb-1">
             {!loading && results.length === 0 && (
-              <p className="px-3 py-2 text-[11px] text-white/40">Sin coincidencias — se creará un candidato nuevo.</p>
+              <p className="px-3 py-2 text-[0.6875rem] text-white/40">Sin coincidencias — se creará un candidato nuevo.</p>
             )}
             {results.map(c => (
               <button
@@ -545,11 +545,11 @@ function CandidateNameSearch({ value, linkedId, onType, onPick, onNormalize }) {
                 }`}
               >
                 <p className="text-xs font-semibold text-white truncate flex items-center gap-1.5">
-                  {c.blacklisted && <span className="material-symbols-outlined text-[13px] text-red-300">warning</span>}
+                  {c.blacklisted && <span className="material-symbols-outlined text-[0.8125rem] text-red-300">warning</span>}
                   {c.full_name}
-                  {c.blacklisted && <span className="text-[9px] font-bold uppercase tracking-wide text-red-200 bg-red-700/50 px-1 py-0.5 rounded">Lista negra</span>}
+                  {c.blacklisted && <span className="text-[0.5625rem] font-bold uppercase tracking-wide text-red-200 bg-red-700/50 px-1 py-0.5 rounded">Lista negra</span>}
                 </p>
-                <p className={`text-[10px] truncate ${c.blacklisted ? 'text-red-200/80' : 'text-[#8ab0d0]'}`}>
+                <p className={`text-[0.625rem] truncate ${c.blacklisted ? 'text-red-200/80' : 'text-[#8ab0d0]'}`}>
                   {[c.role?.name, c.years_experience != null ? `${c.years_experience} yrs` : null, c.email].filter(Boolean).join(' · ') || '—'}
                 </p>
               </button>
@@ -566,18 +566,18 @@ function CandidateNameSearch({ value, linkedId, onType, onPick, onNormalize }) {
           >
             <div className="flex justify-center mb-4">
               <span className="w-16 h-16 rounded-full bg-red-600/25 border border-red-500/50 flex items-center justify-center">
-                <span className="material-symbols-outlined text-[34px] text-red-400">dangerous</span>
+                <span className="material-symbols-outlined text-[2.125rem] text-red-400">dangerous</span>
               </span>
             </div>
             <h3 className="text-lg font-extrabold text-red-300 uppercase tracking-wide mb-2 flex items-center justify-center gap-2">
-              <span className="material-symbols-outlined text-[18px]">warning</span>
+              <span className="material-symbols-outlined text-[1.125rem]">warning</span>
               Candidato bloqueado
             </h3>
             <p className="text-sm text-white/90 leading-relaxed">
               No puedes agregar a <strong className="text-red-300">{blocked.name}</strong> ya que está en <strong className="text-red-300">lista negra</strong>.
             </p>
             <div className="mt-4 rounded-xl bg-red-950/40 border border-red-500/30 px-4 py-3">
-              <p className="text-[10px] font-bold text-red-300/70 uppercase tracking-widest mb-1">Razón</p>
+              <p className="text-[0.625rem] font-bold text-red-300/70 uppercase tracking-widest mb-1">Razón</p>
               <p className="text-sm text-white italic leading-relaxed">
                 {blocked.reason?.trim()
                   ? `"${blocked.reason.trim()}"`
@@ -622,7 +622,7 @@ function RejectedFeedbackModal({ onConfirm, onCancel, status = 'Rejected' }) {
       <div className="bg-surface-container-high rounded-2xl shadow-2xl border border-outline-variant/20 p-6 w-full max-w-sm mx-4">
         <div className="flex items-center gap-3 mb-4">
           <span className={`w-8 h-8 rounded-full ${theme.iconBg} flex items-center justify-center`}>
-            <span className={`material-symbols-outlined ${theme.iconColor} text-[18px]`}>{theme.icon}</span>
+            <span className={`material-symbols-outlined ${theme.iconColor} text-[1.125rem]`}>{theme.icon}</span>
           </span>
           <div>
             <h3 className="text-sm font-bold text-on-surface">Marcar como {status}</h3>
@@ -638,7 +638,7 @@ function RejectedFeedbackModal({ onConfirm, onCancel, status = 'Rejected' }) {
           onChange={e => setFeedback(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) onConfirm(feedback) }}
         />
-        <p className="text-[10px] text-on-surface-variant/50 mt-1 mb-4">Ctrl+Enter para guardar</p>
+        <p className="text-[0.625rem] text-on-surface-variant/50 mt-1 mb-4">Ctrl+Enter para guardar</p>
         <div className="flex gap-2 justify-end">
           <button type="button" onClick={onCancel}
             className="px-4 py-1.5 text-xs rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors">
@@ -672,7 +672,7 @@ function SentConfirmModal({ onConfirm, onCancel }) {
         {step === 1 ? (
           <>
             <div className="flex items-start gap-3 mb-4">
-              <span className="material-symbols-outlined text-pink-400 text-[28px] shrink-0">send</span>
+              <span className="material-symbols-outlined text-pink-400 text-[1.75rem] shrink-0">send</span>
               <div>
                 <h3 className="text-base font-bold text-on-surface leading-snug">¿Este candidato se envió a cliente el día de hoy?</h3>
                 <p className="text-xs text-on-surface-variant mt-2 leading-relaxed">
@@ -700,7 +700,7 @@ function SentConfirmModal({ onConfirm, onCancel }) {
         ) : (
           <>
             <div className="flex items-center gap-3 mb-4">
-              <span className="material-symbols-outlined text-yellow-400 text-[28px] shrink-0">help</span>
+              <span className="material-symbols-outlined text-yellow-400 text-[1.75rem] shrink-0">help</span>
               <h3 className="text-base font-bold text-on-surface">¿Seguro?</h3>
             </div>
             <p className="text-xs text-on-surface-variant leading-relaxed mb-6">
@@ -754,13 +754,13 @@ function ScreeningNoteModal({ onConfirm, onCancel }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
       <div className="bg-surface-container-high rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl">
         <div className="flex items-center gap-2 mb-4">
-          <span className="material-symbols-outlined text-blue-400 text-[20px]">event</span>
+          <span className="material-symbols-outlined text-blue-400 text-[1.25rem]">event</span>
           <h3 className="text-base font-bold text-on-surface">Agendar Screening</h3>
         </div>
 
         <div className="space-y-3 mb-4">
           <div>
-            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Fecha <span className="text-error">*</span></label>
+            <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Fecha <span className="text-error">*</span></label>
             <input
               type="date"
               autoFocus
@@ -770,7 +770,7 @@ function ScreeningNoteModal({ onConfirm, onCancel }) {
             />
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Hora <span className="text-error">*</span></label>
+            <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Hora <span className="text-error">*</span></label>
             <input
               type="time"
               className="w-full bg-surface text-on-surface text-sm px-3 py-2 rounded-lg border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-primary/30"
@@ -780,7 +780,7 @@ function ScreeningNoteModal({ onConfirm, onCancel }) {
             />
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Nota <span className="text-on-surface-variant/40 font-normal normal-case">(opcional)</span></label>
+            <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Nota <span className="text-on-surface-variant/40 font-normal normal-case">(opcional)</span></label>
             <input
               type="text"
               className="w-full bg-surface text-on-surface text-sm px-3 py-2 rounded-lg border border-outline-variant/30 focus:outline-none focus:ring-1 focus:ring-primary/30 placeholder:text-on-surface-variant/40"
@@ -1085,7 +1085,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
               title="Ver en pipeline"
               className="text-[#81b927] hover:scale-125 hover:text-white transition-all inline-flex items-center justify-center"
             >
-              <span className="material-symbols-outlined text-[16px] animate-glow">search</span>
+              <span className="material-symbols-outlined text-[1rem] animate-glow">search</span>
             </button>
           )}
         </td>
@@ -1095,13 +1095,13 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
         <td className="px-2 py-2 text-xs">
           {data.cv_url
             ? <button type="button" onClick={e => { e.stopPropagation(); downloadCV(data.cv_url, data.candidate_name) }} title="Descargar CV" className="text-[#8ab0d0]/60 hover:text-[#81b927] transition-colors flex items-center justify-center">
-                <span className="material-symbols-outlined text-[16px]">download</span>
+                <span className="material-symbols-outlined text-[1rem]">download</span>
               </button>
             : <span className="text-[#8ab0d0]/20">—</span>}
         </td>
         <td className="px-3 py-2 text-xs">
           {data.cv_url
-            ? <button type="button" onClick={e => { e.stopPropagation(); setCvPreviewUrl(data.cv_url) }} className="text-[#81b927] hover:underline flex items-center gap-1"><span className="material-symbols-outlined text-[13px]">picture_as_pdf</span>CV</button>
+            ? <button type="button" onClick={e => { e.stopPropagation(); setCvPreviewUrl(data.cv_url) }} className="text-[#81b927] hover:underline flex items-center gap-1"><span className="material-symbols-outlined text-[0.8125rem]">picture_as_pdf</span>CV</button>
             : <span className="text-[#8ab0d0]/30">—</span>}
         </td>
         <td className="px-3 py-2 text-xs">
@@ -1116,7 +1116,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
             <button
               type="button"
               onClick={() => { if (!readOnly && data.id && data.status !== 'Sent') setShowStatusMenu(s => !s) }}
-              className={`px-2 py-0.5 rounded-full text-[11px] font-bold whitespace-nowrap ${STATUS_STYLE[data.status] ?? ''} ${!readOnly && data.id && data.status !== 'Sent' ? 'cursor-pointer hover:opacity-80 transition-opacity' : 'cursor-default'}`}
+              className={`px-2 py-0.5 rounded-full text-[0.6875rem] font-bold whitespace-nowrap ${STATUS_STYLE[data.status] ?? ''} ${!readOnly && data.id && data.status !== 'Sent' ? 'cursor-pointer hover:opacity-80 transition-opacity' : 'cursor-default'}`}
             >
               {data.status}
             </button>
@@ -1145,10 +1145,10 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
             )}
           </div>
           {data.status === 'Screening' && data.screening_datetime && (
-            <p className="text-[10px] text-blue-300/70 mt-0.5 whitespace-nowrap">{formatScreeningDatetime(data.screening_datetime)}{data.screening_note ? ` · ${data.screening_note}` : ''}</p>
+            <p className="text-[0.625rem] text-blue-300/70 mt-0.5 whitespace-nowrap">{formatScreeningDatetime(data.screening_datetime)}{data.screening_note ? ` · ${data.screening_note}` : ''}</p>
           )}
           {data.status === 'Screening' && !data.screening_datetime && data.screening_note && (
-            <p className="text-[10px] text-blue-300/70 mt-0.5 whitespace-nowrap">{data.screening_note}</p>
+            <p className="text-[0.625rem] text-blue-300/70 mt-0.5 whitespace-nowrap">{data.screening_note}</p>
           )}
         </td>
         <td className="px-3 py-2 text-xs text-[#8ab0d0] max-w-[220px]"><CellPopover text={data.notes} wordLimit={3} /></td>
@@ -1197,12 +1197,12 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
           {!readOnly && (
             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
               <button type="button" onClick={handleDelete} className="p-1 rounded hover:bg-red-500/10 text-[#8ab0d0]/50 hover:text-red-400 transition-colors" title="Eliminar">
-                <span className="material-symbols-outlined text-[14px]">delete</span>
+                <span className="material-symbols-outlined text-[0.875rem]">delete</span>
               </button>
             </div>
           )}
           {readOnly && (
-            <span className="material-symbols-outlined text-[14px] text-[#8ab0d0]/30" title="Solo lectura">lock</span>
+            <span className="material-symbols-outlined text-[0.875rem] text-[#8ab0d0]/30" title="Solo lectura">lock</span>
           )}
           {showSentModal && !editing && (
             <SentConfirmModal
@@ -1238,10 +1238,10 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
               <span className="text-sm font-semibold text-white/80">{data.candidate_name} — CV</span>
               <div className="flex items-center gap-2">
                 <a href={cvPreviewUrl} target="_blank" rel="noreferrer" className="text-[#81b927] text-xs hover:underline flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[13px]">open_in_new</span>Abrir
+                  <span className="material-symbols-outlined text-[0.8125rem]">open_in_new</span>Abrir
                 </a>
                 <button type="button" onClick={() => setCvPreviewUrl(null)} className="text-white/50 hover:text-white transition-colors ml-2">
-                  <span className="material-symbols-outlined text-[20px]">close</span>
+                  <span className="material-symbols-outlined text-[1.25rem]">close</span>
                 </button>
               </div>
             </div>
@@ -1286,15 +1286,15 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
             className="flex items-center gap-1 px-3 py-1 bg-[#1f6d44] text-white text-xs font-semibold rounded-lg hover:bg-[#1f6d44]/80 transition-opacity disabled:opacity-50 shadow-[0_0_8px_rgba(31,109,68,0.4)]"
           >
             {saving
-              ? <span className="material-symbols-outlined text-[12px] animate-spin">progress_activity</span>
-              : <span className="material-symbols-outlined text-[12px]">save</span>}
+              ? <span className="material-symbols-outlined text-[0.75rem] animate-spin">progress_activity</span>
+              : <span className="material-symbols-outlined text-[0.75rem]">save</span>}
             {saving ? 'Guardando…' : 'Guardar'}
           </button>
           <button type="button" onClick={() => setShowDeleteConfirm(true)} className="p-1 rounded hover:bg-red-500/10 text-on-surface-variant hover:text-red-400 transition-colors" title="Eliminar">
-            <span className="material-symbols-outlined text-[14px]">delete</span>
+            <span className="material-symbols-outlined text-[0.875rem]">delete</span>
           </button>
         </div>
-        {error && <p className="text-red-400 text-[10px] mt-1 px-2">{error}</p>}
+        {error && <p className="text-red-400 text-[0.625rem] mt-1 px-2">{error}</p>}
       </td>
 
       {/* Pipeline icon — spacer while editing */}
@@ -1315,7 +1315,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
       <td className="px-2 py-1.5 w-8">
         {data.cv_url
           ? <button type="button" onClick={() => downloadCV(data.cv_url, data.candidate_name)} title="Descargar CV" className="text-[#8ab0d0]/60 hover:text-[#81b927] transition-colors flex items-center justify-center">
-              <span className="material-symbols-outlined text-[16px]">download</span>
+              <span className="material-symbols-outlined text-[1rem]">download</span>
             </button>
           : <span className="text-[#8ab0d0]/20">—</span>}
       </td>
@@ -1331,7 +1331,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
               className="flex items-center gap-1 text-xs text-primary hover:underline font-semibold shrink-0"
               title="Ver CV"
             >
-              <span className="material-symbols-outlined text-[14px]">description</span>
+              <span className="material-symbols-outlined text-[0.875rem]">description</span>
               CV
             </a>
           )}
@@ -1346,8 +1346,8 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
             title={data.cv_url ? 'Reemplazar CV' : 'Adjuntar CV'}
           >
             {cvUploading
-              ? <span className="material-symbols-outlined text-[14px] animate-spin">progress_activity</span>
-              : <span className="material-symbols-outlined text-[14px]">{data.cv_url ? 'swap_horiz' : 'attach_file'}</span>}
+              ? <span className="material-symbols-outlined text-[0.875rem] animate-spin">progress_activity</span>
+              : <span className="material-symbols-outlined text-[0.875rem]">{data.cv_url ? 'swap_horiz' : 'attach_file'}</span>}
             {!data.cv_url && !cvUploading && <span>Adjuntar</span>}
             <input
               type="file"
@@ -1380,7 +1380,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
           <button
             type="button"
             onClick={() => { setLinkedinExempt(false); set('linkedin_url', '') }}
-            className="mt-1 text-[10px] text-white/40 hover:text-[#81b927] transition-colors underline"
+            className="mt-1 text-[0.625rem] text-white/40 hover:text-[#81b927] transition-colors underline"
           >
             Agregar LinkedIn
           </button>
@@ -1388,7 +1388,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
           <button
             type="button"
             onClick={() => { setLinkedinExempt(true); set('linkedin_url', '') }}
-            className="mt-1 text-[10px] text-white/40 hover:text-orange-400 transition-colors"
+            className="mt-1 text-[0.625rem] text-white/40 hover:text-orange-400 transition-colors"
           >
             No cuento con LinkedIn
           </button>
@@ -1417,10 +1417,10 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
           {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
         {data.status === 'Screening' && data.screening_datetime && (
-          <p className="text-[10px] text-blue-300/70 mt-0.5 px-1">{formatScreeningDatetime(data.screening_datetime)}{data.screening_note ? ` · ${data.screening_note}` : ''}</p>
+          <p className="text-[0.625rem] text-blue-300/70 mt-0.5 px-1">{formatScreeningDatetime(data.screening_datetime)}{data.screening_note ? ` · ${data.screening_note}` : ''}</p>
         )}
         {data.status === 'Screening' && !data.screening_datetime && data.screening_note && (
-          <p className="text-[10px] text-blue-300/70 mt-0.5 px-1">{data.screening_note}</p>
+          <p className="text-[0.625rem] text-blue-300/70 mt-0.5 px-1">{data.screening_note}</p>
         )}
         {showSentModal && createPortal(
           <SentConfirmModal
@@ -1593,7 +1593,7 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
           <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-sm">
             <div className="bg-surface-container-high rounded-2xl shadow-2xl border border-outline-variant/20 p-6 w-full max-w-xs mx-4">
               <div className="flex items-center gap-3 mb-4">
-                <span className="material-symbols-outlined text-red-400 text-[26px]">delete</span>
+                <span className="material-symbols-outlined text-red-400 text-[1.625rem]">delete</span>
                 <h3 className="text-base font-bold text-on-surface">¿Eliminar candidato?</h3>
               </div>
               <p className="text-xs text-on-surface-variant mb-6 leading-relaxed">Esta acción no se puede deshacer.</p>
@@ -1617,10 +1617,10 @@ function TrackerRow({ row, requirements, closedRequirements = [], onSave, onDele
             <span className="text-sm font-semibold text-white/80">{data.candidate_name} — CV</span>
             <div className="flex items-center gap-2">
               <a href={cvPreviewUrl} target="_blank" rel="noreferrer" className="text-[#81b927] text-xs hover:underline flex items-center gap-1">
-                <span className="material-symbols-outlined text-[13px]">open_in_new</span>Abrir en Drive
+                <span className="material-symbols-outlined text-[0.8125rem]">open_in_new</span>Abrir en Drive
               </a>
               <button type="button" onClick={() => setCvPreviewUrl(null)} className="text-white/50 hover:text-white transition-colors ml-2">
-                <span className="material-symbols-outlined text-[20px]">close</span>
+                <span className="material-symbols-outlined text-[1.25rem]">close</span>
               </button>
             </div>
           </div>
@@ -1743,7 +1743,7 @@ export default function Tracker() {
         </div>
         <div className="flex items-center gap-2">
           <button className="p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors w-9 h-9 flex items-center justify-center">
-            <span className="material-symbols-outlined text-[20px]">notifications</span>
+            <span className="material-symbols-outlined text-[1.25rem]">notifications</span>
           </button>
           <UserAvatar />
         </div>
@@ -1757,7 +1757,7 @@ export default function Tracker() {
             <div className="space-y-1">
               <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
                 <Link to="/" className="hover:text-primary transition-colors">Dashboard</Link>
-                <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+                <span className="material-symbols-outlined text-[0.875rem]">chevron_right</span>
                 <span className="text-primary font-medium">Tracker</span>
               </div>
               <h1 className="text-[2rem] leading-none tracking-[-0.02em] font-extrabold text-primary">Tracker</h1>
@@ -1776,18 +1776,18 @@ export default function Tracker() {
                   >
                     {tab.label}
                     {tab.key === myRecruiter && (
-                      <span className="ml-1.5 text-[10px] opacity-70">(yo)</span>
+                      <span className="ml-1.5 text-[0.625rem] opacity-70">(yo)</span>
                     )}
                   </button>
                 ))}
                 {isPastWeek ? (
                   <span className="flex items-center gap-1 text-xs font-semibold text-[#8a6030] bg-[#fef2e0] border border-[#f0d9b0] rounded-full px-2.5 py-1 ml-2">
-                    <span className="material-symbols-outlined text-[14px]">lock</span>
+                    <span className="material-symbols-outlined text-[0.875rem]">lock</span>
                     Semana congelada — solo lectura
                   </span>
                 ) : !canEdit && (
                   <span className="flex items-center gap-1 text-xs text-on-surface-variant/50 ml-2">
-                    <span className="material-symbols-outlined text-[14px]">visibility</span>
+                    <span className="material-symbols-outlined text-[0.875rem]">visibility</span>
                     Solo lectura
                   </span>
                 )}
@@ -1799,11 +1799,11 @@ export default function Tracker() {
               {/* Week selector */}
               <div className="flex items-center gap-2 bg-white border border-[#071d47]/15 rounded-xl px-4 py-2 shadow-sm">
               <button type="button" onClick={prevWeek} className="p-1 rounded-full hover:bg-surface-container transition-colors text-on-surface-variant hover:text-primary">
-                <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+                <span className="material-symbols-outlined text-[1.125rem]">chevron_left</span>
               </button>
               <span className="text-sm font-bold text-primary min-w-[100px] text-center">{weekLabel(week, year)}</span>
               <button type="button" onClick={nextWeek} className="p-1 rounded-full hover:bg-surface-container transition-colors text-on-surface-variant hover:text-primary">
-                <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+                <span className="material-symbols-outlined text-[1.125rem]">chevron_right</span>
               </button>
               {(week !== currentWeek || year !== currentYear) && (
                 <button type="button" onClick={() => { setWeek(currentWeek); setYear(currentYear) }} className="ml-1 text-xs text-primary hover:underline">
@@ -1838,7 +1838,7 @@ export default function Tracker() {
               {onHold > 0 && <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold border border-slate-200">{onHold} On Hold</span>}
               {/* Filtro por requerimiento */}
               <div className="ml-auto flex items-center gap-2">
-                <span className="material-symbols-outlined text-[16px] text-[#071d47]/50">filter_list</span>
+                <span className="material-symbols-outlined text-[1rem] text-[#071d47]/50">filter_list</span>
                 <select
                   value={reqFilter}
                   onChange={e => setReqFilter(e.target.value)}
@@ -1866,7 +1866,7 @@ export default function Tracker() {
           <div className="bg-[#071d47] rounded-2xl border border-white/5 shadow-[0_4px_32px_rgba(7,29,71,0.25)] overflow-hidden">
             {loading ? (
               <div className="flex items-center justify-center py-16 gap-3 text-on-surface-variant">
-                <span className="material-symbols-outlined animate-spin text-[24px]">progress_activity</span>
+                <span className="material-symbols-outlined animate-spin text-[1.5rem]">progress_activity</span>
                 <span className="text-sm">Cargando…</span>
               </div>
             ) : (
@@ -1874,16 +1874,16 @@ export default function Tracker() {
                 <table className="w-full text-left border-collapse min-w-[900px]">
                   <thead>
                     <tr className="sticky top-0 z-30 bg-[#0b2a58] border-b border-white/5">
-                      <th className="sticky left-0 z-20 w-[200px] bg-[#0b2a58] px-3 py-3 text-[10px] font-bold text-[#81b927] uppercase tracking-widest whitespace-nowrap">
+                      <th className="sticky left-0 z-20 w-[200px] bg-[#0b2a58] px-3 py-3 text-[0.625rem] font-bold text-[#81b927] uppercase tracking-widest whitespace-nowrap">
                         <div className="flex items-center gap-3">
                           <span>Candidato</span>
                           {canEdit && myRecruiter === activeTab && (year > currentYear || (year === currentYear && week >= currentWeek)) && (
                             <button
                               type="button"
                               onClick={addRow}
-                              className="flex items-center gap-1.5 bg-primary text-on-primary text-[11px] font-bold px-3 py-1 rounded-full shadow-[0_0_12px_rgba(34,197,94,0.35)] hover:shadow-[0_0_18px_rgba(34,197,94,0.55)] hover:scale-105 transition-all duration-150 normal-case tracking-normal"
+                              className="flex items-center gap-1.5 bg-primary text-on-primary text-[0.6875rem] font-bold px-3 py-1 rounded-full shadow-[0_0_12px_rgba(34,197,94,0.35)] hover:shadow-[0_0_18px_rgba(34,197,94,0.55)] hover:scale-105 transition-all duration-150 normal-case tracking-normal"
                             >
-                              <span className="material-symbols-outlined text-[14px]">add_circle</span>
+                              <span className="material-symbols-outlined text-[0.875rem]">add_circle</span>
                               Agregar candidato
                             </button>
                           )}
@@ -1892,7 +1892,7 @@ export default function Tracker() {
                       {['', 'Requerimiento/Cliente', '', 'CV', 'LinkedIn', 'Status', 'Notas', 'English', 'Salario', 'OTE', 'Email', 'Phone', 'Estado', 'YoE', 'Target Role', 'Technologies', 'Skills', 'Modules', ''].map((h, i) => (
                         <th
                           key={`${h}-${i}`}
-                          className={`px-3 py-3 text-[10px] font-bold text-[#81b927]/70 uppercase tracking-widest whitespace-nowrap${h === 'Status' ? ' sticky left-[200px] z-20 bg-[#0b2a58]' : ''}`}
+                          className={`px-3 py-3 text-[0.625rem] font-bold text-[#81b927]/70 uppercase tracking-widest whitespace-nowrap${h === 'Status' ? ' sticky left-[200px] z-20 bg-[#0b2a58]' : ''}`}
                         >{h}</th>
                       ))}
                     </tr>
@@ -1952,14 +1952,14 @@ export default function Tracker() {
           >
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 shrink-0">
               <div>
-                <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-0.5">{pipelineModal.clientName ?? '—'}</p>
+                <p className="text-[0.625rem] font-bold text-white/40 uppercase tracking-widest mb-0.5">{pipelineModal.clientName ?? '—'}</p>
                 <h2 className="text-base font-bold text-white">{pipelineModal.position ?? 'Pipeline'}</h2>
               </div>
               <button
                 onClick={() => setPipelineModal(null)}
                 className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors"
               >
-                <span className="material-symbols-outlined text-[20px]">close</span>
+                <span className="material-symbols-outlined text-[1.25rem]">close</span>
               </button>
             </div>
             <div className="flex-1 overflow-y-auto px-6 py-4">
@@ -2016,7 +2016,7 @@ export default function Tracker() {
               className="shrink-0 h-12 w-12 rounded-2xl flex items-center justify-center text-white"
               style={{ backgroundColor: '#1f6d44', boxShadow: '0 5px 12px rgba(31,109,68,0.45), inset 0 1px 0 rgba(255,255,255,0.25)' }}
             >
-              <span className="material-symbols-outlined text-[26px]">lock</span>
+              <span className="material-symbols-outlined text-[1.625rem]">lock</span>
             </span>
             <div className="min-w-0">
               <p className="text-xl text-black leading-relaxed">
@@ -2030,7 +2030,7 @@ export default function Tracker() {
               className="shrink-0 -mt-2 -mr-2 h-10 w-10 rounded-full flex items-center justify-center text-black/50 hover:bg-black/5 transition-colors"
               title="Ocultar"
             >
-              <span className="material-symbols-outlined text-[27px]">close</span>
+              <span className="material-symbols-outlined text-[1.6875rem]">close</span>
             </button>
           </div>
         </>

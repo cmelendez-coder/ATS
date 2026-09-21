@@ -15,9 +15,9 @@ export default function RequirementAlertBell({ count = 0, show = false, loading 
       title={title}
       className="p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors w-9 h-9 flex items-center justify-center relative"
     >
-      <span className="material-symbols-outlined text-[20px]">notifications</span>
+      <span className="material-symbols-outlined text-[1.25rem]">notifications</span>
       {!loading && count > 0 && (
-        <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-error text-on-error text-[10px] font-bold flex items-center justify-center shadow-sm">
+        <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-error text-on-error text-[0.625rem] font-bold flex items-center justify-center shadow-sm">
           {count > 99 ? '99+' : count}
         </span>
       )}

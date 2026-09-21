@@ -20,6 +20,12 @@
   animation: number-glow 2.2s ease-in-out infinite;
 }
 
+/* Pantallas anchas: escala toda la interfaz ~1.20x (tipografía, espaciados y contenedores
+   están en rem). Los media queries de Tailwind (sm/md/lg) usan px y no se ven afectados. */
+@media (min-width: 1600px) {
+  html { font-size: 120%; }
+}
+
 body {
   font-family: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
   background-color: #f7f9fb;

@@ -19,10 +19,10 @@ function NavItem({ to, end, icon, label, collapsed = false }) {
         <>
           {collapsed ? (
             <span className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${isActive ? 'bg-[#1f6d44]/30 text-[#81b927]' : 'bg-white/8 text-white/50 hover:bg-white/12 hover:text-white'}`}>
-              <span className={`material-symbols-outlined text-[20px]${isActive ? ' filled' : ''}`}>{icon}</span>
+              <span className={`material-symbols-outlined text-[1.25rem]${isActive ? ' filled' : ''}`}>{icon}</span>
             </span>
           ) : (
-            <span className={`material-symbols-outlined text-[20px] shrink-0${isActive ? ' filled' : ''}`}>{icon}</span>
+            <span className={`material-symbols-outlined text-[1.25rem] shrink-0${isActive ? ' filled' : ''}`}>{icon}</span>
           )}
           {!collapsed && <span className="font-medium text-sm">{label}</span>}
         </>
@@ -53,7 +53,7 @@ export default function Sidebar({ collapsed = false, onToggle }) {
           {!collapsed && (
             <div>
               <h1 className="text-[1.2rem] font-bold text-[#81b927] tracking-tight leading-tight">EverTrack</h1>
-              <p className="text-[10px] text-white/40 leading-snug italic">&ldquo;Talento alineado.<br />Requerimientos cubiertos.<br />Clientes satisfechos.&rdquo;</p>
+              <p className="text-[0.625rem] text-white/40 leading-snug italic">&ldquo;Talento alineado.<br />Requerimientos cubiertos.<br />Clientes satisfechos.&rdquo;</p>
             </div>
           )}
         </div>
@@ -63,14 +63,14 @@ export default function Sidebar({ collapsed = false, onToggle }) {
           className={`rounded-full p-2 text-white/40 hover:bg-white/10 hover:text-white transition-colors ${collapsed ? 'absolute top-6 -right-4 bg-[#10284d] border border-white/10 shadow-sm' : ''}`}
           title={collapsed ? 'Expandir menu' : 'Contraer menu'}
         >
-          <span className="material-symbols-outlined text-[18px]">{collapsed ? 'chevron_right' : 'chevron_left'}</span>
+          <span className="material-symbols-outlined text-[1.125rem]">{collapsed ? 'chevron_right' : 'chevron_left'}</span>
         </button>
       </div>
 
       {/* Nav */}
       <div className="flex-1 space-y-5 overflow-y-auto pr-1">
         <div>
-          {!collapsed && <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest px-3 mb-1.5">Requirements</p>}
+          {!collapsed && <p className="text-[0.625rem] font-bold text-white/30 uppercase tracking-widest px-3 mb-1.5">Requirements</p>}
           <div className="space-y-0.5">
             <NavItem to="/" end icon="dashboard" label="Dashboard" collapsed={collapsed} />
             <NavItem to="/reports" icon="analytics" label="Reports" collapsed={collapsed} />
@@ -79,7 +79,7 @@ export default function Sidebar({ collapsed = false, onToggle }) {
           </div>
         </div>
         <div>
-          {!collapsed && <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest px-3 mb-1.5">Talent</p>}
+          {!collapsed && <p className="text-[0.625rem] font-bold text-white/30 uppercase tracking-widest px-3 mb-1.5">Talent</p>}
           <div className="space-y-0.5">
             <NavItem to="/talent" end icon="group" label="Talent Directory" collapsed={collapsed} />
           </div>
@@ -99,13 +99,13 @@ export default function Sidebar({ collapsed = false, onToggle }) {
             {!collapsed && (
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-white truncate">{session.user.name}</p>
-                <p className="text-[10px] text-white/40 truncate">{session.user.username}</p>
+                <p className="text-[0.625rem] text-white/40 truncate">{session.user.username}</p>
               </div>
             )}
           </div>
         )}
         <a href="#" className={`px-3 py-2 rounded-lg text-white/50 hover:bg-white/8 hover:text-white transition-colors ${collapsed ? 'flex justify-center' : 'flex items-center gap-3'}`} title="Help Center">
-          <span className="material-symbols-outlined text-[20px]">help_outline</span>
+          <span className="material-symbols-outlined text-[1.25rem]">help_outline</span>
           {!collapsed && <span className="text-sm">Help Center</span>}
         </a>
         <button
@@ -113,7 +113,7 @@ export default function Sidebar({ collapsed = false, onToggle }) {
           className={`w-full px-3 py-2 rounded-lg text-white/50 hover:bg-white/8 hover:text-white transition-colors ${collapsed ? 'flex justify-center' : 'flex items-center gap-3'}`}
           title="Log Out"
         >
-          <span className="material-symbols-outlined text-[20px]">logout</span>
+          <span className="material-symbols-outlined text-[1.25rem]">logout</span>
           {!collapsed && <span className="text-sm">Log Out</span>}
         </button>
       </div>

@@ -21,7 +21,7 @@ export default function ClientCreateForm({ onSave, onCancel, saving }) {
     <section className="bg-surface-container-lowest rounded-2xl border border-outline-variant/20 p-6 shadow-[0_2px_16px_rgba(24,28,30,0.08)] space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-surface-variant/60">Nuevo cliente</p>
+          <p className="text-[0.625rem] font-bold uppercase tracking-[0.18em] text-on-surface-variant/60">Nuevo cliente</p>
           <h2 className="text-xl font-bold text-primary mt-1">Agregar cliente</h2>
           <p className="text-sm text-on-surface-variant mt-1">Crea una nueva cuenta de cliente y completa sus datos operativos principales.</p>
         </div>
@@ -31,7 +31,7 @@ export default function ClientCreateForm({ onSave, onCancel, saving }) {
           className="p-1.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors"
           title="Cerrar formulario"
         >
-          <span className="material-symbols-outlined text-[18px]">close</span>
+          <span className="material-symbols-outlined text-[1.125rem]">close</span>
         </button>
       </div>
 
@@ -61,7 +61,7 @@ export default function ClientCreateForm({ onSave, onCancel, saving }) {
           disabled={!form.name.trim() || saving}
           className="px-4 py-2 rounded-full text-sm font-bold bg-primary text-on-primary hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-1.5"
         >
-          {saving && <span className="material-symbols-outlined animate-spin text-[14px]">progress_activity</span>}
+          {saving && <span className="material-symbols-outlined animate-spin text-[0.875rem]">progress_activity</span>}
           Guardar cliente
         </button>
       </div>

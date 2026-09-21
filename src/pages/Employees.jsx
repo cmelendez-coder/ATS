@@ -106,17 +106,17 @@ function ProbationBadge({ emp }) {
   if (!badge) return null
   const d = daysSince(emp.start_date)
   if (badge === 'activo') return (
-    <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-600/20 text-green-300 border border-green-500/30">
+    <span className="inline-flex items-center gap-1 text-[0.625rem] font-semibold px-2 py-0.5 rounded-full bg-green-600/20 text-green-300 border border-green-500/30">
       <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />Activo
     </span>
   )
   if (badge === 'green') return (
-    <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-600/20 text-green-300 border border-green-500/30">
+    <span className="inline-flex items-center gap-1 text-[0.625rem] font-semibold px-2 py-0.5 rounded-full bg-green-600/20 text-green-300 border border-green-500/30">
       <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />{d}d prueba
     </span>
   )
   return (
-    <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-600/20 text-red-300 border border-red-500/30 animate-pulse">
+    <span className="inline-flex items-center gap-1 text-[0.625rem] font-semibold px-2 py-0.5 rounded-full bg-red-600/20 text-red-300 border border-red-500/30 animate-pulse">
       <span className="w-1.5 h-1.5 rounded-full bg-red-400 inline-block" />{d}d — Avisar
     </span>
   )
@@ -148,14 +148,14 @@ function EmployeeModal({ emp, clients, onSave, onClose }) {
     } finally { setSaving(false) }
   }
   const field = 'w-full bg-[#0d2248] text-on-surface text-xs px-3 py-2 rounded-lg border border-white/10 focus:outline-none focus:ring-1 focus:ring-primary/40 placeholder:text-on-surface-variant/40'
-  const label = 'block text-[10px] text-on-surface-variant/60 font-semibold uppercase tracking-wider mb-1'
+  const label = 'block text-[0.625rem] text-on-surface-variant/60 font-semibold uppercase tracking-wider mb-1'
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
       <div className="bg-[#0a1f3d] border border-white/10 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
           <h2 className="text-sm font-bold text-white">{form.id ? 'Editar empleado' : 'Nuevo empleado'}</h2>
           <button onClick={onClose} className="text-white/40 hover:text-white transition-colors">
-            <span className="material-symbols-outlined text-[20px]">close</span>
+            <span className="material-symbols-outlined text-[1.25rem]">close</span>
           </button>
         </div>
         <div className="p-6 grid grid-cols-2 gap-4">
@@ -234,9 +234,9 @@ function DetailRow({ icon, label, value }) {
   if (!value) return null
   return (
     <div className="flex items-start gap-3 py-2.5 border-b border-white/[0.06] last:border-0">
-      <span className="material-symbols-outlined text-[16px] text-on-surface-variant/40 mt-0.5 shrink-0">{icon}</span>
+      <span className="material-symbols-outlined text-[1rem] text-on-surface-variant/40 mt-0.5 shrink-0">{icon}</span>
       <div className="min-w-0 flex-1">
-        <p className="text-[10px] text-on-surface-variant/50 uppercase tracking-wider mb-0.5">{label}</p>
+        <p className="text-[0.625rem] text-on-surface-variant/50 uppercase tracking-wider mb-0.5">{label}</p>
         <p className="text-xs text-on-surface">{value}</p>
       </div>
     </div>
@@ -265,40 +265,40 @@ function EmployeeDrawer({ emp, onEdit, onMoveToExit, onDelete, onClose }) {
             </div>
             <div>
               <h2 className="text-sm font-bold text-white">{emp.full_name}</h2>
-              <p className="text-[11px] text-on-surface-variant/60">{emp.position || 'Sin posición'}</p>
+              <p className="text-[0.6875rem] text-on-surface-variant/60">{emp.position || 'Sin posición'}</p>
             </div>
           </div>
           <button onClick={onClose} className="text-white/40 hover:text-white transition-colors p-1 shrink-0">
-            <span className="material-symbols-outlined text-[20px]">close</span>
+            <span className="material-symbols-outlined text-[1.25rem]">close</span>
           </button>
         </div>
 
         {/* Status pills */}
         <div className="flex flex-wrap items-center gap-2 px-5 py-3 border-b border-white/[0.06] shrink-0">
           {emp.status === 'active'
-            ? <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-green-500/15 text-green-300 border border-green-500/25">
+            ? <span className="inline-flex items-center gap-1.5 text-[0.6875rem] font-semibold px-2.5 py-1 rounded-full bg-green-500/15 text-green-300 border border-green-500/25">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400" />Active
               </span>
-            : <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-red-500/15 text-red-300 border border-red-500/25">
+            : <span className="inline-flex items-center gap-1.5 text-[0.6875rem] font-semibold px-2.5 py-1 rounded-full bg-red-500/15 text-red-300 border border-red-500/25">
                 <span className="w-1.5 h-1.5 rounded-full bg-red-400" />Exited
               </span>
           }
           {clientName && (
-            <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full ${colors.badge}`}>
+            <span className={`inline-flex items-center gap-1.5 text-[0.6875rem] font-semibold px-2.5 py-1 rounded-full ${colors.badge}`}>
               <span className={`w-1.5 h-1.5 rounded-full ${colors.dot}`} />{clientName}
             </span>
           )}
-          {badge === 'green' && <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-green-500/15 text-green-300 border border-green-500/25">Prueba: {d}d</span>}
-          {badge === 'red' && <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-red-500/15 text-red-300 border border-red-500/25 animate-pulse">⚠ {d}d — Avisar</span>}
+          {badge === 'green' && <span className="text-[0.6875rem] font-semibold px-2.5 py-1 rounded-full bg-green-500/15 text-green-300 border border-green-500/25">Prueba: {d}d</span>}
+          {badge === 'red' && <span className="text-[0.6875rem] font-semibold px-2.5 py-1 rounded-full bg-red-500/15 text-red-300 border border-red-500/25 animate-pulse">⚠ {d}d — Avisar</span>}
         </div>
 
         {/* Scrollable content */}
         <div className="flex-1 px-5 py-3 overflow-y-auto">
-          <p className="text-[10px] font-bold text-on-surface-variant/40 uppercase tracking-widest mb-1">Contacto</p>
+          <p className="text-[0.625rem] font-bold text-on-surface-variant/40 uppercase tracking-widest mb-1">Contacto</p>
           <DetailRow icon="mail" label="Email" value={emp.email} />
           <DetailRow icon="phone" label="Teléfono" value={emp.phone} />
 
-          <p className="text-[10px] font-bold text-on-surface-variant/40 uppercase tracking-widest mt-5 mb-1">Empleo</p>
+          <p className="text-[0.625rem] font-bold text-on-surface-variant/40 uppercase tracking-widest mt-5 mb-1">Empleo</p>
           <DetailRow icon="calendar_today" label="Fecha de inicio" value={formatDate(emp.start_date)} />
           <DetailRow icon="event_available" label="Fecha de oferta" value={formatDate(emp.job_offer_date)} />
           {emp.status === 'exited' && <>
@@ -306,7 +306,7 @@ function EmployeeDrawer({ emp, onEdit, onMoveToExit, onDelete, onClose }) {
             <DetailRow icon="info" label="Motivo de salida" value={emp.exit_reason} />
           </>}
 
-          <p className="text-[10px] font-bold text-on-surface-variant/40 uppercase tracking-widest mt-5 mb-1">Compensación</p>
+          <p className="text-[0.625rem] font-bold text-on-surface-variant/40 uppercase tracking-widest mt-5 mb-1">Compensación</p>
           <DetailRow icon="payments" label="Salario mensual" value={formatSalary(emp.monthly_salary)} />
           {emp.variable ? <DetailRow icon="trending_up" label="Variable mensual" value={formatSalary(emp.variable)} /> : null}
           <DetailRow icon="description" label="Nota de variable" value={emp.variable_note} />
@@ -321,7 +321,7 @@ function EmployeeDrawer({ emp, onEdit, onMoveToExit, onDelete, onClose }) {
             onClick={() => { onEdit(emp); onClose() }}
             className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-primary/20 text-primary hover:bg-primary/30 transition-colors text-xs font-semibold"
           >
-            <span className="material-symbols-outlined text-[15px]">edit</span>Editar
+            <span className="material-symbols-outlined text-[0.9375rem]">edit</span>Editar
           </button>
           {emp.status === 'active' && (
             <button
@@ -329,7 +329,7 @@ function EmployeeDrawer({ emp, onEdit, onMoveToExit, onDelete, onClose }) {
               className="flex items-center justify-center gap-1 py-2 px-3 rounded-lg bg-orange-500/15 text-orange-300 hover:bg-orange-500/25 transition-colors"
               title="Mover a Exits"
             >
-              <span className="material-symbols-outlined text-[15px]">exit_to_app</span>
+              <span className="material-symbols-outlined text-[0.9375rem]">exit_to_app</span>
             </button>
           )}
           <button
@@ -337,7 +337,7 @@ function EmployeeDrawer({ emp, onEdit, onMoveToExit, onDelete, onClose }) {
             className="flex items-center justify-center py-2 px-3 rounded-lg bg-red-500/15 text-red-300 hover:bg-red-500/25 transition-colors"
             title="Eliminar"
           >
-            <span className="material-symbols-outlined text-[15px]">delete</span>
+            <span className="material-symbols-outlined text-[0.9375rem]">delete</span>
           </button>
         </div>
       </div>
@@ -429,37 +429,37 @@ export default function Employees() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         <div className="bg-surface-container border border-outline-variant/15 rounded-xl px-4 py-3 flex items-center gap-3">
           <span className="w-9 h-9 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-primary text-[18px]">group</span>
+            <span className="material-symbols-outlined text-primary text-[1.125rem]">group</span>
           </span>
           <div>
-            <p className="text-[10px] text-on-surface-variant/60 uppercase tracking-wider">Total</p>
+            <p className="text-[0.625rem] text-on-surface-variant/60 uppercase tracking-wider">Total</p>
             <p className="text-xl font-extrabold text-on-surface leading-none">{employees.length}</p>
           </div>
         </div>
         <div className="bg-surface-container border border-outline-variant/15 rounded-xl px-4 py-3 flex items-center gap-3">
           <span className="w-9 h-9 rounded-xl bg-green-500/15 flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-green-400 text-[18px]">person_check</span>
+            <span className="material-symbols-outlined text-green-400 text-[1.125rem]">person_check</span>
           </span>
           <div>
-            <p className="text-[10px] text-on-surface-variant/60 uppercase tracking-wider">Activos</p>
+            <p className="text-[0.625rem] text-on-surface-variant/60 uppercase tracking-wider">Activos</p>
             <p className="text-xl font-extrabold text-on-surface leading-none">{activeEmps.length}</p>
           </div>
         </div>
         <div className="bg-surface-container border border-outline-variant/15 rounded-xl px-4 py-3 flex items-center gap-3">
           <span className="w-9 h-9 rounded-xl bg-on-surface-variant/10 flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-on-surface-variant/50 text-[18px]">person_off</span>
+            <span className="material-symbols-outlined text-on-surface-variant/50 text-[1.125rem]">person_off</span>
           </span>
           <div>
-            <p className="text-[10px] text-on-surface-variant/60 uppercase tracking-wider">Exits</p>
+            <p className="text-[0.625rem] text-on-surface-variant/60 uppercase tracking-wider">Exits</p>
             <p className="text-xl font-extrabold text-on-surface/60 leading-none">{exitedEmps.length}</p>
           </div>
         </div>
         <div className={`border rounded-xl px-4 py-3 flex items-center gap-3 ${expiring.length > 0 ? 'bg-red-500/10 border-red-500/25' : 'bg-surface-container border-outline-variant/15'}`}>
           <span className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${expiring.length > 0 ? 'bg-red-500/20' : 'bg-on-surface-variant/10'}`}>
-            <span className={`material-symbols-outlined text-[18px] ${expiring.length > 0 ? 'text-red-400' : 'text-on-surface-variant/40'}`}>warning</span>
+            <span className={`material-symbols-outlined text-[1.125rem] ${expiring.length > 0 ? 'text-red-400' : 'text-on-surface-variant/40'}`}>warning</span>
           </span>
           <div>
-            <p className="text-[10px] text-on-surface-variant/60 uppercase tracking-wider">Prueba — Avisar</p>
+            <p className="text-[0.625rem] text-on-surface-variant/60 uppercase tracking-wider">Prueba — Avisar</p>
             <p className={`text-xl font-extrabold leading-none ${expiring.length > 0 ? 'text-red-300' : 'text-on-surface/40'}`}>{expiring.length}</p>
           </div>
         </div>
@@ -487,12 +487,12 @@ export default function Employees() {
               <div className="flex items-center gap-4">
                 <div>
                   <p className="text-xl font-extrabold text-on-surface leading-none">{active}</p>
-                  <p className="text-[10px] text-on-surface-variant/50 mt-0.5">activos</p>
+                  <p className="text-[0.625rem] text-on-surface-variant/50 mt-0.5">activos</p>
                 </div>
                 <div className="w-px h-8 bg-white/10" />
                 <div>
                   <p className="text-xl font-extrabold text-on-surface/50 leading-none">{exits}</p>
-                  <p className="text-[10px] text-on-surface-variant/50 mt-0.5">exits</p>
+                  <p className="text-[0.625rem] text-on-surface-variant/50 mt-0.5">exits</p>
                 </div>
               </div>
             </button>
@@ -504,7 +504,7 @@ export default function Employees() {
       {expiring.length > 0 && tab === 'active' && (
         <div className="mb-6 rounded-xl border border-red-500/30 bg-red-600/8 p-4">
           <div className="flex items-center gap-2 mb-3">
-            <span className="material-symbols-outlined text-red-400 text-[16px]">warning</span>
+            <span className="material-symbols-outlined text-red-400 text-[1rem]">warning</span>
             <p className="text-xs font-bold text-red-300 uppercase tracking-wider">Contratos de prueba próximos a vencer ({expiring.length})</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
@@ -513,13 +513,13 @@ export default function Employees() {
               return (
                 <button key={emp.id} onClick={() => setDrawer(emp)}
                   className="flex items-start gap-2.5 bg-red-600/10 border border-red-500/20 rounded-lg px-3 py-2.5 hover:bg-red-600/15 transition-colors text-left">
-                  <div className={`w-7 h-7 rounded-lg ${avatarBg(emp.full_name)} flex items-center justify-center text-white text-[10px] font-bold shrink-0`}>
+                  <div className={`w-7 h-7 rounded-lg ${avatarBg(emp.full_name)} flex items-center justify-center text-white text-[0.625rem] font-bold shrink-0`}>
                     {initials(emp.full_name)}
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs font-semibold text-on-surface truncate">{emp.full_name}</p>
-                    <p className="text-[10px] text-on-surface-variant/70 truncate">{emp.client?.name} · {emp.position}</p>
-                    <p className="text-[10px] text-red-300 mt-0.5">{d}d · {90 - d > 0 ? `${90 - d}d restantes` : 'Plazo cumplido'}</p>
+                    <p className="text-[0.625rem] text-on-surface-variant/70 truncate">{emp.client?.name} · {emp.position}</p>
+                    <p className="text-[0.625rem] text-red-300 mt-0.5">{d}d · {90 - d > 0 ? `${90 - d}d restantes` : 'Plazo cumplido'}</p>
                   </div>
                 </button>
               )
@@ -531,7 +531,7 @@ export default function Employees() {
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-3 mb-5">
         <div className="relative flex-1 max-w-xs">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[16px] text-on-surface-variant/40">search</span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[1rem] text-on-surface-variant/40">search</span>
           <input
             className="w-full bg-surface-container border border-outline-variant/20 rounded-lg pl-9 pr-3 py-2 text-xs text-on-surface placeholder:text-on-surface-variant/40 outline-none focus:ring-1 focus:ring-primary/40"
             placeholder="Buscar por nombre, posición…"
@@ -541,15 +541,15 @@ export default function Employees() {
         </div>
         {(search || clientFilter !== 'all') && (
           <button onClick={() => { setSearch(''); setClientFilter('all') }}
-            className="flex items-center gap-1 text-[11px] text-on-surface-variant/60 hover:text-on-surface bg-surface-container border border-outline-variant/20 rounded-lg px-3 py-2 transition-colors">
-            <span className="material-symbols-outlined text-[14px]">filter_list_off</span>Limpiar
+            className="flex items-center gap-1 text-[0.6875rem] text-on-surface-variant/60 hover:text-on-surface bg-surface-container border border-outline-variant/20 rounded-lg px-3 py-2 transition-colors">
+            <span className="material-symbols-outlined text-[0.875rem]">filter_list_off</span>Limpiar
           </button>
         )}
         <button
           onClick={() => setModal({ ...EMPTY_EMP })}
           className="ml-auto flex items-center gap-1.5 bg-primary text-on-primary text-xs font-bold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity shadow-[0_0_12px_rgba(80,177,82,0.3)]"
         >
-          <span className="material-symbols-outlined text-[15px]">person_add</span>Agregar empleado
+          <span className="material-symbols-outlined text-[0.9375rem]">person_add</span>Agregar empleado
         </button>
       </div>
 
@@ -564,9 +564,9 @@ export default function Employees() {
               tab === val ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >
-            <span className="material-symbols-outlined text-[14px]">{icon}</span>
+            <span className="material-symbols-outlined text-[0.875rem]">{icon}</span>
             {lbl}
-            <span className="text-[10px] opacity-60">({count})</span>
+            <span className="text-[0.625rem] opacity-60">({count})</span>
           </button>
         ))}
       </div>
@@ -574,13 +574,13 @@ export default function Employees() {
       {/* Content */}
       {loading ? (
         <div className="flex justify-center py-20">
-          <span className="material-symbols-outlined text-primary text-[32px] animate-spin">progress_activity</span>
+          <span className="material-symbols-outlined text-primary text-[2rem] animate-spin">progress_activity</span>
         </div>
       ) : error ? (
         <p className="text-red-400 text-sm">{error}</p>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 text-on-surface-variant/40">
-          <span className="material-symbols-outlined text-[40px] mb-2 block">manage_search</span>
+          <span className="material-symbols-outlined text-[2.5rem] mb-2 block">manage_search</span>
           <p className="text-sm">Sin empleados que coincidan</p>
           {(search || clientFilter !== 'all') && (
             <button onClick={() => { setSearch(''); setClientFilter('all') }} className="mt-2 text-xs text-primary hover:underline">Limpiar filtros</button>
@@ -602,9 +602,9 @@ export default function Employees() {
                 <div className="flex items-center gap-2.5">
                   <span className={`w-2 h-2 rounded-full ${colors.dot}`} />
                   <span className={`text-xs font-bold uppercase tracking-wider ${colors.text}`}>{clientName}</span>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${colors.badge}`}>{emps.length}</span>
+                  <span className={`text-[0.625rem] font-bold px-2 py-0.5 rounded-full ${colors.badge}`}>{emps.length}</span>
                 </div>
-                <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50 transition-transform duration-200"
+                <span className="material-symbols-outlined text-[1rem] text-on-surface-variant/50 transition-transform duration-200"
                   style={{ transform: collapsed[colKey] ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
                   expand_more
                 </span>
@@ -614,7 +614,7 @@ export default function Employees() {
                 <div className="rounded-xl border border-outline-variant/15 overflow-hidden">
                   <table className="w-full text-xs min-w-[720px]">
                     <thead>
-                      <tr className="bg-surface-container text-on-surface-variant text-[10px] uppercase tracking-wider border-b border-outline-variant/15">
+                      <tr className="bg-surface-container text-on-surface-variant text-[0.625rem] uppercase tracking-wider border-b border-outline-variant/15">
                         <th className="px-4 py-2.5 w-10" />
                         <th className="px-3 py-2.5 text-left font-semibold">Nombre</th>
                         <th className="px-3 py-2.5 text-left font-semibold">Posición</th>
@@ -634,7 +634,7 @@ export default function Employees() {
                           className="hover:bg-surface-container-high/40 transition-colors cursor-pointer group"
                         >
                           <td className="px-4 py-3">
-                            <div className={`w-7 h-7 rounded-lg ${avatarBg(emp.full_name)} flex items-center justify-center text-white text-[10px] font-bold`}>
+                            <div className={`w-7 h-7 rounded-lg ${avatarBg(emp.full_name)} flex items-center justify-center text-white text-[0.625rem] font-bold`}>
                               {initials(emp.full_name)}
                             </div>
                           </td>
@@ -649,17 +649,17 @@ export default function Employees() {
                             <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button onClick={() => setModal(emp)} title="Editar"
                                 className="p-1 rounded text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors">
-                                <span className="material-symbols-outlined text-[14px]">edit</span>
+                                <span className="material-symbols-outlined text-[0.875rem]">edit</span>
                               </button>
                               {!isExits && (
                                 <button onClick={() => handleMoveToExit(emp)} title="Mover a Exits"
                                   className="p-1 rounded text-on-surface-variant hover:text-orange-400 hover:bg-surface-container transition-colors">
-                                  <span className="material-symbols-outlined text-[14px]">exit_to_app</span>
+                                  <span className="material-symbols-outlined text-[0.875rem]">exit_to_app</span>
                                 </button>
                               )}
                               <button onClick={() => setDeleteConfirm(emp)} title="Eliminar"
                                 className="p-1 rounded text-on-surface-variant hover:text-red-400 hover:bg-surface-container transition-colors">
-                                <span className="material-symbols-outlined text-[14px]">delete</span>
+                                <span className="material-symbols-outlined text-[0.875rem]">delete</span>
                               </button>
                             </div>
                           </td>

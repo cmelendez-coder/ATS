@@ -190,7 +190,7 @@ export default function EditTalent() {
   if (loading) {
     return (
       <div className="flex items-center justify-center flex-1 py-20 gap-3 text-on-surface-variant">
-        <span className="material-symbols-outlined animate-spin text-[24px]">progress_activity</span>
+        <span className="material-symbols-outlined animate-spin text-[1.5rem]">progress_activity</span>
         <span className="text-sm">Cargando candidato…</span>
       </div>
     )
@@ -200,11 +200,11 @@ export default function EditTalent() {
     return (
       <div className="flex-1 p-8">
         <div className="flex items-center gap-3 p-4 rounded-xl bg-red-900/20 border border-red-800 text-red-400 max-w-xl">
-          <span className="material-symbols-outlined text-[20px]">error</span>
+          <span className="material-symbols-outlined text-[1.25rem]">error</span>
           <p className="text-sm font-medium">{loadError ?? 'Candidato no encontrado.'}</p>
         </div>
         <Link to="/talent" className="mt-4 inline-flex items-center gap-2 text-sm text-primary hover:underline">
-          <span className="material-symbols-outlined text-[16px]">arrow_back</span>Volver al directorio
+          <span className="material-symbols-outlined text-[1rem]">arrow_back</span>Volver al directorio
         </Link>
       </div>
     )
@@ -224,13 +224,13 @@ export default function EditTalent() {
         <div className="flex items-center gap-4">
           <span className="md:hidden text-lg font-bold tracking-tight text-primary">EverTrack</span>
           <div className="relative hidden md:block group">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-[18px]">search</span>
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-[1.125rem]">search</span>
             <input className="bg-surface-container-high border-none outline-none ring-0 h-9 pl-10 pr-4 rounded-full text-sm w-60 focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:text-on-surface-variant" placeholder="Search talent..." type="text" readOnly />
           </div>
         </div>
         <div className="flex items-center gap-2">
           <button className="p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors w-9 h-9 flex items-center justify-center">
-            <span className="material-symbols-outlined text-[20px]">notifications</span>
+            <span className="material-symbols-outlined text-[1.25rem]">notifications</span>
           </button>
           <div className="w-px h-5 bg-outline-variant/40 mx-1"></div>
           <Link to="/talent/new">
@@ -251,13 +251,13 @@ export default function EditTalent() {
             <div className="space-y-1">
               <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
                 <Link to="/" className="hover:text-primary transition-colors">Dashboard</Link>
-                <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+                <span className="material-symbols-outlined text-[0.875rem]">chevron_right</span>
                 <Link
                   to="/talent"
                   state={backSearch ? { restoreSearch: backSearch } : undefined}
                   className="hover:text-primary transition-colors"
                 >Talent Directory</Link>
-                <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+                <span className="material-symbols-outlined text-[0.875rem]">chevron_right</span>
                 <span className="text-primary font-medium">Editar Perfil</span>
               </div>
               <h1 className="text-[2rem] leading-none tracking-[-0.02em] font-extrabold text-primary">{talent.full_name}</h1>
@@ -269,7 +269,7 @@ export default function EditTalent() {
                 state={{ restoreSearch: backSearch }}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-outline-variant text-sm text-on-surface-variant hover:text-primary hover:border-primary transition-colors shrink-0"
               >
-                <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+                <span className="material-symbols-outlined text-[1rem]">arrow_back</span>
                 Volver{backSearch.q ? ` a "${backSearch.q}"` : ' al directorio'}
               </Link>
             )}
@@ -277,7 +277,7 @@ export default function EditTalent() {
 
           {saveError && (
             <div className="flex items-center gap-3 p-4 rounded-xl bg-red-900/20 border border-red-800 text-red-400">
-              <span className="material-symbols-outlined text-[20px]">error</span>
+              <span className="material-symbols-outlined text-[1.25rem]">error</span>
               <p className="text-sm font-medium">{saveError}</p>
             </div>
           )}
@@ -327,7 +327,7 @@ export default function EditTalent() {
                 {/* Personal Info */}
                 <section className="bg-surface-container-lowest rounded-2xl p-8 shadow-[0_2px_16px_rgba(24,28,30,0.05)] border border-outline-variant/10">
                   <h3 className="text-xl font-bold text-primary mb-6 pb-4 border-b border-outline-variant/15 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[18px]">person</span>
+                    <span className="material-symbols-outlined text-[1.125rem]">person</span>
                     Información Personal
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8">
@@ -355,7 +355,7 @@ export default function EditTalent() {
                 {/* Role & Experience */}
                 <section className="bg-surface-container-lowest rounded-2xl p-8 shadow-[0_2px_16px_rgba(24,28,30,0.05)] border border-outline-variant/10">
                   <h3 className="text-xl font-bold text-primary mb-6 pb-4 border-b border-outline-variant/15 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[18px]">work</span>
+                    <span className="material-symbols-outlined text-[1.125rem]">work</span>
                     Rol y Experiencia
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-8">
@@ -383,17 +383,17 @@ export default function EditTalent() {
                 <section className="bg-surface-container-lowest rounded-2xl p-8 shadow-[0_2px_16px_rgba(24,28,30,0.05)] border border-outline-variant/10">
                   <div className="flex items-center justify-between mb-6 pb-4 border-b border-outline-variant/15">
                     <h3 className="text-xl font-bold text-primary flex items-center gap-2">
-                      <span className="material-symbols-outlined text-[18px]">layers</span>
+                      <span className="material-symbols-outlined text-[1.125rem]">layers</span>
                       Technology Stack
                     </h3>
                     <button type="button" onClick={() => setAddingTech(true)} className="text-secondary font-semibold text-sm hover:underline flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[16px]">add</span>Add Tech
+                      <span className="material-symbols-outlined text-[1rem]">add</span>Add Tech
                     </button>
                   </div>
 
                   {stackModified && (
                     <p className="text-xs text-amber-400 flex items-center gap-1.5 mb-4">
-                      <span className="material-symbols-outlined text-[14px]">warning</span>
+                      <span className="material-symbols-outlined text-[0.875rem]">warning</span>
                       Al guardar, el stack actual será reemplazado por esta lista.
                     </p>
                   )}
@@ -402,7 +402,7 @@ export default function EditTalent() {
                     {stack.map(t => (
                       <div key={t} className="bg-surface-container px-4 py-2 rounded-full flex items-center gap-2 group hover:bg-surface-container-high transition-colors">
                         <span className="font-medium text-primary text-sm">{t}</span>
-                        <span className="material-symbols-outlined text-[14px] text-on-surface-variant group-hover:text-error cursor-pointer" onClick={() => removeTech(t)}>close</span>
+                        <span className="material-symbols-outlined text-[0.875rem] text-on-surface-variant group-hover:text-error cursor-pointer" onClick={() => removeTech(t)}>close</span>
                       </div>
                     ))}
                     {stack.length === 0 && !addingTech && (
@@ -431,7 +431,7 @@ export default function EditTalent() {
                 {/* Professional Summary */}
                 <section className="bg-surface-container-lowest rounded-2xl p-8 shadow-[0_2px_16px_rgba(24,28,30,0.05)] border border-outline-variant/10">
                   <h3 className="text-xl font-bold text-primary mb-6 pb-4 border-b border-outline-variant/15 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[18px]">description</span>
+                    <span className="material-symbols-outlined text-[1.125rem]">description</span>
                     Resumen Profesional
                   </h3>
                   <div className="space-y-6">
@@ -469,7 +469,7 @@ export default function EditTalent() {
                       style={{ backgroundColor: '#a12d2d' }}
                       title="Enviar a la lista negra"
                     >
-                      <span className="material-symbols-outlined text-[15px]">block</span>
+                      <span className="material-symbols-outlined text-[0.9375rem]">block</span>
                       Lista negra
                     </button>
                     <button
@@ -486,12 +486,12 @@ export default function EditTalent() {
                     >
                       {saving ? (
                         <>
-                          <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                          <span className="material-symbols-outlined animate-spin text-[1.125rem]">progress_activity</span>
                           Guardando…
                         </>
                       ) : (
                         <>
-                          <span className="material-symbols-outlined text-[18px]">save</span>
+                          <span className="material-symbols-outlined text-[1.125rem]">save</span>
                           Actualizar Perfil
                         </>
                       )}
@@ -512,14 +512,14 @@ export default function EditTalent() {
               >
                 <div className="flex items-center gap-3 mb-4">
                   <span className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: '#a12d2d22' }}>
-                    <span className="material-symbols-outlined text-[20px]" style={{ color: '#a12d2d' }}>block</span>
+                    <span className="material-symbols-outlined text-[1.25rem]" style={{ color: '#a12d2d' }}>block</span>
                   </span>
                   <div>
                     <h3 className="text-sm font-bold text-on-surface">Enviar a lista negra</h3>
                     <p className="text-xs text-on-surface-variant mt-0.5">{talent.full_name}</p>
                   </div>
                 </div>
-                <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1.5">Razón</label>
+                <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-1.5">Razón</label>
                 <textarea
                   autoFocus
                   rows={4}
@@ -545,7 +545,7 @@ export default function EditTalent() {
                     className="flex items-center gap-1.5 px-5 py-2 rounded-lg text-sm font-semibold text-white hover:opacity-90 transition-opacity disabled:opacity-50"
                     style={{ backgroundColor: '#a12d2d' }}
                   >
-                    {blSaving && <span className="material-symbols-outlined animate-spin text-[15px]">progress_activity</span>}
+                    {blSaving && <span className="material-symbols-outlined animate-spin text-[0.9375rem]">progress_activity</span>}
                     {blSaving ? 'Agregando…' : 'Agregar a lista negra'}
                   </button>
                 </div>
@@ -556,7 +556,7 @@ export default function EditTalent() {
           {/* ── Historial en Tracker ──────────────────────────── */}
           <section className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-[0_2px_16px_rgba(24,28,30,0.05)] overflow-hidden">
             <div className="px-6 py-4 border-b border-outline-variant/10 flex items-center gap-3">
-              <span className="material-symbols-outlined text-primary text-[20px]">history</span>
+              <span className="material-symbols-outlined text-primary text-[1.25rem]">history</span>
               <h2 className="text-base font-bold text-on-surface">Historial en Tracker</h2>
               {trackerHistory.length > 0 && (
                 <span className="ml-auto text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary">

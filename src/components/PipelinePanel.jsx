@@ -89,7 +89,7 @@ function AddCandidateModal({ reqId, existingIds, firstStageName, onAdd, onClose 
             <p className="text-xs text-on-surface-variant mt-0.5">El candidato iniciará en la primera etapa</p>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors">
-            <span className="material-symbols-outlined text-[20px]">close</span>
+            <span className="material-symbols-outlined text-[1.25rem]">close</span>
           </button>
         </div>
 
@@ -100,7 +100,7 @@ function AddCandidateModal({ reqId, existingIds, firstStageName, onAdd, onClose 
             className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all
               ${tab === 'everscale' ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'}`}
           >
-            <span className="material-symbols-outlined text-[15px]">search</span>
+            <span className="material-symbols-outlined text-[0.9375rem]">search</span>
             Candidato Everscale
           </button>
           <button
@@ -108,7 +108,7 @@ function AddCandidateModal({ reqId, existingIds, firstStageName, onAdd, onClose 
             className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all
               ${tab === 'client' ? 'bg-amber-500 text-white' : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'}`}
           >
-            <span className="material-symbols-outlined text-[15px]">business</span>
+            <span className="material-symbols-outlined text-[0.9375rem]">business</span>
             Candidato del cliente
           </button>
         </div>
@@ -118,7 +118,7 @@ function AddCandidateModal({ reqId, existingIds, firstStageName, onAdd, onClose 
           <>
             <div className="px-5 pt-2 pb-2">
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[1.125rem]">
                   {searching ? 'progress_activity' : 'search'}
                 </span>
                 <input
@@ -133,13 +133,13 @@ function AddCandidateModal({ reqId, existingIds, firstStageName, onAdd, onClose 
             <div className="px-5 pb-4 max-h-72 overflow-y-auto space-y-1">
               {term.length < 2 && (
                 <div className="flex flex-col items-center py-8 gap-2 text-on-surface-variant">
-                  <span className="material-symbols-outlined text-[32px] opacity-30">person_search</span>
+                  <span className="material-symbols-outlined text-[2rem] opacity-30">person_search</span>
                   <p className="text-sm">Escribe al menos 2 caracteres para buscar</p>
                 </div>
               )}
               {term.length >= 2 && !searching && results.length === 0 && (
                 <div className="flex flex-col items-center py-8 gap-2 text-on-surface-variant">
-                  <span className="material-symbols-outlined text-[32px] opacity-30">search_off</span>
+                  <span className="material-symbols-outlined text-[2rem] opacity-30">search_off</span>
                   <p className="text-sm">No se encontraron candidatos</p>
                 </div>
               )}
@@ -165,11 +165,11 @@ function AddCandidateModal({ reqId, existingIds, firstStageName, onAdd, onClose 
                     </div>
                     <div className="shrink-0">
                       {alreadyIn ? (
-                        <span className="text-[10px] font-bold text-on-surface-variant bg-surface-container px-2 py-1 rounded-full">Ya agregado</span>
+                        <span className="text-[0.625rem] font-bold text-on-surface-variant bg-surface-container px-2 py-1 rounded-full">Ya agregado</span>
                       ) : isAdding ? (
-                        <span className="material-symbols-outlined animate-spin text-primary text-[18px]">progress_activity</span>
+                        <span className="material-symbols-outlined animate-spin text-primary text-[1.125rem]">progress_activity</span>
                       ) : (
-                        <span className="material-symbols-outlined text-primary text-[20px]">add_circle</span>
+                        <span className="material-symbols-outlined text-primary text-[1.25rem]">add_circle</span>
                       )}
                     </div>
                   </button>
@@ -200,7 +200,7 @@ function AddCandidateModal({ reqId, existingIds, firstStageName, onAdd, onClose 
             </div>
             {clientErr && (
               <p className="text-xs text-error flex items-center gap-1">
-                <span className="material-symbols-outlined text-[13px]">error</span>{clientErr}
+                <span className="material-symbols-outlined text-[0.8125rem]">error</span>{clientErr}
               </p>
             )}
             <button
@@ -209,8 +209,8 @@ function AddCandidateModal({ reqId, existingIds, firstStageName, onAdd, onClose 
               className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 transition-colors disabled:opacity-50"
             >
               {clientAdding
-                ? <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
-                : <span className="material-symbols-outlined text-[18px]">person_add</span>
+                ? <span className="material-symbols-outlined animate-spin text-[1.125rem]">progress_activity</span>
+                : <span className="material-symbols-outlined text-[1.125rem]">person_add</span>
               }
               {clientAdding ? 'Agregando…' : 'Agregar candidato del cliente'}
             </button>
@@ -319,13 +319,13 @@ function CardDetailModal({ rc, requirementId, stages, canManage, clientName, onC
               <span className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors duration-200 ${isClient ? 'bg-amber-500' : 'bg-slate-200'}`}>
                 <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform duration-200 ${isClient ? 'translate-x-4' : 'translate-x-1'}`} />
               </span>
-              <span className={`text-[11px] font-semibold transition-colors ${isClient ? 'text-amber-600' : 'text-slate-400 group-hover:text-slate-500'}`}>
+              <span className={`text-[0.6875rem] font-semibold transition-colors ${isClient ? 'text-amber-600' : 'text-slate-400 group-hover:text-slate-500'}`}>
                 {isClient ? `Candidato de ${clientName ?? 'cliente'}` : 'Candidato de Everscale Group'}
               </span>
             </button>
           </div>
           <button onClick={onClose} className="mt-0.5 p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors shrink-0">
-            <span className="material-symbols-outlined text-[20px]">close</span>
+            <span className="material-symbols-outlined text-[1.25rem]">close</span>
           </button>
         </div>
 
@@ -342,7 +342,7 @@ function CardDetailModal({ rc, requirementId, stages, canManage, clientName, onC
           {/* Submitted date */}
           {rc.submitted_at && (
             <div className="flex items-center gap-2 text-xs text-slate-400">
-              <span className="material-symbols-outlined text-[14px]">calendar_today</span>
+              <span className="material-symbols-outlined text-[0.875rem]">calendar_today</span>
               Enviado el {new Date(rc.submitted_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}
             </div>
           )}
@@ -354,12 +354,12 @@ function CardDetailModal({ rc, requirementId, stages, canManage, clientName, onC
                 <div className="rounded-xl p-3.5 relative overflow-hidden" style={{ backgroundColor: '#1f6d441a' }}>
                   <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent pointer-events-none" />
                   <div className="relative flex items-center gap-1.5 mb-1">
-                    <span className="material-symbols-outlined text-[15px]" style={{ color: '#1f6d44' }}>payments</span>
-                    <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#1f6d44' }}>Salario</p>
+                    <span className="material-symbols-outlined text-[0.9375rem]" style={{ color: '#1f6d44' }}>payments</span>
+                    <p className="text-[0.625rem] font-bold uppercase tracking-widest" style={{ color: '#1f6d44' }}>Salario</p>
                   </div>
                   <p className="relative text-xl font-extrabold tracking-tight" style={{ color: '#1f6d44' }}>
                     ${Number(trackerInfo.salary).toLocaleString('en-US') || trackerInfo.salary}
-                    {trackerInfo.amount_type && <span className="text-[11px] font-semibold ml-1.5 opacity-70">{trackerInfo.amount_type}</span>}
+                    {trackerInfo.amount_type && <span className="text-[0.6875rem] font-semibold ml-1.5 opacity-70">{trackerInfo.amount_type}</span>}
                   </p>
                 </div>
               )}
@@ -367,8 +367,8 @@ function CardDetailModal({ rc, requirementId, stages, canManage, clientName, onC
                 <div className="rounded-xl p-3.5 relative overflow-hidden" style={{ backgroundColor: '#4e90d01a' }}>
                   <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent pointer-events-none" />
                   <div className="relative flex items-center gap-1.5 mb-1">
-                    <span className="material-symbols-outlined text-[15px]" style={{ color: '#4e90d0' }}>language</span>
-                    <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#4e90d0' }}>English</p>
+                    <span className="material-symbols-outlined text-[0.9375rem]" style={{ color: '#4e90d0' }}>language</span>
+                    <p className="text-[0.625rem] font-bold uppercase tracking-widest" style={{ color: '#4e90d0' }}>English</p>
                   </div>
                   <p className="relative text-xl font-extrabold tracking-tight" style={{ color: '#4e90d0' }}>{trackerInfo.english_score}%</p>
                 </div>
@@ -399,7 +399,7 @@ function CardDetailModal({ rc, requirementId, stages, canManage, clientName, onC
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
                   style={{ backgroundColor: '#f973161a', color: '#f97316' }}
                 >
-                  <span className="material-symbols-outlined text-[14px]">description</span>
+                  <span className="material-symbols-outlined text-[0.875rem]">description</span>
                   CV
                 </button>
               )}
@@ -410,7 +410,7 @@ function CardDetailModal({ rc, requirementId, stages, canManage, clientName, onC
           <div>
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[14px]">description</span>
+                <span className="material-symbols-outlined text-[0.875rem]">description</span>
                 Notas
               </p>
               {isDirty ? (
@@ -419,12 +419,12 @@ function CardDetailModal({ rc, requirementId, stages, canManage, clientName, onC
                   disabled={saving}
                   className="flex items-center gap-1 px-3 py-1 rounded-lg bg-primary text-on-primary text-xs font-semibold hover:opacity-90 transition-opacity"
                 >
-                  {saving && <span className="material-symbols-outlined animate-spin text-[13px]">progress_activity</span>}
+                  {saving && <span className="material-symbols-outlined animate-spin text-[0.8125rem]">progress_activity</span>}
                   Guardar
                 </button>
               ) : savedOk ? (
                 <span className="flex items-center gap-1 text-xs text-green-600 font-medium">
-                  <span className="material-symbols-outlined text-[13px]">check_circle</span>Guardado
+                  <span className="material-symbols-outlined text-[0.8125rem]">check_circle</span>Guardado
                 </span>
               ) : null}
             </div>
@@ -445,7 +445,7 @@ function CardDetailModal({ rc, requirementId, stages, canManage, clientName, onC
                   onClick={() => setRejectStep(1)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-500 hover:bg-red-50 transition-colors"
                 >
-                  <span className="material-symbols-outlined text-[14px]">person_remove</span>
+                  <span className="material-symbols-outlined text-[0.875rem]">person_remove</span>
                   Candidato ha sido rechazado
                 </button>
               )}
@@ -491,10 +491,10 @@ function CardDetailModal({ rc, requirementId, stages, canManage, clientName, onC
             <span className="text-sm font-semibold text-white/80">{rc.candidate?.full_name ?? 'Candidato'} — CV</span>
             <div className="flex items-center gap-2">
               <a href={cvPreviewUrl} target="_blank" rel="noreferrer" className="text-[#81b927] text-xs hover:underline flex items-center gap-1">
-                <span className="material-symbols-outlined text-[13px]">open_in_new</span>Abrir
+                <span className="material-symbols-outlined text-[0.8125rem]">open_in_new</span>Abrir
               </a>
               <button type="button" onClick={() => setCvPreviewUrl(null)} className="text-white/50 hover:text-white transition-colors ml-2">
-                <span className="material-symbols-outlined text-[20px]">close</span>
+                <span className="material-symbols-outlined text-[1.25rem]">close</span>
               </button>
             </div>
           </div>
@@ -599,20 +599,20 @@ export default function PipelinePanel({ reqId, clientId, clientName, canDrag, ca
 
   if (loading) return (
     <div className="flex items-center justify-center py-10 gap-2 text-white/50">
-      <span className="material-symbols-outlined animate-spin text-[20px]">progress_activity</span>
+      <span className="material-symbols-outlined animate-spin text-[1.25rem]">progress_activity</span>
       <span className="text-sm">Loading pipeline…</span>
     </div>
   )
 
   if (loadErr) return (
     <div className="flex items-center gap-2 py-6 text-error text-sm">
-      <span className="material-symbols-outlined text-[18px]">error</span>{loadErr}
+      <span className="material-symbols-outlined text-[1.125rem]">error</span>{loadErr}
     </div>
   )
 
   if (stages.length === 0) return (
     <div className="flex flex-col items-center justify-center py-8 text-center">
-      <span className="material-symbols-outlined text-[36px] text-white/30 mb-2">account_tree</span>
+      <span className="material-symbols-outlined text-[2.25rem] text-white/30 mb-2">account_tree</span>
       <p className="text-sm text-white/50">No pipeline stages configured for this client.</p>
     </div>
   )
@@ -624,41 +624,41 @@ export default function PipelinePanel({ reqId, clientId, clientName, canDrag, ca
       {/* Header */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
-          <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest">
+          <p className="text-[0.625rem] font-bold text-white/50 uppercase tracking-widest">
             Interview Pipeline
           </p>
           {/* Tabs */}
           <div className="flex items-center gap-0.5 p-0.5 bg-white/10 rounded-lg">
             <button
               onClick={() => setActiveView('activos')}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[0.6875rem] font-semibold transition-all ${
                 activeView === 'activos'
                   ? 'bg-white/20 text-white shadow-sm'
                   : 'text-white/50 hover:text-white'
               }`}
             >
               Activos
-              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+              <span className={`text-[0.5625rem] font-bold px-1.5 py-0.5 rounded-full ${
                 activeView === 'activos' ? 'bg-white/20 text-white' : 'bg-white/10 text-white/40'
               }`}>{activeRcs.length}</span>
             </button>
             <button
               onClick={() => setActiveView('rechazados')}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[0.6875rem] font-semibold transition-all ${
                 activeView === 'rechazados'
                   ? 'bg-white/20 text-red-400 shadow-sm'
                   : 'text-white/50 hover:text-white'
               }`}
             >
               Rechazados
-              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+              <span className={`text-[0.5625rem] font-bold px-1.5 py-0.5 rounded-full ${
                 activeView === 'rechazados' ? 'bg-red-500/20 text-red-400' : 'bg-white/10 text-white/40'
               }`}>{rejectedRcs.length}</span>
             </button>
           </div>
           {canDrag && activeRcs.length > 0 && activeView === 'activos' && (
-            <span className="text-[10px] text-white/40 flex items-center gap-1">
-              <span className="material-symbols-outlined text-[11px]">drag_indicator</span>
+            <span className="text-[0.625rem] text-white/40 flex items-center gap-1">
+              <span className="material-symbols-outlined text-[0.6875rem]">drag_indicator</span>
               Arrastra para mover
             </span>
           )}
@@ -668,7 +668,7 @@ export default function PipelinePanel({ reqId, clientId, clientName, canDrag, ca
             onClick={() => setShowAdd(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#81b927]/20 text-[#81b927] text-xs font-semibold hover:bg-[#81b927]/30 transition-colors"
           >
-            <span className="material-symbols-outlined text-[15px]">person_add</span>
+            <span className="material-symbols-outlined text-[0.9375rem]">person_add</span>
             Agregar Candidato
           </button>
         )}
@@ -679,7 +679,7 @@ export default function PipelinePanel({ reqId, clientId, clientName, canDrag, ca
         <div className="space-y-1.5 py-1">
           {rejectedRcs.length === 0 ? (
             <div className="flex flex-col items-center py-10 gap-2 text-white/30">
-              <span className="material-symbols-outlined text-[36px]">person_off</span>
+              <span className="material-symbols-outlined text-[2.25rem]">person_off</span>
               <p className="text-sm">Sin candidatos rechazados</p>
             </div>
           ) : rejectedRcs.map(rc => (
@@ -697,7 +697,7 @@ export default function PipelinePanel({ reqId, clientId, clientName, canDrag, ca
                   <p className="text-xs text-white/60">{rc.candidate.role.name}</p>
                 )}
               </div>
-              <span className="material-symbols-outlined text-[16px] text-white/30">chevron_right</span>
+              <span className="material-symbols-outlined text-[1rem] text-white/30">chevron_right</span>
             </div>
           ))}
         </div>
@@ -732,12 +732,12 @@ export default function PipelinePanel({ reqId, clientId, clientName, canDrag, ca
               <div className="flex items-center justify-between px-3 pt-3 pb-2">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: stage.color }} />
-                  <p className="text-[10px] font-bold uppercase tracking-wider truncate" style={{ color: stage.color }}>
+                  <p className="text-[0.625rem] font-bold uppercase tracking-wider truncate" style={{ color: stage.color }}>
                     {stage.name}
                   </p>
                 </div>
                 <span
-                  className="text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ml-1"
+                  className="text-[0.625rem] font-bold px-1.5 py-0.5 rounded-full shrink-0 ml-1"
                   style={{ backgroundColor: stage.color + '22', color: stage.color }}
                 >
                   {cards.length}
@@ -784,8 +784,8 @@ export default function PipelinePanel({ reqId, clientId, clientName, canDrag, ca
                         {rc.candidate?.full_name ?? '—'}
                       </p>
                       {rc.candidate?.source === 'client' && (
-                        <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-white bg-amber-500 px-1.5 py-0.5 rounded-full mt-1">
-                          <span className="material-symbols-outlined text-[10px]">business</span>
+                        <span className="inline-flex items-center gap-0.5 text-[0.5625rem] font-bold text-white bg-amber-500 px-1.5 py-0.5 rounded-full mt-1">
+                          <span className="material-symbols-outlined text-[0.625rem]">business</span>
                           Cliente
                         </span>
                       )}
@@ -794,7 +794,7 @@ export default function PipelinePanel({ reqId, clientId, clientName, canDrag, ca
                         const days = Math.floor((Date.now() - new Date(since).getTime()) / 86400000)
                         const color = days <= 25 ? '#16a34a' : days <= 40 ? '#ea580c' : '#dc2626'
                         return (
-                          <p className="text-[13px] font-semibold mt-1 animate-glow" style={{ color }}>
+                          <p className="text-[0.8125rem] font-semibold mt-1 animate-glow" style={{ color }}>
                             {days} {days === 1 ? 'día' : 'días'} en proceso
                           </p>
                         )
@@ -809,7 +809,7 @@ export default function PipelinePanel({ reqId, clientId, clientName, canDrag, ca
                     className="rounded-xl border-2 border-dashed flex items-center justify-center py-3 transition-all"
                     style={{ borderColor: isOver ? stage.color : stage.color + '44', backgroundColor: isOver ? stage.color + '10' : 'transparent' }}
                   >
-                    <span className="text-[10px] font-medium" style={{ color: stage.color + 'aa' }}>
+                    <span className="text-[0.625rem] font-medium" style={{ color: stage.color + 'aa' }}>
                       Soltar aquí
                     </span>
                   </div>
@@ -817,7 +817,7 @@ export default function PipelinePanel({ reqId, clientId, clientName, canDrag, ca
 
                 {/* Empty state (no dragging) */}
                 {!isDraggingAny && cards.length === 0 && (
-                  <div className="text-[10px] text-white/30 text-center py-3 select-none">
+                  <div className="text-[0.625rem] text-white/30 text-center py-3 select-none">
                     Sin candidatos
                   </div>
                 )}
@@ -827,10 +827,10 @@ export default function PipelinePanel({ reqId, clientId, clientName, canDrag, ca
               {canManage && isFirst && (
                 <button
                   onClick={() => setShowAdd(true)}
-                  className="mx-2 mb-2 mt-1 flex items-center justify-center gap-1 py-1.5 rounded-lg border border-dashed text-[10px] font-medium transition-colors hover:border-opacity-80"
+                  className="mx-2 mb-2 mt-1 flex items-center justify-center gap-1 py-1.5 rounded-lg border border-dashed text-[0.625rem] font-medium transition-colors hover:border-opacity-80"
                   style={{ borderColor: stage.color + '66', color: stage.color + 'cc' }}
                 >
-                  <span className="material-symbols-outlined text-[13px]">add</span>
+                  <span className="material-symbols-outlined text-[0.8125rem]">add</span>
                   Agregar
                 </button>
               )}

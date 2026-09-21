@@ -34,13 +34,13 @@ function EquipmentModal({ item, onSave, onClose }) {
     finally { setSaving(false) }
   }
   const field = 'w-full bg-[#0d2248] text-on-surface text-xs px-3 py-2 rounded-lg border border-white/10 focus:outline-none focus:ring-1 focus:ring-primary/40 placeholder:text-on-surface-variant/40'
-  const lbl   = 'block text-[10px] text-on-surface-variant/60 font-semibold uppercase tracking-wider mb-1'
+  const lbl   = 'block text-[0.625rem] text-on-surface-variant/60 font-semibold uppercase tracking-wider mb-1'
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
       <div className="bg-[#0a1f3d] border border-white/10 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
           <h2 className="text-sm font-bold text-white">{form.id ? 'Editar equipo' : 'Registrar equipo'}</h2>
-          <button onClick={onClose} className="text-white/40 hover:text-white"><span className="material-symbols-outlined text-[20px]">close</span></button>
+          <button onClick={onClose} className="text-white/40 hover:text-white"><span className="material-symbols-outlined text-[1.25rem]">close</span></button>
         </div>
         <div className="p-6 grid grid-cols-2 gap-4">
           <div><label className={lbl}>Asignado a</label><input className={field} value={form.nombre || ''} onChange={e => set('nombre', e.target.value)} placeholder="Nombre del usuario" /></div>
@@ -100,7 +100,7 @@ function Spec({ label, value }) {
   if (!value || noData(value)) return null
   return (
     <div className="py-2 border-b border-white/[0.06] last:border-0">
-      <p className="text-[10px] text-on-surface-variant/50 uppercase tracking-wider mb-0.5">{label}</p>
+      <p className="text-[0.625rem] text-on-surface-variant/50 uppercase tracking-wider mb-0.5">{label}</p>
       <p className="text-xs text-on-surface break-words">{value}</p>
     </div>
   )
@@ -123,33 +123,33 @@ function EquipmentDrawer({ item, onEdit, onDelete, onClose }) {
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
               <span className="w-10 h-10 rounded-xl bg-white/[0.07] flex items-center justify-center shrink-0">
-                <span className="material-symbols-outlined text-[22px] text-on-surface-variant/60">
+                <span className="material-symbols-outlined text-[1.375rem] text-on-surface-variant/60">
                   {item.tipo?.toUpperCase() === 'CELULAR' ? 'smartphone' : item.tipo?.toLowerCase() === 'monitor' ? 'monitor' : 'laptop_mac'}
                 </span>
               </span>
               <div>
                 <h2 className="text-sm font-bold text-white leading-tight">{clean(item.modelo) || clean(item.marca) || 'Equipo'}</h2>
-                <p className="text-[11px] text-on-surface-variant/60">{[clean(item.marca), item.tipo].filter(Boolean).join(' · ')}</p>
+                <p className="text-[0.6875rem] text-on-surface-variant/60">{[clean(item.marca), item.tipo].filter(Boolean).join(' · ')}</p>
               </div>
             </div>
             <button onClick={onClose} className="text-white/40 hover:text-white p-1 shrink-0">
-              <span className="material-symbols-outlined text-[20px]">close</span>
+              <span className="material-symbols-outlined text-[1.25rem]">close</span>
             </button>
           </div>
           <div className="flex flex-wrap items-center gap-2 mt-3">
-            <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border ${
+            <span className={`inline-flex items-center gap-1.5 text-[0.6875rem] font-semibold px-2.5 py-1 rounded-full border ${
               isAvailable ? 'bg-green-500/15 text-green-300 border-green-500/25' : 'bg-blue-500/15 text-blue-300 border-blue-500/25'
             }`}>
               <span className={`w-1.5 h-1.5 rounded-full ${isAvailable ? 'bg-green-400' : 'bg-blue-400'}`} />
               {isAvailable ? 'Disponible' : 'Asignado'}
             </span>
             {clean(item.propiedad) && (
-              <span className="text-[11px] text-on-surface-variant/70 bg-white/[0.05] px-2.5 py-1 rounded-full border border-white/[0.08]">
+              <span className="text-[0.6875rem] text-on-surface-variant/70 bg-white/[0.05] px-2.5 py-1 rounded-full border border-white/[0.08]">
                 {item.propiedad}
               </span>
             )}
             {item.carta_responsiva === 'Si' && (
-              <span className="text-[11px] text-emerald-300 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+              <span className="text-[0.6875rem] text-emerald-300 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
                 Carta responsiva
               </span>
             )}
@@ -161,17 +161,17 @@ function EquipmentDrawer({ item, onEdit, onDelete, onClose }) {
           {/* Assigned to */}
           {hasName && (
             <div className="mb-4 p-3 rounded-xl bg-white/[0.04] border border-white/[0.07] flex items-center gap-3">
-              <div className={`w-9 h-9 rounded-lg ${avatarBg(item.nombre)} flex items-center justify-center text-white text-[11px] font-bold shrink-0`}>
+              <div className={`w-9 h-9 rounded-lg ${avatarBg(item.nombre)} flex items-center justify-center text-white text-[0.6875rem] font-bold shrink-0`}>
                 {initials(item.nombre)}
               </div>
               <div>
                 <p className="text-xs font-semibold text-white">{item.nombre}</p>
-                {clean(item.puesto) && <p className="text-[10px] text-on-surface-variant/60 mt-0.5">{item.puesto}</p>}
+                {clean(item.puesto) && <p className="text-[0.625rem] text-on-surface-variant/60 mt-0.5">{item.puesto}</p>}
               </div>
             </div>
           )}
 
-          <p className="text-[10px] font-bold text-on-surface-variant/40 uppercase tracking-widest mb-1">Especificaciones</p>
+          <p className="text-[0.625rem] font-bold text-on-surface-variant/40 uppercase tracking-widest mb-1">Especificaciones</p>
           <Spec label="Procesador" value={item.procesador} />
           <Spec label="Memoria RAM" value={item.memoria} />
           <Spec label="Almacenamiento" value={item.hdd} />
@@ -179,7 +179,7 @@ function EquipmentDrawer({ item, onEdit, onDelete, onClose }) {
           <Spec label="No. de serie" value={item.no_serie} />
           <Spec label="Otros" value={item.others} />
 
-          <p className="text-[10px] font-bold text-on-surface-variant/40 uppercase tracking-widest mt-5 mb-1">Logística</p>
+          <p className="text-[0.625rem] font-bold text-on-surface-variant/40 uppercase tracking-widest mt-5 mb-1">Logística</p>
           <Spec label="Ubicación actual" value={item.lugar_donde_esta} />
           <Spec label="Lugar de compra" value={item.lugar} />
           <Spec label="Fecha de compra" value={item.fecha} />
@@ -194,13 +194,13 @@ function EquipmentDrawer({ item, onEdit, onDelete, onClose }) {
             onClick={() => { onEdit(item); onClose() }}
             className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-primary/20 text-primary hover:bg-primary/30 transition-colors text-xs font-semibold"
           >
-            <span className="material-symbols-outlined text-[15px]">edit</span>Editar
+            <span className="material-symbols-outlined text-[0.9375rem]">edit</span>Editar
           </button>
           <button
             onClick={() => { onDelete(item); onClose() }}
             className="flex items-center justify-center py-2 px-3 rounded-lg bg-red-500/15 text-red-300 hover:bg-red-500/25 transition-colors"
           >
-            <span className="material-symbols-outlined text-[15px]">delete</span>
+            <span className="material-symbols-outlined text-[0.9375rem]">delete</span>
           </button>
         </div>
       </div>
@@ -288,10 +288,10 @@ export default function Equipment() {
         ].map(({ icon, label, value, color, text }) => (
           <div key={label} className="bg-surface-container border border-outline-variant/15 rounded-xl px-4 py-3 flex items-center gap-3">
             <span className={`w-9 h-9 rounded-xl ${color} ${text} flex items-center justify-center shrink-0`}>
-              <span className="material-symbols-outlined text-[18px]">{icon}</span>
+              <span className="material-symbols-outlined text-[1.125rem]">{icon}</span>
             </span>
             <div>
-              <p className="text-[10px] text-on-surface-variant/60 uppercase tracking-wider">{label}</p>
+              <p className="text-[0.625rem] text-on-surface-variant/60 uppercase tracking-wider">{label}</p>
               <p className="text-xl font-extrabold text-on-surface leading-none">{value}</p>
             </div>
           </div>
@@ -302,7 +302,7 @@ export default function Equipment() {
       <div className="flex flex-wrap items-center gap-3 mb-5">
         {/* Search */}
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[16px] text-on-surface-variant/40">search</span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[1rem] text-on-surface-variant/40">search</span>
           <input
             className="w-64 bg-surface-container border border-outline-variant/20 rounded-lg pl-9 pr-3 py-2 text-xs text-on-surface placeholder:text-on-surface-variant/40 outline-none focus:ring-1 focus:ring-primary/40"
             placeholder="Nombre, modelo, serial…"
@@ -315,7 +315,7 @@ export default function Equipment() {
         <div className="flex items-center gap-1 p-1 bg-surface-container border border-outline-variant/15 rounded-lg">
           {[['all','Todos'], ['Si','Disponible'], ['No','Asignado']].map(([val, lbl]) => (
             <button key={val} onClick={() => setFilterDisp(val)}
-              className={`px-3 py-1 rounded text-[11px] font-semibold transition-all ${
+              className={`px-3 py-1 rounded text-[0.6875rem] font-semibold transition-all ${
                 filterDisp === val ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
               }`}>
               {lbl}
@@ -335,8 +335,8 @@ export default function Equipment() {
 
         {hasFilters && (
           <button onClick={() => { setSearch(''); setFilterDisp('all'); setFilterOwner('all') }}
-            className="flex items-center gap-1 text-[11px] text-on-surface-variant/60 hover:text-on-surface bg-surface-container border border-outline-variant/20 rounded-lg px-3 py-2 transition-colors">
-            <span className="material-symbols-outlined text-[14px]">filter_list_off</span>Limpiar
+            className="flex items-center gap-1 text-[0.6875rem] text-on-surface-variant/60 hover:text-on-surface bg-surface-container border border-outline-variant/20 rounded-lg px-3 py-2 transition-colors">
+            <span className="material-symbols-outlined text-[0.875rem]">filter_list_off</span>Limpiar
           </button>
         )}
 
@@ -344,20 +344,20 @@ export default function Equipment() {
           onClick={() => setModal({ ...EMPTY_EQUIP })}
           className="ml-auto flex items-center gap-1.5 bg-primary text-on-primary text-xs font-bold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity shadow-[0_0_12px_rgba(80,177,82,0.3)]"
         >
-          <span className="material-symbols-outlined text-[15px]">add</span>Registrar equipo
+          <span className="material-symbols-outlined text-[0.9375rem]">add</span>Registrar equipo
         </button>
       </div>
 
       {/* Table */}
       {loading ? (
         <div className="flex justify-center py-20">
-          <span className="material-symbols-outlined text-primary text-[32px] animate-spin">progress_activity</span>
+          <span className="material-symbols-outlined text-primary text-[2rem] animate-spin">progress_activity</span>
         </div>
       ) : error ? (
         <p className="text-red-400 text-sm">{error}</p>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 text-on-surface-variant/40">
-          <span className="material-symbols-outlined text-[40px] mb-2 block">search_off</span>
+          <span className="material-symbols-outlined text-[2.5rem] mb-2 block">search_off</span>
           <p className="text-sm">Sin resultados</p>
           {hasFilters && <button onClick={() => { setSearch(''); setFilterDisp('all'); setFilterOwner('all') }} className="mt-2 text-xs text-primary hover:underline">Limpiar filtros</button>}
         </div>
@@ -365,7 +365,7 @@ export default function Equipment() {
         <div className="rounded-xl border border-outline-variant/15 overflow-hidden">
           <table className="w-full text-xs min-w-[800px]">
             <thead>
-              <tr className="bg-surface-container text-on-surface-variant text-[10px] uppercase tracking-wider border-b border-outline-variant/15">
+              <tr className="bg-surface-container text-on-surface-variant text-[0.625rem] uppercase tracking-wider border-b border-outline-variant/15">
                 <th className="px-4 py-2.5 w-10" />
                 <th className="px-3 py-2.5 text-left font-semibold">Asignado a</th>
                 <th className="px-3 py-2.5 text-left font-semibold">Equipo</th>
@@ -386,50 +386,50 @@ export default function Equipment() {
                     className="hover:bg-surface-container-high/40 transition-colors cursor-pointer group">
                     <td className="px-4 py-3">
                       {hasName
-                        ? <div className={`w-7 h-7 rounded-lg ${avatarBg(item.nombre)} flex items-center justify-center text-white text-[10px] font-bold`}>{initials(item.nombre)}</div>
+                        ? <div className={`w-7 h-7 rounded-lg ${avatarBg(item.nombre)} flex items-center justify-center text-white text-[0.625rem] font-bold`}>{initials(item.nombre)}</div>
                         : <span className="w-7 h-7 rounded-lg bg-white/[0.06] flex items-center justify-center">
-                            <span className="material-symbols-outlined text-[14px] text-on-surface-variant/30">laptop_mac</span>
+                            <span className="material-symbols-outlined text-[0.875rem] text-on-surface-variant/30">laptop_mac</span>
                           </span>
                       }
                     </td>
                     <td className="px-3 py-3">
                       <p className="font-semibold text-on-surface">{hasName ? item.nombre : '—'}</p>
-                      {clean(item.puesto) && <p className="text-[10px] text-on-surface-variant/60 mt-0.5">{item.puesto}</p>}
+                      {clean(item.puesto) && <p className="text-[0.625rem] text-on-surface-variant/60 mt-0.5">{item.puesto}</p>}
                     </td>
                     <td className="px-3 py-3">
                       <p className="font-medium text-on-surface">{modelName}</p>
                       {clean(item.marca) && item.modelo !== item.marca && (
-                        <p className="text-[10px] text-on-surface-variant/60">{item.marca}</p>
+                        <p className="text-[0.625rem] text-on-surface-variant/60">{item.marca}</p>
                       )}
                     </td>
                     <td className="px-3 py-3 text-on-surface-variant">{clean(item.propiedad) || '—'}</td>
                     <td className="px-3 py-3">
                       <div className="space-y-0.5">
-                        {clean(item.procesador) && <p className="text-[10px] text-on-surface-variant/70 truncate max-w-[150px]">{item.procesador.substring(0, 35)}{item.procesador.length > 35 ? '…' : ''}</p>}
-                        {clean(item.memoria) && <p className="text-[10px] text-on-surface-variant/50">{item.memoria} RAM</p>}
-                        {clean(item.hdd) && !clean(item.procesador) && !clean(item.memoria) && <p className="text-[10px] text-on-surface-variant/50">{item.hdd}</p>}
+                        {clean(item.procesador) && <p className="text-[0.625rem] text-on-surface-variant/70 truncate max-w-[150px]">{item.procesador.substring(0, 35)}{item.procesador.length > 35 ? '…' : ''}</p>}
+                        {clean(item.memoria) && <p className="text-[0.625rem] text-on-surface-variant/50">{item.memoria} RAM</p>}
+                        {clean(item.hdd) && !clean(item.procesador) && !clean(item.memoria) && <p className="text-[0.625rem] text-on-surface-variant/50">{item.hdd}</p>}
                       </div>
                     </td>
                     <td className="px-3 py-3">
-                      <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                      <span className={`inline-flex items-center gap-1 text-[0.625rem] font-semibold px-2 py-0.5 rounded-full border ${
                         isAvailable ? 'bg-green-500/15 text-green-300 border-green-500/25' : 'bg-blue-500/15 text-blue-300 border-blue-500/25'
                       }`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${isAvailable ? 'bg-green-400' : 'bg-blue-400'}`} />
                         {isAvailable ? 'Disponible' : 'Asignado'}
                       </span>
                     </td>
-                    <td className="px-3 py-3 text-on-surface-variant/60 text-[11px] max-w-[120px] truncate">
+                    <td className="px-3 py-3 text-on-surface-variant/60 text-[0.6875rem] max-w-[120px] truncate">
                       {clean(item.lugar_donde_esta) || '—'}
                     </td>
                     <td className="px-3 py-3 text-right" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button onClick={() => setModal(item)} title="Editar"
                           className="p-1 rounded text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors">
-                          <span className="material-symbols-outlined text-[14px]">edit</span>
+                          <span className="material-symbols-outlined text-[0.875rem]">edit</span>
                         </button>
                         <button onClick={() => setDeleteConfirm(item)} title="Eliminar"
                           className="p-1 rounded text-on-surface-variant hover:text-red-400 hover:bg-surface-container transition-colors">
-                          <span className="material-symbols-outlined text-[14px]">delete</span>
+                          <span className="material-symbols-outlined text-[0.875rem]">delete</span>
                         </button>
                       </div>
                     </td>
@@ -442,7 +442,7 @@ export default function Equipment() {
       )}
 
       {!loading && !error && (
-        <p className="text-[11px] text-on-surface-variant/40 text-right mt-3">
+        <p className="text-[0.6875rem] text-on-surface-variant/40 text-right mt-3">
           Mostrando {filtered.length} de {total} equipos
         </p>
       )}

@@ -111,21 +111,21 @@ export default function Dashboard() {
           {/* Quick Actions */}
           <div className="flex flex-wrap gap-2">
             <Link to="/reports" className="inline-flex items-center gap-1.5 px-4 py-2 bg-surface-container-lowest border border-outline-variant/30 text-primary rounded-full text-sm font-medium hover:bg-surface-container transition-colors">
-              <span className="material-symbols-outlined text-[16px]">analytics</span>
+              <span className="material-symbols-outlined text-[1rem]">analytics</span>
               Reports
             </Link>
             {can('requirements.create') && (
               <Link to="/requirements/new" className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-full text-sm font-medium hover:opacity-90 transition-opacity shadow-sm">
-                <span className="material-symbols-outlined text-[16px]">add</span>
+                <span className="material-symbols-outlined text-[1rem]">add</span>
                 New Requirement
               </Link>
             )}
             <Link to="/requirements" className="inline-flex items-center gap-1.5 px-4 py-2 bg-surface-container-lowest border border-outline-variant/30 text-primary rounded-full text-sm font-medium hover:bg-surface-container transition-colors">
-              <span className="material-symbols-outlined text-[16px]">list_alt</span>
+              <span className="material-symbols-outlined text-[1rem]">list_alt</span>
               All Requirements
             </Link>
             <Link to="/talent" className="inline-flex items-center gap-1.5 px-4 py-2 bg-surface-container-lowest border border-outline-variant/30 text-primary rounded-full text-sm font-medium hover:bg-surface-container transition-colors">
-              <span className="material-symbols-outlined text-[16px]">people</span>
+              <span className="material-symbols-outlined text-[1rem]">people</span>
               Talent Directory
             </Link>
           </div>
@@ -140,7 +140,7 @@ export default function Dashboard() {
               <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent pointer-events-none" />
               <div className="flex items-start justify-between mb-2">
                 <h3 className="text-xs uppercase tracking-[0.08em] font-bold text-white/60">Open Requirements</h3>
-                <span className="material-symbols-outlined text-[18px] text-white/30">assignment</span>
+                <span className="material-symbols-outlined text-[1.125rem] text-white/30">assignment</span>
               </div>
               <p className="text-[5.5rem] leading-none tracking-tighter font-light text-[#81b927]">
                 {loading ? '…' : stats?.openCount ?? 0}
@@ -176,7 +176,7 @@ export default function Dashboard() {
                         style={{ backgroundColor: p.bg }}
                         title={`Ver requerimientos de ${client.name}`}
                       >
-                        <p className="text-[9px] font-bold uppercase tracking-widest mb-2 truncate" style={{ color: p.lbl }}>{client.name}</p>
+                        <p className="text-[0.5625rem] font-bold uppercase tracking-widest mb-2 truncate" style={{ color: p.lbl }}>{client.name}</p>
                         <p className="text-[2rem] font-light leading-none" style={{ color: p.num }}>{client.count}</p>
                       </Link>
                     )
@@ -193,7 +193,7 @@ export default function Dashboard() {
               <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
               <div className="flex items-start justify-between mb-2">
                 <h3 className="text-xs uppercase tracking-[0.08em] font-bold text-white/60">Talent Pool</h3>
-                <span className="material-symbols-outlined text-[18px] text-white/30">people</span>
+                <span className="material-symbols-outlined text-[1.125rem] text-white/30">people</span>
               </div>
               <p className="text-5xl tracking-tighter font-light text-[#81b927]">
                 {loading ? '…' : (stats?.totalCandidates ?? 0).toLocaleString()}
@@ -213,7 +213,7 @@ export default function Dashboard() {
                     })}
                     className="w-6 h-6 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/35 transition-colors"
                   >
-                    <span className="material-symbols-outlined text-[14px] text-white">chevron_left</span>
+                    <span className="material-symbols-outlined text-[0.875rem] text-white">chevron_left</span>
                   </button>
                   <button
                     onClick={() => setTalentMonth(p => {
@@ -222,14 +222,14 @@ export default function Dashboard() {
                     })}
                     className="w-6 h-6 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/35 transition-colors"
                   >
-                    <span className="material-symbols-outlined text-[14px] text-white">chevron_right</span>
+                    <span className="material-symbols-outlined text-[0.875rem] text-white">chevron_right</span>
                   </button>
                 </div>
               </div>
               <p className="relative text-5xl tracking-tighter font-light text-white">
                 {talentLoading ? '…' : `+${talentCount ?? 0}`}
               </p>
-              <p className="relative text-[11px] text-white/80 mt-2 font-medium">
+              <p className="relative text-[0.6875rem] text-white/80 mt-2 font-medium">
                 Agregados al Talent Pool en {MESES_ES[talentMonth.month]} {talentMonth.year}
               </p>
             </div>
@@ -241,14 +241,14 @@ export default function Dashboard() {
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h2 className="text-sm font-bold text-white">Pipeline de Candidatos</h2>
-                <p className="text-[11px] text-white/60 mt-0.5">Actividad de esta semana</p>
+                <p className="text-[0.6875rem] text-white/60 mt-0.5">Actividad de esta semana</p>
               </div>
-              <span className="material-symbols-outlined text-[20px] text-white/30">hub</span>
+              <span className="material-symbols-outlined text-[1.25rem] text-white/30">hub</span>
             </div>
 
             {loading ? (
               <div className="flex items-center justify-center py-6 gap-2 text-white/60">
-                <span className="material-symbols-outlined animate-spin text-[22px]">progress_activity</span>
+                <span className="material-symbols-outlined animate-spin text-[1.375rem]">progress_activity</span>
               </div>
             ) : (() => {
               const sent = stats?.weeklySent ?? 0
@@ -258,8 +258,8 @@ export default function Dashboard() {
                   {/* Current week */}
                   <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
                     <div className="flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-[24px] text-on-surface-variant/50">calendar_today</span>
-                      <span className="text-[15px] font-bold uppercase tracking-wider text-on-surface-variant">Semana</span>
+                      <span className="material-symbols-outlined text-[1.5rem] text-on-surface-variant/50">calendar_today</span>
+                      <span className="text-[0.9375rem] font-bold uppercase tracking-wider text-on-surface-variant">Semana</span>
                     </div>
                     <p className="text-5xl font-light tracking-tighter text-primary">{isoWeek}</p>
                   </div>
@@ -267,8 +267,8 @@ export default function Dashboard() {
                   {/* Sent this week */}
                   <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
                     <div className="flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-[24px]" style={{ color: '#50B152' }}>send</span>
-                      <span className="text-[15px] font-bold uppercase tracking-wider text-on-surface-variant">Sent</span>
+                      <span className="material-symbols-outlined text-[1.5rem]" style={{ color: '#50B152' }}>send</span>
+                      <span className="text-[0.9375rem] font-bold uppercase tracking-wider text-on-surface-variant">Sent</span>
                     </div>
                     <p className="animate-glow-number text-5xl font-light tracking-tighter" style={{ color: '#50B152' }}>{sent}</p>
                     <p className="text-sm font-semibold italic text-on-surface-variant">candidatos enviados al cliente</p>
@@ -277,8 +277,8 @@ export default function Dashboard() {
                   {/* Rejected this week */}
                   <div className="bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2">
                     <div className="flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-[24px]" style={{ color: '#ba1a1a' }}>cancel</span>
-                      <span className="text-[15px] font-bold uppercase tracking-wider text-on-surface-variant">Rejected</span>
+                      <span className="material-symbols-outlined text-[1.5rem]" style={{ color: '#ba1a1a' }}>cancel</span>
+                      <span className="text-[0.9375rem] font-bold uppercase tracking-wider text-on-surface-variant">Rejected</span>
                     </div>
                     <p className="animate-glow-number text-5xl font-light tracking-tighter" style={{ color: '#ba1a1a' }}>
                       {stats?.weeklyRejected ?? 0}
@@ -295,14 +295,14 @@ export default function Dashboard() {
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h2 className="text-sm font-bold text-white">Pipeline General</h2>
-                <p className="text-[11px] text-white/60 mt-0.5">Candidatos activos en todos los requerimientos abiertos</p>
+                <p className="text-[0.6875rem] text-white/60 mt-0.5">Candidatos activos en todos los requerimientos abiertos</p>
               </div>
-              <span className="material-symbols-outlined text-[20px] text-white/30">groups</span>
+              <span className="material-symbols-outlined text-[1.25rem] text-white/30">groups</span>
             </div>
 
             {loading ? (
               <div className="flex items-center justify-center py-6 gap-2 text-white/60">
-                <span className="material-symbols-outlined animate-spin text-[22px]">progress_activity</span>
+                <span className="material-symbols-outlined animate-spin text-[1.375rem]">progress_activity</span>
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-3">
@@ -313,8 +313,8 @@ export default function Dashboard() {
                   className="text-left bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2 hover:shadow-[0_4px_20px_rgba(24,28,30,0.08)] hover:-translate-y-0.5 transition-all cursor-pointer"
                 >
                   <div className="flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-[24px]" style={{ color: '#4e90d0' }}>hub</span>
-                    <span className="text-[15px] font-bold uppercase tracking-wider text-on-surface-variant">Pipeline General</span>
+                    <span className="material-symbols-outlined text-[1.5rem]" style={{ color: '#4e90d0' }}>hub</span>
+                    <span className="text-[0.9375rem] font-bold uppercase tracking-wider text-on-surface-variant">Pipeline General</span>
                   </div>
                   <p className="animate-glow-number text-5xl font-light tracking-tighter" style={{ color: '#4e90d0' }}>
                     {stats?.activePipelineCount ?? 0}
@@ -329,8 +329,8 @@ export default function Dashboard() {
                   className="text-left bg-surface-container-lowest rounded-xl p-5 border border-outline-variant/10 flex flex-col gap-2 hover:shadow-[0_4px_20px_rgba(24,28,30,0.08)] hover:-translate-y-0.5 transition-all cursor-pointer"
                 >
                   <div className="flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-[24px]" style={{ color: '#81b927' }}>bolt</span>
-                    <span className="text-[15px] font-bold uppercase tracking-wider text-on-surface-variant">Candidatos</span>
+                    <span className="material-symbols-outlined text-[1.5rem]" style={{ color: '#81b927' }}>bolt</span>
+                    <span className="text-[0.9375rem] font-bold uppercase tracking-wider text-on-surface-variant">Candidatos</span>
                   </div>
                   <p className="animate-glow-number text-5xl font-light tracking-tighter" style={{ color: '#81b927' }}>
                     {stats?.finalStageCount ?? 0}
@@ -364,7 +364,7 @@ export default function Dashboard() {
                   <p className="text-xs text-white/50 mt-0.5">{rows.length} candidato{rows.length !== 1 ? 's' : ''} · ordenado por cliente</p>
                 </div>
                 <button onClick={() => setPipelineModal(null)} className="text-white/40 hover:text-white/80 transition-colors">
-                  <span className="material-symbols-outlined text-[22px]">close</span>
+                  <span className="material-symbols-outlined text-[1.375rem]">close</span>
                 </button>
               </div>
               <div className="overflow-y-auto overflow-x-hidden flex-1">
@@ -378,7 +378,7 @@ export default function Dashboard() {
                   <thead className="sticky top-0 z-10" style={{ backgroundColor: '#0b2a58' }}>
                     <tr>
                       {['Nombre', 'Cliente', 'Posición', 'Stage'].map(h => (
-                        <th key={h} className="py-3 px-5 text-[11px] font-bold uppercase tracking-widest truncate" style={{ color: '#81b927' }}>{h}</th>
+                        <th key={h} className="py-3 px-5 text-[0.6875rem] font-bold uppercase tracking-widest truncate" style={{ color: '#81b927' }}>{h}</th>
                       ))}
                     </tr>
                   </thead>

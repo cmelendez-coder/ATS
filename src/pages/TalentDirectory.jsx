@@ -589,7 +589,7 @@ export default function TalentDirectory() {
         <div className="flex items-center gap-4">
           <span className="md:hidden text-lg font-bold tracking-tight text-primary">EverTrack</span>
           <form onSubmit={handleSearch} className="relative hidden md:block group">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-[18px]">search</span>
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-[1.125rem]">search</span>
             <input
               className="bg-surface-container-high border-none outline-none ring-0 h-9 pl-10 pr-4 rounded-full text-sm w-60 focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:text-on-surface-variant"
               placeholder="Buscar por nombre o tecnologías…"
@@ -600,10 +600,10 @@ export default function TalentDirectory() {
         </div>
         <div className="flex items-center gap-2">
           <button className="p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors w-9 h-9 flex items-center justify-center">
-            <span className="material-symbols-outlined text-[20px]">notifications</span>
+            <span className="material-symbols-outlined text-[1.25rem]">notifications</span>
           </button>
           <button className="p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors w-9 h-9 flex items-center justify-center">
-            <span className="material-symbols-outlined text-[20px]">settings</span>
+            <span className="material-symbols-outlined text-[1.25rem]">settings</span>
           </button>
           <div className="w-px h-5 bg-outline-variant/40 mx-1"></div>
           <UserAvatar />
@@ -619,7 +619,7 @@ export default function TalentDirectory() {
             <div className="space-y-1.5">
               <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
                 <Link to="/" className="hover:text-primary transition-colors">Dashboard</Link>
-                <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+                <span className="material-symbols-outlined text-[0.875rem]">chevron_right</span>
                 <span className="text-primary font-medium">Talent Directory</span>
               </div>
               <div className="flex items-center gap-3">
@@ -639,7 +639,7 @@ export default function TalentDirectory() {
                   className="flex items-center gap-2 bg-surface-container border border-outline-variant/30 text-on-surface px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-surface-container-high transition-colors"
                   title="Exportar resultados a Excel"
                 >
-                  <span className="material-symbols-outlined text-[18px] text-green-400">table_view</span>
+                  <span className="material-symbols-outlined text-[1.125rem] text-green-400">table_view</span>
                   Exportar Excel
                 </button>
               )}
@@ -649,7 +649,7 @@ export default function TalentDirectory() {
                 className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors"
                 style={{ backgroundColor: '#000', color: '#4ade80', border: '1px solid #166534' }}
               >
-                <span className="material-symbols-outlined text-[18px]" style={{ color: '#4ade80' }}>manage_search</span>
+                <span className="material-symbols-outlined text-[1.125rem]" style={{ color: '#4ade80' }}>manage_search</span>
                 Admin-Search
               </button>
               <Link
@@ -657,13 +657,13 @@ export default function TalentDirectory() {
                 className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white transition-colors hover:opacity-90"
                 style={{ backgroundColor: '#a12d2d' }}
               >
-                <span className="material-symbols-outlined text-[18px]">block</span>
+                <span className="material-symbols-outlined text-[1.125rem]">block</span>
                 Lista negra
               </Link>
               {can('talent.create') && (
                 <Link to="/talent/new">
                   <button className="flex items-center gap-2 bg-gradient-to-br from-primary to-primary-container text-on-primary px-4 py-2.5 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity">
-                    <span className="material-symbols-outlined text-[18px]">add</span>Add Talent
+                    <span className="material-symbols-outlined text-[1.125rem]">add</span>Add Talent
                   </button>
                 </Link>
               )}
@@ -674,7 +674,7 @@ export default function TalentDirectory() {
           {/* Search & Filters */}
           <form onSubmit={handleSearch} className="p-4 bg-surface-container-lowest rounded-2xl shadow-[0_2px_16px_rgba(24,28,30,0.04)] border border-outline-variant/10 grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto]">
             <div className="relative min-w-0 w-full">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[1.125rem]">search</span>
               <input
                 className="w-full pl-10 pr-4 py-2.5 bg-surface-container-high border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 transition-shadow placeholder:text-on-surface-variant text-on-surface"
                 placeholder="Buscar por nombre o tecnologías…"
@@ -684,7 +684,7 @@ export default function TalentDirectory() {
             </div>
             <div className="flex gap-3 flex-wrap items-center justify-start">
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">English</span>
+                <span className="text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap">English</span>
                 <input
                   type="number"
                   min="0" max="100"
@@ -708,7 +708,7 @@ export default function TalentDirectory() {
                 disabled={searching}
                 className="flex items-center gap-2 bg-primary text-on-primary px-4 py-2.5 rounded-lg hover:opacity-90 transition-opacity text-sm font-semibold disabled:opacity-60"
               >
-                <span className={`material-symbols-outlined text-[18px] ${searching ? 'animate-spin' : ''}`}>
+                <span className={`material-symbols-outlined text-[1.125rem] ${searching ? 'animate-spin' : ''}`}>
                   {searching ? 'progress_activity' : 'search'}
                 </span>
                 {searching ? 'Buscando…' : 'Buscar'}
@@ -719,7 +719,7 @@ export default function TalentDirectory() {
                   onClick={clearFilters}
                   className="flex items-center gap-1 text-sm text-on-surface-variant hover:text-primary transition-colors"
                 >
-                  <span className="material-symbols-outlined text-[16px]">close</span>Limpiar
+                  <span className="material-symbols-outlined text-[1rem]">close</span>Limpiar
                 </button>
               )}
             </div>
@@ -728,7 +728,7 @@ export default function TalentDirectory() {
           {/* Error banner */}
           {error && (
             <div className="flex items-center gap-3 p-4 rounded-xl bg-red-900/20 border border-red-800 text-red-400">
-              <span className="material-symbols-outlined text-[20px]">error</span>
+              <span className="material-symbols-outlined text-[1.25rem]">error</span>
               <p className="text-sm font-medium">{error}</p>
             </div>
           )}
@@ -743,7 +743,7 @@ export default function TalentDirectory() {
               </div>
             ) : loading ? (
               <div className="flex items-center justify-center py-20 gap-3 text-on-surface-variant">
-                <span className="material-symbols-outlined animate-spin text-[24px]">progress_activity</span>
+                <span className="material-symbols-outlined animate-spin text-[1.5rem]">progress_activity</span>
                 <span className="text-sm">Cargando candidatos…</span>
               </div>
             ) : candidates.length === 0 ? (
@@ -758,7 +758,7 @@ export default function TalentDirectory() {
                   <thead>
                     <tr style={{ backgroundColor: '#0b2a58' }}>
                       {['Name', 'Role', 'Technology', 'Module', 'English', 'YoE', 'Location'].map(h => (
-                        <th key={h} className="py-3.5 px-5 text-[11px] font-bold uppercase tracking-widest whitespace-nowrap" style={{ color: '#81b927' }}>{h}</th>
+                        <th key={h} className="py-3.5 px-5 text-[0.6875rem] font-bold uppercase tracking-widest whitespace-nowrap" style={{ color: '#81b927' }}>{h}</th>
                       ))}
                       <th className="py-3.5 px-4" style={{ backgroundColor: '#0b2a58' }}></th>
                     </tr>
@@ -794,7 +794,7 @@ export default function TalentDirectory() {
                       <td className="px-4 pb-2 pt-1" style={{ backgroundColor: '#0b2a58' }}>
                         {hasColumnFilters && (
                           <button onClick={() => { setFCity(new Set()); setFRole(new Set()); setFTech(new Set()); setFModule(new Set()); setFEng(new Set()); setFYoe(new Set()) }}
-                            className="text-[10px] text-primary hover:underline whitespace-nowrap font-semibold">
+                            className="text-[0.625rem] text-primary hover:underline whitespace-nowrap font-semibold">
                             Limpiar
                           </button>
                         )}
@@ -819,8 +819,8 @@ export default function TalentDirectory() {
                           <td className="py-4 px-5">
                             <p className="font-semibold text-primary text-sm group-hover:text-surface-tint transition-colors whitespace-nowrap">{c.full_name}</p>
                             {c.source === 'client' && (
-                              <span className="inline-flex items-center gap-1 text-[9px] font-bold text-amber-600 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded-full mt-0.5">
-                                <span className="material-symbols-outlined text-[10px]">business</span>
+                              <span className="inline-flex items-center gap-1 text-[0.5625rem] font-bold text-amber-600 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded-full mt-0.5">
+                                <span className="material-symbols-outlined text-[0.625rem]">business</span>
                                 Candidato de cliente
                               </span>
                             )}
@@ -865,7 +865,7 @@ export default function TalentDirectory() {
                           {/* Location */}
                           <td className="py-4 px-5 text-sm text-on-surface-variant whitespace-nowrap">
                             <span className="flex items-center gap-1.5">
-                              <span className="material-symbols-outlined text-[14px] text-on-surface-variant/60">location_on</span>
+                              <span className="material-symbols-outlined text-[0.875rem] text-on-surface-variant/60">location_on</span>
                               {c.location?.name ?? '—'}
                             </span>
                           </td>
@@ -914,7 +914,7 @@ export default function TalentDirectory() {
                                 {can('talent.edit') ? (
                                   <Link to={`/talent/edit/${c.candidate_code}`} state={{ backSearch: { q: query, englishMin, englishMax } }}
                                     className="p-1.5 rounded-lg hover:bg-surface-container-high transition-colors text-on-surface-variant hover:text-surface-tint" title="Editar">
-                                    <span className="material-symbols-outlined text-[16px]">edit</span>
+                                    <span className="material-symbols-outlined text-[1rem]">edit</span>
                                   </Link>
                                 ) : null}
                               </div>
@@ -922,7 +922,7 @@ export default function TalentDirectory() {
                               <div className="ml-2">
                                 <Link to={`/talent/edit/${c.candidate_code}`} state={{ backSearch: { q: query, englishMin, englishMax } }}
                                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-on-primary text-xs font-semibold hover:opacity-90 transition-opacity whitespace-nowrap">
-                                  Ver <span className="material-symbols-outlined text-[13px]">arrow_forward</span>
+                                  Ver <span className="material-symbols-outlined text-[0.8125rem]">arrow_forward</span>
                                 </Link>
                               </div>
                             </div>
@@ -955,12 +955,12 @@ export default function TalentDirectory() {
             style={{ backgroundColor: '#0a0a0a', borderColor: '#166534' }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-[20px]" style={{ color: '#4ade80' }}>manage_search</span>
+                <span className="material-symbols-outlined text-[1.25rem]" style={{ color: '#4ade80' }}>manage_search</span>
                 <h2 className="text-base font-bold" style={{ color: '#4ade80' }}>Admin-Search</h2>
               </div>
               <button onClick={() => setAdminModal(false)}
                 className="text-white/40 hover:text-white/80 transition-colors">
-                <span className="material-symbols-outlined text-[20px]">close</span>
+                <span className="material-symbols-outlined text-[1.25rem]">close</span>
               </button>
             </div>
             <p className="text-xs" style={{ color: '#86efac' }}>Búsquedas predefinidas por posición</p>
@@ -976,7 +976,7 @@ export default function TalentDirectory() {
                       style={{ backgroundColor: '#0f1f0f', borderColor: '#166834' }}>
                       <p className="text-sm font-bold" style={{ color: '#4ade80' }}>{s.label}</p>
                       <p className="text-xs mt-0.5" style={{ color: '#86efac80' }}>{s.description}</p>
-                      <p className="text-[10px] mt-1.5" style={{ color: '#166834' }}>
+                      <p className="text-[0.625rem] mt-1.5" style={{ color: '#166834' }}>
                         {s.ids.length} candidatos{hoursAgo !== null ? ` · hace ${hoursAgo}h` : ''}
                       </p>
                     </button>

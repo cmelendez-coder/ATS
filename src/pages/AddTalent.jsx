@@ -98,16 +98,16 @@ export default function AddTalent() {
         <div className="flex items-center gap-4">
           <span className="md:hidden text-lg font-bold tracking-tight text-primary">EverTrack</span>
           <div className="relative hidden md:block group">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-[18px]">search</span>
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-[1.125rem]">search</span>
             <input className="bg-surface-container-high border-none outline-none ring-0 h-9 pl-10 pr-4 rounded-full text-sm w-60 focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:text-on-surface-variant" placeholder="Search talent..." type="text" />
           </div>
         </div>
         <div className="flex items-center gap-2">
           <button className="p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors w-9 h-9 flex items-center justify-center">
-            <span className="material-symbols-outlined text-[20px]">notifications</span>
+            <span className="material-symbols-outlined text-[1.25rem]">notifications</span>
           </button>
           <button className="p-2 rounded-full text-on-surface-variant hover:bg-surface-container transition-colors w-9 h-9 flex items-center justify-center">
-            <span className="material-symbols-outlined text-[20px]">settings</span>
+            <span className="material-symbols-outlined text-[1.25rem]">settings</span>
           </button>
           <div className="w-px h-5 bg-outline-variant/40 mx-1"></div>
           <button className="hidden sm:flex items-center justify-center h-9 px-5 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary font-medium text-sm opacity-60 cursor-default">
@@ -125,9 +125,9 @@ export default function AddTalent() {
           <div className="space-y-1.5">
             <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
               <Link to="/" className="hover:text-primary transition-colors">Dashboard</Link>
-              <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+              <span className="material-symbols-outlined text-[0.875rem]">chevron_right</span>
               <Link to="/talent" className="hover:text-primary transition-colors">Talent Directory</Link>
-              <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+              <span className="material-symbols-outlined text-[0.875rem]">chevron_right</span>
               <span className="text-primary font-medium">New Profile</span>
             </div>
             <h1 className="text-[2.25rem] leading-none tracking-[-0.02em] font-extrabold text-primary">New Talent Profile</h1>
@@ -139,7 +139,7 @@ export default function AddTalent() {
           {/* Error banner */}
           {error && (
             <div className="flex items-center gap-3 p-4 rounded-xl bg-red-900/20 border border-red-800 text-red-400">
-              <span className="material-symbols-outlined text-[20px]">error</span>
+              <span className="material-symbols-outlined text-[1.25rem]">error</span>
               <p className="text-sm font-medium">{error}</p>
             </div>
           )}
@@ -152,10 +152,10 @@ export default function AddTalent() {
               <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary to-primary-container/60 rounded-l-2xl"></div>
               <div className="mb-6">
                 <h3 className="text-base font-semibold text-primary mb-0.5 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[18px] filled">person</span>
+                  <span className="material-symbols-outlined text-[1.125rem] filled">person</span>
                   Personal Information
                 </h3>
-                <p className="text-[11px] text-on-surface-variant uppercase tracking-widest">Core Identity</p>
+                <p className="text-[0.6875rem] text-on-surface-variant uppercase tracking-widest">Core Identity</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -196,10 +196,10 @@ export default function AddTalent() {
               <div className="absolute top-0 left-0 w-1 h-full bg-secondary rounded-l-2xl"></div>
               <div className="mb-6">
                 <h3 className="text-base font-semibold text-primary mb-0.5 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[18px] filled">code</span>
+                  <span className="material-symbols-outlined text-[1.125rem] filled">code</span>
                   Technical Profile
                 </h3>
-                <p className="text-[11px] text-on-surface-variant uppercase tracking-widest">Skills &amp; Expertise</p>
+                <p className="text-[0.6875rem] text-on-surface-variant uppercase tracking-widest">Skills &amp; Expertise</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div className="form-input-container">
@@ -216,12 +216,12 @@ export default function AddTalent() {
                 </div>
               </div>
               <div>
-                <p className="text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-3">Additional Skills</p>
+                <p className="text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-3">Additional Skills</p>
                 <div className="flex flex-wrap gap-2">
                   {skills.map(skill => (
                     <span key={skill} className="px-4 py-2 bg-surface-container rounded-full text-sm text-on-surface flex items-center gap-2 cursor-pointer hover:bg-surface-container-high transition-colors">
                       {skill}
-                      <span className="material-symbols-outlined text-[14px]" onClick={() => removeSkill(skill)}>close</span>
+                      <span className="material-symbols-outlined text-[0.875rem]" onClick={() => removeSkill(skill)}>close</span>
                     </span>
                   ))}
                   {addingSkill ? (
@@ -244,7 +244,7 @@ export default function AddTalent() {
                       onClick={() => setAddingSkill(true)}
                       className="px-4 py-2 border border-dashed border-outline-variant rounded-full text-sm text-on-surface-variant flex items-center gap-2 hover:bg-surface-container transition-colors"
                     >
-                      <span className="material-symbols-outlined text-[14px]">add</span> Add Skill
+                      <span className="material-symbols-outlined text-[0.875rem]">add</span> Add Skill
                     </button>
                   )}
                 </div>
@@ -257,10 +257,10 @@ export default function AddTalent() {
                 <div className="absolute top-0 left-0 w-1 h-full bg-surface-tint rounded-l-2xl"></div>
                 <div className="mb-6">
                   <h3 className="text-base font-semibold text-primary mb-0.5 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[18px] filled">tune</span>
+                    <span className="material-symbols-outlined text-[1.125rem] filled">tune</span>
                     Logistics
                   </h3>
-                  <p className="text-[11px] text-on-surface-variant uppercase tracking-widest">Requirements &amp; Status</p>
+                  <p className="text-[0.6875rem] text-on-surface-variant uppercase tracking-widest">Requirements &amp; Status</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="form-input-container">
@@ -274,7 +274,7 @@ export default function AddTalent() {
                       <option value="65">Intermediate 65% (Can write/read. Cannot hold a conversation)</option>
                     </select>
                     <label className="form-label" htmlFor="englishLevel">English Level</label>
-                    <span className="material-symbols-outlined absolute right-4 top-5 text-on-surface-variant pointer-events-none text-[18px]">expand_more</span>
+                    <span className="material-symbols-outlined absolute right-4 top-5 text-on-surface-variant pointer-events-none text-[1.125rem]">expand_more</span>
                   </div>
                   <div className="form-input-container">
                     <select className="form-input rounded-t-lg appearance-none cursor-pointer" id="scheme" name="scheme" defaultValue="">
@@ -283,7 +283,7 @@ export default function AddTalent() {
                       <option value="Full-Time">Full-Time</option>
                     </select>
                     <label className="form-label" htmlFor="scheme">Preferred Scheme</label>
-                    <span className="material-symbols-outlined absolute right-4 top-5 text-on-surface-variant pointer-events-none text-[18px]">expand_more</span>
+                    <span className="material-symbols-outlined absolute right-4 top-5 text-on-surface-variant pointer-events-none text-[1.125rem]">expand_more</span>
                   </div>
                   <div className="form-input-container md:col-span-2">
                     <input className="form-input rounded-t-lg" id="expectations" name="expectations" placeholder=" " type="text" />
@@ -298,10 +298,10 @@ export default function AddTalent() {
               <div className="absolute top-0 left-0 w-1 h-full bg-tertiary rounded-l-2xl"></div>
               <div className="mb-6">
                 <h3 className="text-base font-semibold text-primary mb-0.5 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[18px] filled">work</span>
+                  <span className="material-symbols-outlined text-[1.125rem] filled">work</span>
                   Asignación
                 </h3>
-                <p className="text-[11px] text-on-surface-variant uppercase tracking-widest">Cliente &amp; Requerimiento</p>
+                <p className="text-[0.6875rem] text-on-surface-variant uppercase tracking-widest">Cliente &amp; Requerimiento</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
@@ -319,7 +319,7 @@ export default function AddTalent() {
                   <label className="form-label" htmlFor="clientId">
                     Cliente <span className="text-error text-xs">*</span>
                   </label>
-                  <span className="material-symbols-outlined absolute right-4 top-5 text-on-surface-variant pointer-events-none text-[18px]">expand_more</span>
+                  <span className="material-symbols-outlined absolute right-4 top-5 text-on-surface-variant pointer-events-none text-[1.125rem]">expand_more</span>
                 </div>
 
                 {/* Posición */}
@@ -339,7 +339,7 @@ export default function AddTalent() {
                   <label className="form-label" htmlFor="reqId">
                     Posición <span className="text-error text-xs">*</span>
                   </label>
-                  <span className="material-symbols-outlined absolute right-4 top-5 text-on-surface-variant pointer-events-none text-[18px]">expand_more</span>
+                  <span className="material-symbols-outlined absolute right-4 top-5 text-on-surface-variant pointer-events-none text-[1.125rem]">expand_more</span>
                 </div>
 
                 {/* Fase */}
@@ -355,7 +355,7 @@ export default function AddTalent() {
                     {stages.map(s => <option key={s.stage_id} value={s.name}>{s.name}</option>)}
                   </select>
                   <label className="form-label" htmlFor="stageName">Fase (opcional)</label>
-                  <span className="material-symbols-outlined absolute right-4 top-5 text-on-surface-variant pointer-events-none text-[18px]">expand_more</span>
+                  <span className="material-symbols-outlined absolute right-4 top-5 text-on-surface-variant pointer-events-none text-[1.125rem]">expand_more</span>
                 </div>
 
               </div>
@@ -375,13 +375,13 @@ export default function AddTalent() {
               >
                 {loading ? (
                   <>
-                    <span className="material-symbols-outlined text-[16px] animate-spin">progress_activity</span>
+                    <span className="material-symbols-outlined text-[1rem] animate-spin">progress_activity</span>
                     Guardando…
                   </>
                 ) : (
                   <>
                     <span>Commit Profile</span>
-                    <span className="material-symbols-outlined text-[16px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+                    <span className="material-symbols-outlined text-[1rem] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
                   </>
                 )}
               </button>

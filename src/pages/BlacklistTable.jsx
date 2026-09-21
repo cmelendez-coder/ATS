@@ -36,7 +36,7 @@ function ReasonCell({ row, onSaved }) {
         placeholder="Sin detalles — escribe el motivo…"
         className="w-full bg-white text-slate-700 text-xs px-2.5 py-2 rounded-lg border border-slate-200 resize-y outline-none focus:ring-2 focus:ring-[#a12d2d]/30 focus:border-[#a12d2d]/40 placeholder:text-slate-300"
       />
-      <div className="absolute right-2 -bottom-4 text-[10px] font-semibold">
+      <div className="absolute right-2 -bottom-4 text-[0.625rem] font-semibold">
         {saving && <span className="text-slate-400">Guardando…</span>}
         {!saving && savedOk && <span className="text-green-600">✓ Guardado</span>}
         {!saving && !savedOk && dirty && <span className="text-[#a12d2d]/70">Sin guardar</span>}
@@ -89,9 +89,9 @@ export default function BlacklistTable() {
             <div className="space-y-1.5">
               <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
                 <Link to="/" className="hover:text-primary transition-colors">Dashboard</Link>
-                <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+                <span className="material-symbols-outlined text-[0.875rem]">chevron_right</span>
                 <Link to="/talent" className="hover:text-primary transition-colors">Talent Directory</Link>
-                <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+                <span className="material-symbols-outlined text-[0.875rem]">chevron_right</span>
                 <span className="text-primary font-medium">Lista Negra</span>
               </div>
               <div className="flex items-center gap-3">
@@ -108,7 +108,7 @@ export default function BlacklistTable() {
                 to="/talent"
                 className="flex items-center gap-2 bg-surface-container border border-outline-variant/30 text-on-surface px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-surface-container-high transition-colors"
               >
-                <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+                <span className="material-symbols-outlined text-[1.125rem]">arrow_back</span>
                 Volver al directorio
               </Link>
             </div>
@@ -118,16 +118,16 @@ export default function BlacklistTable() {
           <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-[0_2px_16px_rgba(24,28,30,0.05)] overflow-hidden">
             {loading ? (
               <div className="flex items-center justify-center py-16 gap-3 text-on-surface-variant">
-                <span className="material-symbols-outlined animate-spin text-[24px]">progress_activity</span>
+                <span className="material-symbols-outlined animate-spin text-[1.5rem]">progress_activity</span>
                 <span className="text-sm">Cargando…</span>
               </div>
             ) : error ? (
               <div className="flex items-center gap-3 p-6 text-red-500 text-sm">
-                <span className="material-symbols-outlined text-[20px]">error</span>{error}
+                <span className="material-symbols-outlined text-[1.25rem]">error</span>{error}
               </div>
             ) : rows.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-center text-on-surface-variant">
-                <span className="material-symbols-outlined text-[40px] opacity-30 mb-2">block</span>
+                <span className="material-symbols-outlined text-[2.5rem] opacity-30 mb-2">block</span>
                 <p className="text-sm">No hay candidatos en la lista negra.</p>
               </div>
             ) : (
@@ -135,9 +135,9 @@ export default function BlacklistTable() {
                 <table className="w-full text-left border-collapse min-w-[720px]">
                   <thead>
                     <tr className="bg-black" style={{ color: '#ef4444' }}>
-                      <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-widest">Candidato</th>
-                      <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-widest">Rol</th>
-                      <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-widest w-[45%]">Detalles del porqué</th>
+                      <th className="px-4 py-3 text-[0.6875rem] font-bold uppercase tracking-widest">Candidato</th>
+                      <th className="px-4 py-3 text-[0.6875rem] font-bold uppercase tracking-widest">Rol</th>
+                      <th className="px-4 py-3 text-[0.6875rem] font-bold uppercase tracking-widest w-[45%]">Detalles del porqué</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -151,7 +151,7 @@ export default function BlacklistTable() {
                             {r.full_name}
                           </Link>
                           {r.blacklisted_at && (
-                            <p className="text-[10px] text-black/50 mt-0.5">
+                            <p className="text-[0.625rem] text-black/50 mt-0.5">
                               Agregado: {new Date(r.blacklisted_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}
                             </p>
                           )}

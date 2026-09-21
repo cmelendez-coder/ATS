@@ -39,11 +39,11 @@ function MetricCard({ label, value, icon, tone = 'primary', sublabel = '' }) {
       <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent pointer-events-none" />
       <div className="relative flex items-start justify-between gap-3">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/60">{label}</p>
+          <p className="text-[0.6875rem] font-bold uppercase tracking-[0.16em] text-white/60">{label}</p>
           <p className="mt-2 text-4xl font-extrabold tracking-tight" style={{ color: accent }}>{value}</p>
           {sublabel && <p className="mt-2 text-xs text-white/40">{sublabel}</p>}
         </div>
-        <span className="material-symbols-outlined text-[20px] text-white/30">{icon}</span>
+        <span className="material-symbols-outlined text-[1.25rem] text-white/30">{icon}</span>
       </div>
     </div>
   )
@@ -901,7 +901,7 @@ const clientDetailSections = data.clients.map((client) => {
             <div className="space-y-1.5">
               <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
                 <Link to="/" className="hover:text-primary transition-colors">Dashboard</Link>
-                <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+                <span className="material-symbols-outlined text-[0.875rem]">chevron_right</span>
                 <span className="text-primary font-medium">Reports</span>
               </div>
               <h1 className="text-[2.25rem] leading-none tracking-[-0.02em] font-extrabold text-primary">Reports</h1>
@@ -914,14 +914,14 @@ const clientDetailSections = data.clients.map((client) => {
 
           {error && (
             <div className="flex items-center gap-3 p-4 rounded-xl bg-red-900/20 border border-red-800 text-red-400">
-              <span className="material-symbols-outlined text-[20px]">error</span>
+              <span className="material-symbols-outlined text-[1.25rem]">error</span>
               <p className="text-sm">{error}</p>
             </div>
           )}
 
           {loading ? (
             <div className="flex items-center justify-center py-20 gap-2 text-on-surface-variant">
-              <span className="material-symbols-outlined animate-spin text-[24px]">progress_activity</span>
+              <span className="material-symbols-outlined animate-spin text-[1.5rem]">progress_activity</span>
               <span className="text-sm">Cargando reportes...</span>
             </div>
           ) : report && (
@@ -954,11 +954,11 @@ const clientDetailSections = data.clients.map((client) => {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <button onClick={handleClientMonthlyPreview} disabled={!selectedClientId || selectedClientId === 'all' || !!busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
-                      <span className="material-symbols-outlined text-[16px]">visibility</span>
+                      <span className="material-symbols-outlined text-[1rem]">visibility</span>
                       Vista previa
                     </button>
                     <button onClick={handleClientMonthlyDownload} disabled={!selectedClientId || selectedClientId === 'all' || !!busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-tertiary to-tertiary-container text-on-tertiary-container text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
-                      <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+                      <span className="material-symbols-outlined text-[1rem]">picture_as_pdf</span>
                       Descargar PDF
                     </button>
                   </div>
@@ -976,11 +976,11 @@ const clientDetailSections = data.clients.map((client) => {
                   </select>
                   <div className="flex flex-wrap gap-2">
                     <button onClick={handleGeneralMonthlyPreview} disabled={!!busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
-                      <span className="material-symbols-outlined text-[16px]">visibility</span>
+                      <span className="material-symbols-outlined text-[1rem]">visibility</span>
                       Vista previa
                     </button>
                     <button onClick={handleGeneralMonthlyDownload} disabled={!!busy} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
-                      <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+                      <span className="material-symbols-outlined text-[1rem]">picture_as_pdf</span>
                       Descargar PDF
                     </button>
                   </div>
@@ -1009,7 +1009,7 @@ const clientDetailSections = data.clients.map((client) => {
 
                 {weeklyLoading ? (
                   <div className="flex items-center gap-2 py-4 text-on-surface-variant text-sm">
-                    <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                    <span className="material-symbols-outlined animate-spin text-[1.125rem]">progress_activity</span>
                     Cargando…
                   </div>
                 ) : weeklyError ? (
@@ -1059,15 +1059,15 @@ const clientDetailSections = data.clients.map((client) => {
                     {weeklySubmittals.length} candidato{weeklySubmittals.length !== 1 ? 's' : ''}
                   </span>
                   <button onClick={handleWeeklyPreview} disabled={weeklyLoading} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50">
-                    <span className="material-symbols-outlined text-[16px]">visibility</span>
+                    <span className="material-symbols-outlined text-[1rem]">visibility</span>
                     Vista previa
                   </button>
                   <button onClick={handleWeeklyDownload} disabled={weeklyLoading} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50">
-                    <span className="material-symbols-outlined text-[16px]">download</span>
+                    <span className="material-symbols-outlined text-[1rem]">download</span>
                     Descargar
                   </button>
                   <button onClick={handleWeeklyPrint} disabled={weeklyLoading} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50">
-                    <span className="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+                    <span className="material-symbols-outlined text-[1rem]">picture_as_pdf</span>
                     Imprimir PDF
                   </button>
                 </div>

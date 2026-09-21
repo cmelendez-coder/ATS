@@ -46,7 +46,7 @@ function ContactForm({ initial = EMPTY_FORM, onSave, onCancel, saving }) {
           disabled={!form.name.trim() || saving}
           className="px-4 py-1.5 rounded-full text-sm font-bold bg-primary text-on-primary hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-1.5"
         >
-          {saving && <span className="material-symbols-outlined animate-spin text-[14px]">progress_activity</span>}
+          {saving && <span className="material-symbols-outlined animate-spin text-[0.875rem]">progress_activity</span>}
           Guardar
         </button>
       </div>
@@ -75,7 +75,7 @@ function ClientForm({ initial, onSave, onCancel, saving }) {
 
   return (
     <div className="space-y-3 pt-3 border-t border-outline-variant/20">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Editar detalles del cliente</p>
+      <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant">Editar detalles del cliente</p>
       <div className="grid grid-cols-2 gap-2">
         {[
           ['sector',            'Sector'],
@@ -99,7 +99,7 @@ function ClientForm({ initial, onSave, onCancel, saving }) {
           disabled={saving}
           className="px-4 py-1.5 rounded-full text-sm font-bold bg-primary text-on-primary hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-1.5"
         >
-          {saving && <span className="material-symbols-outlined animate-spin text-[14px]">progress_activity</span>}
+          {saving && <span className="material-symbols-outlined animate-spin text-[0.875rem]">progress_activity</span>}
           Guardar
         </button>
       </div>
@@ -146,7 +146,7 @@ function StageForm({ initial = EMPTY_STAGE_FORM, onSave, onCancel, saving }) {
             disabled={!form.name.trim() || saving}
             className="px-4 py-1.5 rounded-full text-sm font-bold bg-primary text-on-primary hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-1.5"
           >
-            {saving && <span className="material-symbols-outlined animate-spin text-[14px]">progress_activity</span>}
+            {saving && <span className="material-symbols-outlined animate-spin text-[0.875rem]">progress_activity</span>}
             Guardar fase
           </button>
         </div>
@@ -341,7 +341,7 @@ export default function Clients({ embedded = false }) {
               {!embedded && (
               <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
                 <Link to="/" className="hover:text-primary transition-colors">Dashboard</Link>
-                <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+                <span className="material-symbols-outlined text-[0.875rem]">chevron_right</span>
                 <span className="text-primary font-medium">Clients</span>
               </div>
               )}
@@ -353,7 +353,7 @@ export default function Clients({ embedded = false }) {
               <div className="flex flex-wrap items-center gap-3">
               {!loading && (
                 <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-surface-container text-on-surface-variant text-sm font-semibold shrink-0">
-                  <span className="material-symbols-outlined text-[16px]">apartment</span>
+                  <span className="material-symbols-outlined text-[1rem]">apartment</span>
                   {clients.length} clientes activos
                 </span>
               )}
@@ -363,7 +363,7 @@ export default function Clients({ embedded = false }) {
                   onClick={() => setShowCreateClient(prev => !prev)}
                   className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-primary to-primary-container text-on-primary text-sm font-semibold hover:opacity-90 transition-opacity"
                 >
-                  <span className="material-symbols-outlined text-[16px]">{showCreateClient ? 'close' : 'add'}</span>
+                  <span className="material-symbols-outlined text-[1rem]">{showCreateClient ? 'close' : 'add'}</span>
                   {showCreateClient ? 'Cerrar formulario' : 'Nuevo cliente'}
                 </button>
               )}
@@ -373,7 +373,7 @@ export default function Clients({ embedded = false }) {
 
           {error && (
             <div className="flex items-center gap-3 p-4 rounded-xl bg-red-900/20 border border-red-800 text-red-400">
-              <span className="material-symbols-outlined text-[20px]">error</span>
+              <span className="material-symbols-outlined text-[1.25rem]">error</span>
               <p className="text-sm">{error}</p>
             </div>
           )}
@@ -388,7 +388,7 @@ export default function Clients({ embedded = false }) {
 
           {loading ? (
             <div className="flex items-center justify-center py-20 gap-2 text-on-surface-variant">
-              <span className="material-symbols-outlined animate-spin text-[24px]">progress_activity</span>
+              <span className="material-symbols-outlined animate-spin text-[1.5rem]">progress_activity</span>
               <span className="text-sm">Cargando clientes…</span>
             </div>
           ) : (
@@ -405,12 +405,12 @@ export default function Clients({ embedded = false }) {
                     {/* Card header */}
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-surface-variant/60">Cliente</p>
+                        <p className="text-[0.625rem] font-bold uppercase tracking-[0.18em] text-on-surface-variant/60">Cliente</p>
                         <h2 className="text-xl font-bold text-primary mt-1">{client.name}</h2>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         {client.sector && (
-                          <span className="px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant text-[10px] font-bold uppercase tracking-wide border border-outline-variant/20">
+                          <span className="px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant text-[0.625rem] font-bold uppercase tracking-wide border border-outline-variant/20">
                             {client.sector}
                           </span>
                         )}
@@ -420,7 +420,7 @@ export default function Clients({ embedded = false }) {
                             className="p-1.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors"
                             title="Editar datos del cliente"
                           >
-                            <span className="material-symbols-outlined text-[16px]">
+                            <span className="material-symbols-outlined text-[1rem]">
                               {editingClient === client.id ? 'close' : 'edit'}
                             </span>
                           </button>
@@ -440,25 +440,25 @@ export default function Clients({ embedded = false }) {
                       <div className="grid grid-cols-2 gap-2 text-sm">
                         {DETAIL_KEYS.filter(([k]) => k !== 'headquarters_location' && k !== 'notes' && client[k]).map(([k, label]) => (
                           <div key={k} className="rounded-xl bg-surface-container border border-outline-variant/15 p-3">
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/60 mb-1">{label}</p>
+                            <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/60 mb-1">{label}</p>
                             <p className="font-medium text-on-surface text-sm">{client[k]}</p>
                           </div>
                         ))}
                         {client.headquarters_location && (
                           <div className="rounded-xl bg-surface-container border border-outline-variant/15 p-3 col-span-2">
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/60 mb-1">Sede Central</p>
+                            <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/60 mb-1">Sede Central</p>
                             <p className="font-medium text-on-surface text-sm">{client.headquarters_location}</p>
                           </div>
                         )}
                         {client.notes && (
                           <div className="rounded-xl bg-surface-container border border-outline-variant/15 p-3 col-span-2">
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/60 mb-1">Notas</p>
+                            <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/60 mb-1">Notas</p>
                             <p className="font-medium text-on-surface text-sm">{client.notes}</p>
                           </div>
                         )}
                         {!DETAIL_KEYS.some(([k]) => client[k]) && (
                           <div className="col-span-2 text-xs text-on-surface-variant/50 italic py-2">
-                            Sin detalles — haz clic en <span className="material-symbols-outlined text-[11px] align-middle">edit</span> para agregar
+                            Sin detalles — haz clic en <span className="material-symbols-outlined text-[0.6875rem] align-middle">edit</span> para agregar
                           </div>
                         )}
                       </div>
@@ -468,19 +468,19 @@ export default function Clients({ embedded = false }) {
                     <div className="pt-4 border-t border-outline-variant/20">
                       <div className="flex items-center justify-between mb-3 gap-3">
                         <div>
-                          <h3 className="text-[10px] font-bold uppercase tracking-[0.16em] text-on-surface-variant flex items-center gap-1.5">
-                            <span className="material-symbols-outlined text-[13px]">account_tree</span>
+                          <h3 className="text-[0.625rem] font-bold uppercase tracking-[0.16em] text-on-surface-variant flex items-center gap-1.5">
+                            <span className="material-symbols-outlined text-[0.8125rem]">account_tree</span>
                             Client Pipeline
                           </h3>
-                          <p className="text-[11px] text-on-surface-variant mt-1">Fases que se usan para el pipeline del cliente.</p>
+                          <p className="text-[0.6875rem] text-on-surface-variant mt-1">Fases que se usan para el pipeline del cliente.</p>
                         </div>
                         {can('clients.contacts.manage') && (
                           <button
                             type="button"
                             onClick={() => setStageEditing({ clientId: client.id, mode: 'add' })}
-                            className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors border border-primary/20"
+                            className="inline-flex items-center gap-1 text-[0.625rem] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors border border-primary/20"
                           >
-                            <span className="material-symbols-outlined text-[11px]">add</span>
+                            <span className="material-symbols-outlined text-[0.6875rem]">add</span>
                             Agregar fase
                           </button>
                         )}
@@ -522,10 +522,10 @@ export default function Clients({ embedded = false }) {
                               <div className="flex items-center justify-between gap-3">
                                 <div className="flex items-center gap-2 min-w-0">
                                   <span
-                                    className="material-symbols-outlined text-[18px] text-on-surface-variant/30 cursor-grab active:cursor-grabbing shrink-0"
+                                    className="material-symbols-outlined text-[1.125rem] text-on-surface-variant/30 cursor-grab active:cursor-grabbing shrink-0"
                                     title="Arrastra para reordenar"
                                   >drag_indicator</span>
-                                  <span className="text-[10px] font-bold text-on-surface-variant/40 w-4 shrink-0">{idx + 1}</span>
+                                  <span className="text-[0.625rem] font-bold text-on-surface-variant/40 w-4 shrink-0">{idx + 1}</span>
                                   <span className="inline-block w-3 h-3 rounded-full border border-white/60 shrink-0" style={{ backgroundColor: stage.color }}></span>
                                   <p className="font-semibold text-primary text-sm truncate">{stage.name}</p>
                                 </div>
@@ -537,7 +537,7 @@ export default function Clients({ embedded = false }) {
                                       className="p-1.5 rounded-lg text-on-surface-variant/60 hover:text-primary hover:bg-primary/10 transition-colors"
                                       title="Editar fase"
                                     >
-                                      <span className="material-symbols-outlined text-[14px]">edit</span>
+                                      <span className="material-symbols-outlined text-[0.875rem]">edit</span>
                                     </button>
                                     <button
                                       type="button"
@@ -545,7 +545,7 @@ export default function Clients({ embedded = false }) {
                                       className="p-1.5 rounded-lg text-on-surface-variant/60 hover:text-error hover:bg-error/10 transition-colors"
                                       title="Eliminar fase"
                                     >
-                                      <span className="material-symbols-outlined text-[14px]">delete</span>
+                                      <span className="material-symbols-outlined text-[0.875rem]">delete</span>
                                     </button>
                                   </div>
                                 )}
@@ -567,34 +567,34 @@ export default function Clients({ embedded = false }) {
                     {/* HR Contacts */}
                     <div className="pt-4 border-t border-outline-variant/20">
                       <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-[10px] font-bold uppercase tracking-[0.16em] text-on-surface-variant flex items-center gap-1.5">
-                          <span className="material-symbols-outlined text-[13px]">contacts</span>
+                        <h3 className="text-[0.625rem] font-bold uppercase tracking-[0.16em] text-on-surface-variant flex items-center gap-1.5">
+                          <span className="material-symbols-outlined text-[0.8125rem]">contacts</span>
                           HR Contacts
                         </h3>
                         {can('clients.contacts.manage') && (
                           <button
                             onClick={() => setEditing({ clientId: client.id, mode: 'add' })}
-                            className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors border border-primary/20"
+                            className="inline-flex items-center gap-1 text-[0.625rem] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors border border-primary/20"
                           >
-                            <span className="material-symbols-outlined text-[11px]">add</span>
+                            <span className="material-symbols-outlined text-[0.6875rem]">add</span>
                             Agregar
                           </button>
                         )}
                       </div>
 
                       <div className="overflow-x-auto -mx-1">
-                        <table className="w-full text-[11px] min-w-[480px]">
+                        <table className="w-full text-[0.6875rem] min-w-[480px]">
                           <thead>
                             <tr className="border-b border-outline-variant/20">
                               {['Nombre', 'Puesto', 'E-mail', 'Móvil', 'Ubicación', 'TZ', ''].map(col => (
-                                <th key={col} className="text-left pb-2 px-1.5 font-bold uppercase tracking-widest text-on-surface-variant/50 text-[9px] whitespace-nowrap">{col}</th>
+                                <th key={col} className="text-left pb-2 px-1.5 font-bold uppercase tracking-widest text-on-surface-variant/50 text-[0.5625rem] whitespace-nowrap">{col}</th>
                               ))}
                             </tr>
                           </thead>
                           <tbody>
                             {contacts.length === 0 ? (
                               <tr>
-                                <td colSpan={7} className="py-4 text-center text-on-surface-variant/50 text-[11px] italic">
+                                <td colSpan={7} className="py-4 text-center text-on-surface-variant/50 text-[0.6875rem] italic">
                                   Sin contactos registrados
                                 </td>
                               </tr>
@@ -634,14 +634,14 @@ export default function Clients({ embedded = false }) {
                                               className="p-1 rounded text-on-surface-variant/50 hover:text-primary hover:bg-primary/10 transition-colors"
                                               title="Editar"
                                             >
-                                              <span className="material-symbols-outlined text-[13px]">edit</span>
+                                              <span className="material-symbols-outlined text-[0.8125rem]">edit</span>
                                             </button>
                                             <button
                                               onClick={() => handleDelete(client.id, contact.id)}
                                               className="p-1 rounded text-on-surface-variant/50 hover:text-error hover:bg-error/10 transition-colors"
                                               title="Eliminar"
                                             >
-                                              <span className="material-symbols-outlined text-[13px]">delete</span>
+                                              <span className="material-symbols-outlined text-[0.8125rem]">delete</span>
                                             </button>
                                           </div>
                                         )}

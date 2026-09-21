@@ -6,7 +6,7 @@ export default function ReportPreviewModal({ open, title, html, onClose, onDownl
       <div className="w-full max-w-6xl h-[90vh] bg-surface-container-lowest rounded-3xl overflow-hidden border border-outline-variant/20 shadow-2xl flex flex-col">
         <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-outline-variant/15 bg-surface/95">
           <div className="min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-surface-variant">Vista previa</p>
+            <p className="text-[0.625rem] font-bold uppercase tracking-[0.18em] text-on-surface-variant">Vista previa</p>
             <h3 className="text-lg font-bold text-primary truncate">{title}</h3>
           </div>
           <div className="flex items-center gap-2">
@@ -16,7 +16,7 @@ export default function ReportPreviewModal({ open, title, html, onClose, onDownl
                 onClick={onDownload}
                 className="px-4 py-2 rounded-xl border border-outline-variant/20 text-sm font-medium text-on-surface-variant hover:bg-surface-container transition-colors inline-flex items-center gap-2"
               >
-                <span className="material-symbols-outlined text-[16px]">download</span>
+                <span className="material-symbols-outlined text-[1rem]">download</span>
                 Descargar
               </button>
             )}

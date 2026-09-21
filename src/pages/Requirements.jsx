@@ -60,7 +60,7 @@ function ClientLogo({ name = '', size = 'sm' }) {
     const cls = size === 'header' ? 'h-8 w-auto max-w-[120px]' : 'h-5 w-auto max-w-[56px]'
     return <img src={src} alt={name} className={`${cls} object-contain`} onError={() => setErr(true)} />
   }
-  const av = size === 'header' ? 'w-8 h-8 text-sm' : 'w-6 h-6 text-[11px]'
+  const av = size === 'header' ? 'w-8 h-8 text-sm' : 'w-6 h-6 text-[0.6875rem]'
   return (
     <div className={`${av} rounded-lg bg-primary/10 flex items-center justify-center font-bold text-primary shrink-0`}>
       {name.charAt(0).toUpperCase()}
@@ -134,7 +134,7 @@ function PendingApprovalsSection({ onApproved }) {
       >
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-yellow-500/20 flex items-center justify-center">
-            <span className="material-symbols-outlined text-[20px] text-yellow-400">pending_actions</span>
+            <span className="material-symbols-outlined text-[1.25rem] text-yellow-400">pending_actions</span>
           </div>
           <div className="text-left">
             <p className="text-sm font-bold text-yellow-300">
@@ -144,7 +144,7 @@ function PendingApprovalsSection({ onApproved }) {
           </div>
         </div>
         <span
-          className="material-symbols-outlined text-[20px] text-yellow-400 transition-transform duration-200"
+          className="material-symbols-outlined text-[1.25rem] text-yellow-400 transition-transform duration-200"
           style={{ transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
         >expand_more</span>
       </button>
@@ -161,7 +161,7 @@ function PendingApprovalsSection({ onApproved }) {
                     <span className="font-mono text-xs font-semibold text-slate-300">
                       {`REQ-${new Date(req.created_at).getFullYear()}-${String(req.req_number ?? 0).padStart(3, '0')}`}
                     </span>
-                    <span className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${PRI_BADGE[req.priority] ?? PRI_BADGE[2]}`}>
+                    <span className={`text-[0.625rem] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ${PRI_BADGE[req.priority] ?? PRI_BADGE[2]}`}>
                       Prioridad: {pri.label}
                     </span>
                   </div>
@@ -178,8 +178,8 @@ function PendingApprovalsSection({ onApproved }) {
                     className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-green-600 hover:bg-green-500 text-white text-xs font-bold transition-colors disabled:opacity-40"
                   >
                     {isActing
-                      ? <span className="material-symbols-outlined animate-spin text-[15px]">progress_activity</span>
-                      : <span className="material-symbols-outlined text-[15px]">check_circle</span>}
+                      ? <span className="material-symbols-outlined animate-spin text-[0.9375rem]">progress_activity</span>
+                      : <span className="material-symbols-outlined text-[0.9375rem]">check_circle</span>}
                     Aprobar
                   </button>
                   <button
@@ -187,7 +187,7 @@ function PendingApprovalsSection({ onApproved }) {
                     onClick={() => handleReject(req.id)}
                     className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition-colors disabled:opacity-40"
                   >
-                    <span className="material-symbols-outlined text-[15px]">cancel</span>
+                    <span className="material-symbols-outlined text-[0.9375rem]">cancel</span>
                     Rechazar
                   </button>
                 </div>
@@ -246,7 +246,7 @@ function PriorityInfo() {
         style={{ backgroundColor: 'rgba(129,185,39,0.18)', border: '1px solid rgba(129,185,39,0.65)' }}
         aria-label="Significado de las prioridades"
       >
-        <span className="material-symbols-outlined text-[18px]" style={{ color: '#81b927', fontVariationSettings: "'FILL' 1" }}>info</span>
+        <span className="material-symbols-outlined text-[1.125rem]" style={{ color: '#81b927', fontVariationSettings: "'FILL' 1" }}>info</span>
       </span>
       {anchor && (
         <div
@@ -262,8 +262,8 @@ function PriorityInfo() {
             }}
           >
             <div className="flex items-center gap-2.5 px-4 py-3" style={{ background: 'linear-gradient(90deg, #81b927 0%, #5f9a1a 100%)' }}>
-              <span className="material-symbols-outlined text-[20px]" style={{ color: '#10284d', fontVariationSettings: "'FILL' 1" }}>flag</span>
-              <p className="text-[12px] font-extrabold uppercase tracking-[0.14em]" style={{ color: '#10284d' }}>Guía de prioridades</p>
+              <span className="material-symbols-outlined text-[1.25rem]" style={{ color: '#10284d', fontVariationSettings: "'FILL' 1" }}>flag</span>
+              <p className="text-[0.75rem] font-extrabold uppercase tracking-[0.14em]" style={{ color: '#10284d' }}>Guía de prioridades</p>
             </div>
             <ul className="p-3 space-y-1.5">
               {PRIORITY_INFO.map(({ n, text }) => (
@@ -272,7 +272,7 @@ function PriorityInfo() {
                     className="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-sm font-extrabold shadow-md"
                     style={{ backgroundColor: PRI_TABLE[n].bg, color: PRI_TABLE[n].text }}
                   >{n}</span>
-                  <p className="text-[12.5px] leading-snug text-white/90 pt-[5px]">{text}</p>
+                  <p className="text-[0.7813rem] leading-snug text-white/90 pt-[5px]">{text}</p>
                 </li>
               ))}
             </ul>
@@ -400,14 +400,14 @@ function AddReqModal({ onAdd, onClose }) {
             <p className="text-xs text-on-surface-variant mt-0.5">Selecciona un requerimiento activo</p>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors">
-            <span className="material-symbols-outlined text-[20px]">close</span>
+            <span className="material-symbols-outlined text-[1.25rem]">close</span>
           </button>
         </div>
 
         {/* Search */}
         <div className="px-5 pt-4 pb-2">
           <div className="relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[1.125rem]">search</span>
             <input
               autoFocus
               className="w-full pl-10 pr-4 py-2.5 bg-surface-container-high rounded-xl text-sm border-none outline-none focus:ring-2 focus:ring-primary/20 placeholder:text-on-surface-variant"
@@ -422,7 +422,7 @@ function AddReqModal({ onAdd, onClose }) {
         <div className="px-3 pb-4 max-h-80 overflow-y-auto space-y-1">
           {loadingReqs && (
             <div className="flex items-center justify-center py-8 gap-2 text-on-surface-variant">
-              <span className="material-symbols-outlined animate-spin text-[20px]">progress_activity</span>
+              <span className="material-symbols-outlined animate-spin text-[1.25rem]">progress_activity</span>
             </div>
           )}
           {!loadingReqs && filtered.length === 0 && (
@@ -449,8 +449,8 @@ function AddReqModal({ onAdd, onClose }) {
                   <p className="text-xs text-on-surface-variant">{req.client?.name ?? '—'} · {req.fte_count ?? 1} FTE</p>
                 </div>
                 {isAdding
-                  ? <span className="material-symbols-outlined animate-spin text-primary text-[18px]">progress_activity</span>
-                  : <span className="material-symbols-outlined text-primary/40 text-[18px]">add_circle</span>
+                  ? <span className="material-symbols-outlined animate-spin text-primary text-[1.125rem]">progress_activity</span>
+                  : <span className="material-symbols-outlined text-primary/40 text-[1.125rem]">add_circle</span>
                 }
               </button>
             )
@@ -568,7 +568,7 @@ function ReqBoardTable() {
 
   if (loading) return (
     <div className="flex items-center justify-center py-16 gap-2 text-on-surface-variant">
-      <span className="material-symbols-outlined animate-spin text-[24px]">progress_activity</span>
+      <span className="material-symbols-outlined animate-spin text-[1.5rem]">progress_activity</span>
       <span className="text-sm">Cargando…</span>
     </div>
   )
@@ -620,7 +620,7 @@ function ReqBoardTable() {
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
         <div className="bg-[#0b1e3d] rounded-2xl shadow-2xl border border-white/10 w-full max-w-sm mx-4 p-6 flex flex-col gap-4">
           <div className="flex items-center gap-3">
-            <span className="material-symbols-outlined text-[28px] text-red-400">warning</span>
+            <span className="material-symbols-outlined text-[1.75rem] text-red-400">warning</span>
             <h2 className="text-base font-bold text-white">Cerrar posición</h2>
           </div>
           <p className="text-sm text-white/70 leading-relaxed">
@@ -650,14 +650,14 @@ function ReqBoardTable() {
           onClick={e => e.stopPropagation()}
         >
           <div className="flex items-center gap-3">
-            <span className="material-symbols-outlined text-[28px]" style={{ color: '#81b927' }}>groups</span>
+            <span className="material-symbols-outlined text-[1.75rem]" style={{ color: '#81b927' }}>groups</span>
             <h2 className="text-base font-bold text-white">Modificar FTE's</h2>
           </div>
           <p className="text-sm text-white/70 leading-relaxed">
             Esta acción modificará los FTE's para este rol en todas las tablas. ¿Continuar?
           </p>
           <div className="rounded-xl bg-white/5 border border-white/10 px-4 py-3">
-            <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-0.5">{fteConfirm.cliente ?? '—'}</p>
+            <p className="text-[0.625rem] font-bold text-white/40 uppercase tracking-widest mb-0.5">{fteConfirm.cliente ?? '—'}</p>
             <p className="text-sm font-bold text-white">{fteConfirm.position ?? '—'}</p>
             <p className="text-sm text-white/70 mt-1">
               FTE's: <span className="font-bold text-white">{fteConfirm.from ?? '—'}</span>
@@ -697,14 +697,14 @@ function ReqBoardTable() {
         >
           <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 shrink-0">
             <div>
-              <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-0.5">{pipelineModal.clientName ?? '—'}</p>
+              <p className="text-[0.625rem] font-bold text-white/40 uppercase tracking-widest mb-0.5">{pipelineModal.clientName ?? '—'}</p>
               <h2 className="text-base font-bold text-white">{pipelineModal.position ?? 'Pipeline'}</h2>
             </div>
             <button
               onClick={() => setPipelineModal(null)}
               className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors"
             >
-              <span className="material-symbols-outlined text-[20px]">close</span>
+              <span className="material-symbols-outlined text-[1.25rem]">close</span>
             </button>
           </div>
           <div className="flex-1 overflow-y-auto px-6 py-4">
@@ -752,7 +752,7 @@ function ReqBoardTable() {
         <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
           <div>
             <h2 className="text-sm font-bold text-white">Prioridades Semanales</h2>
-            <p className="text-[11px] text-white/70 mt-0.5">Actividad semanal por posición</p>
+            <p className="text-[0.6875rem] text-white/70 mt-0.5">Actividad semanal por posición</p>
           </div>
 
           {/* Week navigator */}
@@ -762,7 +762,7 @@ function ReqBoardTable() {
                 onClick={() => setSelWeek(w => shiftWeek(w, -1))}
                 className="p-1.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors"
               >
-                <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+                <span className="material-symbols-outlined text-[1.125rem]">chevron_left</span>
               </button>
               <span className="text-sm font-semibold text-primary px-2 whitespace-nowrap">
                 Week {String(selWeek.week).padStart(2, '0')} · {selWeek.year}
@@ -772,7 +772,7 @@ function ReqBoardTable() {
                 disabled={isCurrentWeek}
                 className="p-1.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-on-surface-variant"
               >
-                <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+                <span className="material-symbols-outlined text-[1.125rem]">chevron_right</span>
               </button>
             </div>
             {!isCurrentWeek && (
@@ -791,8 +791,8 @@ function ReqBoardTable() {
           {/* Semana */}
           <div className="bg-white rounded-xl p-5 border border-white/40 flex flex-col gap-2">
             <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">calendar_today</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Semana</span>
+              <span className="material-symbols-outlined text-[1rem] text-on-surface-variant/50">calendar_today</span>
+              <span className="text-[0.625rem] font-bold uppercase tracking-wider text-on-surface-variant">Semana</span>
             </div>
             <p className="text-5xl font-light tracking-tighter text-primary">{selWeek.week}</p>
           </div>
@@ -800,8 +800,8 @@ function ReqBoardTable() {
           {/* Requerimientos Abiertos */}
           <div className="bg-white rounded-xl p-5 border border-white/40 flex flex-col gap-2">
             <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">toggle_on</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Req. Abiertos</span>
+              <span className="material-symbols-outlined text-[1rem] text-on-surface-variant/50">toggle_on</span>
+              <span className="text-[0.625rem] font-bold uppercase tracking-wider text-on-surface-variant">Req. Abiertos</span>
             </div>
             <p className="text-5xl font-light tracking-tighter text-primary">{kpi?.activePositions ?? 0}</p>
           </div>
@@ -809,8 +809,8 @@ function ReqBoardTable() {
           {/* Req. en búsqueda */}
           <div className="bg-white rounded-xl p-5 border border-white/40 flex flex-col gap-2">
             <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">manage_search</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Req. en búsqueda</span>
+              <span className="material-symbols-outlined text-[1rem] text-on-surface-variant/50">manage_search</span>
+              <span className="text-[0.625rem] font-bold uppercase tracking-wider text-on-surface-variant">Req. en búsqueda</span>
             </div>
             <p className="text-5xl font-light tracking-tighter text-primary">{rows.filter(r => r.activo).length}</p>
           </div>
@@ -818,8 +818,8 @@ function ReqBoardTable() {
           {/* Enviados */}
           <div className="bg-white rounded-xl p-5 border border-white/40 flex flex-col gap-2">
             <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px]" style={{ color: '#50B152' }}>send</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Enviados</span>
+              <span className="material-symbols-outlined text-[1rem]" style={{ color: '#50B152' }}>send</span>
+              <span className="text-[0.625rem] font-bold uppercase tracking-wider text-on-surface-variant">Enviados</span>
             </div>
             <p className="text-5xl font-light tracking-tighter" style={{ color: '#50B152' }}>{kpi?.sent ?? 0}</p>
           </div>
@@ -827,8 +827,8 @@ function ReqBoardTable() {
           {/* Rechazados */}
           <div className="bg-white rounded-xl p-5 border border-white/40 flex flex-col gap-2">
             <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px]" style={{ color: '#ba1a1a' }}>cancel</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Rechazados</span>
+              <span className="material-symbols-outlined text-[1rem]" style={{ color: '#ba1a1a' }}>cancel</span>
+              <span className="text-[0.625rem] font-bold uppercase tracking-wider text-on-surface-variant">Rechazados</span>
             </div>
             <p className="text-5xl font-light tracking-tighter" style={{ color: '#ba1a1a' }}>{kpi?.rejected ?? 0}</p>
           </div>
@@ -836,8 +836,8 @@ function ReqBoardTable() {
           {/* Promedio Semanal */}
           <div className="bg-white rounded-xl p-5 border border-white/40 flex flex-col gap-2">
             <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px] text-on-surface-variant/50">calculate</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Promedio Semanal</span>
+              <span className="material-symbols-outlined text-[1rem] text-on-surface-variant/50">calculate</span>
+              <span className="text-[0.625rem] font-bold uppercase tracking-wider text-on-surface-variant">Promedio Semanal</span>
             </div>
             <p className="text-5xl font-light tracking-tighter text-primary">
               {ratio !== null ? ratio : <span className="text-on-surface-variant/30 text-3xl">—</span>}
@@ -856,7 +856,7 @@ function ReqBoardTable() {
               <th
                 key={col.label}
                 style={{ width: col.width }}
-                className="text-[14px] font-bold uppercase tracking-[0.1em] text-white text-center px-3 py-4 border-b border-white/20 whitespace-nowrap" style={{ backgroundColor: '#81b927' }}
+                className="text-[0.875rem] font-bold uppercase tracking-[0.1em] text-white text-center px-3 py-4 border-b border-white/20 whitespace-nowrap" style={{ backgroundColor: '#81b927' }}
               >
                 {col.label}
               </th>
@@ -913,8 +913,8 @@ function ReqBoardTable() {
               <tr key={`group-${cliente}`}>
                 <td colSpan={COLS.length} className="px-4 py-2" style={{ backgroundColor: '#10284d', color: '#fff' }}>
                   <div className="flex items-center justify-start gap-x-10 gap-y-2 flex-wrap">
-                    <span className="text-[14px] font-bold uppercase tracking-widest">{cliente}</span>
-                    <div className="flex items-center gap-4 text-[11px] font-bold uppercase tracking-wider">
+                    <span className="text-[0.875rem] font-bold uppercase tracking-widest">{cliente}</span>
+                    <div className="flex items-center gap-4 text-[0.6875rem] font-bold uppercase tracking-wider">
                       <span className="animate-glow text-white">
                         Posiciones en búsqueda: {grouped[cliente].filter(r => r.activo).length}
                       </span>
@@ -1002,7 +1002,7 @@ function ReqBoardTable() {
                     onClick={() => setPipelineModal({ reqId: row.requirement_id, clientId: row.client_id, clientName: row.cliente, position: row.position })}
                     className="inline-flex items-center justify-center w-7 h-7 rounded-lg transition-colors hover:bg-white/10"
                   >
-                    <span className="material-symbols-outlined text-[18px] animate-glow" style={{ color: '#81b927' }}>visibility</span>
+                    <span className="material-symbols-outlined text-[1.125rem] animate-glow" style={{ color: '#81b927' }}>visibility</span>
                   </button>
                 </td>
 
@@ -1103,7 +1103,7 @@ function CloseRequirementModal({ onConfirm, onCancel }) {
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold text-on-surface">Cerrar requerimiento</h2>
           <button type="button" onClick={onCancel} className="text-on-surface-variant hover:text-on-surface transition-colors">
-            <span className="material-symbols-outlined text-[20px]">close</span>
+            <span className="material-symbols-outlined text-[1.25rem]">close</span>
           </button>
         </div>
 
@@ -1121,7 +1121,7 @@ function CloseRequirementModal({ onConfirm, onCancel }) {
             }`}
           />
           {attempted && reasonMissing && (
-            <p className="text-[11px] text-error">Indica la razón de cierre: es obligatoria cuando la posición no fue cubierta por Everscale.</p>
+            <p className="text-[0.6875rem] text-error">Indica la razón de cierre: es obligatoria cuando la posición no fue cubierta por Everscale.</p>
           )}
         </div>
 
@@ -1144,7 +1144,7 @@ function CloseRequirementModal({ onConfirm, onCancel }) {
             ))}
           </div>
           {covered === null && (
-            <p className="text-[11px] text-error">Selecciona una opción para continuar.</p>
+            <p className="text-[0.6875rem] text-error">Selecciona una opción para continuar.</p>
           )}
         </div>
 
@@ -1280,7 +1280,7 @@ return (
             className="fixed z-50 max-w-xs bg-surface-container-high border border-outline-variant/20 rounded-xl shadow-xl px-4 py-3 text-xs text-on-surface leading-relaxed"
             style={{ top: notePopover.top, left: notePopover.left }}
           >
-            <p className="font-semibold text-on-surface-variant text-[10px] uppercase tracking-wider mb-1.5">Nota de cierre</p>
+            <p className="font-semibold text-on-surface-variant text-[0.625rem] uppercase tracking-wider mb-1.5">Nota de cierre</p>
             <p>{notePopover.text}</p>
           </div>
         </>
@@ -1296,10 +1296,10 @@ return (
               {Object.entries(PRIORITY).map(([v, p]) => (
                 <button
                   key={v}
-                  className="w-full text-left px-3 py-2 text-[11px] hover:bg-surface-container transition-colors flex items-center gap-2"
+                  className="w-full text-left px-3 py-2 text-[0.6875rem] hover:bg-surface-container transition-colors flex items-center gap-2"
                   onClick={() => handlePriorityChange(priorityPickerId, Number(v))}
                 >
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${p.bg} ${p.text} ${p.border}`}>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[0.625rem] font-bold border ${p.bg} ${p.text} ${p.border}`}>
                     {p.label}
                   </span>
                 </button>
@@ -1323,7 +1323,7 @@ return (
                 {opts.map(s => (
                   <button
                     key={s.id}
-                    className="w-full text-left px-3 py-2 text-[11px] hover:bg-surface-container transition-colors text-on-surface flex items-center gap-2"
+                    className="w-full text-left px-3 py-2 text-[0.6875rem] hover:bg-surface-container transition-colors text-on-surface flex items-center gap-2"
                     onClick={() => {
                       if (s.name.startsWith('Closed')) {
                         setStatusPickerId(null); setStatusPickerPos(null)
@@ -1346,15 +1346,6 @@ return (
       <header className="flex justify-between items-center h-16 px-8 w-full sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10 shrink-0">
         <div className="flex items-center gap-4">
           <span className="md:hidden text-lg font-bold tracking-tight text-primary">EverTrack</span>
-          <div className="relative hidden md:block group">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors text-[18px]">search</span>
-            <input
-              className="bg-surface-container-high border-none outline-none ring-0 h-9 pl-10 pr-4 rounded-full text-sm w-60 focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:text-on-surface-variant"
-              placeholder="Search requirements..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
-          </div>
         </div>
         <div className="flex items-center gap-2">
           <RequirementAlertBell count={pendingCount} loading={alertsLoading} show={showAlerts} />
@@ -1379,7 +1370,7 @@ return (
             <div className="space-y-1.5">
               <div className="flex items-center gap-1.5 text-xs text-on-surface-variant">
                 <Link to="/" className="hover:text-primary transition-colors">Dashboard</Link>
-                <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+                <span className="material-symbols-outlined text-[0.875rem]">chevron_right</span>
                 <span className="text-primary font-medium">Requirements</span>
               </div>
               <div className="flex items-center gap-3">
@@ -1393,7 +1384,7 @@ return (
                     title="Quitar filtro de cliente"
                   >
                     {catalogs.clients.find(c => String(c.id) === String(filterClient))?.name ?? 'Cliente'}
-                    <span className="material-symbols-outlined text-[14px]">close</span>
+                    <span className="material-symbols-outlined text-[0.875rem]">close</span>
                   </button>
                 )}
               </div>
@@ -1409,7 +1400,7 @@ return (
                       viewMode === 'pipeline' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
                     }`}
                   >
-                    <span className="material-symbols-outlined text-[14px]">view_kanban</span>
+                    <span className="material-symbols-outlined text-[0.875rem]">view_kanban</span>
                     Pipeline
                   </button>
                   <button
@@ -1418,7 +1409,7 @@ return (
                       viewMode === 'tabla' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
                     }`}
                   >
-                    <span className="material-symbols-outlined text-[14px]">table_view</span>
+                    <span className="material-symbols-outlined text-[0.875rem]">table_view</span>
                     Prioridades
                   </button>
                   <button
@@ -1427,14 +1418,14 @@ return (
                       viewMode === 'clientes' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'
                     }`}
                   >
-                    <span className="material-symbols-outlined text-[14px]">domain</span>
+                    <span className="material-symbols-outlined text-[0.875rem]">domain</span>
                     Clientes
                   </button>
                 </div>
                 {can('requirements.create') && (
                   <Link to="/requirements/new">
                     <button className="flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity">
-                      <span className="material-symbols-outlined text-[16px]">add</span>New Requirement
+                      <span className="material-symbols-outlined text-[1rem]">add</span>New Requirement
                     </button>
                   </Link>
                 )}
@@ -1454,10 +1445,10 @@ return (
                 {/* Main card */}
                 <div className="relative overflow-hidden flex items-center gap-4 rounded-2xl px-6 py-4 bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/30 shadow-lg shadow-primary/10 min-w-[160px]">
                   <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
-                    <span className="material-symbols-outlined text-primary text-[22px]">group</span>
+                    <span className="material-symbols-outlined text-primary text-[1.375rem]">group</span>
                   </div>
                   <div>
-                    <p className="text-[9px] font-bold text-primary/70 uppercase tracking-[0.15em] leading-none mb-1.5">Open FTE's</p>
+                    <p className="text-[0.5625rem] font-bold text-primary/70 uppercase tracking-[0.15em] leading-none mb-1.5">Open FTE's</p>
                     <p className="text-4xl font-black text-primary leading-none">{totalFTEs}</p>
                   </div>
                   <div className="absolute -right-3 -bottom-3 w-16 h-16 rounded-full bg-primary/10 blur-xl" />
@@ -1471,9 +1462,9 @@ return (
                   { label: 'Contractor',   count: contractorFTEs, num: 'text-amber-400',  border: 'border-amber-500/25',  glow: 'shadow-amber-500/10',  icon: 'handshake',        bg: 'from-amber-500/10 to-amber-500/5'  },
                 ].map(({ label, count, num, border, glow, icon, bg }) => (
                   <div key={label} className={`relative overflow-hidden flex items-center gap-3 rounded-2xl px-5 py-4 bg-gradient-to-br ${bg} border ${border} shadow-lg ${glow} min-w-[130px]`}>
-                    <span className={`material-symbols-outlined text-[18px] ${num} opacity-70`}>{icon}</span>
+                    <span className={`material-symbols-outlined text-[1.125rem] ${num} opacity-70`}>{icon}</span>
                     <div>
-                      <p className={`text-[9px] font-bold uppercase tracking-[0.15em] leading-none mb-1.5 ${num} opacity-70`}>{label}</p>
+                      <p className={`text-[0.5625rem] font-bold uppercase tracking-[0.15em] leading-none mb-1.5 ${num} opacity-70`}>{label}</p>
                       <p className={`text-3xl font-black leading-none ${num}`}>{count}</p>
                     </div>
                     <div className={`absolute -right-2 -bottom-2 w-12 h-12 rounded-full ${num.replace('text-','bg-')} opacity-10 blur-xl`} />
@@ -1518,7 +1509,7 @@ return (
                   >
                     <span className={`w-1.5 h-1.5 rounded-full ${tab.dot}`}></span>
                     {tab.label}
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                    <span className={`text-[0.625rem] font-bold px-1.5 py-0.5 rounded-full ${
                       activeTab === tab.key ? 'bg-primary/10 text-primary' : 'bg-surface-container text-on-surface-variant'
                     }`}>{tab.count}</span>
                   </button>
@@ -1546,14 +1537,14 @@ return (
               <div className="space-y-10">
                 {loading && (
                   <div className="flex items-center justify-center py-16 gap-2 text-on-surface-variant">
-                    <span className="material-symbols-outlined animate-spin text-[24px]">progress_activity</span>
+                    <span className="material-symbols-outlined animate-spin text-[1.5rem]">progress_activity</span>
                     <span className="text-sm">Loading requirements…</span>
                   </div>
                 )}
 
                 {!loading && tabFiltered.length === 0 && (
                   <div className="flex flex-col items-center justify-center py-16 text-center">
-                    <span className="material-symbols-outlined text-[48px] text-on-surface-variant/30 mb-3">assignment</span>
+                    <span className="material-symbols-outlined text-[3rem] text-on-surface-variant/30 mb-3">assignment</span>
                     <p className="text-on-surface-variant font-medium">No {activeTab} requirements found</p>
                     <p className="text-sm text-on-surface-variant/60 mt-1">
                       {activeTab === 'open' && can('requirements.create') ? 'Create your first requirement to get started.' : `No hay requerimientos ${activeTab === 'open' ? 'abiertos' : 'cerrados'}.`}
@@ -1569,7 +1560,7 @@ return (
                       <div className="flex items-center justify-center h-12 px-4 rounded-xl bg-white shadow-sm border border-outline-variant/10 shrink-0">
                         <ClientLogo name={clientName} size="header" />
                       </div>
-                      <span className="text-[10px] italic text-on-surface-variant/70 shrink-0">
+                      <span className="text-[0.625rem] italic text-on-surface-variant/70 shrink-0">
                         {reqs.length} Requerimiento{reqs.length !== 1 ? 's' : ''} {activeTab === 'closed' ? 'cerrado' : 'abierto'}{reqs.length !== 1 ? 's' : ''}
                       </span>
                       <div className="flex-1 h-px bg-outline-variant/15" />
@@ -1595,7 +1586,7 @@ return (
                               {/* Priority pill */}
                               <div className="lg:col-span-2 flex items-center">
                                 <button
-                                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border tracking-wide whitespace-nowrap hover:opacity-75 transition-opacity ${pri.bg} ${pri.text} ${pri.border}`}
+                                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[0.625rem] font-bold border tracking-wide whitespace-nowrap hover:opacity-75 transition-opacity ${pri.bg} ${pri.text} ${pri.border}`}
                                   title="Cambiar prioridad"
                                   onClick={e => {
                                     e.stopPropagation()
@@ -1610,7 +1601,7 @@ return (
                                   }}
                                 >
                                   Prioridad: {pri.label}
-                                  <span className="material-symbols-outlined text-[11px] leading-none">arrow_drop_down</span>
+                                  <span className="material-symbols-outlined text-[0.6875rem] leading-none">arrow_drop_down</span>
                                 </button>
                               </div>
 
@@ -1618,7 +1609,7 @@ return (
                               <div className={isClosed ? 'lg:col-span-3' : 'lg:col-span-4'}>
                                 <p className="font-semibold text-white text-sm leading-snug group-hover:text-[#81b927] transition-colors">{req.job_title}</p>
                                 {req.application_date && (
-                                  <p className="text-[10px] text-white font-semibold mt-0.5 animate-glow">
+                                  <p className="text-[0.625rem] text-white font-semibold mt-0.5 animate-glow">
                                     Requerimiento abierto el {new Date(req.application_date + 'T12:00:00').toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}
                                   </p>
                                 )}
@@ -1628,7 +1619,7 @@ return (
                               {isClosed && (
                                 <>
                                   <div className="lg:col-span-2 min-w-0">
-                                    <p className="text-[9px] font-bold text-white/40 uppercase tracking-[0.12em] mb-0.5">Nota</p>
+                                    <p className="text-[0.5625rem] font-bold text-white/40 uppercase tracking-[0.12em] mb-0.5">Nota</p>
                                     {req.close_reason ? (
                                       <button
                                         onClick={e => {
@@ -1645,12 +1636,12 @@ return (
                                     )}
                                   </div>
                                   <div className="lg:col-span-1">
-                                    <p className="text-[9px] font-bold text-white/40 uppercase tracking-[0.12em] mb-0.5">¿Cubierta por nosotros?</p>
+                                    <p className="text-[0.5625rem] font-bold text-white/40 uppercase tracking-[0.12em] mb-0.5">¿Cubierta por nosotros?</p>
                                     {req.covered_by_everscale === true && (
-                                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-secondary/15 text-secondary border border-secondary/20">Sí</span>
+                                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[0.5625rem] font-bold bg-secondary/15 text-secondary border border-secondary/20">Sí</span>
                                     )}
                                     {req.covered_by_everscale === false && (
-                                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-error/10 text-error border border-error/20">No</span>
+                                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[0.5625rem] font-bold bg-error/10 text-error border border-error/20">No</span>
                                     )}
                                     {req.covered_by_everscale == null && (
                                       <p className="text-xs text-white/25">—</p>
@@ -1678,14 +1669,14 @@ return (
                               {!isClosed && (
                                 <div className="lg:col-span-1">
                                   <p className="text-xs text-white/50">{req.fte_count ?? 1} FTE</p>
-                                  {req.duration && <p className="text-[10px] text-white/35">{req.duration}</p>}
+                                  {req.duration && <p className="text-[0.625rem] text-white/35">{req.duration}</p>}
                                 </div>
                               )}
 
                               {/* Status + actions */}
                               <div className="lg:col-span-2 flex items-center justify-end gap-1.5">
                                 <button
-                                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold whitespace-nowrap ${st.bg} ${st.text} tracking-wide hover:opacity-80 transition-opacity`}
+                                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[0.625rem] font-bold whitespace-nowrap ${st.bg} ${st.text} tracking-wide hover:opacity-80 transition-opacity`}
                                   title="Cambiar estatus"
                                   onClick={e => {
                                     e.stopPropagation()
@@ -1701,7 +1692,7 @@ return (
                                 >
                                   <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${st.dot}`}></span>
                                   {req.status?.name?.startsWith('Closed') ? 'Closed' : (req.status?.name ?? '—')}
-                                  <span className="material-symbols-outlined text-[11px] leading-none">arrow_drop_down</span>
+                                  <span className="material-symbols-outlined text-[0.6875rem] leading-none">arrow_drop_down</span>
                                 </button>
                                 <div className="flex gap-0.5 shrink-0">
                                   {can('requirements.edit') && (
@@ -1711,12 +1702,12 @@ return (
                                       className="p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-[#81b927] transition-colors"
                                       onClick={e => e.stopPropagation()}
                                     >
-                                      <span className="material-symbols-outlined text-[15px]">edit</span>
+                                      <span className="material-symbols-outlined text-[0.9375rem]">edit</span>
                                     </Link>
                                   )}
                                 </div>
                                 <span
-                                  className="material-symbols-outlined text-[18px] text-white/40 transition-transform duration-200 shrink-0"
+                                  className="material-symbols-outlined text-[1.125rem] text-white/40 transition-transform duration-200 shrink-0"
                                   style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
                                 >expand_more</span>
                               </div>

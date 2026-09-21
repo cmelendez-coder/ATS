@@ -912,9 +912,9 @@ function ReqBoardTable() {
             return sortedClients.flatMap(cliente => [
               <tr key={`group-${cliente}`}>
                 <td colSpan={COLS.length} className="px-4 py-2" style={{ backgroundColor: '#10284d', color: '#fff' }}>
-                  <div className="flex items-center justify-start gap-x-10 gap-y-2 flex-wrap">
+                  <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
                     <span className="text-[0.875rem] font-bold uppercase tracking-widest">{cliente}</span>
-                    <div className="flex items-center gap-4 text-[0.6875rem] font-bold uppercase tracking-wider">
+                    <div className="flex items-center gap-6 text-[0.6875rem] font-bold uppercase tracking-wider">
                       <span className="animate-glow text-white">
                         Posiciones en búsqueda: {grouped[cliente].filter(r => r.activo).length}
                       </span>
@@ -922,6 +922,7 @@ function ReqBoardTable() {
                         Posiciones on hold: {grouped[cliente].filter(r => !r.activo).length}
                       </span>
                     </div>
+                    <span />
                   </div>
                 </td>
               </tr>,
@@ -981,7 +982,7 @@ function ReqBoardTable() {
                     }}
                     disabled={isPastWeek}
                     className="rounded-lg text-sm font-bold text-center cursor-pointer outline-none border-none appearance-none px-2 py-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ backgroundColor: pri.bg, color: pri.text, width: 52 }}
+                    style={{ backgroundColor: pri.bg, color: pri.text, width: 52, backgroundImage: 'none', paddingLeft: 0, paddingRight: 0, textAlignLast: 'center' }}
                   >
                     <option value="" disabled>—</option>
                     {[0, 1, 2, 3, 4, 5].map(value => (

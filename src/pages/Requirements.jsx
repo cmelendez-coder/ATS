@@ -971,10 +971,16 @@ function ReqBoardTable() {
 function CloseRequirementModal({ onConfirm, onCancel }) {
   const [reason, setReason] = useState('')
   const [covered, setCovered] = useState(null) // true | false | null
+  const [attempted, setAttempted] = useState(false)
+
+  // La razón solo es obligatoria cuando la posición NO fue cubierta por Everscale
+  const reasonRequired = covered === false
+  const reasonMissing  = reasonRequired && !reason.trim()
 
   function handleSubmit(e) {
     e.preventDefault()
     if (covered === null) return
+    if (reasonMissing) { setAttempted(true); return }
     onConfirm({ closeReason: reason.trim() || null, coveredByEverscale: covered })
   }
 
@@ -993,14 +999,21 @@ function CloseRequirementModal({ onConfirm, onCancel }) {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-on-surface-variant">Razón de cierre</label>
+          <label className="text-xs font-medium text-on-surface-variant">
+            Razón de cierre{reasonRequired && <span className="text-error"> *</span>}
+          </label>
           <textarea
             rows={3}
             placeholder="Describe brevemente por qué se cierra..."
             value={reason}
             onChange={e => setReason(e.target.value)}
-            className="bg-surface-container-high border border-outline-variant/30 rounded-xl px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant resize-none focus:outline-none focus:ring-2 focus:ring-primary/30"
+            className={`bg-surface-container-high border rounded-xl px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 ${
+              attempted && reasonMissing ? 'border-error ring-1 ring-error/50' : 'border-outline-variant/30'
+            }`}
           />
+          {attempted && reasonMissing && (
+            <p className="text-[11px] text-error">Indica la razón de cierre: es obligatoria cuando la posición no fue cubierta por Everscale.</p>
+          )}
         </div>
 
         <div className="flex flex-col gap-2">
@@ -1448,7 +1461,7 @@ return (
                         <ClientLogo name={clientName} size="header" />
                       </div>
                       <span className="text-[10px] italic text-on-surface-variant/70 shrink-0">
-                        {reqs.length} Requerimiento{reqs.length !== 1 ? 's' : ''} abierto{reqs.length !== 1 ? 's' : ''}
+                        {reqs.length} Requerimiento{reqs.length !== 1 ? 's' : ''} {activeTab === 'closed' ? 'cerrado' : 'abierto'}{reqs.length !== 1 ? 's' : ''}
                       </span>
                       <div className="flex-1 h-px bg-outline-variant/15" />
                     </div>

@@ -213,7 +213,7 @@ const PRI_TABLE = {
 const PRIORITY_INFO = [
   { n: 0, text: 'Requerimiento nuevo o súper urgente.' },
   { n: 1, text: 'Ya se enviaron candidatos, pero se deben enviar más.' },
-  { n: 2, text: 'Dejamos de hacer sourcing por que el cliente tiene buen pipeline. La posición sigue activa. Recibimos CVs o nos contactan candidatos previamente contactados y se envían al cliente.' },
+  { n: 2, text: 'Dejamos de hacer sourcing por que el cliente tiene buen pipeline. Seguimos entrevistando a los candidatos que previamente contactamos y que apenas están respondiendo, en caso de ser buen fit, se mandan a cliente.' },
   { n: 3, text: 'La posición está en hold.' },
   { n: 4, text: 'Jacobo: "Por definir".' },
   { n: 5, text: 'Oferta aceptada.' },

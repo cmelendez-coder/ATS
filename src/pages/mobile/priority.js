@@ -11,7 +11,7 @@ export const PRIORITY_STYLE = {
 export const PRIORITY_MEANING = {
   0: 'Requerimiento nuevo o súper urgente.',
   1: 'Ya se enviaron candidatos, pero se deben enviar más.',
-  2: 'Dejamos de hacer sourcing porque el cliente tiene buen pipeline. La posición sigue activa.',
+  2: 'Dejamos de hacer sourcing por que el cliente tiene buen pipeline. Seguimos entrevistando a los candidatos que previamente contactamos y que apenas están respondiendo, en caso de ser buen fit, se mandan a cliente.',
   3: 'La posición está en hold.',
   4: 'Por definir.',
   5: 'Oferta aceptada.',

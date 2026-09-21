@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { listClients } from '../../api/clients'
 import { listRequirements } from '../../api/requirements'
-import { useRefreshOnFocus, useRouteSheet } from './hooks'
-import { Skeleton, Sheet, initials } from './ui'
+import { useRefreshOnFocus, useRouteSheet, useCachedResource } from './hooks'
+import { Skeleton, Sheet, UpdatedAt, initials } from './ui'
 import { priorityStyle } from './priority'
 
 const CLIENT_LOGOS = {
@@ -161,23 +161,15 @@ function ClientDetail({ client, openReqs }) {
 }
 
 export default function MobileClients() {
-  const [clients, setClients] = useState(null)
-  const [reqs, setReqs]       = useState([])
-  const [error, setError]     = useState(false)
-  const [refreshing, setRefreshing] = useState(true)
-  const [query, setQuery]     = useState('')
+  const [query, setQuery] = useState('')
   const { sheet, openSheet, closeSheet } = useRouteSheet()
 
-  const load = useCallback(() => {
-    setRefreshing(true)
-    setError(false)
-    Promise.all([listClients(), listRequirements({ excludePending: true })])
-      .then(([cl, rq]) => { setClients(cl); setReqs(rq) })
-      .catch(() => setError(true))
-      .finally(() => setRefreshing(false))
-  }, [])
-
-  useEffect(() => { load() }, [load])
+  // Datos guardados: se ven al instante y se actualizan en segundo plano ('reqs' se comparte con la pantalla de Requerimientos)
+  const { data: clients, error, refreshing: refC, updatedAt, reload: reloadClients } = useCachedResource('clients', listClients)
+  const { data: reqsData, refreshing: refR, reload: reloadReqs } = useCachedResource('reqs', () => listRequirements({ excludePending: true }))
+  const reqs = reqsData ?? []
+  const refreshing = refC || refR
+  const load = useCallback(() => { reloadClients(); reloadReqs() }, [reloadClients, reloadReqs])
   useRefreshOnFocus(load)
 
   const openByClient = useMemo(() => {
@@ -226,9 +218,13 @@ export default function MobileClients() {
       </div>
 
       <div className="space-y-2.5 pt-2">
+        <UpdatedAt t={updatedAt} refreshing={refreshing} className="px-1" />
+
         {error && (
           <div role="alert" className="rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-            No se pudieron cargar los clientes. Revisa tu conexión y toca el botón de actualizar.
+            {clients
+              ? 'No se pudo actualizar. Estás viendo la última información guardada; toca el botón de actualizar para reintentar.'
+              : 'No se pudieron cargar los clientes. Revisa tu conexión y toca el botón de actualizar.'}
           </div>
         )}
 

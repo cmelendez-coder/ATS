@@ -1,4 +1,18 @@
 import { useEffect } from 'react'
+import { useNow } from './hooks'
+
+/** "Actualizado hace 5 min" a partir de una marca de tiempo (ms) */
+export function UpdatedAt({ t, refreshing, className = '' }) {
+  const now = useNow()
+  if (!t) return refreshing ? <p className={`text-[0.6875rem] text-[#4e5c70] ${className}`}>Actualizando…</p> : null
+  const min = Math.max(0, Math.floor((now - t) / 60000))
+  const label = min < 1 ? 'hace un momento' : min < 60 ? `hace ${min} min` : min < 1440 ? `hace ${Math.floor(min / 60)} h` : `hace ${Math.floor(min / 1440)} d`
+  return (
+    <p className={`text-[0.6875rem] text-[#4e5c70] ${className}`}>
+      {refreshing ? 'Actualizando… · ' : ''}Actualizado {label}
+    </p>
+  )
+}
 
 /** Bloque gris pulsante para estados de carga */
 export function Skeleton({ className = '', tone = 'light' }) {

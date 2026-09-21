@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useState, useMemo } from 'react'
 import { listRequirements, getOpenRequirementsForBoard, getWeeklyBoardStats } from '../../api/requirements'
-import { useRefreshOnFocus, useRouteSheet } from './hooks'
-import { Skeleton, Sheet, getISOWeek, dateOnly, weekLabel } from './ui'
+import { useRefreshOnFocus, useRouteSheet, useCachedResource } from './hooks'
+import { Skeleton, Sheet, UpdatedAt, getISOWeek, dateOnly, weekLabel } from './ui'
 import { PipelineView } from './PipelineViews'
 import { priorityStyle, PRIORITY_MEANING } from './priority'
 
@@ -117,24 +117,16 @@ function RequirementDetail({ req }) {
 }
 
 function RequirementsList() {
-  const [reqs, setReqs]             = useState(null)
-  const [error, setError]           = useState(false)
-  const [refreshing, setRefreshing] = useState(true)
   const [tab, setTab]               = useState('open')
   const [query, setQuery]           = useState('')
   const [clientFilter, setClientFilter] = useState('')
   const { sheet, openSheet, closeSheet } = useRouteSheet()
 
-  const load = useCallback(() => {
-    setRefreshing(true)
-    setError(false)
-    listRequirements({ excludePending: true })
-      .then(setReqs)
-      .catch(() => setError(true))
-      .finally(() => setRefreshing(false))
-  }, [])
-
-  useEffect(() => { load() }, [load])
+  // Datos guardados: se ven al instante y se actualizan en segundo plano
+  const { data: reqs, error, refreshing, updatedAt, reload: load } = useCachedResource(
+    'reqs',
+    () => listRequirements({ excludePending: true })
+  )
   useRefreshOnFocus(load)
 
   const first = !reqs && !error
@@ -206,9 +198,13 @@ function RequirementsList() {
         </select>
       )}
 
+      <UpdatedAt t={updatedAt} refreshing={refreshing} className="px-1 -mt-1" />
+
       {error && (
         <div role="alert" className="rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-          No se pudo cargar la lista. Revisa tu conexión y toca el botón de actualizar.
+          {reqs
+            ? 'No se pudo actualizar. Estás viendo la última información guardada; toca el botón de actualizar para reintentar.'
+            : 'No se pudo cargar la lista. Revisa tu conexión y toca el botón de actualizar.'}
         </div>
       )}
 
@@ -280,32 +276,21 @@ function PriorityBoard() {
   const { week: curWeek, year: curYear } = getISOWeek()
   const [week, setWeek] = useState(curWeek)
   const [year, setYear] = useState(curYear)
-  const [rows, setRows] = useState([])
-  const [kpi, setKpi]   = useState(null)
-  const [loading, setLoading]       = useState(true)
-  const [refreshing, setRefreshing] = useState(true)
-  const [error, setError]           = useState(false)
-  const [tick, setTick]             = useState(0)
-  const loadedKey = useRef(null)
 
   const tooOld = year < 2026 || (year === 2026 && week < 33) // el tablero existe desde la semana 33 de 2026
 
-  useEffect(() => {
-    const key = `${week}|${year}`
-    const same = loadedKey.current === key
-    let cancelled = false
-    if (tooOld) { setRows([]); setKpi(null); setLoading(false); setRefreshing(false); setError(false); return }
-    if (!same) { setLoading(true); setRows([]); setKpi(null) }
-    setRefreshing(true)
-    setError(false)
-    Promise.all([getOpenRequirementsForBoard(week, year), getWeeklyBoardStats(week, year)])
-      .then(([boardRows, stats]) => { if (!cancelled) { loadedKey.current = key; setRows(boardRows); setKpi(stats) } })
-      .catch(() => { if (!cancelled) setError(true) })
-      .finally(() => { if (!cancelled) { setLoading(false); setRefreshing(false) } })
-    return () => { cancelled = true }
-  }, [week, year, tick, tooOld])
-
-  useRefreshOnFocus(() => setTick(t => t + 1))
+  // Datos guardados por semana: se ven al instante y se actualizan en segundo plano
+  const { data: board, error, refreshing, loading, updatedAt, reload } = useCachedResource(
+    `board:${year}:${week}`,
+    async () => {
+      const [boardRows, stats] = await Promise.all([getOpenRequirementsForBoard(week, year), getWeeklyBoardStats(week, year)])
+      return { rows: boardRows, kpi: stats }
+    },
+    { enabled: !tooOld }
+  )
+  const rows = board?.rows ?? []
+  const kpi = board?.kpi ?? null
+  useRefreshOnFocus(reload)
 
   function prevWeek() { if (week === 1) { setWeek(52); setYear(y => y - 1) } else setWeek(w => w - 1) }
   function nextWeek() { if (week === 52) { setWeek(1); setYear(y => y + 1) } else setWeek(w => w + 1) }
@@ -330,7 +315,7 @@ function PriorityBoard() {
             : <p className="text-xs text-[#4e5c70]">Semana actual</p>}
         </div>
         <div className="flex items-center">
-          <button type="button" onClick={() => setTick(t => t + 1)} disabled={refreshing} aria-label="Actualizar" className="w-10 h-11 flex items-center justify-center rounded-full text-[#1f6d44] active:bg-[#dfeadd] disabled:opacity-60">
+          <button type="button" onClick={reload} disabled={refreshing} aria-label="Actualizar" className="w-10 h-11 flex items-center justify-center rounded-full text-[#1f6d44] active:bg-[#dfeadd] disabled:opacity-60">
             <span className={`material-symbols-outlined text-[1.25rem] ${refreshing ? 'animate-spin' : ''}`}>refresh</span>
           </button>
           <button type="button" onClick={nextWeek} aria-label="Semana siguiente" className="w-11 h-11 flex items-center justify-center rounded-full text-[#10284d] active:bg-[#10284d]/10">
@@ -358,9 +343,13 @@ function PriorityBoard() {
             </div>
           </section>
 
+          <UpdatedAt t={updatedAt} refreshing={refreshing} className="px-1" />
+
           {error && (
             <div role="alert" className="rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-              No se pudo cargar el tablero. Revisa tu conexión y toca el botón de actualizar.
+              {board
+                ? 'No se pudo actualizar. Estás viendo la última información guardada; toca el botón de actualizar para reintentar.'
+                : 'No se pudo cargar el tablero. Revisa tu conexión y toca el botón de actualizar.'}
             </div>
           )}
 

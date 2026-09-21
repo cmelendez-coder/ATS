@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
-import { useOnline, useAppUpdate } from './hooks'
+import { useOnline, useAppUpdate, clearMobileCache } from './hooks'
 
 const TABS = [
   { to: '/m',              label: 'Dashboard', icon: 'dashboard', end: true },
@@ -18,6 +18,7 @@ export default function MobileLayout({ title, children }) {
 
   async function handleLogout() {
     if (!confirm('¿Cerrar sesión?')) return
+    clearMobileCache() // no dejar datos guardados en el teléfono
     await clearSession()
     navigate('/login', { replace: true })
   }

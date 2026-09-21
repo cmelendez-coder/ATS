@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { fetchTrackerEntries, recruiterFromEmail, searchTrackerByRecruiter } from '../../api/tracker'
-import { useRefreshOnFocus, useRouteSheet } from './hooks'
-import { Skeleton, Sheet, initials, weekLabel } from './ui'
+import { useRefreshOnFocus, useRouteSheet, useCachedResource } from './hooks'
+import { Skeleton, Sheet, UpdatedAt, initials, weekLabel } from './ui'
 import { PipelineView, CandidateHistoryView } from './PipelineViews'
 
 const TABS = [
@@ -205,11 +205,6 @@ export default function MobileTracker() {
   const [recruiter, setRecruiter] = useState(myRecruiter ?? 'cesar')
   const [week, setWeek]           = useState(currentWeek)
   const [year, setYear]           = useState(currentYear)
-  const [entries, setEntries]     = useState([])
-  const [loading, setLoading]     = useState(true)   // cambio de semana/reclutador: muestra esqueletos
-  const [refreshing, setRefreshing] = useState(true) // cualquier consulta en curso
-  const [error, setError]         = useState(false)
-  const [refreshKey, setRefreshKey] = useState(0)
   const [statusFilter, setStatusFilter] = useState('')
   const [reqFilter, setReqFilter] = useState('')
   const [query, setQuery]         = useState('')
@@ -217,24 +212,18 @@ export default function MobileTracker() {
   const [globalResults, setGlobalResults] = useState([])
   const [globalLoading, setGlobalLoading] = useState(false)
   const [globalError, setGlobalError]     = useState(false)
-  const loadedKey = useRef(null)
   const { sheet, openSheet, closeSheet } = useRouteSheet()
 
-  useEffect(() => {
-    const key = `${recruiter}|${week}|${year}`
-    const sameView = loadedKey.current === key // solo se actualiza: se conserva lo que ya se ve
-    let cancelled = false
-    if (!sameView) { setLoading(true); setEntries([]); setStatusFilter(''); setReqFilter('') }
-    setRefreshing(true)
-    setError(false)
-    fetchTrackerEntries(week, year, recruiter)
-      .then(rows => { if (!cancelled) { loadedKey.current = key; setEntries(rows) } })
-      .catch(() => { if (!cancelled) setError(true) })
-      .finally(() => { if (!cancelled) { setLoading(false); setRefreshing(false) } })
-    return () => { cancelled = true }
-  }, [week, year, recruiter, refreshKey])
+  // Datos guardados por reclutador y semana: se ven al instante y se actualizan en segundo plano
+  const { data, error, refreshing, loading, updatedAt, reload } = useCachedResource(
+    `tracker:${recruiter}:${year}:${week}`,
+    () => fetchTrackerEntries(week, year, recruiter)
+  )
+  const entries = data ?? []
+  useRefreshOnFocus(reload)
 
-  useRefreshOnFocus(() => setRefreshKey(k => k + 1))
+  // Al cambiar de semana o reclutador se limpian los filtros
+  useEffect(() => { setStatusFilter(''); setReqFilter('') }, [recruiter, week, year])
 
   // Búsqueda en todas las semanas del reclutador seleccionado
   useEffect(() => {
@@ -362,7 +351,7 @@ export default function MobileTracker() {
         </div>
         <button
           type="button"
-          onClick={() => setRefreshKey(k => k + 1)}
+          onClick={reload}
           disabled={refreshing}
           aria-label="Actualizar"
           className="w-11 h-11 shrink-0 flex items-center justify-center rounded-xl bg-white border border-[#10284d]/10 text-[#1f6d44] active:bg-[#dfeadd] disabled:opacity-60"
@@ -474,9 +463,13 @@ export default function MobileTracker() {
         </div>
       )}
 
+      {scope === 'week' && <UpdatedAt t={updatedAt} refreshing={refreshing} className="px-1 -mt-1" />}
+
       {scope === 'week' && error && (
         <div role="alert" className="rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-          No se pudo actualizar el tracker. Revisa tu conexión y toca el botón de actualizar.
+          {data
+            ? 'No se pudo actualizar. Estás viendo la última información guardada; toca el botón de actualizar para reintentar.'
+            : 'No se pudo cargar el tracker. Revisa tu conexión y toca el botón de actualizar.'}
         </div>
       )}
 

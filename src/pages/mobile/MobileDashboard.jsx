@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { getDashboardStats, getMonthlySentCount } from '../../api/dashboard'
-import { useRefreshOnFocus, useRouteSheet } from './hooks'
-import { Skeleton, Sheet } from './ui'
+import { useRefreshOnFocus, useRouteSheet, useCachedResource } from './hooks'
+import { Skeleton, Sheet, UpdatedAt } from './ui'
 
 const MESES_ES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
 
@@ -81,48 +81,29 @@ export default function MobileDashboard() {
   const { session } = useAuth()
   const now = new Date()
 
-  const [stats, setStats]           = useState(null)
-  const [error, setError]           = useState(false)
-  const [refreshing, setRefreshing] = useState(true)
-  const [month, setMonth]           = useState({ year: now.getFullYear(), month: now.getMonth() })
-  const [monthCount, setMonthCount] = useState(null)
-  const [monthTick, setMonthTick]   = useState(0)
+  const [month, setMonth] = useState({ year: now.getFullYear(), month: now.getMonth() })
+
+  // Datos guardados: se ven al instante y se actualizan en segundo plano
+  const { data: stats, error, refreshing, updatedAt, reload: reloadStats } = useCachedResource('dashboard', getDashboardStats)
+  const { data: monthCount, error: monthError, reload: reloadMonth } = useCachedResource(
+    `dashboard-month:${month.year}-${month.month}`,
+    () => getMonthlySentCount(month.year, month.month)
+  )
+  const refreshAll = useCallback(() => { reloadStats(); reloadMonth() }, [reloadStats, reloadMonth])
+  useRefreshOnFocus(refreshAll)
 
   // La hoja se guarda en el historial de navegación: el botón "atrás" del celular la cierra
   const { sheet: rawSheet, openSheet, closeSheet } = useRouteSheet()
   const sheet = stats ? rawSheet : null
 
-  const loadStats = useCallback(() => {
-    setRefreshing(true)
-    setError(false)
-    getDashboardStats()
-      .then(setStats)
-      .catch(() => setError(true))
-      .finally(() => setRefreshing(false))
-  }, [])
-
-  const refreshAll = useCallback(() => { loadStats(); setMonthTick(t => t + 1) }, [loadStats])
-
-  useEffect(() => { loadStats() }, [loadStats])
-  useRefreshOnFocus(refreshAll)
-
-  useEffect(() => {
-    let cancelled = false
-    getMonthlySentCount(month.year, month.month)
-      .then(n => { if (!cancelled) setMonthCount(n) })
-      .catch(() => { if (!cancelled) setMonthCount(0) })
-    return () => { cancelled = true }
-  }, [month.year, month.month, monthTick])
-
   function shiftMonth(delta) {
-    setMonthCount(null)
     setMonth(p => {
       const d = new Date(p.year, p.month + delta, 1)
       return { year: d.getFullYear(), month: d.getMonth() }
     })
   }
 
-  const first = !stats && !error // primera carga: se muestran esqueletos
+  const first = !stats && !error // primera carga sin datos guardados: se muestran esqueletos
   const firstName = String(session?.user?.name ?? '').trim().split(/\s+/)[0]
   const today = now.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })
   const maxClient = Math.max(...(stats?.topClients ?? []).map(c => c.count), 1)
@@ -149,6 +130,7 @@ export default function MobileDashboard() {
             <p className="text-sm font-medium text-white/70">{greeting()}{firstName ? `, ${firstName}` : ''}</p>
             <p className="text-[1.75rem] leading-tight font-extrabold tracking-tight text-white mt-0.5">Semana {getISOWeek()}</p>
             <p className="text-xs font-medium text-white/60 first-letter:uppercase">{today}</p>
+            <UpdatedAt t={updatedAt} refreshing={refreshing} className="!text-white/50 mt-1" />
           </div>
           <button
             type="button"
@@ -168,7 +150,9 @@ export default function MobileDashboard() {
 
       {error && (
         <div role="alert" className="rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-          No se pudo cargar la información. Revisa tu conexión y toca el botón de actualizar.
+          {stats
+            ? 'No se pudo actualizar. Estás viendo la última información guardada; toca el botón de actualizar para reintentar.'
+            : 'No se pudo cargar la información. Revisa tu conexión y toca el botón de actualizar.'}
         </div>
       )}
 
@@ -192,8 +176,10 @@ export default function MobileDashboard() {
           </div>
         </div>
         <div className="h-[3rem] flex items-center mt-1">
-          {monthCount === null
-            ? <div className="animate-pulse h-10 w-24 rounded-lg bg-white/30" />
+          {monthCount === null || monthCount === undefined
+            ? (monthError
+                ? <p className="text-[3rem] leading-none font-light tracking-tighter text-white/70">—</p>
+                : <div className="animate-pulse h-10 w-24 rounded-lg bg-white/30" />)
             : <p className="text-[3rem] leading-none font-light tracking-tighter text-white">+{monthCount}</p>}
         </div>
         <p className="text-xs font-semibold text-[#10284d]/80 mt-1">

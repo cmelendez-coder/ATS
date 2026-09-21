@@ -1,5 +1,87 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+
+/* ── Datos guardados en el teléfono (para abrir al instante y ver lo último sin conexión) ── */
+const CACHE_PREFIX = 'evertrack:m:'
+
+function readCache(key) {
+  try {
+    const raw = localStorage.getItem(CACHE_PREFIX + key)
+    return raw ? JSON.parse(raw) : null // { t, data }
+  } catch { return null }
+}
+
+function writeCache(key, data) {
+  try {
+    localStorage.setItem(CACHE_PREFIX + key, JSON.stringify({ t: Date.now(), data }))
+  } catch { /* almacenamiento lleno o no disponible: se ignora */ }
+}
+
+/** Borra todo lo guardado (se usa al cerrar sesión para no dejar datos en el teléfono) */
+export function clearMobileCache() {
+  try {
+    Object.keys(localStorage).filter(k => k.startsWith(CACHE_PREFIX)).forEach(k => localStorage.removeItem(k))
+  } catch { /* nada que limpiar */ }
+}
+
+/**
+ * Consulta con caché "stale-while-revalidate": si ya hay datos guardados para `key` los muestra
+ * de inmediato y en segundo plano trae los nuevos. Si la consulta falla, se siguen viendo los guardados.
+ *  - data: los datos (guardados o frescos) o null si no hay nada todavía
+ *  - loading: no hay datos que mostrar y se está consultando
+ *  - refreshing: hay una consulta en curso
+ *  - updatedAt: cuándo se obtuvieron los datos que se ven (ms) o null
+ *  - error: la última consulta falló
+ */
+export function useCachedResource(key, fetcher, { enabled = true } = {}) {
+  const [fresh, setFresh]           = useState(null) // { key, t, data }
+  const [error, setError]           = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
+  const [tick, setTick]             = useState(0)
+  const fetcherRef = useRef(fetcher)
+  fetcherRef.current = fetcher
+
+  const cached = useMemo(() => readCache(key), [key])
+  const view = fresh && fresh.key === key ? fresh : cached
+
+  useEffect(() => {
+    if (!enabled) { setRefreshing(false); return }
+    let cancelled = false
+    setRefreshing(true)
+    setError(false)
+    Promise.resolve()
+      .then(() => fetcherRef.current())
+      .then(data => {
+        if (cancelled) return
+        writeCache(key, data)
+        setFresh({ key, t: Date.now(), data })
+      })
+      .catch(() => { if (!cancelled) setError(true) })
+      .finally(() => { if (!cancelled) setRefreshing(false) })
+    return () => { cancelled = true }
+  }, [key, tick, enabled])
+
+  const reload = useCallback(() => setTick(t => t + 1), [])
+
+  return {
+    data: view?.data ?? null,
+    updatedAt: view?.t ?? null,
+    error,
+    refreshing,
+    loading: !view && enabled && !error,
+    reload,
+  }
+}
+
+/** Hora actual que se actualiza cada `ms` (para textos tipo "hace 5 min") */
+export function useNow(ms = 30000) {
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), ms)
+    return () => clearInterval(id)
+  }, [ms])
+  return now
+}
 
 /** true mientras el teléfono tenga conexión a internet */
 export function useOnline() {

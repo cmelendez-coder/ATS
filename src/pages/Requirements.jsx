@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { usePermissions } from '../hooks/usePermissions'
 import { useRequirementAlerts } from '../hooks/useRequirementAlerts'
@@ -211,37 +211,72 @@ const PRI_TABLE = {
 }
 
 const PRIORITY_INFO = [
-  '0 - Requerimiento nuevo o súper urgente.',
-  '1 - Ya se enviaron candidatos, pero se deben enviar más.',
-  '2 - Dejamos de hacer sourcing por que el cliente tiene buen pipeline. La posición sigue activa. Recibimos CVs o nos contactan candidatos previamente contactados y se envían al cliente.',
-  '3 - La posición está en hold.',
-  '4 - Jacobo: "Por definir".',
-  '5 - Oferta aceptada.',
+  { n: 0, text: 'Requerimiento nuevo o súper urgente.' },
+  { n: 1, text: 'Ya se enviaron candidatos, pero se deben enviar más.' },
+  { n: 2, text: 'Dejamos de hacer sourcing por que el cliente tiene buen pipeline. La posición sigue activa. Recibimos CVs o nos contactan candidatos previamente contactados y se envían al cliente.' },
+  { n: 3, text: 'La posición está en hold.' },
+  { n: 4, text: 'Jacobo: "Por definir".' },
+  { n: 5, text: 'Oferta aceptada.' },
 ]
 
 /* ── Info icon with priority legend (fixed-position so the table scroll doesn't clip it) ── */
 function PriorityInfo() {
-  const [pos, setPos] = useState(null)
+  const [anchor, setAnchor] = useState(null) // { cy, left } — icon's vertical center and tooltip left edge
+  const [top, setTop]       = useState(null) // measured top, clamped inside the viewport
+  const tipRef = useRef(null)
+
   function show(e) {
     const r = e.currentTarget.getBoundingClientRect()
-    setPos({ top: r.top + r.height / 2, left: r.right + 8 })
+    setTop(null)
+    setAnchor({ cy: r.top + r.height / 2, left: r.right + 12 })
   }
+
+  useLayoutEffect(() => {
+    if (!anchor || !tipRef.current) return
+    const h = tipRef.current.offsetHeight
+    setTop(Math.min(Math.max(anchor.cy - h / 2, 8), window.innerHeight - h - 8))
+  }, [anchor])
+
   return (
     <>
       <span
         onMouseEnter={show}
-        onMouseLeave={() => setPos(null)}
-        className="inline-flex items-center justify-center w-6 h-6 rounded-full cursor-help hover:bg-white/10 transition-colors shrink-0"
+        onMouseLeave={() => { setAnchor(null); setTop(null) }}
+        className="pri-info-icon inline-flex items-center justify-center w-7 h-7 rounded-full cursor-help shrink-0 transition-transform hover:scale-110"
+        style={{ backgroundColor: 'rgba(129,185,39,0.18)', border: '1px solid rgba(129,185,39,0.65)' }}
         aria-label="Significado de las prioridades"
       >
-        <span className="material-symbols-outlined text-[18px]" style={{ color: '#81b927' }}>info</span>
+        <span className="material-symbols-outlined text-[18px]" style={{ color: '#81b927', fontVariationSettings: "'FILL' 1" }}>info</span>
       </span>
-      {pos && (
+      {anchor && (
         <div
-          className="fixed z-[70] w-80 rounded-xl border border-white/15 bg-[#0b1e3d] px-4 py-3 shadow-2xl text-left text-xs font-medium leading-relaxed text-white/90 space-y-1.5 pointer-events-none"
-          style={{ top: pos.top, left: pos.left, transform: 'translateY(-50%)' }}
+          ref={tipRef}
+          className="priority-tip fixed z-[70] w-[25rem] pointer-events-none text-left"
+          style={{ top: top ?? 0, left: anchor.left, visibility: top === null ? 'hidden' : 'visible' }}
         >
-          {PRIORITY_INFO.map(line => <p key={line}>{line}</p>)}
+          <div
+            className="overflow-hidden rounded-2xl border border-[#81b927]/60"
+            style={{
+              background: 'linear-gradient(165deg, #17417a 0%, #0b1e3d 65%)',
+              boxShadow: '0 22px 55px rgba(0,0,0,0.55), 0 0 32px rgba(129,185,39,0.28)',
+            }}
+          >
+            <div className="flex items-center gap-2.5 px-4 py-3" style={{ background: 'linear-gradient(90deg, #81b927 0%, #5f9a1a 100%)' }}>
+              <span className="material-symbols-outlined text-[20px]" style={{ color: '#10284d', fontVariationSettings: "'FILL' 1" }}>flag</span>
+              <p className="text-[12px] font-extrabold uppercase tracking-[0.14em]" style={{ color: '#10284d' }}>Guía de prioridades</p>
+            </div>
+            <ul className="p-3 space-y-1.5">
+              {PRIORITY_INFO.map(({ n, text }) => (
+                <li key={n} className="flex items-start gap-3 rounded-xl px-2.5 py-2 bg-white/[0.05]">
+                  <span
+                    className="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-sm font-extrabold shadow-md"
+                    style={{ backgroundColor: PRI_TABLE[n].bg, color: PRI_TABLE[n].text }}
+                  >{n}</span>
+                  <p className="text-[12.5px] leading-snug text-white/90 pt-[5px]">{text}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       )}
     </>
@@ -254,7 +289,7 @@ function playChime() {
 }
 
 /* ── Inline editable cell ── */
-function EditableCell({ value, onChange, type = 'text', placeholder = '', disabled = false, glow = false, large = false, lime = false, min }) {
+function EditableCell({ value, onChange, onRequestChange, type = 'text', placeholder = '', disabled = false, glow = false, large = false, lime = false, min }) {
   const [draft, setDraft] = useState(value ?? '')
   const [saved, setSaved] = useState(false)
   const savedTimer = useRef(null)
@@ -267,6 +302,8 @@ function EditableCell({ value, onChange, type = 'text', placeholder = '', disabl
       return
     }
     if (!disabled && draft !== (value ?? '')) {
+      // With onRequestChange the parent asks for confirmation first and applies the change itself
+      if (onRequestChange) { onRequestChange(draft); return }
       onChange(draft)
       playChime()
       clearTimeout(savedTimer.current)
@@ -452,6 +489,8 @@ function ReqBoardTable() {
   const [pipelineModal, setPipelineModal] = useState(null) // { reqId, clientId, clientName, position }
   const [closeConfirm, setCloseConfirm]       = useState(null) // { requirementId, position }
   const [closeReasonModal, setCloseReasonModal] = useState(null) // { requirementId } | null
+  const [fteConfirm, setFteConfirm]     = useState(null) // { requirementId, position, cliente, from, to } | null
+  const [fteResetKey, setFteResetKey]   = useState(0)    // bumped to make FTE cells discard a cancelled edit
 
   const isCurrentWeek = selWeek.week === currentWeek.week && selWeek.year === currentWeek.year
   const isPastWeek = selWeek.year < currentWeek.year ||
@@ -534,6 +573,24 @@ function ReqBoardTable() {
     </div>
   )
 
+  function requestFteChange(row, rawValue) {
+    const to = Math.max(1, Math.round(Number(rawValue)))
+    if (to === row.ftes) { setFteResetKey(k => k + 1); return }
+    setFteConfirm({ requirementId: row.requirement_id, position: row.position, cliente: row.cliente, from: row.ftes, to })
+  }
+
+  function confirmFteChange() {
+    const { requirementId, to } = fteConfirm
+    setFteConfirm(null)
+    handleUpdate(requirementId, { ftes: to })
+    playChime()
+  }
+
+  function cancelFteChange() {
+    setFteConfirm(null)
+    setFteResetKey(k => k + 1)
+  }
+
   function handleCloseRequirement() {
     if (!closeConfirm) return
     const { requirementId } = closeConfirm
@@ -581,6 +638,46 @@ function ReqBoardTable() {
               className="px-5 py-2 rounded-xl text-sm font-bold bg-red-600 hover:bg-red-500 text-white transition-colors"
             >
               Sí, cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    {fteConfirm && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={cancelFteChange}>
+        <div
+          className="bg-[#0b1e3d] rounded-2xl shadow-2xl border border-white/10 w-full max-w-sm mx-4 p-6 flex flex-col gap-4"
+          onClick={e => e.stopPropagation()}
+        >
+          <div className="flex items-center gap-3">
+            <span className="material-symbols-outlined text-[28px]" style={{ color: '#81b927' }}>groups</span>
+            <h2 className="text-base font-bold text-white">Modificar FTE's</h2>
+          </div>
+          <p className="text-sm text-white/70 leading-relaxed">
+            Esta acción modificará los FTE's para este rol en todas las tablas. ¿Continuar?
+          </p>
+          <div className="rounded-xl bg-white/5 border border-white/10 px-4 py-3">
+            <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-0.5">{fteConfirm.cliente ?? '—'}</p>
+            <p className="text-sm font-bold text-white">{fteConfirm.position ?? '—'}</p>
+            <p className="text-sm text-white/70 mt-1">
+              FTE's: <span className="font-bold text-white">{fteConfirm.from ?? '—'}</span>
+              <span className="mx-2" style={{ color: '#81b927' }}>→</span>
+              <span className="font-bold" style={{ color: '#81b927' }}>{fteConfirm.to}</span>
+            </p>
+          </div>
+          <div className="flex gap-3 justify-end pt-1">
+            <button
+              onClick={cancelFteChange}
+              className="px-5 py-2 rounded-xl text-sm font-semibold text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              No
+            </button>
+            <button
+              onClick={confirmFteChange}
+              className="px-5 py-2 rounded-xl text-sm font-bold text-[#10284d] hover:brightness-110 transition"
+              style={{ backgroundColor: '#81b927' }}
+            >
+              Sí, continuar
             </button>
           </div>
         </div>
@@ -637,6 +734,17 @@ function ReqBoardTable() {
         }
         .cell-saved { animation: savedFlash 2.5s ease-out forwards; }
         .cell-lime { background-color: #81b927 !important; color: #10284d !important; }
+
+        @keyframes priInfoPulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(129,185,39,0.55); }
+          50%      { box-shadow: 0 0 0 6px rgba(129,185,39,0); }
+        }
+        .pri-info-icon { animation: priInfoPulse 2.4s ease-out infinite; }
+        @keyframes priTipIn {
+          from { opacity: 0; transform: translateX(-8px) scale(0.97); }
+          to   { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        .priority-tip { animation: priTipIn 0.16s ease-out; }
       `}</style>
 
       {/* ── KPI bar ── */}
@@ -911,6 +1019,7 @@ function ReqBoardTable() {
                 {/* FTEs (editable, synced to requirement.fte_count) */}
                 <td className="px-2 py-2" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   <EditableCell
+                    key={`fte-${row.requirement_id}-${fteResetKey}`}
                     type="number"
                     min={1}
                     value={row.ftes != null ? String(row.ftes) : ''}
@@ -919,7 +1028,7 @@ function ReqBoardTable() {
                     glow={!isPastWeek}
                     large
                     lime
-                    onChange={val => handleUpdate(row.requirement_id, { ftes: Math.max(1, Math.round(Number(val))) })}
+                    onRequestChange={val => requestFteChange(row, val)}
                   />
                 </td>
 

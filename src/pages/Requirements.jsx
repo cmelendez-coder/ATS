@@ -243,10 +243,9 @@ function PriorityInfo() {
         onMouseEnter={show}
         onMouseLeave={() => { setAnchor(null); setTop(null) }}
         className="inline-flex items-center justify-center w-7 h-7 rounded-full cursor-help shrink-0 transition-transform hover:scale-110"
-        style={{ backgroundColor: 'rgba(129,185,39,0.18)', border: '1px solid rgba(129,185,39,0.65)' }}
         aria-label="Significado de las prioridades"
       >
-        <span className="material-symbols-outlined text-[1.125rem]" style={{ color: '#81b927', fontVariationSettings: "'FILL' 1" }}>info</span>
+        <span className="material-symbols-outlined text-[1.5rem]" style={{ color: '#81b927', fontVariationSettings: "'FILL' 1" }}>info</span>
       </span>
       {anchor && (
         <div

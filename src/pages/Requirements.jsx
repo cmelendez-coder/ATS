@@ -787,8 +787,8 @@ function ReqBoardTable() {
         /* Prioridad 5 — oferta aceptada: celeste con marco dorado, resplandor en las esquinas
            y una lucecita dorada que recorre el perímetro (arriba →, abajo ←) */
         @keyframes offerSweep {
-          0%        { background-position: 94% 0, -20% 3px, 120% calc(100% - 3px), 0 0; }
-          60%, 100% { background-position: -6% 0, 120% 3px, -20% calc(100% - 3px), 0 0; }
+          0%   { background-position: 94% 0, -20% 3px, 120% calc(100% - 3px), 0 0; }
+          100% { background-position: -6% 0, 120% 3px, -20% calc(100% - 3px), 0 0; }
         }
         .row-offer {
           background-image:
@@ -798,7 +798,7 @@ function ReqBoardTable() {
             linear-gradient(90deg, rgba(56,189,248,0.34) 0%, rgba(125,211,252,0.30) 100%);
           background-size: 260% 100%, 40% 3px, 40% 3px, 100% 100%;
           background-repeat: no-repeat;
-          animation: offerSweep 6.5s ease-in-out infinite;
+          animation: offerSweep 6.5s linear infinite;
         }
         .row-offer td {
           border-top: 1.5px solid rgba(250,204,21,0.6);

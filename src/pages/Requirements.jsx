@@ -34,7 +34,7 @@ const CLIENT_LOGOS = {
   'Numen':           '/logos/numen.png',
   'Yash':            '/logos/yash.png',
   'HTC':             '/logos/htc.png',
-  'Bahwan Cybertek': '/logos/bahwan.png',
+  'Bahwan Cybertek': '/logos/bahwan.avif',
 }
 
 const LOGO_EXTRA = {

@@ -984,16 +984,25 @@ function ReqBoardTable() {
             })
             return sortedClients.flatMap(cliente => [
               <tr key={`group-${cliente}`}>
-                <td colSpan={COLS.length} className="px-4 py-2" style={{ backgroundColor: '#10284d', color: '#fff' }}>
+                <td
+                  colSpan={COLS.length}
+                  className="px-4 py-2"
+                  style={{
+                    backgroundColor: '#eef2f8',
+                    color: '#10284d',
+                    borderBottom: '2px solid #10284d',
+                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.8)',
+                  }}
+                >
                   <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
                     <div className="flex items-center justify-center h-10 px-3 rounded-xl bg-white shadow-sm border border-outline-variant/10 shrink-0 w-fit">
                       <ClientLogo name={cliente} size="header" />
                     </div>
                     <div className="flex items-center gap-6 text-[0.6875rem] font-bold uppercase tracking-wider">
-                      <span className="animate-glow text-white">
+                      <span style={{ color: '#10284d' }}>
                         Posiciones en búsqueda: {grouped[cliente].filter(r => r.activo).length}
                       </span>
-                      <span className="animate-glow text-white">
+                      <span style={{ color: '#10284d' }}>
                         Posiciones on hold: {grouped[cliente].filter(r => !r.activo).length}
                       </span>
                     </div>

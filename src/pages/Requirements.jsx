@@ -208,7 +208,7 @@ const PRI_TABLE = {
   2: { bg: '#93c5fd', text: '#1e3a5f' },
   3: { bg: '#d1d5db', text: '#374151' },
   4: { bg: '#fde68a', text: '#78350f' },
-  5: { bg: '#fbbf24', text: '#78350f' },
+  5: { bg: '#38bdf8', text: '#0c4a6e' },
 }
 
 const PRIORITY_INFO = [
@@ -293,7 +293,7 @@ function playCelebration() {
   try { new Audio('/sounds/5.mp3').play() } catch {}
 }
 
-const CONFETTI_COLORS = ['#fbbf24', '#fcd34d', '#f59e0b', '#fde68a', '#facc15', '#fff7ed']
+const CONFETTI_COLORS = ['#38bdf8', '#7dd3fc', '#0ea5e9', '#bae6fd', '#e0f2fe', '#0284c7']
 
 function ConfettiBurst({ x, y }) {
   const pieces = useMemo(() => Array.from({ length: 30 }, (_, i) => {
@@ -792,13 +792,13 @@ function ReqBoardTable() {
         .row-offer {
           background-image:
             linear-gradient(105deg, transparent 36%, rgba(255,255,255,0.95) 50%, transparent 64%),
-            linear-gradient(90deg, rgba(251,191,36,0.34) 0%, rgba(253,230,138,0.30) 100%);
+            linear-gradient(90deg, rgba(56,189,248,0.34) 0%, rgba(125,211,252,0.30) 100%);
           background-size: 260% 100%, 100% 100%;
           background-repeat: no-repeat;
           animation: offerSweep 6.5s ease-in-out infinite;
         }
         .row-offer td {
-          border-bottom-color: rgba(252,211,77,0.9) !important;
+          border-bottom-color: rgba(125,211,252,0.9) !important;
         }
         @keyframes offerBurst {
           0%   { box-shadow: inset 0 0 44px 10px rgba(250,204,21,0.95), inset 0 0 0 2px rgba(255,255,255,0.9); }
@@ -984,25 +984,16 @@ function ReqBoardTable() {
             })
             return sortedClients.flatMap(cliente => [
               <tr key={`group-${cliente}`}>
-                <td
-                  colSpan={COLS.length}
-                  className="px-4 py-2"
-                  style={{
-                    backgroundColor: '#eef2f8',
-                    color: '#10284d',
-                    borderBottom: '2px solid #10284d',
-                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.8)',
-                  }}
-                >
+                <td colSpan={COLS.length} className="px-4 py-2" style={{ backgroundColor: '#10284d', color: '#fff' }}>
                   <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
                     <div className="flex items-center justify-center h-10 px-3 rounded-xl bg-white shadow-sm border border-outline-variant/10 shrink-0 w-fit">
                       <ClientLogo name={cliente} size="header" />
                     </div>
                     <div className="flex items-center gap-6 text-[0.6875rem] font-bold uppercase tracking-wider">
-                      <span style={{ color: '#10284d' }}>
+                      <span className="animate-glow text-white">
                         Posiciones en búsqueda: {grouped[cliente].filter(r => r.activo).length}
                       </span>
-                      <span style={{ color: '#10284d' }}>
+                      <span className="animate-glow text-white">
                         Posiciones on hold: {grouped[cliente].filter(r => !r.activo).length}
                       </span>
                     </div>
@@ -1026,8 +1017,8 @@ function ReqBoardTable() {
                 key={row.requirement_id}
                 className={isOffer ? `row-offer${burst?.reqId === row.requirement_id ? ' row-offer-burst' : ''}` : undefined}
                 style={{
-                  backgroundColor: isOffer ? 'rgba(251,191,36,0.10)' : rowBg,
-                  borderBottom: `1px solid ${isOffer ? 'rgba(252,211,77,0.9)' : rowBorder}`,
+                  backgroundColor: isOffer ? 'rgba(56,189,248,0.10)' : rowBg,
+                  borderBottom: `1px solid ${isOffer ? 'rgba(125,211,252,0.9)' : rowBorder}`,
                 }}
               >
                 {/* Toggle búsqueda */}
@@ -1072,7 +1063,7 @@ function ReqBoardTable() {
                     className="rounded-lg text-sm font-bold text-center cursor-pointer outline-none border-none appearance-none px-2 py-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{
                       backgroundColor: pri.bg, color: pri.text, width: 52, backgroundImage: 'none', paddingLeft: 0, paddingRight: 0, textAlignLast: 'center',
-                      ...(isOffer ? { boxShadow: '0 0 0 2px #ffffff, 0 0 14px rgba(251,191,36,0.9)' } : {}),
+                      ...(isOffer ? { boxShadow: '0 0 0 2px #ffffff, 0 0 14px rgba(56,189,248,0.9)' } : {}),
                     }}
                   >
                     <option value="" disabled>—</option>

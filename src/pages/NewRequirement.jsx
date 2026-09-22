@@ -338,23 +338,23 @@ export default function NewRequirement() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
               {/* Identification */}
-              <div className="lg:col-span-5 bg-surface-container-lowest rounded-2xl p-6 shadow-[0_2px_16px_rgba(24,28,30,0.04)] border border-outline-variant/10 relative overflow-hidden">
+              <div className="lg:col-span-5 bg-[#10284d] rounded-2xl p-6 shadow-[0_2px_16px_rgba(24,28,30,0.04)] border border-white/10 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary to-primary-container/60 rounded-l-2xl"></div>
-                <h2 className="text-base font-semibold text-primary mb-5 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[1.125rem] filled">tag</span>Identification
+                <h2 className="text-base font-semibold text-white mb-5 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[1.125rem] filled text-[#81b927]">tag</span>Identification
                 </h2>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-2">
-                    <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Num. Requirement</label>
+                    <label className="block text-[0.6875rem] font-bold text-white/50 uppercase tracking-widest mb-2">Num. Requirement</label>
                     <input className="form-field font-mono opacity-70 cursor-not-allowed" value={reqLabel} type="text" readOnly />
-                    <p className="text-xs text-on-surface-variant mt-1">Auto-generated.</p>
+                    <p className="text-xs text-white/40 mt-1">Auto-generated.</p>
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Requisition Open Date <span className="text-error">*</span></label>
+                    <label className="block text-[0.6875rem] font-bold text-white/50 uppercase tracking-widest mb-2">Requisition Open Date <span className="text-error">*</span></label>
                     <input className="form-field" type="date" value={form.application_date} onChange={e => set('application_date', e.target.value)} required />
                   </div>
                   <div>
-                    <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Priority <span className="text-error">*</span></label>
+                    <label className="block text-[0.6875rem] font-bold text-white/50 uppercase tracking-widest mb-2">Priority <span className="text-error">*</span></label>
                     <div className="flex bg-surface-container p-1 rounded-xl">
                       {[{ v: 0, l: '0' }, { v: 1, l: '1' }, { v: 2, l: '2' }, { v: 3, l: '3' }, { v: 4, l: '4' }, { v: 5, l: '5' }].map(({ v, l }) => (
                         <button
@@ -369,22 +369,22 @@ export default function NewRequirement() {
               </div>
 
               {/* Position Details */}
-              <div className="lg:col-span-7 bg-surface-container-lowest rounded-2xl p-6 shadow-[0_2px_16px_rgba(24,28,30,0.04)] border border-outline-variant/10 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-primary/10 to-transparent"></div>
-                <h2 className="text-base font-semibold text-primary mb-5 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[1.125rem] filled">work</span>Position Details
+              <div className="lg:col-span-7 bg-[#10284d] rounded-2xl p-6 shadow-[0_2px_16px_rgba(24,28,30,0.04)] border border-white/10 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                <h2 className="text-base font-semibold text-white mb-5 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[1.125rem] filled text-[#81b927]">work</span>Position Details
                 </h2>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Client <span className="text-error">*</span></label>
+                    <label className="block text-[0.6875rem] font-bold text-white/50 uppercase tracking-widest mb-2">Client <span className="text-error">*</span></label>
                     <ClientCombobox clients={catalogs.clients} value={form.client_id} onChange={id => set('client_id', id)} />
                   </div>
                   <div>
-                    <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Job Title <span className="text-error">*</span></label>
+                    <label className="block text-[0.6875rem] font-bold text-white/50 uppercase tracking-widest mb-2">Job Title <span className="text-error">*</span></label>
                     <input className="form-field" placeholder="e.g. Senior Backend Engineer" type="text" value={form.job_title} onChange={e => set('job_title', e.target.value)} required />
                   </div>
                   <div>
-                    <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Duration <span className="text-error">*</span></label>
+                    <label className="block text-[0.6875rem] font-bold text-white/50 uppercase tracking-widest mb-2">Duration <span className="text-error">*</span></label>
                     <div className="relative">
                       <select className="form-field appearance-none cursor-pointer pr-9" value={form.duration} onChange={e => set('duration', e.target.value)} required>
                         <option value="" disabled>Select…</option>
@@ -394,20 +394,20 @@ export default function NewRequirement() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-2">FTE&apos;s <span className="text-error">*</span></label>
+                    <label className="block text-[0.6875rem] font-bold text-white/50 uppercase tracking-widest mb-2">FTE&apos;s <span className="text-error">*</span></label>
                     <input className="form-field" placeholder="e.g. 2" type="number" min="1" value={form.fte_count} onChange={e => set('fte_count', e.target.value)} />
-                    <p className="text-xs text-on-surface-variant mt-1">Number of positions to fill.</p>
+                    <p className="text-xs text-white/40 mt-1">Number of positions to fill.</p>
                   </div>
                   <div>
-                    <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Target Fill Date <span className="text-error">*</span></label>
+                    <label className="block text-[0.6875rem] font-bold text-white/50 uppercase tracking-widest mb-2">Target Fill Date <span className="text-error">*</span></label>
                     <input className="form-field" type="date" value={form.target_fill_date} onChange={e => set('target_fill_date', e.target.value)} required />
                   </div>
                   <div>
-                    <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Desired Location</label>
+                    <label className="block text-[0.6875rem] font-bold text-white/50 uppercase tracking-widest mb-2">Desired Location</label>
                     <LocationCombobox value={form.desired_location} onChange={v => set('desired_location', v)} />
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Tech Requirements</label>
+                    <label className="block text-[0.6875rem] font-bold text-white/50 uppercase tracking-widest mb-2">Tech Requirements</label>
                     <input className="form-field" placeholder="e.g. React, Node.js, PostgreSQL" type="text" value={form.tech_reqs} onChange={e => set('tech_reqs', e.target.value)} />
                   </div>
                 </div>
@@ -418,28 +418,28 @@ export default function NewRequirement() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
               {/* Compensation */}
-              <div className="lg:col-span-5 bg-surface-container-lowest rounded-2xl p-6 shadow-[0_2px_16px_rgba(24,28,30,0.04)] border border-outline-variant/10">
-                <h2 className="text-base font-semibold text-primary mb-5 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[1.125rem] filled">payments</span>Compensation
+              <div className="lg:col-span-5 bg-[#10284d] rounded-2xl p-6 shadow-[0_2px_16px_rgba(24,28,30,0.04)] border border-white/10">
+                <h2 className="text-base font-semibold text-white mb-5 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[1.125rem] filled text-[#81b927]">payments</span>Compensation
                 </h2>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Salary Cap <span className="text-error">*</span></label>
+                    <label className="block text-[0.6875rem] font-bold text-white/50 uppercase tracking-widest mb-2">Salary Cap <span className="text-error">*</span></label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm font-medium">$</span>
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-sm font-medium">$</span>
                       <input className="form-field pl-7" placeholder="0.00" type="text" inputMode="numeric" value={form.salary_cap} onChange={e => set('salary_cap', e.target.value)} required />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Variable</label>
+                    <label className="block text-[0.6875rem] font-bold text-white/50 uppercase tracking-widest mb-2">Variable</label>
                     <div className="relative">
                       <input className="form-field pr-8" placeholder="0" type="number" min="0" value={form.variable} onChange={e => set('variable', e.target.value)} />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm font-medium">%</span>
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 text-sm font-medium">%</span>
                     </div>
-                    <p className="text-xs text-on-surface-variant mt-1">Performance bonus percentage.</p>
+                    <p className="text-xs text-white/40 mt-1">Performance bonus percentage.</p>
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Periodicidad</label>
+                    <label className="block text-[0.6875rem] font-bold text-white/50 uppercase tracking-widest mb-2">Periodicidad</label>
                     <select className="form-field appearance-none cursor-pointer" value={form.periodicidad} onChange={e => set('periodicidad', e.target.value)}>
                       <option value="">Seleccionar…</option>
                       <option value="Mensual">Mensual</option>
@@ -451,13 +451,13 @@ export default function NewRequirement() {
               </div>
 
               {/* Work Details */}
-              <div className="lg:col-span-7 bg-surface-container-lowest rounded-2xl p-6 shadow-[0_2px_16px_rgba(24,28,30,0.04)] border border-outline-variant/10">
-                <h2 className="text-base font-semibold text-primary mb-5 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[1.125rem] filled">apartment</span>Work Details
+              <div className="lg:col-span-7 bg-[#10284d] rounded-2xl p-6 shadow-[0_2px_16px_rgba(24,28,30,0.04)] border border-white/10">
+                <h2 className="text-base font-semibold text-white mb-5 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[1.125rem] filled text-[#81b927]">apartment</span>Work Details
                 </h2>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-2">
-                    <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Work Arrangement <span className="text-error">*</span></label>
+                    <label className="block text-[0.6875rem] font-bold text-white/50 uppercase tracking-widest mb-2">Work Arrangement <span className="text-error">*</span></label>
                     <div className="relative">
                       <select className="form-field appearance-none cursor-pointer pr-9" value={form.work_arrangement_id} onChange={e => set('work_arrangement_id', e.target.value)}>
                         <option value="">Select…</option>
@@ -467,20 +467,20 @@ export default function NewRequirement() {
                     </div>
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-3">VISA US Required</label>
+                    <label className="block text-[0.6875rem] font-bold text-white/50 uppercase tracking-widest mb-3">VISA US Required</label>
                     <div className="flex items-center gap-4">
                       {[{ value: true, label: 'Yes — Sponsorship available' }, { value: false, label: 'No — Not required' }].map(({ value, label }) => (
                         <label key={String(value)} className="flex items-center gap-2 cursor-pointer select-none">
                           <input type="radio" name="visa" checked={form.visa_us_required === value} onChange={() => set('visa_us_required', value)} className="text-secondary focus:ring-secondary/30" />
-                          <span className="text-sm text-on-surface-variant">{label}</span>
+                          <span className="text-sm text-white/70">{label}</span>
                         </label>
                       ))}
                     </div>
                   </div>
                   <div className="col-span-2">
                     <div className="flex items-center justify-between mb-2">
-                      <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest">Special Request / Notes</label>
-                      <span className="text-xs text-on-surface-variant">{charCount} / 500</span>
+                      <label className="block text-[0.6875rem] font-bold text-white/50 uppercase tracking-widest">Special Request / Notes</label>
+                      <span className="text-xs text-white/40">{charCount} / 500</span>
                     </div>
                     <textarea
                       className="form-field resize-none" rows={4}
@@ -495,14 +495,14 @@ export default function NewRequirement() {
             </div>
 
             {/* Submit Actions */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-[0_2px_16px_rgba(24,28,30,0.04)]">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-[#10284d] rounded-2xl border border-white/10 shadow-[0_2px_16px_rgba(24,28,30,0.04)]">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-[1rem] text-on-surface-variant filled">info</span>
-                <p className="text-xs text-on-surface-variant">Fields marked <span className="text-error font-medium">*</span> are required.</p>
+                <span className="material-symbols-outlined text-[1rem] text-white/50 filled">info</span>
+                <p className="text-xs text-white/50">Fields marked <span className="text-error font-medium">*</span> are required.</p>
               </div>
               <div className="flex items-center gap-3 shrink-0">
                 <Link to="/requirements">
-                  <button type="button" className="px-5 py-2.5 rounded-full border border-outline-variant/30 text-on-surface-variant text-sm font-medium hover:bg-surface-container transition-colors">
+                  <button type="button" className="px-5 py-2.5 rounded-full border border-white/20 text-white/70 text-sm font-medium hover:bg-white/10 transition-colors">
                     Cancel
                   </button>
                 </Link>

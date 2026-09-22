@@ -785,17 +785,22 @@ function ReqBoardTable() {
         }
         .priority-tip { animation: priTipIn 0.16s ease-out; }
 
-        /* Prioridad 5 — oferta aceptada: fila iluminada con destello que la recorre */
+        /* Prioridad 5 — oferta aceptada: confeti disperso y estático (papel picado) + destello que la recorre */
         @keyframes offerSweep {
-          0%        { background-position: 94% 0, 0 0; }
-          60%, 100% { background-position: -6% 0, 0 0; }
+          0%        { background-position: 94% 0, 12px 8px, 30px 22px, 6px 30px, 40px 10px, 0 0; }
+          60%, 100% { background-position: -6% 0, 12px 8px, 30px 22px, 6px 30px, 40px 10px, 0 0; }
         }
         .row-offer {
           background-image:
             linear-gradient(105deg, transparent 36%, rgba(255,255,255,0.95) 50%, transparent 64%),
-            linear-gradient(90deg, rgba(56,189,248,0.34) 0%, rgba(147,197,253,0.32) 100%);
-          background-size: 260% 100%, 100% 100%;
-          background-repeat: no-repeat;
+            radial-gradient(circle, rgba(56,189,248,0.55) 0 2.5px, transparent 3px),
+            radial-gradient(circle, rgba(250,204,21,0.55) 0 2px, transparent 2.8px),
+            radial-gradient(circle, rgba(125,211,252,0.5) 0 2.2px, transparent 3px),
+            radial-gradient(circle, rgba(253,230,138,0.55) 0 2px, transparent 2.6px),
+            linear-gradient(90deg, rgba(56,189,248,0.16) 0%, rgba(147,197,253,0.14) 100%);
+          background-size: 260% 100%, 38px 29px, 53px 41px, 61px 33px, 45px 57px, 100% 100%;
+          background-repeat: no-repeat, repeat, repeat, repeat, repeat, no-repeat;
+          background-position: 94% 0, 12px 8px, 30px 22px, 6px 30px, 40px 10px, 0 0;
           animation: offerSweep 6.5s ease-in-out infinite;
         }
         .row-offer td {

@@ -208,7 +208,7 @@ const PRI_TABLE = {
   2: { bg: '#93c5fd', text: '#1e3a5f' },
   3: { bg: '#d1d5db', text: '#374151' },
   4: { bg: '#fde68a', text: '#78350f' },
-  5: { bg: '#bae6fd', text: '#0c4a6e' },
+  5: { bg: '#fbbf24', text: '#78350f' },
 }
 
 const PRIORITY_INFO = [
@@ -293,7 +293,7 @@ function playCelebration() {
   try { new Audio('/sounds/5.mp3').play() } catch {}
 }
 
-const CONFETTI_COLORS = ['#38bdf8', '#7dd3fc', '#bae6fd', '#93c5fd', '#facc15', '#fde68a']
+const CONFETTI_COLORS = ['#fbbf24', '#fcd34d', '#f59e0b', '#fde68a', '#facc15', '#fff7ed']
 
 function ConfettiBurst({ x, y }) {
   const pieces = useMemo(() => Array.from({ length: 30 }, (_, i) => {
@@ -784,31 +784,25 @@ function ReqBoardTable() {
         }
         .priority-tip { animation: priTipIn 0.16s ease-out; }
 
-        /* Prioridad 5 — oferta aceptada: confeti disperso y estático (papel picado) + destello que la recorre */
+        /* Prioridad 5 — oferta aceptada: destello dorado que la recorre, sin costuras entre columnas */
         @keyframes offerSweep {
-          0%        { background-position: 94% 0, 12px 8px, 30px 22px, 6px 30px, 40px 10px, 0 0; }
-          60%, 100% { background-position: -6% 0, 12px 8px, 30px 22px, 6px 30px, 40px 10px, 0 0; }
+          0%        { background-position: 94% 0, 0 0; }
+          60%, 100% { background-position: -6% 0, 0 0; }
         }
         .row-offer {
           background-image:
             linear-gradient(105deg, transparent 36%, rgba(255,255,255,0.95) 50%, transparent 64%),
-            radial-gradient(circle, rgba(56,189,248,0.55) 0 2.5px, transparent 3px),
-            radial-gradient(circle, rgba(250,204,21,0.55) 0 2px, transparent 2.8px),
-            radial-gradient(circle, rgba(125,211,252,0.5) 0 2.2px, transparent 3px),
-            radial-gradient(circle, rgba(253,230,138,0.55) 0 2px, transparent 2.6px),
-            linear-gradient(90deg, rgba(56,189,248,0.16) 0%, rgba(147,197,253,0.14) 100%);
-          background-size: 260% 100%, 38px 29px, 53px 41px, 61px 33px, 45px 57px, 100% 100%;
-          background-repeat: no-repeat, repeat, repeat, repeat, repeat, no-repeat;
-          background-position: 94% 0, 12px 8px, 30px 22px, 6px 30px, 40px 10px, 0 0;
+            linear-gradient(90deg, rgba(251,191,36,0.34) 0%, rgba(253,230,138,0.30) 100%);
+          background-size: 260% 100%, 100% 100%;
+          background-repeat: no-repeat;
           animation: offerSweep 6.5s ease-in-out infinite;
         }
         .row-offer td {
-          border-bottom-color: rgba(125,211,252,0.9) !important;
-          box-shadow: inset 0 0 16px rgba(56,189,248,0.40), inset 0 1px 0 rgba(250,204,21,0.55);
+          border-bottom-color: rgba(252,211,77,0.9) !important;
         }
         @keyframes offerBurst {
           0%   { box-shadow: inset 0 0 44px 10px rgba(250,204,21,0.95), inset 0 0 0 2px rgba(255,255,255,0.9); }
-          100% { box-shadow: inset 0 0 16px rgba(56,189,248,0.40), inset 0 1px 0 rgba(250,204,21,0.55); }
+          100% { box-shadow: inset 0 0 0 0 rgba(250,204,21,0); }
         }
         .row-offer-burst td { animation: offerBurst 1.6s ease-out; }
 
@@ -1023,8 +1017,8 @@ function ReqBoardTable() {
                 key={row.requirement_id}
                 className={isOffer ? `row-offer${burst?.reqId === row.requirement_id ? ' row-offer-burst' : ''}` : undefined}
                 style={{
-                  backgroundColor: isOffer ? 'rgba(14,165,233,0.10)' : rowBg,
-                  borderBottom: `1px solid ${isOffer ? 'rgba(125,211,252,0.9)' : rowBorder}`,
+                  backgroundColor: isOffer ? 'rgba(251,191,36,0.10)' : rowBg,
+                  borderBottom: `1px solid ${isOffer ? 'rgba(252,211,77,0.9)' : rowBorder}`,
                 }}
               >
                 {/* Toggle búsqueda */}
@@ -1069,7 +1063,7 @@ function ReqBoardTable() {
                     className="rounded-lg text-sm font-bold text-center cursor-pointer outline-none border-none appearance-none px-2 py-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{
                       backgroundColor: pri.bg, color: pri.text, width: 52, backgroundImage: 'none', paddingLeft: 0, paddingRight: 0, textAlignLast: 'center',
-                      ...(isOffer ? { boxShadow: '0 0 0 2px #fde68a, 0 0 14px rgba(56,189,248,0.9)' } : {}),
+                      ...(isOffer ? { boxShadow: '0 0 0 2px #ffffff, 0 0 14px rgba(251,191,36,0.9)' } : {}),
                     }}
                   >
                     <option value="" disabled>—</option>

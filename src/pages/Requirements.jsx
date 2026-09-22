@@ -1091,7 +1091,11 @@ function ReqBoardTable() {
 
                 {/* Cliente (read-only) */}
                 <td className="px-3 py-2 text-center text-sm font-bold text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
-                  {row.cliente ?? '—'}
+                  {row.cliente ? (
+                    <div className="flex items-center justify-center">
+                      <ClientLogo name={row.cliente} size="sm" />
+                    </div>
+                  ) : '—'}
                 </td>
 
                 {/* Position (read-only) */}

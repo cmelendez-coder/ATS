@@ -369,8 +369,8 @@ export default function NewRequirement() {
               </div>
 
               {/* Position Details */}
-              <div className="lg:col-span-7 bg-[#10284d] rounded-2xl p-6 shadow-[0_2px_16px_rgba(24,28,30,0.04)] border border-white/10 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+              <div className="lg:col-span-7 bg-[#10284d] rounded-2xl p-6 shadow-[0_2px_16px_rgba(24,28,30,0.04)] border border-white/10 relative">
+                <div className="absolute top-0 left-0 w-full h-[3px] rounded-t-2xl bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                 <h2 className="text-base font-semibold text-white mb-5 flex items-center gap-2">
                   <span className="material-symbols-outlined text-[1.125rem] filled text-[#81b927]">work</span>Position Details
                 </h2>
@@ -433,7 +433,7 @@ export default function NewRequirement() {
                   <div>
                     <label className="block text-[0.6875rem] font-bold text-white/50 uppercase tracking-widest mb-2">Variable</label>
                     <div className="relative">
-                      <input className="form-field pr-8" placeholder="0" type="number" min="0" value={form.variable} onChange={e => set('variable', e.target.value)} />
+                      <input className="form-field pr-8" placeholder="0.00" type="text" inputMode="numeric" value={form.variable} onChange={e => set('variable', e.target.value)} />
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 text-sm font-medium">%</span>
                     </div>
                     <p className="text-xs text-white/40 mt-1">Performance bonus percentage.</p>
@@ -464,17 +464,6 @@ export default function NewRequirement() {
                         {catalogs.arrangements.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                       </select>
                       <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[1.125rem]">arrow_drop_down</span>
-                    </div>
-                  </div>
-                  <div className="col-span-2">
-                    <label className="block text-[0.6875rem] font-bold text-white/50 uppercase tracking-widest mb-3">VISA US Required</label>
-                    <div className="flex items-center gap-4">
-                      {[{ value: true, label: 'Yes — Sponsorship available' }, { value: false, label: 'No — Not required' }].map(({ value, label }) => (
-                        <label key={String(value)} className="flex items-center gap-2 cursor-pointer select-none">
-                          <input type="radio" name="visa" checked={form.visa_us_required === value} onChange={() => set('visa_us_required', value)} className="text-secondary focus:ring-secondary/30" />
-                          <span className="text-sm text-white/70">{label}</span>
-                        </label>
-                      ))}
                     </div>
                   </div>
                   <div className="col-span-2">

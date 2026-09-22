@@ -5,6 +5,12 @@ import { searchCandidates, fetchCandidatesByIds } from '../api/talent'
 // Hardcoded admin searches — each entry is a labeled set of candidate_ids
 const ADMIN_SEARCHES = [
   {
+    label: 'Full Stack Developer (Java/Python/React/AWS)',
+    description: 'Marketing Automation platform, cliente manufacturero global · match ≥50% en las 4 skills obligatorias · ordenados por # de skills y años de experiencia',
+    ids: [14825, 14824, 14823, 11760, 13071, 14846, 13159, 15425, 14027, 14422, 12673, 11967, 13052, 14848, 12325],
+    createdAt: '2026-09-22T15:00:00.000Z',
+  },
+  {
     label: 'OCM Consultant (SAP / S4HANA)',
     description: 'Organizational Change Management + SAP/S4HANA · preferencia Mexicali · target <10 YOE · ordenados por relevancia y experiencia',
     ids: [14711, 14717, 14715, 14719, 14712, 14714, 14777, 15338, 14713, 14605, 14716, 14718, 14778, 15339, 15334, 14643, 14649, 15006],

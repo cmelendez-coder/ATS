@@ -16,6 +16,7 @@ const CLIENT_LOGOS = {
   'Bahwan Cybertek': '/logos/bahwan.avif',
   'Numeric':         '/logos/numeric.png',
   'Excelencia Consulting': '/logos/excelencia.png',
+  'Avari':           '/logos/avari.png',
 }
 
 const DETAIL_KEYS = [

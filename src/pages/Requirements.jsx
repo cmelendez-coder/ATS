@@ -37,11 +37,10 @@ const CLIENT_LOGOS = {
   'Bahwan Cybertek': '/logos/bahwan.avif',
   'Numeric':         '/logos/numeric.png',
   'Excelencia Consulting': '/logos/excelencia.png',
+  'Avari':           '/logos/avari.png',
 }
 
-const LOGO_EXTRA = {
-  'Bahwan Cybertek': { scale: 1.6, smW: 'w-[88px]', headerW: 'w-[160px]' },
-}
+const LOGO_EXTRA = {}
 
 function ClientLogo({ name = '', size = 'sm' }) {
   const [err, setErr] = useState(false)

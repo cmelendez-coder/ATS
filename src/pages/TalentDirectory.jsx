@@ -5,6 +5,12 @@ import { searchCandidates, fetchCandidatesByIds } from '../api/talent'
 // Hardcoded admin searches — each entry is a labeled set of candidate_ids
 const ADMIN_SEARCHES = [
   {
+    label: 'Full Stack Developer (React lead / Java-Python-AWS)',
+    description: 'Pool muy limitado: solo 5 candidatos con React real (top 5), resto (9) son Angular/Node sin React — el match más cercano disponible · Marco Antonio Porras ya no busca roles de developer',
+    ids: [15425, 14175, 12982, 14539, 14577, 13133, 13134, 13136, 13135, 13138, 13137, 13139, 12730, 12775],
+    createdAt: '2026-09-22T16:00:00.000Z',
+  },
+  {
     label: 'Full Stack Developer (Java/Python/React/AWS)',
     description: 'Marketing Automation platform, cliente manufacturero global · match ≥50% en las 4 skills obligatorias · ordenados por # de skills y años de experiencia',
     ids: [14825, 14824, 14823, 11760, 13071, 14846, 13159, 15425, 14027, 14422, 12673, 11967, 13052, 14848, 12325],

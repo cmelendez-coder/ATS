@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import {
@@ -8,6 +8,57 @@ import {
 } from '../api/requirements'
 
 const DURATION_OPTIONS = ['Permanent', '3 Months', '6 Months', '12 Months', 'Contract']
+
+/* ── Selector de cliente con búsqueda: escribe para filtrar y elige de la lista ── */
+function ClientCombobox({ clients, value, onChange }) {
+  const [open, setOpen]   = useState(false)
+  const [query, setQuery] = useState('')
+  const ref = useRef(null)
+
+  useEffect(() => {
+    if (!open) return
+    function onClick(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', onClick)
+    return () => document.removeEventListener('mousedown', onClick)
+  }, [open])
+
+  const selectedName = clients.find(c => String(c.id) === String(value))?.name ?? ''
+  const filtered = query.trim()
+    ? clients.filter(c => c.name.toLowerCase().includes(query.trim().toLowerCase()))
+    : clients
+
+  return (
+    <div className="relative" ref={ref}>
+      <input
+        type="text"
+        className="form-field cursor-pointer pr-9"
+        value={open ? query : selectedName}
+        onFocus={() => { setOpen(true); setQuery('') }}
+        onChange={e => { setQuery(e.target.value); setOpen(true) }}
+        placeholder="Buscar cliente…"
+        autoComplete="off"
+      />
+      <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[1.125rem]">
+        {open ? 'search' : 'arrow_drop_down'}
+      </span>
+      {open && (
+        <div className="absolute z-30 top-full left-0 right-0 mt-1 bg-surface-container-lowest border border-outline-variant/15 rounded-xl shadow-xl max-h-60 overflow-y-auto">
+          {filtered.length === 0 && <p className="px-4 py-3 text-xs text-on-surface-variant">Sin resultados</p>}
+          {filtered.map(c => (
+            <button
+              key={c.id}
+              type="button"
+              onMouseDown={() => { onChange(String(c.id)); setQuery(''); setOpen(false) }}
+              className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-surface-container ${String(c.id) === String(value) ? 'text-primary font-semibold bg-primary/5' : 'text-on-surface'}`}
+            >
+              {c.name}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function NewRequirement() {
   const navigate            = useNavigate()
@@ -110,17 +161,44 @@ export default function NewRequirement() {
   if (submitted) {
     return (
       <div className="flex-1 flex items-center justify-center bg-surface p-8">
+        <style>{`
+          @keyframes reqPop {
+            0%   { opacity: 0; transform: scale(0.4); }
+            60%  { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
+          }
+          @keyframes reqRing {
+            0%   { opacity: 0.55; transform: scale(0.7); }
+            100% { opacity: 0; transform: scale(2); }
+          }
+          @keyframes reqFadeUp {
+            0%   { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+          }
+          .req-success-icon    { animation: reqPop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+          .req-success-ring    { animation: reqRing 1.1s ease-out 0.15s both; }
+          .req-success-ring2   { animation: reqRing 1.1s ease-out 0.4s both; }
+          .req-success-text    { animation: reqFadeUp 0.45s ease-out 0.3s both; }
+          .req-success-actions { animation: reqFadeUp 0.45s ease-out 0.45s both; }
+          @media (prefers-reduced-motion: reduce) {
+            .req-success-icon, .req-success-ring, .req-success-ring2, .req-success-text, .req-success-actions { animation: none; }
+          }
+        `}</style>
         <div className="max-w-md w-full text-center space-y-6">
-          <div className="w-20 h-20 rounded-full bg-secondary-container flex items-center justify-center mx-auto">
-            <span className="material-symbols-outlined text-[2.5rem] text-secondary">check_circle</span>
+          <div className="relative w-20 h-20 mx-auto">
+            <span className="req-success-ring absolute inset-0 rounded-full bg-secondary/50" />
+            <span className="req-success-ring2 absolute inset-0 rounded-full bg-secondary/40" />
+            <div className="req-success-icon relative w-20 h-20 rounded-full bg-secondary-container flex items-center justify-center">
+              <span className="material-symbols-outlined text-[2.5rem] text-secondary">check_circle</span>
+            </div>
           </div>
-          <div>
+          <div className="req-success-text">
             <h2 className="text-2xl font-extrabold tracking-tight text-primary">Requerimiento creado</h2>
             <p className="text-on-surface-variant mt-2 text-sm leading-relaxed">
               El requerimiento <span className="font-bold text-primary font-mono">{savedReqLabel}</span> fue creado exitosamente y ya está disponible en el sistema.
             </p>
           </div>
-          <div className="flex gap-3 justify-center">
+          <div className="req-success-actions flex gap-3 justify-center">
             <Link
               to="/requirements"
               className="px-6 py-2.5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity"
@@ -231,13 +309,7 @@ export default function NewRequirement() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Client <span className="text-error">*</span></label>
-                    <div className="relative">
-                      <select className="form-field appearance-none cursor-pointer pr-9" value={form.client_id} onChange={e => set('client_id', e.target.value)} required>
-                        <option value="">Select client…</option>
-                        {catalogs.clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                      </select>
-                      <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[1.125rem]">arrow_drop_down</span>
-                    </div>
+                    <ClientCombobox clients={catalogs.clients} value={form.client_id} onChange={id => set('client_id', id)} />
                   </div>
                   <div>
                     <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Job Title <span className="text-error">*</span></label>
@@ -369,7 +441,7 @@ export default function NewRequirement() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="bg-gradient-to-br from-primary to-primary-container text-on-primary py-2.5 px-7 rounded-full text-sm font-semibold hover:opacity-90 transition-all flex items-center gap-2 group shadow-[0_4px_16px_rgba(0,7,38,0.12)] disabled:opacity-60"
+                  className="bg-gradient-to-br from-primary to-primary-container text-on-primary py-2.5 px-7 rounded-full text-sm font-semibold hover:opacity-90 hover:-translate-y-0.5 active:scale-95 active:translate-y-0 transition-all duration-150 flex items-center gap-2 group shadow-[0_4px_16px_rgba(0,7,38,0.12)] disabled:opacity-60 disabled:hover:translate-y-0 disabled:active:scale-100"
                 >
                   {loading ? (
                     <><span className="material-symbols-outlined animate-spin text-[1rem]">progress_activity</span>Guardando…</>

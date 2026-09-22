@@ -15,6 +15,7 @@ const CLIENT_LOGOS = {
   'HTC':             '/logos/htc.png',
   'Bahwan Cybertek': '/logos/bahwan.avif',
   'Numeric':         '/logos/numeric.png',
+  'Excelencia Consulting': '/logos/excelencia.png',
 }
 
 const DETAIL_KEYS = [

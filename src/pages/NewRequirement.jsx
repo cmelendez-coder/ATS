@@ -17,6 +17,66 @@ const MEXICO_STATES = [
   'Yucatán', 'Zacatecas',
 ]
 
+/* ── Selector de ubicación con búsqueda: Remote siempre resaltada, luego los estados de México ── */
+function LocationCombobox({ value, onChange }) {
+  const [open, setOpen]   = useState(false)
+  const [query, setQuery] = useState('')
+  const ref = useRef(null)
+
+  useEffect(() => {
+    if (!open) return
+    function onClick(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', onClick)
+    return () => document.removeEventListener('mousedown', onClick)
+  }, [open])
+
+  const options = ['Remote', ...MEXICO_STATES]
+  const filtered = query.trim()
+    ? options.filter(o => o.toLowerCase().includes(query.trim().toLowerCase()))
+    : options
+
+  return (
+    <div className="relative" ref={ref}>
+      <input
+        type="text"
+        className="form-field cursor-pointer pr-9"
+        value={open ? query : (value || '')}
+        onFocus={() => { setOpen(true); setQuery('') }}
+        onChange={e => { setQuery(e.target.value); setOpen(true) }}
+        placeholder="Buscar ubicación…"
+        autoComplete="off"
+      />
+      <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[1.125rem]">
+        {open ? 'search' : 'arrow_drop_down'}
+      </span>
+      {open && (
+        <div className="absolute z-30 top-full left-0 right-0 mt-1 bg-surface-container-lowest border border-outline-variant/15 rounded-xl shadow-xl max-h-60 overflow-y-auto">
+          {filtered.length === 0 && <p className="px-4 py-3 text-xs text-on-surface-variant">Sin resultados</p>}
+          {filtered.map(opt => {
+            const isRemote = opt === 'Remote'
+            const selected = opt === value
+            return (
+              <button
+                key={opt}
+                type="button"
+                onMouseDown={() => { onChange(opt); setQuery(''); setOpen(false) }}
+                className={`w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center gap-1.5 ${
+                  isRemote
+                    ? 'font-extrabold text-secondary bg-secondary-container/40 hover:bg-secondary-container/60'
+                    : selected ? 'text-primary font-semibold bg-primary/5 hover:bg-surface-container' : 'text-on-surface hover:bg-surface-container'
+                }`}
+              >
+                {isRemote && <span className="material-symbols-outlined text-[1rem]">public</span>}
+                {opt}
+              </button>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
 /* ── Selector de cliente con búsqueda: escribe para filtrar y elige de la lista ── */
 function ClientCombobox({ clients, value, onChange }) {
   const [open, setOpen]   = useState(false)
@@ -344,14 +404,7 @@ export default function NewRequirement() {
                   </div>
                   <div>
                     <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Desired Location</label>
-                    <div className="relative">
-                      <select className="form-field appearance-none cursor-pointer pr-9" value={form.desired_location} onChange={e => set('desired_location', e.target.value)}>
-                        <option value="">Select…</option>
-                        <option value="Remote" style={{ fontWeight: 800, color: '#1f6d44', backgroundColor: '#e3f3e8' }}>🌐 Remote</option>
-                        {MEXICO_STATES.map(s => <option key={s} value={s}>{s}</option>)}
-                      </select>
-                      <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[1.125rem]">arrow_drop_down</span>
-                    </div>
+                    <LocationCombobox value={form.desired_location} onChange={v => set('desired_location', v)} />
                   </div>
                   <div className="col-span-2">
                     <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Tech Requirements</label>

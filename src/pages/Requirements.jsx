@@ -600,9 +600,9 @@ function ReqBoardTable() {
   const COLS = [
     { label: 'Búsqueda',       width: '80px'  },
     { label: 'Recruiter',      width: '150px' },
+    { label: 'Position',       width: '210px' },
     { label: 'Prioridad',      width: '110px' },
     { label: 'Pipeline',       width: '50px'  },
-    { label: 'Position',       width: '210px' },
     { label: "FTE's",          width: '80px'  },
     { label: 'Everscale Group',width: '115px' },
     { label: 'Interno',        width: '85px'  },
@@ -784,21 +784,35 @@ function ReqBoardTable() {
         }
         .priority-tip { animation: priTipIn 0.16s ease-out; }
 
-        /* Prioridad 5 — oferta aceptada: destello dorado que la recorre, sin costuras entre columnas */
+        /* Prioridad 5 — oferta aceptada: celeste con marco dorado, resplandor en las esquinas
+           y una lucecita dorada que recorre el perímetro (arriba →, abajo ←) */
         @keyframes offerSweep {
-          0%        { background-position: 94% 0, 0 0; }
-          60%, 100% { background-position: -6% 0, 0 0; }
+          0%        { background-position: 94% 0, -20% 3px, 120% calc(100% - 3px), 0 0; }
+          60%, 100% { background-position: -6% 0, 120% 3px, -20% calc(100% - 3px), 0 0; }
         }
         .row-offer {
           background-image:
             linear-gradient(105deg, transparent 36%, rgba(255,255,255,0.95) 50%, transparent 64%),
+            linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.9) 40%, rgba(250,204,21,1) 50%, rgba(255,255,255,0.9) 60%, transparent 100%),
+            linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.9) 40%, rgba(250,204,21,1) 50%, rgba(255,255,255,0.9) 60%, transparent 100%),
             linear-gradient(90deg, rgba(56,189,248,0.34) 0%, rgba(125,211,252,0.30) 100%);
-          background-size: 260% 100%, 100% 100%;
+          background-size: 260% 100%, 40% 3px, 40% 3px, 100% 100%;
           background-repeat: no-repeat;
           animation: offerSweep 6.5s ease-in-out infinite;
         }
         .row-offer td {
-          border-bottom-color: rgba(125,211,252,0.9) !important;
+          border-top: 1.5px solid rgba(250,204,21,0.6);
+          border-bottom-color: rgba(250,204,21,0.6) !important;
+        }
+        .row-offer td:first-child {
+          border-left: 1.5px solid rgba(250,204,21,0.6);
+          border-radius: 10px 0 0 10px;
+          box-shadow: inset 8px 0 12px -8px rgba(250,204,21,0.55);
+        }
+        .row-offer td:last-child {
+          border-right: 1.5px solid rgba(250,204,21,0.6);
+          border-radius: 0 10px 10px 0;
+          box-shadow: inset -8px 0 12px -8px rgba(250,204,21,0.55);
         }
         @keyframes offerBurst {
           0%   { box-shadow: inset 0 0 44px 10px rgba(250,204,21,0.95), inset 0 0 0 2px rgba(255,255,255,0.9); }
@@ -1044,6 +1058,11 @@ function ReqBoardTable() {
                   </select>
                 </td>
 
+                {/* Position (read-only) */}
+                <td className="px-3 py-2 text-center text-sm font-bold text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
+                  {row.position ?? '—'}
+                </td>
+
                 {/* Prioridad */}
                 <td className="px-2 py-2 text-center" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   <div className="flex items-center justify-center gap-1.5">
@@ -1087,11 +1106,6 @@ function ReqBoardTable() {
                   >
                     <span className="material-symbols-outlined text-[1.125rem] animate-glow" style={{ color: '#81b927' }}>visibility</span>
                   </button>
-                </td>
-
-                {/* Position (read-only) */}
-                <td className="px-3 py-2 text-center text-sm font-bold text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
-                  {row.position ?? '—'}
                 </td>
 
                 {/* FTEs (editable, synced to requirement.fte_count) */}

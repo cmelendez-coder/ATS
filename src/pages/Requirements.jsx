@@ -602,7 +602,6 @@ function ReqBoardTable() {
     { label: 'Recruiter',      width: '150px' },
     { label: 'Prioridad',      width: '110px' },
     { label: 'Pipeline',       width: '50px'  },
-    { label: 'Cliente',        width: '130px' },
     { label: 'Position',       width: '210px' },
     { label: "FTE's",          width: '80px'  },
     { label: 'Everscale Group',width: '115px' },
@@ -993,7 +992,9 @@ function ReqBoardTable() {
               <tr key={`group-${cliente}`}>
                 <td colSpan={COLS.length} className="px-4 py-2" style={{ backgroundColor: '#10284d', color: '#fff' }}>
                   <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
-                    <span className="text-[0.875rem] font-bold uppercase tracking-widest">{cliente}</span>
+                    <div className="flex items-center justify-center h-10 px-3 rounded-xl bg-white shadow-sm border border-outline-variant/10 shrink-0 w-fit">
+                      <ClientLogo name={cliente} size="header" />
+                    </div>
                     <div className="flex items-center gap-6 text-[0.6875rem] font-bold uppercase tracking-wider">
                       <span className="animate-glow text-white">
                         Posiciones en búsqueda: {grouped[cliente].filter(r => r.activo).length}
@@ -1092,15 +1093,6 @@ function ReqBoardTable() {
                   >
                     <span className="material-symbols-outlined text-[1.125rem] animate-glow" style={{ color: '#81b927' }}>visibility</span>
                   </button>
-                </td>
-
-                {/* Cliente (read-only) */}
-                <td className="px-3 py-2 text-center text-sm font-bold text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
-                  {row.cliente ? (
-                    <div className="flex items-center justify-center">
-                      <ClientLogo name={row.cliente} size="sm" />
-                    </div>
-                  ) : '—'}
                 </td>
 
                 {/* Position (read-only) */}

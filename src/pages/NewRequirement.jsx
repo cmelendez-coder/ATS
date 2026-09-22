@@ -9,6 +9,14 @@ import {
 
 const DURATION_OPTIONS = ['Permanent', '3 Months', '6 Months', '12 Months', 'Contract']
 
+const MEXICO_STATES = [
+  'Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas', 'Chihuahua',
+  'Ciudad de México', 'Coahuila', 'Colima', 'Durango', 'Estado de México', 'Guanajuato', 'Guerrero',
+  'Hidalgo', 'Jalisco', 'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca', 'Puebla', 'Querétaro',
+  'Quintana Roo', 'San Luis Potosí', 'Sinaloa', 'Sonora', 'Tabasco', 'Tamaulipas', 'Tlaxcala', 'Veracruz',
+  'Yucatán', 'Zacatecas',
+]
+
 /* ── Selector de cliente con búsqueda: escribe para filtrar y elige de la lista ── */
 function ClientCombobox({ clients, value, onChange }) {
   const [open, setOpen]   = useState(false)
@@ -109,8 +117,8 @@ export default function NewRequirement() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (!form.client_id || !form.job_title || !form.application_date || !form.target_fill_date || !form.salary_cap) {
-      setError('Complete los campos requeridos: cliente, puesto, fechas y salary cap.')
+    if (!form.client_id || !form.job_title || !form.application_date || !form.target_fill_date || !form.salary_cap || !form.duration) {
+      setError('Complete los campos requeridos: cliente, puesto, fechas, duration y salary cap.')
       return
     }
     if (Number(form.salary_cap) < 20000) {
@@ -316,10 +324,10 @@ export default function NewRequirement() {
                     <input className="form-field" placeholder="e.g. Senior Backend Engineer" type="text" value={form.job_title} onChange={e => set('job_title', e.target.value)} required />
                   </div>
                   <div>
-                    <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Duration</label>
+                    <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Duration <span className="text-error">*</span></label>
                     <div className="relative">
-                      <select className="form-field appearance-none cursor-pointer pr-9" value={form.duration} onChange={e => set('duration', e.target.value)}>
-                        <option value="">Select…</option>
+                      <select className="form-field appearance-none cursor-pointer pr-9" value={form.duration} onChange={e => set('duration', e.target.value)} required>
+                        <option value="" disabled>Select…</option>
                         {DURATION_OPTIONS.map(d => <option key={d} value={d}>{d}</option>)}
                       </select>
                       <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[1.125rem]">arrow_drop_down</span>
@@ -336,7 +344,14 @@ export default function NewRequirement() {
                   </div>
                   <div>
                     <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Desired Location</label>
-                    <input className="form-field" placeholder="e.g. Mexico City / Remote" type="text" value={form.desired_location} onChange={e => set('desired_location', e.target.value)} />
+                    <div className="relative">
+                      <select className="form-field appearance-none cursor-pointer pr-9" value={form.desired_location} onChange={e => set('desired_location', e.target.value)}>
+                        <option value="">Select…</option>
+                        <option value="Remote" style={{ fontWeight: 800, color: '#1f6d44', backgroundColor: '#e3f3e8' }}>🌐 Remote</option>
+                        {MEXICO_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                      <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[1.125rem]">arrow_drop_down</span>
+                    </div>
                   </div>
                   <div className="col-span-2">
                     <label className="block text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Tech Requirements</label>

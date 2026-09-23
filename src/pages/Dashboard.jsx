@@ -198,6 +198,7 @@ export default function Dashboard() {
               <p className="text-5xl tracking-tighter font-light text-[#81b927]">
                 {loading ? '…' : (stats?.totalCandidates ?? 0).toLocaleString()}
               </p>
+              <p className="text-xs font-medium text-white/50 mt-2">Profesionales en la base de talento</p>
             </Link>
 
             {/* Agregados al Talent Pool — mes navegable */}

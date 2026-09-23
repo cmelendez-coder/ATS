@@ -229,7 +229,18 @@ export async function updateRequirementSummary(id, patch) {
 }
 
 // ─── Standalone req board (completely independent table) ─────────────────────
+// Candidatos en pipeline (activos + rechazados) por requerimiento
+async function getPipelineTotalsByReq() {
+  const { data } = await supabase.from('requirement_candidate').select('requirement_id')
+  const totals = {}
+  for (const r of data ?? []) {
+    if (r.requirement_id != null) totals[r.requirement_id] = (totals[r.requirement_id] ?? 0) + 1
+  }
+  return totals
+}
+
 export async function getReqBoard(weekNumber, weekYear) {
+  const pipelineTotals = await getPipelineTotalsByReq()
   const [{ data: rows, error }, { data: sentRows }] = await Promise.all([
     supabase
       .from('req_board')
@@ -257,6 +268,7 @@ export async function getReqBoard(weekNumber, weekYear) {
     enviados: row.requirement_id != null
       ? (sentByReq[row.requirement_id] ?? 0)
       : (row.enviados ?? null),
+    enviados_totales: row.requirement_id != null ? (pipelineTotals[row.requirement_id] ?? 0) : null,
   }))
 }
 
@@ -279,6 +291,7 @@ export async function addReqBoardRow(data) {
 }
 
 export async function getOpenRequirementsForBoard(weekNumber, weekYear) {
+  const pipelineTotals = await getPipelineTotalsByReq()
   const [
     { data: openReqs },
     { data: boardRows },
@@ -344,6 +357,7 @@ export async function getOpenRequirementsForBoard(weekNumber, weekYear) {
       interno:        board?.interno      ?? latest?.interno   ?? null,
       activo:         board?.activo       ?? false,
       enviados:       sentByReq[req.id]   ?? 0,
+      enviados_totales: pipelineTotals[req.id] ?? 0,
       sort_order:     board?.sort_order   ?? 0,
       week_number:    weekNumber,
       week_year:      weekYear,

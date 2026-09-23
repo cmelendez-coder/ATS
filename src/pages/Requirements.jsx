@@ -606,7 +606,8 @@ function ReqBoardTable() {
     { label: "FTE's",          width: '80px'  },
     { label: 'Everscale Group',width: '115px' },
     { label: 'Interno',        width: '85px'  },
-    { label: 'Enviados',       width: '85px'  },
+    { label: 'Enviados en esta semana', width: '110px' },
+    { label: 'Enviados totales',        width: '100px' },
   ]
 
   if (loading) return (
@@ -943,7 +944,7 @@ function ReqBoardTable() {
               <th
                 key={col.label}
                 style={{ width: col.width }}
-                className="text-[0.875rem] font-bold uppercase tracking-[0.1em] text-white text-center px-3 py-4 border-b border-white/20 whitespace-nowrap" style={{ backgroundColor: '#81b927' }}
+                className={`text-[0.875rem] font-bold uppercase tracking-[0.1em] text-white text-center px-3 py-4 border-b border-white/20 ${col.label.length > 16 && col.label !== 'Everscale Group' ? 'whitespace-normal leading-tight min-w-[110px]' : 'whitespace-nowrap'}`} style={{ backgroundColor: '#81b927' }}
               >
                 {col.label}
               </th>
@@ -1153,6 +1154,11 @@ function ReqBoardTable() {
                 {/* Enviados (read-only) */}
                 <td className="px-3 py-2 text-center text-xl font-bold text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   {row.enviados ?? '—'}
+                </td>
+
+                {/* Enviados totales (pipeline activo + rechazados, read-only) */}
+                <td className="px-3 py-2 text-center text-xl font-bold text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
+                  {row.enviados_totales ?? '—'}
                 </td>
               </tr>
             )

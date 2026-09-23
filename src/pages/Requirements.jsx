@@ -599,7 +599,6 @@ function ReqBoardTable() {
 
   const COLS = [
     { label: 'Búsqueda',       width: '80px'  },
-    { label: 'Recruiter',      width: '150px' },
     { label: 'Position',       width: '210px' },
     { label: 'Prioridad',      width: '110px' },
     { label: 'Pipeline',       width: '50px'  },
@@ -608,6 +607,7 @@ function ReqBoardTable() {
     { label: 'Interno',        width: '85px'  },
     { label: 'Enviados en esta semana', width: '110px' },
     { label: 'Enviados totales',        width: '100px' },
+    { label: 'Recruiter',      width: '150px' },
   ]
 
   if (loading) return (
@@ -1043,22 +1043,6 @@ function ReqBoardTable() {
                   </div>
                 </td>
 
-                {/* Recruiter */}
-                <td className="px-2 py-2" style={{ borderBottom: `1px solid ${rowBorder}`, minWidth: '150px', width: '150px' }}>
-                  <select
-                    value={row.recruiter ?? ''}
-                    onChange={e => handleUpdate(row.requirement_id, { recruiter: e.target.value || null })}
-                    disabled={isPastWeek}
-                    className="w-full bg-transparent text-center text-sm font-bold text-on-surface outline-none cursor-pointer rounded px-1 py-0.5 border border-[#81b927]/60 focus:border-[#81b927] disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <option value="">—</option>
-                    <option value="César">César</option>
-                    <option value="Enrique">Enrique</option>
-                    <option value="Roberto">Roberto</option>
-                    <option value="César/Enrique">César/Enrique</option>
-                  </select>
-                </td>
-
                 {/* Position (read-only) */}
                 <td className="px-3 py-2 text-center text-sm font-bold text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   {row.position ?? '—'}
@@ -1159,6 +1143,22 @@ function ReqBoardTable() {
                 {/* Enviados totales (pipeline activo + rechazados, read-only) */}
                 <td className="px-3 py-2 text-center text-xl font-bold text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   {row.enviados_totales ?? '—'}
+                </td>
+
+                {/* Recruiter */}
+                <td className="px-2 py-2" style={{ borderBottom: `1px solid ${rowBorder}`, minWidth: '150px', width: '150px' }}>
+                  <select
+                    value={row.recruiter ?? ''}
+                    onChange={e => handleUpdate(row.requirement_id, { recruiter: e.target.value || null })}
+                    disabled={isPastWeek}
+                    className="w-full bg-transparent text-center text-sm font-bold text-on-surface outline-none cursor-pointer rounded px-1 py-0.5 border border-[#81b927]/60 focus:border-[#81b927] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <option value="">—</option>
+                    <option value="César">César</option>
+                    <option value="Enrique">Enrique</option>
+                    <option value="Roberto">Roberto</option>
+                    <option value="César/Enrique">César/Enrique</option>
+                  </select>
                 </td>
               </tr>
             )

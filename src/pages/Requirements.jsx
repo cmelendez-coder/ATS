@@ -1037,7 +1037,7 @@ function ReqBoardTable() {
                 }}
               >
                 {/* Position (read-only) */}
-                <td className="px-3 py-2 text-center text-sm font-bold text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
+                <td className="px-3 py-2 text-center text-sm font-extrabold text-black" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   {row.position ?? '—'}
                 </td>
 

@@ -323,7 +323,7 @@ function ConfettiBurst({ x, y }) {
 }
 
 /* ── Inline editable cell ── */
-function EditableCell({ value, onChange, onRequestChange, type = 'text', placeholder = '', disabled = false, glow = false, large = false, lime = false, min }) {
+function EditableCell({ value, onChange, onRequestChange, type = 'text', placeholder = '', disabled = false, glow = false, large = false, lime = false, min, suffix }) {
   const [draft, setDraft] = useState(value ?? '')
   const [saved, setSaved] = useState(false)
   const savedTimer = useRef(null)
@@ -346,7 +346,7 @@ function EditableCell({ value, onChange, onRequestChange, type = 'text', placeho
     }
   }
 
-  return (
+  const input = (
     <input
       type={type}
       value={draft}
@@ -355,8 +355,15 @@ function EditableCell({ value, onChange, onRequestChange, type = 'text', placeho
       onChange={e => setDraft(e.target.value)}
       onBlur={handleSave}
       onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur() }}
-      className={`w-full bg-transparent text-center text-on-surface placeholder:text-on-surface-variant/30 outline-none focus:bg-surface-container rounded px-1 py-0.5 border border-[#81b927]/60 focus:border-[#81b927] disabled:opacity-50 disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none ${large ? 'text-xl font-bold' : 'text-sm'} ${lime ? 'cell-lime' : ''} ${saved ? 'cell-saved' : glow && !disabled ? 'cell-glow' : ''}`}
+      className={`w-full bg-transparent text-center text-on-surface placeholder:text-on-surface-variant/30 outline-none focus:bg-surface-container rounded px-1 py-0.5 border border-[#81b927]/60 focus:border-[#81b927] disabled:opacity-50 disabled:cursor-not-allowed [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none ${large ? 'text-xl font-bold' : 'text-sm'} ${lime ? 'cell-lime' : ''} ${suffix ? 'pr-8' : ''} ${saved ? 'cell-saved' : glow && !disabled ? 'cell-glow' : ''}`}
     />
+  )
+  if (!suffix) return input
+  return (
+    <div className="relative">
+      {input}
+      <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[0.6rem] font-extrabold uppercase tracking-wider text-[#0b2a58]/70 pointer-events-none">{suffix}</span>
+    </div>
   )
 }
 
@@ -606,7 +613,7 @@ function ReqBoardTable() {
     { label: 'Everscale Group',width: '115px' },
     { label: 'Interno',        width: '85px'  },
     { label: 'Enviados en esta semana', width: '110px' },
-    { label: 'Enviados totales',        width: '100px' },
+    { label: 'Enviados totales',        width: '80px' },
     { label: 'Recruiter',      width: '150px' },
   ]
 
@@ -944,9 +951,9 @@ function ReqBoardTable() {
               <th
                 key={col.label}
                 style={{ width: col.width }}
-                className={`text-[0.875rem] font-bold uppercase tracking-[0.1em] text-white text-center px-3 py-4 border-b border-white/20 ${col.label.length > 16 && col.label !== 'Everscale Group' ? 'whitespace-normal leading-tight min-w-[110px]' : 'whitespace-nowrap'}`} style={{ backgroundColor: '#81b927' }}
+                className={`text-[0.875rem] font-bold uppercase tracking-[0.1em] text-white text-center px-3 py-4 border-b border-white/20 ${col.label === 'Enviados totales' ? 'whitespace-nowrap leading-tight' :col.label.length > 16 && col.label !== 'Everscale Group' ? 'whitespace-normal leading-tight min-w-[110px]' : 'whitespace-nowrap'}`} style={{ backgroundColor: '#81b927' }}
               >
-                {col.label}
+                {col.label === 'Enviados totales' ? <>Enviados<br />Totales</> : col.label}
               </th>
             ))}
           </tr>
@@ -1105,6 +1112,7 @@ function ReqBoardTable() {
                     glow={!isPastWeek}
                     large
                     lime
+                    suffix="FTE"
                     onRequestChange={val => requestFteChange(row, val)}
                   />
                 </td>

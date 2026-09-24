@@ -951,9 +951,9 @@ function ReqBoardTable() {
               <th
                 key={col.label}
                 style={{ width: col.width }}
-                className={`text-[0.875rem] font-bold uppercase tracking-[0.1em] text-white text-center px-3 py-4 border-b border-white/20 ${col.label === 'Enviados totales' ? 'whitespace-nowrap leading-tight' :col.label.length > 16 && col.label !== 'Everscale Group' ? 'whitespace-normal leading-tight min-w-[110px]' : 'whitespace-nowrap'}`} style={{ backgroundColor: '#81b927' }}
+                className={`text-[0.875rem] font-bold uppercase tracking-[0.1em] text-white text-center px-3 py-4 border-b border-white/20 ${col.label === 'Enviados totales' || col.label === 'Everscale Group' ? 'whitespace-nowrap leading-tight' :col.label.length > 16 && col.label !== 'Everscale Group' ? 'whitespace-normal leading-tight min-w-[110px]' : 'whitespace-nowrap'}`} style={{ backgroundColor: '#81b927' }}
               >
-                {col.label === 'Enviados totales' ? <>Enviados<br />Totales</> : col.label}
+                {col.label === 'Enviados totales' ? <>Enviados<br />Totales</> : col.label === 'Everscale Group' ? <>Everscale<br />Group</> : col.label}
               </th>
             ))}
           </tr>

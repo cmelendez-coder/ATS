@@ -598,8 +598,8 @@ function ReqBoardTable() {
     : null
 
   const COLS = [
-    { label: 'Búsqueda',       width: '80px'  },
     { label: 'Position',       width: '210px' },
+    { label: 'Búsqueda',       width: '80px'  },
     { label: 'Prioridad',      width: '110px' },
     { label: 'Pipeline',       width: '50px'  },
     { label: "FTE's",          width: '80px'  },
@@ -1036,16 +1036,16 @@ function ReqBoardTable() {
                   borderBottom: `1px solid ${isOffer ? 'rgba(125,211,252,0.9)' : rowBorder}`,
                 }}
               >
+                {/* Position (read-only) */}
+                <td className="px-3 py-2 text-center text-sm font-bold text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
+                  {row.position ?? '—'}
+                </td>
+
                 {/* Toggle búsqueda */}
                 <td className="px-3 py-3 text-center" style={{ borderBottom: `1px solid ${rowBorder}` }}>
                   <div className={`flex justify-center ${isPastWeek ? 'opacity-50 pointer-events-none' : ''}`}>
                     <Toggle on={activo} onChange={val => handleUpdate(row.requirement_id, { activo: val })} />
                   </div>
-                </td>
-
-                {/* Position (read-only) */}
-                <td className="px-3 py-2 text-center text-sm font-bold text-on-surface-variant" style={{ borderBottom: `1px solid ${rowBorder}` }}>
-                  {row.position ?? '—'}
                 </td>
 
                 {/* Prioridad */}

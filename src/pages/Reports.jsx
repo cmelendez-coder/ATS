@@ -311,7 +311,7 @@ export default function Reports() {
     setWeeklyError(null)
     try {
       const { start, end } = getWeekRange(mondayStr)
-      const rows = await getWeeklySubmittalsData(start, end)
+      const rows = await getWeeklySubmittalsData(start)
       setWeeklySubmittals(rows)
     } catch {
       setWeeklyError('No se pudieron cargar los submittals de la semana.')

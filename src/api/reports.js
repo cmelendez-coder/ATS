@@ -226,39 +226,72 @@ export async function getClientReportPdfData(clientId) {
   }
 }
 
-export async function getWeeklySubmittalsData(weekStart, weekEnd) {
-  // Query history table: candidates who entered "Submitted to Client" during the week
-  // Show their current stage from requirement_candidate
-  const { data, error } = await supabase
-    .from('requirement_candidate_stage_history')
-    .select(`
-      id, stage_name, entered_at,
-      rc:requirement_candidate!rc_id(
-        id, submittal_status, notes,
-        candidate:candidate_id(full_name, email, role:role_id(name), seniority:seniority_id(name)),
-        requirement:requirement_id(id, req_number, job_title, client:client_id(name))
-      )
-    `)
-    .ilike('stage_name', 'submitted to client')
-    .gte('entered_at', weekStart)
-    .lte('entered_at', weekEnd)
-    .order('entered_at', { ascending: true })
+function isoWeekOf(dateStr) {
+  const d = new Date(dateStr)
+  const t = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))
+  const dow = t.getUTCDay() || 7
+  t.setUTCDate(t.getUTCDate() + 4 - dow)
+  const yearStart = new Date(Date.UTC(t.getUTCFullYear(), 0, 1))
+  return { week: Math.ceil(((t - yearStart) / 86400000 + 1) / 7), year: t.getUTCFullYear() }
+}
 
+// Semanal: solo los candidatos marcados como "Sent" en el Tracker para esa semana ISO
+export async function getWeeklySubmittalsData(weekStart) {
+  const { week, year } = isoWeekOf(weekStart)
+  const { data, error } = await supabase
+    .from('tracker_entry')
+    .select(`
+      id, candidate_id, requirement_id, candidate_name, notes, created_at,
+      candidate:candidate_id(email, role:role_id(name), seniority:seniority_id(name)),
+      requirement:requirement_id(req_number, job_title, client:client_id(name))
+    `)
+    .eq('status', 'Sent')
+    .eq('week_number', week)
+    .eq('week_year', year)
+    .order('created_at', { ascending: true })
   if (error) throw error
 
-  return (data ?? []).map(h => ({
-    id: h.id,
-    candidateName: h.rc?.candidate?.full_name ?? 'Sin nombre',
-    candidateEmail: h.rc?.candidate?.email ?? '',
-    role: h.rc?.candidate?.role?.name ?? '',
-    seniority: h.rc?.candidate?.seniority?.name ?? '',
-    clientName: h.rc?.requirement?.client?.name ?? 'Sin cliente',
-    reqNumber: h.rc?.requirement?.req_number ?? '',
-    jobTitle: h.rc?.requirement?.job_title ?? '',
-    sentAt: h.entered_at,
-    currentStage: h.rc?.submittal_status ?? '',
-    notes: h.rc?.notes ?? '',
-  }))
+  const entries = data ?? []
+  const reqIds  = [...new Set(entries.map(e => e.requirement_id).filter(Boolean))]
+  const candIds = [...new Set(entries.map(e => e.candidate_id).filter(Boolean))]
+  const rcByKey = {}
+  const lastSentByRc = {}
+  if (reqIds.length && candIds.length) {
+    const { data: rcRows } = await supabase
+      .from('requirement_candidate')
+      .select('id, requirement_id, candidate_id, submittal_status')
+      .in('requirement_id', reqIds)
+      .in('candidate_id', candIds)
+    for (const r of rcRows ?? []) rcByKey[`${r.requirement_id}:${r.candidate_id}`] = r
+    const rcIds = (rcRows ?? []).map(r => r.id)
+    if (rcIds.length) {
+      const { data: hist } = await supabase
+        .from('requirement_candidate_stage_history')
+        .select('rc_id, entered_at')
+        .in('rc_id', rcIds)
+        .ilike('stage_name', 'submitted to client')
+      for (const h of hist ?? []) {
+        if (!lastSentByRc[h.rc_id] || h.entered_at > lastSentByRc[h.rc_id]) lastSentByRc[h.rc_id] = h.entered_at
+      }
+    }
+  }
+
+  return entries.map(e => {
+    const rc = rcByKey[`${e.requirement_id}:${e.candidate_id}`]
+    return {
+      id: e.id,
+      candidateName: e.candidate_name ?? 'Sin nombre',
+      candidateEmail: e.candidate?.email ?? '',
+      role: e.candidate?.role?.name ?? '',
+      seniority: e.candidate?.seniority?.name ?? '',
+      clientName: e.requirement?.client?.name ?? 'Sin cliente',
+      reqNumber: e.requirement?.req_number ?? '',
+      jobTitle: e.requirement?.job_title ?? '',
+      sentAt: (rc && lastSentByRc[rc.id]) || e.created_at,
+      currentStage: rc?.submittal_status || 'Submitted to Client',
+      notes: e.notes ?? '',
+    }
+  })
 }
 
 export async function getClientMonthlyReportData(clientId, year, month) {

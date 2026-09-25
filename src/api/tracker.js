@@ -26,6 +26,18 @@ export async function fetchTrackerEntries(weekNumber, weekYear, recruiter) {
   return data ?? []
 }
 
+// Patrón ILIKE que ignora acentos: cada letra que puede llevar acento se vuelve un comodín de un carácter,
+// así "hector garcia" encuentra "Héctor García" y "Héctor" encuentra "Hector".
+function accentInsensitivePattern(q) {
+  const wild = q
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[%_\\]/g, ' ')
+    .replace(/[aeiouncAEIOUNC]/g, '_')
+    .trim()
+    .replace(/\s+/g, '%')
+  return `%${wild}%`
+}
+
 // Searches a candidate name across ALL weeks/years of a single recruiter's tracker.
 export async function searchTrackerByRecruiter(query, recruiter) {
   const q = query.trim()
@@ -37,7 +49,7 @@ export async function searchTrackerByRecruiter(query, recruiter) {
       requirement:requirement_id(id, job_title, client:client_id(name))
     `)
     .eq('recruiter', recruiter)
-    .ilike('candidate_name', `%${q}%`)
+    .ilike('candidate_name', accentInsensitivePattern(q))
     .order('week_year', { ascending: false })
     .order('week_number', { ascending: false })
     .limit(30)
@@ -54,7 +66,7 @@ export async function searchTalentDirectory(query) {
   const { data, error } = await supabase
     .from('candidate')
     .select('candidate_id, full_name, email, years_experience, status_id, role:catalog_role!role_id(name), candidate_blacklist!candidate_id(reason)')
-    .ilike('full_name', `%${q}%`)
+    .ilike('full_name', accentInsensitivePattern(q))
     .order('full_name', { ascending: true })
     .limit(20)
   if (error) throw error

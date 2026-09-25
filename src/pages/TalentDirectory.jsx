@@ -5,6 +5,12 @@ import { searchCandidates, fetchCandidatesByIds } from '../api/talent'
 // Hardcoded admin searches — each entry is a labeled set of candidate_ids
 const ADMIN_SEARCHES = [
   {
+    label: 'Microsoft Dynamics 365 CRM Developer (7-10 años)',
+    description: 'Títulos más parecidos: Developer con Dynamics (Ramirez Soriano, Ortiz, Hernandez-AX) y Developers de CRM (Morales, Ramos, Chirinos, Montufar, García Tapia, Daboin) + Díaz Fuentes (Dynamics/CRM, 6 años). La base no detalla Power Platform/PCF/FetchXML: validar por CV',
+    ids: [13560, 14351, 12042, 13189, 13191, 13188, 13192, 13195, 13194, 12047],
+    createdAt: '2026-09-25T19:35:00.000Z',
+  },
+  {
     label: 'Full Stack Developer (React lead / Java-Python-AWS)',
     description: 'Pool muy limitado: solo 5 candidatos con React real (top 5), resto (9) son Angular/Node sin React — el match más cercano disponible · Marco Antonio Porras ya no busca roles de developer',
     ids: [15425, 14175, 12982, 14539, 14577, 13133, 13134, 13136, 13135, 13138, 13137, 13139, 12730, 12775],
